@@ -1,3 +1,0 @@
-package zoneClient
-
-func main() {}

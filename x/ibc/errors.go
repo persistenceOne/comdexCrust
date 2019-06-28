@@ -1,0 +1,53 @@
+package ibc
+
+import (
+	sdk "github.com/comdex-blockchain/types"
+)
+
+// IBC errors reserve 200 ~ 299.
+const (
+	DefaultCodespace sdk.CodespaceType = 3
+	
+	// IBC errors reserve 200 - 299.
+	CodeInvalidSequence sdk.CodeType = 200
+	CodeIdenticalChains sdk.CodeType = 201
+	CodeUnknownRequest               = sdk.CodeUnknownRequest
+)
+
+func codeToDefaultMsg(code sdk.CodeType) string {
+	switch code {
+	case CodeInvalidSequence:
+		return "invalid IBC packet sequence"
+	case CodeIdenticalChains:
+		return "source and destination chain cannot be identical"
+	default:
+		return sdk.CodeToDefaultMsg(code)
+	}
+}
+
+// ErrInvalidSequence :
+// nolint
+func ErrInvalidSequence(codespace sdk.CodespaceType) sdk.Error {
+	return newError(codespace, CodeInvalidSequence, "")
+}
+
+// ErrIdenticalChains :
+func ErrIdenticalChains(codespace sdk.CodespaceType) sdk.Error {
+	return newError(codespace, CodeIdenticalChains, "")
+}
+
+// -------------------------
+// Helpers
+
+// nolint: unparam
+func newError(codespace sdk.CodespaceType, code sdk.CodeType, msg string) sdk.Error {
+	msg = msgOrDefaultMsg(msg, code)
+	return sdk.NewError(codespace, code, msg)
+}
+
+func msgOrDefaultMsg(msg string, code sdk.CodeType) string {
+	if msg != "" {
+		return msg
+	}
+	return codeToDefaultMsg(code)
+}

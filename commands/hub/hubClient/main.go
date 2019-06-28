@@ -1,3 +1,0 @@
-package hubClient
-
-func main() {}

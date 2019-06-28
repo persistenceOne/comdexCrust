@@ -1,3 +1,0 @@
-package hubNode
-
-func main() {}

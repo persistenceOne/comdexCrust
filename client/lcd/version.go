@@ -1,0 +1,29 @@
+package lcd
+
+import (
+	"fmt"
+	"net/http"
+	
+	"github.com/comdex-blockchain/client/context"
+	"github.com/comdex-blockchain/version"
+)
+
+// CLIVersionRequestHandler cli version REST handler endpoint
+func CLIVersionRequestHandler(w http.ResponseWriter, r *http.Request) {
+	v := version.GetVersion()
+	w.Write([]byte(v))
+}
+
+// NodeVersionRequestHandler connected node version REST handler endpoint
+func NodeVersionRequestHandler(cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		version, err := cliCtx.Query("/app/version", nil)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(fmt.Sprintf("Could't query version. Error: %s", err.Error())))
+			return
+		}
+		
+		w.Write(version)
+	}
+}
