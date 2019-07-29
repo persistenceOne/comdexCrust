@@ -5,14 +5,14 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	
-	"github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/version"
-	"github.com/comdex-blockchain/wire"
+
+	"github.com/commitHub/commitBlockchain/client"
+	"github.com/commitHub/commitBlockchain/version"
+	"github.com/commitHub/commitBlockchain/wire"
 	tcmd "github.com/tendermint/tendermint/cmd/tendermint/commands"
 	cfg "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/libs/cli"
@@ -37,7 +37,7 @@ func NewContext(config *cfg.Config, logger log.Logger) *Context {
 	return &Context{config, logger}
 }
 
-// ___________________________________________________________________________________
+//___________________________________________________________________________________
 
 // PersistentPreRunEFn returns a PersistentPreRunE function for cobra
 // that initailizes the passed in context with a properly configured
@@ -77,7 +77,7 @@ func interceptLoadConfig() (conf *cfg.Config, err error) {
 	rootDir := tmpConf.RootDir
 	configFilePath := filepath.Join(rootDir, "config/config.toml")
 	// Intercept only if the file doesn't already exist
-	
+
 	if _, err := os.Stat(configFilePath); os.IsNotExist(err) {
 		// the following parse config is needed to create directories
 		conf, _ = tcmd.ParseConfig()
@@ -89,7 +89,7 @@ func interceptLoadConfig() (conf *cfg.Config, err error) {
 		cfg.WriteConfigFile(configFilePath, conf)
 		// Fall through, just so that its parsed into memory.
 	}
-	
+
 	if conf == nil {
 		conf, err = tcmd.ParseConfig()
 	}
@@ -101,20 +101,20 @@ func AddCommands(
 	ctx *Context, cdc *wire.Codec,
 	rootCmd *cobra.Command, appInit AppInit,
 	appCreator AppCreator, appExport AppExporter) {
-	
+
 	rootCmd.PersistentFlags().String("log_level", ctx.Config.LogLevel, "Log level")
-	
+
 	tendermintCmd := &cobra.Command{
 		Use:   "tendermint",
 		Short: "Tendermint subcommands",
 	}
-	
+
 	tendermintCmd.AddCommand(
 		ShowNodeIDCmd(ctx),
 		ShowValidatorCmd(ctx),
 		ShowAddressCmd(ctx),
 	)
-	
+
 	rootCmd.AddCommand(
 		InitCmd(ctx, cdc, appInit),
 		TestnetFilesCmd(ctx, cdc, appInit),
@@ -128,7 +128,7 @@ func AddCommands(
 	)
 }
 
-// ___________________________________________________________________________________
+//___________________________________________________________________________________
 
 // InsertKeyJSON inserts a new JSON field/key with a given value to an existing
 // JSON message. An error is returned if any serialization operation fails.
@@ -137,14 +137,14 @@ func AddCommands(
 // non-deterministic, so the client should not rely on key ordering.
 func InsertKeyJSON(cdc *wire.Codec, baseJSON []byte, key string, value json.RawMessage) ([]byte, error) {
 	var jsonMap map[string]json.RawMessage
-	
+
 	if err := cdc.UnmarshalJSON(baseJSON, &jsonMap); err != nil {
 		return nil, err
 	}
-	
+
 	jsonMap[key] = value
 	bz, err := wire.MarshalJSONIndent(cdc, jsonMap)
-	
+
 	return json.RawMessage(bz), err
 }
 

@@ -3,10 +3,10 @@ package slashing
 import (
 	"testing"
 	"time"
-	
+
 	"github.com/stretchr/testify/require"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 func TestGetSetValidatorSigningInfo(t *testing.T) {

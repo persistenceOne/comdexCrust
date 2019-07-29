@@ -5,19 +5,19 @@ import (
 	"io"
 	"runtime/debug"
 	"strings"
-	
+
 	"github.com/pkg/errors"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
-	
-	"github.com/comdex-blockchain/store"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/version"
-	"github.com/comdex-blockchain/wire"
+
+	"github.com/commitHub/commitBlockchain/store"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/version"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
 // Key to store the header in the DB itself.
@@ -49,17 +49,17 @@ type BaseApp struct {
 	queryRouter QueryRouter          // router for redirecting query calls
 	codespacer  *sdk.Codespacer      // handle module codespacing
 	txDecoder   sdk.TxDecoder        // unmarshal []byte into sdk.Tx
-	
+
 	anteHandler sdk.AnteHandler // ante handler for fee and auth
-	
+
 	// may be nil
 	initChainer      sdk.InitChainer  // initialize state with validators and state blob
 	beginBlocker     sdk.BeginBlocker // logic to run before any txs
 	endBlocker       sdk.EndBlocker   // logic to run after all txs, and to determine valset changes
 	addrPeerFilter   sdk.PeerFilter   // filter peers by address and port
 	pubkeyPeerFilter sdk.PeerFilter   // filter peers by public key
-	
-	// --------------------
+
+	//--------------------
 	// Volatile
 	// checkState is set on initialization and reset on Commit.
 	// deliverState is set in InitChain and BeginBlock and cleared on Commit.
@@ -67,7 +67,7 @@ type BaseApp struct {
 	checkState       *state                  // for CheckTx
 	deliverState     *state                  // for DeliverTx
 	signedValidators []abci.SigningValidator // absent validators from begin block
-	
+
 	// flag for sealing
 	sealed bool
 }
@@ -94,7 +94,7 @@ func NewBaseApp(name string, logger log.Logger, db dbm.DB, txDecoder sdk.TxDecod
 		codespacer:  sdk.NewCodespacer(),
 		txDecoder:   txDecoder,
 	}
-	
+
 	// Register the undefined & root codespaces, which should not be used by
 	// any modules.
 	app.codespacer.RegisterOrPanic(sdk.CodespaceRoot)
@@ -175,9 +175,9 @@ func (app *BaseApp) initFromStore(mainKey sdk.StoreKey) error {
 	}
 	// Needed for `gaiad export`, which inits from store but never calls initchain
 	app.setCheckState(abci.Header{})
-	
+
 	app.Seal()
-	
+
 	return nil
 }
 
@@ -214,14 +214,14 @@ func (app *BaseApp) setDeliverState(header abci.Header) {
 	}
 }
 
-// ______________________________________________________________________________
+//______________________________________________________________________________
 
 // ABCI
 
 // Implements ABCI
 func (app *BaseApp) Info(req abci.RequestInfo) abci.ResponseInfo {
 	lastCommitID := app.cms.LastCommitID()
-	
+
 	return abci.ResponseInfo{
 		Data:             app.name,
 		LastBlockHeight:  lastCommitID.Version,
@@ -241,12 +241,12 @@ func (app *BaseApp) InitChain(req abci.RequestInitChain) (res abci.ResponseInitC
 	// Initialize the deliver state and check state with ChainID and run initChain
 	app.setDeliverState(abci.Header{ChainID: req.ChainId})
 	app.setCheckState(abci.Header{ChainID: req.ChainId})
-	
+
 	if app.initChainer == nil {
 		return
 	}
 	res = app.initChainer(app.deliverState.ctx, req)
-	
+
 	// NOTE: we don't commit, but BeginBlock for block 1
 	// starts from this deliverState
 	return
@@ -297,7 +297,7 @@ func (app *BaseApp) Query(req abci.RequestQuery) (res abci.ResponseQuery) {
 	case "custom":
 		return handleQueryCustom(app, path, req)
 	}
-	
+
 	msg := "unknown query path"
 	return sdk.ErrUnknownRequest(msg).QueryResult()
 }
@@ -322,7 +322,7 @@ func handleQueryApp(app *BaseApp, path []string, req abci.RequestQuery) (res abc
 		default:
 			result = sdk.ErrUnknownRequest(fmt.Sprintf("Unknown query: %s", path)).Result()
 		}
-		
+
 		// Encode with json
 		value := wire.Cdc.MustMarshalBinary(result)
 		return abci.ResponseQuery{
@@ -362,7 +362,7 @@ func handleQueryP2P(app *BaseApp, path []string, req abci.RequestQuery) (res abc
 			return sdk.ErrUnknownRequest(msg).QueryResult()
 		}
 	}
-	
+
 	msg := "Expected path is p2p filter <addr|pubkey> <parameter>"
 	return sdk.ErrUnknownRequest(msg).QueryResult()
 }
@@ -377,7 +377,7 @@ func handleQueryCustom(app *BaseApp, path []string, req abci.RequestQuery) (res 
 	if querier == nil {
 		sdk.ErrUnknownRequest(fmt.Sprintf("no custom querier found for route %s", path[1])).QueryResult()
 	}
-	
+
 	ctx := sdk.NewContext(app.cms.CacheMultiStore(), app.checkState.ctx.BlockHeader(), true, app.Logger)
 	// Passes the rest of the path as an argument to the querier.
 	// For example, in the path "custom/gov/proposal/test", the gov querier gets []string{"proposal", "test"} as the path
@@ -402,7 +402,7 @@ func (app *BaseApp) BeginBlock(req abci.RequestBeginBlock) (res abci.ResponseBeg
 			map[string]interface{}{"blockHeight": req.Header.Height},
 		))
 	}
-	
+
 	// Initialize the DeliverTx state. If this is the first block, it should
 	// already be initialized in InitChain. Otherwise app.deliverState will be
 	// nil, since it is reset on Commit.
@@ -413,11 +413,11 @@ func (app *BaseApp) BeginBlock(req abci.RequestBeginBlock) (res abci.ResponseBeg
 		// by InitChain. Context is now updated with Header information.
 		app.deliverState.ctx = app.deliverState.ctx.WithBlockHeader(req.Header).WithBlockHeight(req.Header.Height)
 	}
-	
+
 	if app.beginBlocker != nil {
 		res = app.beginBlocker(app.deliverState.ctx, req)
 	}
-	
+
 	// set the signed validators for addition to context in deliverTx
 	// TODO: communicate this result to the address to pubkey map in slashing
 	app.signedValidators = req.LastCommitInfo.GetValidators()
@@ -438,7 +438,7 @@ func (app *BaseApp) CheckTx(txBytes []byte) (res abci.ResponseCheckTx) {
 	} else {
 		result = app.runTx(runTxModeCheck, txBytes, tx)
 	}
-	
+
 	return abci.ResponseCheckTx{
 		Code:      uint32(result.Code),
 		Data:      result.Data,
@@ -459,10 +459,10 @@ func (app *BaseApp) DeliverTx(txBytes []byte) (res abci.ResponseDeliverTx) {
 	} else {
 		result = app.runTx(runTxModeDeliver, txBytes, tx)
 	}
-	
+
 	// Even though the Result.Code is not OK, there are still effects,
 	// namely fee deductions and sequence incrementing.
-	
+
 	// Tell the blockchain engine (i.e. Tendermint).
 	return abci.ResponseDeliverTx{
 		Code:      uint32(result.Code),
@@ -480,7 +480,7 @@ func validateBasicTxMsgs(msgs []sdk.Msg) sdk.Error {
 		// TODO: probably shouldn't be ErrInternal. Maybe new ErrInvalidMessage, or ?
 		return sdk.ErrInternal("Tx.GetMsgs() must return at least one message in list")
 	}
-	
+
 	for _, msg := range msgs {
 		// Validate the Msg.
 		err := msg.ValidateBasic()
@@ -489,7 +489,7 @@ func validateBasicTxMsgs(msgs []sdk.Msg) sdk.Error {
 			return err
 		}
 	}
-	
+
 	return nil
 }
 
@@ -518,31 +518,31 @@ func (app *BaseApp) runMsgs(ctx sdk.Context, msgs []sdk.Msg, mode runTxMode) (re
 		if handler == nil {
 			return sdk.ErrUnknownRequest("Unrecognized Msg type: " + msgType).Result()
 		}
-		
+
 		var msgResult sdk.Result
 		// Skip actual execution for CheckTx
 		if mode != runTxModeCheck {
 			msgResult = handler(ctx, msg)
 		}
-		
+
 		// NOTE: GasWanted is determined by ante handler and
 		// GasUsed by the GasMeter
-		
+
 		// Append Data and Tags
 		data = append(data, msgResult.Data...)
 		tags = append(tags, msgResult.Tags...)
-		
+
 		// Stop execution and return on first failed message.
 		if !msgResult.IsOK() {
 			logs = append(logs, fmt.Sprintf("Msg %d failed: %s", msgIdx, msgResult.Log))
 			code = msgResult.Code
 			break
 		}
-		
+
 		// Construct usable logs in multi-message transactions.
 		logs = append(logs, fmt.Sprintf("Msg %d: %s", msgIdx, msgResult.Log))
 	}
-	
+
 	// Set the final gas values.
 	result = sdk.Result{
 		Code:    code,
@@ -552,7 +552,7 @@ func (app *BaseApp) runMsgs(ctx sdk.Context, msgs []sdk.Msg, mode runTxMode) (re
 		// TODO: FeeAmount/FeeDenom
 		Tags: tags,
 	}
-	
+
 	return result
 }
 
@@ -562,7 +562,7 @@ func getState(app *BaseApp, mode runTxMode) *state {
 	if mode == runTxModeCheck || mode == runTxModeSimulate {
 		return app.checkState
 	}
-	
+
 	return app.deliverState
 }
 
@@ -584,7 +584,7 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte, tx sdk.Tx) (result sdk
 	var msCache sdk.CacheMultiStore
 	ctx := app.getContextForAnte(mode, txBytes)
 	ctx = app.initializeContext(ctx, mode)
-	
+
 	defer func() {
 		if r := recover(); r != nil {
 			switch rType := r.(type) {
@@ -596,35 +596,35 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte, tx sdk.Tx) (result sdk
 				result = sdk.ErrInternal(log).Result()
 			}
 		}
-		
+
 		result.GasWanted = gasWanted
 		result.GasUsed = ctx.GasMeter().GasConsumed()
 	}()
-	
+
 	var msgs = tx.GetMsgs()
 	if err := validateBasicTxMsgs(msgs); err != nil {
 		return err.Result()
 	}
-	
+
 	// run the ante handler
 	if app.anteHandler != nil {
-		newCtx, result, abort := app.anteHandler(ctx, tx, mode == runTxModeSimulate)
+		newCtx, result, abort := app.anteHandler(ctx, tx, (mode == runTxModeSimulate))
 		if abort {
 			return result
 		}
 		if !newCtx.IsZero() {
 			ctx = newCtx
 		}
-		
+
 		gasWanted = result.GasWanted
 	}
-	
+
 	if mode == runTxModeSimulate {
 		result = app.runMsgs(ctx, msgs, mode)
 		result.GasWanted = gasWanted
 		return
 	}
-	
+
 	// Keep the state in a transient CacheWrap in case processing the messages
 	// fails.
 	msCache = getState(app, mode).CacheMultiStore()
@@ -633,16 +633,16 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte, tx sdk.Tx) (result sdk
 			map[string]interface{}{"txHash": cmn.HexBytes(tmhash.Sum(txBytes)).String()},
 		)).(sdk.CacheMultiStore)
 	}
-	
+
 	ctx = ctx.WithMultiStore(msCache)
 	result = app.runMsgs(ctx, msgs, mode)
 	result.GasWanted = gasWanted
-	
+
 	// only update state if all messages pass
 	if result.IsOK() {
 		msCache.Write()
 	}
-	
+
 	return
 }
 
@@ -651,11 +651,11 @@ func (app *BaseApp) EndBlock(req abci.RequestEndBlock) (res abci.ResponseEndBloc
 	if app.deliverState.ms.TracingEnabled() {
 		app.deliverState.ms = app.deliverState.ms.ResetTraceContext().(sdk.CacheMultiStore)
 	}
-	
+
 	if app.endBlocker != nil {
 		res = app.endBlocker(app.deliverState.ctx, req)
 	}
-	
+
 	return
 }
 
@@ -670,7 +670,7 @@ func (app *BaseApp) Commit() (res abci.ResponseCommit) {
 			}
 			app.db.SetSync(dbHeaderKey, headerBytes)
 	*/
-	
+
 	// Write the Deliver state and commit the MultiStore
 	app.deliverState.ms.Write()
 	commitID := app.cms.Commit()
@@ -678,15 +678,15 @@ func (app *BaseApp) Commit() (res abci.ResponseCommit) {
 	app.Logger.Debug("Commit synced",
 		"commit", commitID,
 	)
-	
+
 	// Reset the Check state to the latest committed
 	// NOTE: safe because Tendermint holds a lock on the mempool for Commit.
 	// Use the header from this latest block.
 	app.setCheckState(header)
-	
+
 	// Empty the Deliver state
 	app.deliverState = nil
-	
+
 	return abci.ResponseCommit{
 		Data: commitID.Hash,
 	}

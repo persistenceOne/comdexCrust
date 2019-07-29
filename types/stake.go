@@ -16,7 +16,7 @@ const (
 	Bonded    BondStatus = 0x02
 )
 
-// BondStatusToString for pretty prints of Bond Status
+//BondStatusToString for pretty prints of Bond Status
 func BondStatusToString(b BondStatus) string {
 	switch b {
 	case 0x00:
@@ -63,26 +63,26 @@ type ValidatorSet interface {
 	// iterate through validator by owner-AccAddress, execute func for each validator
 	IterateValidators(Context,
 		func(index int64, validator Validator) (stop bool))
-	
+
 	// iterate through bonded validator by pubkey-AccAddress, execute func for each validator
 	IterateValidatorsBonded(Context,
 		func(index int64, validator Validator) (stop bool))
-	
+
 	Validator(Context, ValAddress) Validator            // get a particular validator by operator
 	ValidatorByPubKey(Context, crypto.PubKey) Validator // get a particular validator by signing PubKey
 	TotalPower(Context) Dec                             // total power of the validator set
-	
+
 	// slash the validator and delegators of the validator, specifying offence height, offence power, and slash fraction
 	Slash(Context, crypto.PubKey, int64, int64, Dec)
 	Jail(Context, crypto.PubKey)   // jail a validator
 	Unjail(Context, crypto.PubKey) // unjail a validator
-	
+
 	// Delegation allows for getting a particular delegation for a given validator
 	// and delegator outside the scope of the staking module.
 	Delegation(Context, AccAddress, ValAddress) Delegation
 }
 
-// _______________________________________________________________________________
+//_______________________________________________________________________________
 
 // Delegation delegation bond for a delegated proof of stake system
 type Delegation interface {
@@ -94,7 +94,7 @@ type Delegation interface {
 // DelegationSet properties for the set of all delegations for a particular
 type DelegationSet interface {
 	GetValidatorSet() ValidatorSet // validator set for which delegation set is based upon
-	
+
 	// iterate through all delegations from one delegator by validator-AccAddress,
 	//   execute func for each validator
 	IterateDelegations(ctx Context, delegator AccAddress,

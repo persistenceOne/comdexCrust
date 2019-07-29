@@ -3,8 +3,8 @@ package types
 import (
 	"math/big"
 	"testing"
-	
-	"github.com/comdex-blockchain/wire"
+
+	wire "github.com/commitHub/commitBlockchain/wire"
 	"github.com/stretchr/testify/require"
 )
 
@@ -15,7 +15,7 @@ func mustNewDecFromStr(t *testing.T, str string) (d Dec) {
 	return d
 }
 
-// _______________________________________
+//_______________________________________
 
 func TestPrecisionMultiplier(t *testing.T) {
 	res := precisionMultiplier(5)
@@ -51,7 +51,7 @@ func TestNewDecFromStr(t *testing.T) {
 		{"0.foobar", true, Dec{}},
 		{"0.foobar.", true, Dec{}},
 	}
-	
+
 	for tcIndex, tc := range tests {
 		res, err := NewDecFromStr(tc.decimalStr)
 		if tc.expErr {
@@ -60,7 +60,7 @@ func TestNewDecFromStr(t *testing.T) {
 			require.Nil(t, err, "unexpected error, decimalStr %v, tc %v", tc.decimalStr, tcIndex)
 			require.True(t, res.Equal(tc.exp), "equality was incorrect, res %v, exp %v, tc %v", res, tc.exp, tcIndex)
 		}
-		
+
 		// negative tc
 		res, err = NewDecFromStr("-" + tc.decimalStr)
 		if tc.expErr {
@@ -84,7 +84,7 @@ func TestEqualities(t *testing.T) {
 		{NewDecWithPrec(-100, 0), NewDecWithPrec(-100, 0), false, false, true},
 		{NewDecWithPrec(-1, 1), NewDecWithPrec(-1, 1), false, false, true},
 		{NewDecWithPrec(3333, 3), NewDecWithPrec(3333, 3), false, false, true},
-		
+
 		{NewDecWithPrec(0, 0), NewDecWithPrec(3333, 3), false, true, false},
 		{NewDecWithPrec(0, 0), NewDecWithPrec(100, 0), false, true, false},
 		{NewDecWithPrec(-1, 0), NewDecWithPrec(3333, 3), false, true, false},
@@ -92,7 +92,7 @@ func TestEqualities(t *testing.T) {
 		{NewDecWithPrec(1111, 3), NewDecWithPrec(100, 0), false, true, false},
 		{NewDecWithPrec(1111, 3), NewDecWithPrec(3333, 3), false, true, false},
 		{NewDecWithPrec(-3333, 3), NewDecWithPrec(-1111, 3), false, true, false},
-		
+
 		{NewDecWithPrec(3333, 3), NewDecWithPrec(0, 0), true, false, false},
 		{NewDecWithPrec(100, 0), NewDecWithPrec(0, 0), true, false, false},
 		{NewDecWithPrec(3333, 3), NewDecWithPrec(-1, 0), true, false, false},
@@ -101,13 +101,13 @@ func TestEqualities(t *testing.T) {
 		{NewDecWithPrec(3333, 3), NewDecWithPrec(1111, 3), true, false, false},
 		{NewDecWithPrec(-1111, 3), NewDecWithPrec(-3333, 3), true, false, false},
 	}
-	
+
 	for tcIndex, tc := range tests {
 		require.Equal(t, tc.gt, tc.d1.GT(tc.d2), "GT result is incorrect, tc %d", tcIndex)
 		require.Equal(t, tc.lt, tc.d1.LT(tc.d2), "LT result is incorrect, tc %d", tcIndex)
 		require.Equal(t, tc.eq, tc.d1.Equal(tc.d2), "equality result is incorrect, tc %d", tcIndex)
 	}
-	
+
 }
 
 func TestDecsEqual(t *testing.T) {
@@ -125,7 +125,7 @@ func TestDecsEqual(t *testing.T) {
 		{[]Dec{NewDec(1), NewDec(2)}, []Dec{NewDec(2), NewDec(4)}, false},
 		{[]Dec{NewDec(3), NewDec(18)}, []Dec{NewDec(1), NewDec(6)}, false},
 	}
-	
+
 	for tcIndex, tc := range tests {
 		require.Equal(t, tc.eq, DecsEqual(tc.d1s, tc.d2s), "equality of decional arrays is incorrect, tc %d", tcIndex)
 		require.Equal(t, tc.eq, DecsEqual(tc.d2s, tc.d1s), "equality of decional arrays is incorrect (converse), tc %d", tcIndex)
@@ -143,22 +143,22 @@ func TestArithmetic(t *testing.T) {
 		{NewDec(0), NewDec(1), NewDec(0), NewDec(0), NewDec(1), NewDec(-1)},
 		{NewDec(0), NewDec(-1), NewDec(0), NewDec(0), NewDec(-1), NewDec(1)},
 		{NewDec(-1), NewDec(0), NewDec(0), NewDec(0), NewDec(-1), NewDec(-1)},
-		
+
 		{NewDec(1), NewDec(1), NewDec(1), NewDec(1), NewDec(2), NewDec(0)},
 		{NewDec(-1), NewDec(-1), NewDec(1), NewDec(1), NewDec(-2), NewDec(0)},
 		{NewDec(1), NewDec(-1), NewDec(-1), NewDec(-1), NewDec(0), NewDec(2)},
 		{NewDec(-1), NewDec(1), NewDec(-1), NewDec(-1), NewDec(0), NewDec(-2)},
-		
+
 		{NewDec(3), NewDec(7), NewDec(21), NewDecWithPrec(4285714286, 10), NewDec(10), NewDec(-4)},
 		{NewDec(2), NewDec(4), NewDec(8), NewDecWithPrec(5, 1), NewDec(6), NewDec(-2)},
 		{NewDec(100), NewDec(100), NewDec(10000), NewDec(1), NewDec(200), NewDec(0)},
-		
+
 		{NewDecWithPrec(15, 1), NewDecWithPrec(15, 1), NewDecWithPrec(225, 2),
 			NewDec(1), NewDec(3), NewDec(0)},
 		{NewDecWithPrec(3333, 4), NewDecWithPrec(333, 4), NewDecWithPrec(1109889, 8),
 			NewDecWithPrec(10009009009, 9), NewDecWithPrec(3666, 4), NewDecWithPrec(3, 1)},
 	}
-	
+
 	for tcIndex, tc := range tests {
 		resAdd := tc.d1.Add(tc.d2)
 		resSub := tc.d1.Sub(tc.d2)
@@ -166,7 +166,7 @@ func TestArithmetic(t *testing.T) {
 		require.True(t, tc.expAdd.Equal(resAdd), "exp %v, res %v, tc %d", tc.expAdd, resAdd, tcIndex)
 		require.True(t, tc.expSub.Equal(resSub), "exp %v, res %v, tc %d", tc.expSub, resSub, tcIndex)
 		require.True(t, tc.expMul.Equal(resMul), "exp %v, res %v, tc %d", tc.expMul, resMul, tcIndex)
-		
+
 		if tc.d2.IsZero() { // panic for divide by zero
 			require.Panics(t, func() { tc.d1.Quo(tc.d2) })
 		} else {
@@ -192,11 +192,11 @@ func TestBankerRoundChop(t *testing.T) {
 		{mustNewDecFromStr(t, "0.545"), 1}, // 0.545-> 1 even though 5 is first decimal and 1 not even
 		{mustNewDecFromStr(t, "1.545"), 2},
 	}
-	
+
 	for tcIndex, tc := range tests {
 		resNeg := tc.d1.Neg().RoundInt64()
 		require.Equal(t, -1*tc.exp, resNeg, "negative tc %d", tcIndex)
-		
+
 		resPos := tc.d1.RoundInt64()
 		require.Equal(t, tc.exp, resPos, "positive tc %d", tcIndex)
 	}
@@ -232,10 +232,10 @@ func TestZeroDeserializationJSON(t *testing.T) {
 
 func TestSerializationText(t *testing.T) {
 	d := mustNewDecFromStr(t, "0.333")
-	
+
 	bz, err := d.MarshalText()
 	require.NoError(t, err)
-	
+
 	d2 := Dec{new(big.Int)}
 	err = d2.UnmarshalText(bz)
 	require.NoError(t, err)
@@ -244,10 +244,10 @@ func TestSerializationText(t *testing.T) {
 
 func TestSerializationGoWireJSON(t *testing.T) {
 	d := mustNewDecFromStr(t, "0.333")
-	
+
 	bz, err := cdc.MarshalJSON(d)
 	require.NoError(t, err)
-	
+
 	d2 := Dec{new(big.Int)}
 	err = cdc.UnmarshalJSON(bz, &d2)
 	require.NoError(t, err)
@@ -256,10 +256,10 @@ func TestSerializationGoWireJSON(t *testing.T) {
 
 func TestSerializationGoWireBinary(t *testing.T) {
 	d := mustNewDecFromStr(t, "0.333")
-	
+
 	bz, err := cdc.MarshalBinary(d)
 	require.NoError(t, err)
-	
+
 	var d2 Dec
 	err = cdc.UnmarshalBinary(bz, &d2)
 	require.NoError(t, err)
@@ -277,11 +277,11 @@ func TestEmbeddedStructSerializationGoWire(t *testing.T) {
 	obj := testDEmbedStruct{"foo", 10, NewDecWithPrec(1, 3)}
 	bz, err := cdc.MarshalBinary(obj)
 	require.Nil(t, err)
-	
+
 	var obj2 testDEmbedStruct
 	err = cdc.UnmarshalBinary(bz, &obj2)
 	require.Nil(t, err)
-	
+
 	require.Equal(t, obj.Field1, obj2.Field1)
 	require.Equal(t, obj.Field2, obj2.Field2)
 	require.True(t, obj.Field3.Equal(obj2.Field3), "original: %v, unmarshalled: %v", obj, obj2)

@@ -15,7 +15,7 @@ func init() {
 		if err != nil {
 			return nil, err
 		}
-		
+
 		return device, nil
 	}
 }

@@ -2,11 +2,11 @@ package keeper
 
 import (
 	"fmt"
-	
+
 	"github.com/tendermint/tendermint/crypto"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/stake/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/stake/types"
 )
 
 // Implements ValidatorSet
@@ -40,7 +40,7 @@ func (k Keeper) IterateValidatorsBonded(ctx sdk.Context, fn func(index int64, va
 		if !found {
 			panic(fmt.Sprintf("validator record not found for address: %v\n", address))
 		}
-		
+
 		stop := fn(i, validator) // XXX is this safe will the validator unexposed fields be able to get written to?
 		if stop {
 			break
@@ -74,7 +74,7 @@ func (k Keeper) TotalPower(ctx sdk.Context) sdk.Dec {
 	return pool.BondedTokens
 }
 
-// __________________________________________________________________________
+//__________________________________________________________________________
 
 // Implements DelegationSet
 
@@ -91,7 +91,7 @@ func (k Keeper) Delegation(ctx sdk.Context, addrDel sdk.AccAddress, addrVal sdk.
 	if !ok {
 		return nil
 	}
-	
+
 	return bond
 }
 

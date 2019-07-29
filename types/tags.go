@@ -4,7 +4,7 @@ import (
 	cmn "github.com/tendermint/tendermint/libs/common"
 )
 
-// Tag : Type synonym for convenience
+//Tag : Type synonym for convenience
 type Tag = cmn.KVPair
 
 // Tags :Type synonym for convenience
@@ -52,7 +52,7 @@ func MakeTag(k string, v []byte) Tag {
 	return Tag{Key: []byte(k), Value: v}
 }
 
-// __________________________________________________
+//__________________________________________________
 
 // common tags
 var (

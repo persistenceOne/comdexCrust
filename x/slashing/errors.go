@@ -1,8 +1,8 @@
-// nolint
+//nolint
 package slashing
 
 import (
-	sdk "github.com/comdex-blockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // Local code type
@@ -11,7 +11,7 @@ type CodeType = sdk.CodeType
 const (
 	// Default slashing codespace
 	DefaultCodespace sdk.CodespaceType = 10
-	
+
 	CodeInvalidValidator      CodeType = 101
 	CodeValidatorJailed       CodeType = 102
 	CodeValidatorNotJailed    CodeType = 103

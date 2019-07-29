@@ -1,18 +1,18 @@
 package order
 
 import (
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	wire "github.com/commitHub/commitBlockchain/wire"
 )
 
-// Mapper : encoder decoder for order type
+//Mapper : encoder decoder for order type
 type Mapper struct {
 	key   sdk.StoreKey
 	proto func() sdk.Order
 	cdc   *wire.Codec
 }
 
-// NewMapper : returns order mapper
+//NewMapper : returns order mapper
 func NewMapper(cdc *wire.Codec, key sdk.StoreKey, proto func() sdk.Order) Mapper {
 	return Mapper{
 		key:   key,
@@ -21,7 +21,7 @@ func NewMapper(cdc *wire.Codec, key sdk.StoreKey, proto func() sdk.Order) Mapper
 	}
 }
 
-// StoreKey : converts negotiationID to keystore key
+//StoreKey : converts negotiationID to keystore key
 func StoreKey(negotiationID sdk.NegotiationID) []byte {
 	return append([]byte("NegotiationID:"), negotiationID.Bytes()...)
 }
@@ -42,7 +42,7 @@ func (om Mapper) decodeOrder(bz []byte) (order sdk.Order) {
 	return
 }
 
-// SetOrder : Set Order
+//SetOrder : Set Order
 func (om Mapper) SetOrder(ctx sdk.Context, order sdk.Order) {
 	negotiationID := order.GetNegotiationID()
 	store := ctx.KVStore(om.key)
@@ -50,7 +50,7 @@ func (om Mapper) SetOrder(ctx sdk.Context, order sdk.Order) {
 	store.Set(StoreKey(negotiationID), bz)
 }
 
-// GetOrder : get order
+//GetOrder : get order
 func (om Mapper) GetOrder(ctx sdk.Context, negotiationID sdk.NegotiationID) sdk.Order {
 	store := ctx.KVStore(om.key)
 	bz := store.Get(StoreKey(negotiationID))
@@ -61,10 +61,10 @@ func (om Mapper) GetOrder(ctx sdk.Context, negotiationID sdk.NegotiationID) sdk.
 	return acc
 }
 
-// IterateOrders : iterate over orders in kv store and add orders
+//IterateOrders : iterate over orders in kv store and add orders
 func (om Mapper) IterateOrders(ctx sdk.Context, process func(sdk.Order) (stop bool)) {
 	store := ctx.KVStore(om.key)
-	iter := sdk.KVStorePrefixIterator(store, []byte("order:"))
+	iter := sdk.KVStorePrefixIterator(store, []byte("NegotiationID:"))
 	for {
 		if !iter.Valid() {
 			return
@@ -78,7 +78,7 @@ func (om Mapper) IterateOrders(ctx sdk.Context, process func(sdk.Order) (stop bo
 	}
 }
 
-// NewOrder : Crates a new order in the kv store
+//NewOrder : Crates a new order in the kv store
 func (om Mapper) NewOrder(buyerAddress sdk.AccAddress, sellerAddress sdk.AccAddress, pegHash sdk.PegHash) sdk.Order {
 	order := sdk.BaseOrder{}
 	negotiationID := sdk.NegotiationID(append(append(buyerAddress.Bytes(), sellerAddress.Bytes()...), pegHash.Bytes()...))

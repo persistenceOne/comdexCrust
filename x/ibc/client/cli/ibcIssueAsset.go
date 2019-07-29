@@ -3,21 +3,21 @@ package cli
 import (
 	"fmt"
 	"os"
-	
-	"github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/client/utils"
-	context2 "github.com/comdex-blockchain/x/auth/client/context"
-	
+
+	"github.com/commitHub/commitBlockchain/client"
+	"github.com/commitHub/commitBlockchain/client/utils"
+	context2 "github.com/commitHub/commitBlockchain/x/auth/client/context"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	
-	"github.com/comdex-blockchain/client/context"
-	sdk "github.com/comdex-blockchain/types"
-	
-	"github.com/comdex-blockchain/wire"
-	
-	authcmd "github.com/comdex-blockchain/x/auth/client/cli"
-	"github.com/comdex-blockchain/x/ibc"
+
+	"github.com/commitHub/commitBlockchain/client/context"
+	sdk "github.com/commitHub/commitBlockchain/types"
+
+	"github.com/commitHub/commitBlockchain/wire"
+
+	authcmd "github.com/commitHub/commitBlockchain/x/auth/client/cli"
+	"github.com/commitHub/commitBlockchain/x/ibc"
 )
 
 const (
@@ -30,27 +30,27 @@ const (
 	// flagChainID       = "chain-id"
 )
 
-// IBCIssueAssetCmd : IBC issue asset command
+//IBCIssueAssetCmd : IBC issue asset command
 func IBCIssueAssetCmd(cdc *wire.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "issueAsset",
 		Short: "Initializes asset with the given details and issues to the given address",
-		
+
 		RunE: func(cmd *cobra.Command, args []string) error {
-			
+
 			txCtx := context2.NewTxContextFromCLI().
 				WithCodec(cdc)
-			
+
 			cliCtx := context.NewCLIContext().
 				WithCodec(cdc).
 				WithLogger(os.Stdout).
 				WithAccountDecoder(authcmd.GetAccountDecoder(cdc))
-			
+
 			from, err := cliCtx.GetFromAddress()
 			if err != nil {
 				return err
 			}
-			
+
 			sourceChain := viper.GetString(client.FlagChainID)
 			destinationChain := viper.GetString(flagChain)
 			documentHashStr := viper.GetString(flagDocumentHash)
@@ -59,10 +59,10 @@ func IBCIssueAssetCmd(cdc *wire.Codec) *cobra.Command {
 			assetQuantityStr := viper.GetInt64(flagAssetQuantity)
 			quantityUnitStr := viper.GetString(flagQuantityUnit)
 			moderated := viper.GetBool(flagModerated)
-			
+
 			var to sdk.AccAddress
 			toStr := viper.GetString(flagTo)
-			if !moderated && toStr == "" {
+			if moderated && toStr == "" {
 				return sdk.ErrInternal(fmt.Sprintf("must provide toAddress."))
 			}
 			if toStr == "" {
@@ -72,7 +72,7 @@ func IBCIssueAssetCmd(cdc *wire.Codec) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				if moderated {
+				if !moderated {
 					if to.String() != from.String() {
 						return sdk.ErrInternal(fmt.Sprintf("Wrong toAddress."))
 					}
@@ -86,13 +86,13 @@ func IBCIssueAssetCmd(cdc *wire.Codec) *cobra.Command {
 				QuantityUnit:  quantityUnitStr,
 				Moderated:     moderated,
 			}
-			
+
 			msg := ibc.BuildIssueAssetMsg(from, to, assetPeg, sourceChain, destinationChain)
-			
+
 			return utils.SendTx(txCtx, cliCtx, []sdk.Msg{msg})
 		},
 	}
-	
+
 	cmd.Flags().String(flagTo, "", "Address to issue asset to")
 	cmd.Flags().String(flagDocumentHash, "", "doccument hash")
 	cmd.Flags().String(flagAssetType, "", "Asset type")
@@ -100,6 +100,6 @@ func IBCIssueAssetCmd(cdc *wire.Codec) *cobra.Command {
 	cmd.Flags().String(flagAssetQuantity, "", "Asset quantity")
 	cmd.Flags().String(flagQuantityUnit, "", "Quantity type")
 	cmd.Flags().String(flagChain, "", "Destination chain to send coins")
-	cmd.Flags().Bool(flagModerated, false, "private")
+	cmd.Flags().Bool(flagModerated, false, "moderated")
 	return cmd
 }

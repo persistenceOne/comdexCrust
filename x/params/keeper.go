@@ -3,9 +3,9 @@ package params
 import (
 	"fmt"
 	"reflect"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
 // Keeper manages global parameter store
@@ -27,13 +27,13 @@ func InitKeeper(ctx sdk.Context, cdc *wire.Codec, key sdk.StoreKey, params ...in
 	if len(params)%2 != 0 {
 		panic("Odd params list length for InitKeeper")
 	}
-	
+
 	k := NewKeeper(cdc, key)
-	
+
 	for i := 0; i < len(params); i += 2 {
 		k.set(ctx, params[i].(string), params[i+1])
 	}
-	
+
 	return k
 }
 
@@ -57,18 +57,18 @@ func (k Keeper) set(ctx sdk.Context, key string, param interface{}) error {
 	if bz != nil {
 		ptrty := reflect.PtrTo(reflect.TypeOf(param))
 		ptr := reflect.New(ptrty).Interface()
-		
+
 		if k.cdc.UnmarshalBinary(bz, ptr) != nil {
 			return fmt.Errorf("Type mismatch with stored param and provided param")
 		}
 	}
-	
+
 	bz, err := k.cdc.MarshalBinary(param)
 	if err != nil {
 		return err
 	}
 	store.Set([]byte(key), bz)
-	
+
 	return nil
 }
 

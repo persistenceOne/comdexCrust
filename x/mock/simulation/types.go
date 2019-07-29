@@ -3,9 +3,9 @@ package simulation
 import (
 	"math/rand"
 	"testing"
-	
-	"github.com/comdex-blockchain/baseapp"
-	sdk "github.com/comdex-blockchain/types"
+
+	"github.com/commitHub/commitBlockchain/baseapp"
+	sdk "github.com/commitHub/commitBlockchain/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 )
@@ -26,20 +26,20 @@ type (
 		t *testing.T, r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context,
 		privKeys []crypto.PrivKey, log string, event func(string),
 	) (action string, futureOperations []FutureOperation, err sdk.Error)
-	
+
 	// RandSetup performs the random setup the mock module needs.
 	RandSetup func(r *rand.Rand, privKeys []crypto.PrivKey)
-	
+
 	// An Invariant is a function which tests a particular invariant.
 	// If the invariant has been broken, the function should halt the
 	// test and output the log.
 	Invariant func(t *testing.T, app *baseapp.BaseApp, log string)
-	
+
 	mockValidator struct {
 		val           abci.Validator
 		livenessState int
 	}
-	
+
 	// FutureOperation is an operation which will be ran at the
 	// beginning of the provided BlockHeight.
 	// In the (likely) event that multiple operations are queued at the same

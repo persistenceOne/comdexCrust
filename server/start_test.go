@@ -5,11 +5,11 @@ import (
 	"os"
 	"testing"
 	"time"
-	
+
 	"github.com/stretchr/testify/require"
-	
-	"github.com/comdex-blockchain/server/mock"
-	"github.com/comdex-blockchain/wire"
+
+	"github.com/commitHub/commitBlockchain/server/mock"
+	"github.com/commitHub/commitBlockchain/wire"
 	"github.com/tendermint/tendermint/abci/server"
 	tcmd "github.com/tendermint/tendermint/cmd/tendermint/commands"
 	"github.com/tendermint/tendermint/libs/log"
@@ -21,7 +21,7 @@ func TestStartStandAlone(t *testing.T) {
 	defer func() {
 		os.RemoveAll(home)
 	}()
-	
+
 	logger := log.NewNopLogger()
 	cfg, err := tcmd.ParseConfig()
 	require.Nil(t, err)
@@ -34,7 +34,7 @@ func TestStartStandAlone(t *testing.T) {
 	initCmd := InitCmd(ctx, cdc, appInit)
 	err = initCmd.RunE(nil, nil)
 	require.NoError(t, err)
-	
+
 	app, err := mock.NewApp(home, logger)
 	require.Nil(t, err)
 	svrAddr, _, err := FreeTCPAddr()
@@ -43,7 +43,7 @@ func TestStartStandAlone(t *testing.T) {
 	require.Nil(t, err, "error creating listener")
 	svr.SetLogger(logger.With("module", "abci-server"))
 	svr.Start()
-	
+
 	timer := time.NewTimer(time.Duration(2) * time.Second)
 	select {
 	case <-timer.C:

@@ -1,11 +1,11 @@
 package acl
 
 import (
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	wire "github.com/commitHub/commitBlockchain/wire"
 )
 
-// GetACLAccountDecoder : return a decode for acl accounts
+//GetACLAccountDecoder : return a decode for acl accounts
 func GetACLAccountDecoder(cdc *wire.Codec) sdk.ACLAccountDecoder {
 	return func(aclBytes []byte) (acl sdk.ACLAccount, err error) {
 		// acct := new(auth.BaseAccount)
@@ -17,7 +17,7 @@ func GetACLAccountDecoder(cdc *wire.Codec) sdk.ACLAccountDecoder {
 	}
 }
 
-// GetOrganizationDecoder : return a decode for organization accounts
+//GetOrganizationDecoder : return a decode for organization accounts
 func GetOrganizationDecoder(cdc *wire.Codec) sdk.OrgDecoder {
 	return func(orgBytes []byte) (org sdk.Organization, err error) {
 		// acct := new(auth.BaseAccount)

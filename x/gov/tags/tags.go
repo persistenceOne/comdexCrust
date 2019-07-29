@@ -2,7 +2,7 @@
 package tags
 
 import (
-	sdk "github.com/comdex-blockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 var (
@@ -12,7 +12,7 @@ var (
 	ActionProposalDropped  = []byte("proposal-dropped")
 	ActionProposalPassed   = []byte("proposal-passed")
 	ActionProposalRejected = []byte("proposal-rejected")
-	
+
 	Action            = sdk.TagAction
 	Proposer          = "proposer"
 	ProposalID        = "proposal-id"

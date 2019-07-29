@@ -2,9 +2,9 @@ package mock
 
 import (
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -12,24 +12,24 @@ import (
 func TestInitApp(t *testing.T) {
 	// set up an app
 	app, closer, err := SetupApp()
-	
+
 	// closer may need to be run, even when error in later stage
 	if closer != nil {
 		defer closer()
 	}
 	require.NoError(t, err)
-	
+
 	// initialize it future-way
 	appState, err := AppGenState(nil, nil)
 	require.NoError(t, err)
-	
-	// TODO test validators in the init chain?
+
+	//TODO test validators in the init chain?
 	req := abci.RequestInitChain{
 		AppStateBytes: appState,
 	}
 	app.InitChain(req)
 	app.Commit()
-	
+
 	// make sure we can query these values
 	query := abci.RequestQuery{
 		Path: "/store/main/key",
@@ -49,12 +49,12 @@ func TestDeliverTx(t *testing.T) {
 		defer closer()
 	}
 	require.NoError(t, err)
-	
+
 	key := "my-special-key"
 	value := "top-secret-data!!"
 	tx := NewTx(key, value)
 	txBytes := tx.GetSignBytes()
-	
+
 	header := abci.Header{
 		AppHash: []byte("apphash"),
 		Height:  1,
@@ -65,7 +65,7 @@ func TestDeliverTx(t *testing.T) {
 	app.EndBlock(abci.RequestEndBlock{})
 	cres := app.Commit()
 	require.NotEmpty(t, cres.Data)
-	
+
 	// make sure we can query these values
 	query := abci.RequestQuery{
 		Path: "/store/main/key",

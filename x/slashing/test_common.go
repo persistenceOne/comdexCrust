@@ -5,22 +5,22 @@ import (
 	"os"
 	"testing"
 	"time"
-	
+
 	"github.com/stretchr/testify/require"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
-	
-	"github.com/comdex-blockchain/store"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/auth"
-	"github.com/comdex-blockchain/x/bank"
-	"github.com/comdex-blockchain/x/params"
-	"github.com/comdex-blockchain/x/stake"
+
+	"github.com/commitHub/commitBlockchain/store"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/auth"
+	"github.com/commitHub/commitBlockchain/x/bank"
+	"github.com/commitHub/commitBlockchain/x/params"
+	"github.com/commitHub/commitBlockchain/x/stake"
 )
 
 // TODO remove dependencies on staking (should only refer to validator set type from sdk)
@@ -69,12 +69,12 @@ func createTestInput(t *testing.T) (sdk.Context, bank.Keeper, stake.Keeper, para
 	params := params.NewKeeper(cdc, keyParams)
 	sk := stake.NewKeeper(cdc, keyStake, ck, stake.DefaultCodespace)
 	genesis := stake.DefaultGenesisState()
-	
+
 	genesis.Pool.LooseTokens = sdk.NewDec(initCoins.MulRaw(int64(len(addrs))).Int64())
-	
+
 	_, err = stake.InitGenesis(ctx, sk, genesis)
 	require.Nil(t, err)
-	
+
 	for _, addr := range addrs {
 		_, _, err = ck.AddCoins(ctx, sdk.AccAddress(addr), sdk.Coins{
 			{sk.GetParams(ctx).BondDenom, initCoins},

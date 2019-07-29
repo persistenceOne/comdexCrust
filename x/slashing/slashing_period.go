@@ -3,32 +3,32 @@ package slashing
 import (
 	"encoding/binary"
 	"fmt"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // Cap an infraction's slash amount by the slashing period in which it was committed
 func (k Keeper) capBySlashingPeriod(ctx sdk.Context, address sdk.ConsAddress, fraction sdk.Dec, infractionHeight int64) (revisedFraction sdk.Dec) {
-	
+
 	// Fetch the newest slashing period starting before this infraction was committed
 	slashingPeriod := k.getValidatorSlashingPeriodForHeight(ctx, address, infractionHeight)
-	
+
 	// Sanity check
 	if slashingPeriod.EndHeight > 0 && slashingPeriod.EndHeight < infractionHeight {
 		panic(fmt.Sprintf("slashing period ended before infraction: infraction height %d, slashing period ended at %d", infractionHeight, slashingPeriod.EndHeight))
 	}
-	
+
 	// Calculate the updated total slash amount
 	// This is capped at the slashing fraction for the worst infraction within this slashing period
 	totalToSlash := sdk.MaxDec(slashingPeriod.SlashedSoFar, fraction)
-	
+
 	// Calculate the remainder which we now must slash
 	revisedFraction = totalToSlash.Sub(slashingPeriod.SlashedSoFar)
-	
+
 	// Update the slashing period struct
 	slashingPeriod.SlashedSoFar = totalToSlash
 	k.addOrUpdateValidatorSlashingPeriod(ctx, slashingPeriod)
-	
+
 	return
 }
 

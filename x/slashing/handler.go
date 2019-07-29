@@ -1,7 +1,7 @@
 package slashing
 
 import (
-	sdk "github.com/comdex-blockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 func NewHandler(k Keeper) sdk.Handler {
@@ -23,38 +23,38 @@ func handleMsgUnjail(ctx sdk.Context, msg MsgUnjail, k Keeper) sdk.Result {
 	if validator == nil {
 		return ErrNoValidatorForAddress(k.codespace).Result()
 	}
-	
+
 	// cannot be unjailed if no self-delegation exists
 	selfDel := k.validatorSet.Delegation(ctx, sdk.AccAddress(msg.ValidatorAddr), msg.ValidatorAddr)
 	if selfDel == nil {
 		return ErrMissingSelfDelegation(k.codespace).Result()
 	}
-	
+
 	if !validator.GetJailed() {
 		return ErrValidatorNotJailed(k.codespace).Result()
 	}
-	
+
 	addr := sdk.ConsAddress(validator.GetPubKey().Address())
-	
+
 	info, found := k.getValidatorSigningInfo(ctx, addr)
 	if !found {
 		return ErrNoValidatorForAddress(k.codespace).Result()
 	}
-	
+
 	// cannot be unjailed until out of jail
 	if ctx.BlockHeader().Time.Before(info.JailedUntil) {
 		return ErrValidatorJailed(k.codespace).Result()
 	}
-	
+
 	// update the starting height so the validator can't be immediately jailed
 	// again
 	info.StartHeight = ctx.BlockHeight()
 	k.setValidatorSigningInfo(ctx, addr, info)
-	
+
 	k.validatorSet.Unjail(ctx, validator.GetPubKey())
-	
+
 	tags := sdk.NewTags("action", []byte("unjail"), "validator", []byte(msg.ValidatorAddr.String()))
-	
+
 	return sdk.Result{
 		Tags: tags,
 	}

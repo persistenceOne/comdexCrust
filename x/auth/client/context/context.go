@@ -1,12 +1,12 @@
 package context
 
 import (
-	"github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/client/keys"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/auth"
-	
+	"github.com/commitHub/commitBlockchain/client"
+	"github.com/commitHub/commitBlockchain/client/keys"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/auth"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
@@ -33,7 +33,7 @@ func NewTxContextFromCLI() TxContext {
 			chainID = defaultChainID
 		}
 	}
-	
+
 	return TxContext{
 		ChainID:       chainID,
 		Gas:           viper.GetInt64(client.FlagGas),
@@ -93,17 +93,17 @@ func (ctx TxContext) Build(msgs []sdk.Msg) (auth.StdSignMsg, error) {
 	if chainID == "" {
 		return auth.StdSignMsg{}, errors.Errorf("chain ID required but not specified")
 	}
-	
+
 	fee := sdk.Coin{}
 	if ctx.Fee != "" {
 		parsedFee, err := sdk.ParseCoin(ctx.Fee)
 		if err != nil {
 			return auth.StdSignMsg{}, err
 		}
-		
+
 		fee = parsedFee
 	}
-	
+
 	return auth.StdSignMsg{
 		ChainID:       ctx.ChainID,
 		AccountNumber: ctx.AccountNumber,
@@ -121,19 +121,19 @@ func (ctx TxContext) Sign(name, passphrase string, msg auth.StdSignMsg) ([]byte,
 	if err != nil {
 		return nil, err
 	}
-	
+
 	sig, pubkey, err := keybase.Sign(name, passphrase, msg.Bytes())
 	if err != nil {
 		return nil, err
 	}
-	
+
 	sigs := []auth.StdSignature{{
 		AccountNumber: msg.AccountNumber,
 		Sequence:      msg.Sequence,
 		PubKey:        pubkey,
 		Signature:     sig,
 	}}
-	
+
 	return ctx.Codec.MarshalBinary(auth.NewStdTx(msg.Msgs, msg.Fee, sigs, msg.Memo))
 }
 
@@ -145,7 +145,7 @@ func (ctx TxContext) BuildAndSign(name, passphrase string, msgs []sdk.Msg) ([]by
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return ctx.Sign(name, passphrase, msg)
 }
 
@@ -158,22 +158,22 @@ func (ctx TxContext) BuildWithPubKey(name string, msgs []sdk.Msg) ([]byte, error
 	if err != nil {
 		return nil, err
 	}
-	
+
 	keybase, err := keys.GetKeyBase()
 	if err != nil {
 		return nil, err
 	}
-	
+
 	info, err := keybase.Get(name)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	sigs := []auth.StdSignature{{
 		AccountNumber: msg.AccountNumber,
 		Sequence:      msg.Sequence,
 		PubKey:        info.GetPubKey(),
 	}}
-	
+
 	return ctx.Codec.MarshalBinary(auth.NewStdTx(msg.Msgs, msg.Fee, sigs, msg.Memo))
 }

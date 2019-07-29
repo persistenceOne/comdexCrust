@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
-	
+
 	"github.com/tendermint/tendermint/crypto"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // shamelessly copied from https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-golang#31832326

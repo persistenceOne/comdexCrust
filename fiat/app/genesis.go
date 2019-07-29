@@ -5,35 +5,35 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	
-	"github.com/comdex-blockchain/client"
-	keyss "github.com/comdex-blockchain/client/keys"
-	"github.com/comdex-blockchain/server"
-	"github.com/comdex-blockchain/server/config"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/auth"
-	"github.com/comdex-blockchain/x/stake"
+
+	"github.com/commitHub/commitBlockchain/client"
+	keyss "github.com/commitHub/commitBlockchain/client/keys"
+	"github.com/commitHub/commitBlockchain/server"
+	"github.com/commitHub/commitBlockchain/server/config"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/auth"
+	"github.com/commitHub/commitBlockchain/x/stake"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/crypto"
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
-// DefaultKeyPass : default password for genesis account
+//DefaultKeyPass : default password for genesis account
 const DefaultKeyPass = "1234567890"
 
 var (
 	flagName       = "name"
 	flagClientHome = "home-client"
 	flagOWK        = "owk"
-	
+
 	// bonded tokens given to genesis validators/accounts
 	freeFermionVal  = int64(100)
 	freeFermionsAcc = sdk.NewInt(50)
 )
 
-// GenesisState : State to Unmarshal
+//GenesisState : State to Unmarshal
 type GenesisState struct {
 	Accounts  []GenesisAccount   `json:"accounts"`
 	Fiats     []GenesisFiatPeg   `json:"fiats"`
@@ -46,7 +46,7 @@ type GenesisAccount struct {
 	Coins   sdk.Coins      `json:"coins"`
 }
 
-// NewGenesisAccount : returns a new genesis state account
+//NewGenesisAccount : returns a new genesis state account
 func NewGenesisAccount(acc *auth.BaseAccount) GenesisAccount {
 	return GenesisAccount{
 		Address: acc.Address,
@@ -54,7 +54,7 @@ func NewGenesisAccount(acc *auth.BaseAccount) GenesisAccount {
 	}
 }
 
-// NewGenesisAccountI : new genesis account from already existing account
+//NewGenesisAccountI : new genesis account from already existing account
 func NewGenesisAccountI(acc auth.Account) GenesisAccount {
 	return GenesisAccount{
 		Address: acc.GetAddress(),
@@ -62,7 +62,7 @@ func NewGenesisAccountI(acc auth.Account) GenesisAccount {
 	}
 }
 
-// ToAccount : convert GenesisAccount to auth.BaseAccount
+//ToAccount : convert GenesisAccount to auth.BaseAccount
 func (ga *GenesisAccount) ToAccount() (acc *auth.BaseAccount) {
 	return &auth.BaseAccount{
 		Address: ga.Address,
@@ -70,7 +70,7 @@ func (ga *GenesisAccount) ToAccount() (acc *auth.BaseAccount) {
 	}
 }
 
-// GenesisFiatPeg : genesis state of fiats
+//GenesisFiatPeg : genesis state of fiats
 type GenesisFiatPeg struct {
 	PegHash           sdk.PegHash `json:"pegHash"`
 	TransactionID     string      `json:"transactionID"`
@@ -79,7 +79,7 @@ type GenesisFiatPeg struct {
 	Owners            []sdk.Owner `json:"owner"`
 }
 
-// NewGenesisFiatPegI : returns a new genesis state account
+//NewGenesisFiatPegI : returns a new genesis state account
 func NewGenesisFiatPegI(fiatPeg sdk.FiatPeg) GenesisFiatPeg {
 	return GenesisFiatPeg{
 		PegHash:           fiatPeg.GetPegHash(),
@@ -90,7 +90,7 @@ func NewGenesisFiatPegI(fiatPeg sdk.FiatPeg) GenesisFiatPeg {
 	}
 }
 
-// NewGenesisFiatPeg : returns a new genesis state account
+//NewGenesisFiatPeg : returns a new genesis state account
 func NewGenesisFiatPeg(fiatPeg *sdk.BaseFiatPeg) GenesisFiatPeg {
 	return GenesisFiatPeg{
 		PegHash:           fiatPeg.PegHash,
@@ -101,7 +101,7 @@ func NewGenesisFiatPeg(fiatPeg *sdk.BaseFiatPeg) GenesisFiatPeg {
 	}
 }
 
-// ToFiatPeg : convert GenesisFiatPeg to sdk.BaseFiatPeg
+//ToFiatPeg : convert GenesisFiatPeg to sdk.BaseFiatPeg
 func (ga *GenesisFiatPeg) ToFiatPeg() (fiat *sdk.BaseFiatPeg) {
 	return &sdk.BaseFiatPeg{
 		PegHash:           ga.PegHash,
@@ -112,16 +112,16 @@ func (ga *GenesisFiatPeg) ToFiatPeg() (fiat *sdk.BaseFiatPeg) {
 	}
 }
 
-// FiatAppInit : get app init parameters for server init command
+//FiatAppInit : get app init parameters for server init command
 func FiatAppInit() server.AppInit {
 	fsAppGenState := pflag.NewFlagSet("", pflag.ContinueOnError)
-	
+
 	fsAppGenTx := pflag.NewFlagSet("", pflag.ContinueOnError)
 	fsAppGenTx.String(flagName, "", "validator moniker, required")
 	fsAppGenTx.String(flagClientHome, DefaultCLIHome,
 		"home directory for the client, used for key generation")
 	fsAppGenTx.Bool(flagOWK, false, "overwrite the accounts created")
-	
+
 	return server.AppInit{
 		FlagsAppGenState: fsAppGenState,
 		FlagsAppGenTx:    fsAppGenTx,
@@ -130,7 +130,7 @@ func FiatAppInit() server.AppInit {
 	}
 }
 
-// FiatGenTx : simple genesis tx
+//FiatGenTx : simple genesis tx
 type FiatGenTx struct {
 	Name    string         `json:"name"`
 	Address sdk.AccAddress `json:"address"`
@@ -141,18 +141,18 @@ type FiatGenTx struct {
 func FiatAppGenTx(
 	cdc *wire.Codec, pk crypto.PubKey, genTxConfig config.GenTx,
 ) (appGenTx, cliPrint json.RawMessage, validator tmtypes.GenesisValidator, err error) {
-	
+
 	if genTxConfig.Name == "" {
 		return nil, nil, tmtypes.GenesisValidator{}, errors.New("Must specify --name (validator moniker)")
 	}
-	
+
 	secret := viper.GetString(client.FlagSeed)
 	var addr sdk.AccAddress
 	kb, err := keyss.GetKeyBaseFromDir(genTxConfig.CliRoot)
 	if err != nil {
 		return appGenTx, cliPrint, validator, err
 	}
-	
+
 	if secret == "" {
 		addr, secret, err = server.GenerateSaveCoinKey(
 			genTxConfig.CliRoot,
@@ -166,7 +166,7 @@ func FiatAppGenTx(
 	} else {
 		info, err := kb.CreateKey(genTxConfig.Name, secret, DefaultKeyPass)
 		addr = sdk.AccAddress(info.GetPubKey().Address())
-		
+
 		if err != nil {
 			return appGenTx, cliPrint, validator, err
 		}
@@ -176,17 +176,17 @@ func FiatAppGenTx(
 	if err != nil {
 		return appGenTx, cliPrint, validator, err
 	}
-	
+
 	cliPrint = json.RawMessage(bz)
 	appGenTx, _, validator, err = FiatAppGenTxNF(cdc, pk, addr, genTxConfig.Name)
-	
+
 	return appGenTx, cliPrint, validator, err
 }
 
 // FiatAppGenTxNF : Generate a  fiat genesis transaction without flags
 func FiatAppGenTxNF(cdc *wire.Codec, pk crypto.PubKey, addr sdk.AccAddress, name string) (
 	appGenTx, cliPrint json.RawMessage, validator tmtypes.GenesisValidator, err error) {
-	
+
 	var bz []byte
 	fiatGenTx := FiatGenTx{
 		Name:    name,
@@ -198,7 +198,7 @@ func FiatAppGenTxNF(cdc *wire.Codec, pk crypto.PubKey, addr sdk.AccAddress, name
 		return
 	}
 	appGenTx = json.RawMessage(bz)
-	
+
 	validator = tmtypes.GenesisValidator{
 		PubKey: pk,
 		Power:  freeFermionVal,
@@ -206,28 +206,28 @@ func FiatAppGenTxNF(cdc *wire.Codec, pk crypto.PubKey, addr sdk.AccAddress, name
 	return
 }
 
-// FiatAppGenState : Create the core parameters for genesis initialization for  fiat
+//FiatAppGenState : Create the core parameters for genesis initialization for  fiat
 // note that the pubkey input is this machines pubkey
 func FiatAppGenState(cdc *wire.Codec, appGenTxs []json.RawMessage) (genesisState GenesisState, err error) {
-	
+
 	if len(appGenTxs) == 0 {
 		err = errors.New("must provide at least genesis transaction")
 		return
 	}
-	
+
 	stakeData := stake.DefaultGenesisState()
-	
+
 	genaccs := make([]GenesisAccount, len(appGenTxs))
 	for i, appGenTx := range appGenTxs {
-		
+
 		var genTx FiatGenTx
 		err = cdc.UnmarshalJSON(appGenTx, &genTx)
 		if err != nil {
 			return
 		}
-		
+
 		accAuth := auth.NewBaseAccountWithAddress(genTx.Address)
-		
+
 		accAuth.Coins = sdk.Coins{
 			{
 				Denom:  "comdex",
@@ -241,21 +241,21 @@ func FiatAppGenState(cdc *wire.Codec, appGenTxs []json.RawMessage) (genesisState
 		acc := NewGenesisAccount(&accAuth)
 		genaccs[i] = acc
 		stakeData.Pool.LooseTokens = stakeData.Pool.LooseTokens.Add(sdk.NewDecFromInt(freeFermionsAcc)) // increase the supply
-		
+
 		// add the validator
 		if len(genTx.Name) > 0 {
 			desc := stake.NewDescription(genTx.Name, "", "", "")
 			validator := stake.NewValidator(
 				sdk.ValAddress(genTx.Address), sdk.MustGetConsPubKeyBech32(genTx.PubKey), desc,
 			)
-			
+
 			stakeData.Pool.LooseTokens = stakeData.Pool.LooseTokens.Add(sdk.NewDec(freeFermionVal)) // increase the supply
-			
+
 			// add some new shares to the validator
 			var issuedDelShares sdk.Dec
 			validator, stakeData.Pool, issuedDelShares = validator.AddTokensFromDel(stakeData.Pool, sdk.NewInt(freeFermionVal))
 			stakeData.Validators = append(stakeData.Validators, validator)
-			
+
 			// create the self-delegation from the issuedDelShares
 			delegation := stake.Delegation{
 				DelegatorAddr: sdk.AccAddress(validator.Operator),
@@ -263,12 +263,12 @@ func FiatAppGenState(cdc *wire.Codec, appGenTxs []json.RawMessage) (genesisState
 				Shares:        issuedDelShares,
 				Height:        0,
 			}
-			
+
 			stakeData.Bonds = append(stakeData.Bonds, delegation)
 		}
 	}
-	
-	// Generate empty fiat tokens
+
+	//Generate empty fiat tokens
 	genesisFiatPegs := make([]GenesisFiatPeg, 10000)
 	for i := 0; i < 10000; i++ {
 		pegHash, err := sdk.GetFiatPegHashHex(fmt.Sprintf("%x", strconv.Itoa(i)))
@@ -278,7 +278,7 @@ func FiatAppGenState(cdc *wire.Codec, appGenTxs []json.RawMessage) (genesisState
 			})
 		}
 	}
-	
+
 	// create the final app state
 	genesisState = GenesisState{
 		Accounts:  genaccs,
@@ -288,9 +288,9 @@ func FiatAppGenState(cdc *wire.Codec, appGenTxs []json.RawMessage) (genesisState
 	return
 }
 
-// FiatAppGenStateJSON : FiatAppGenState but with JSON
+//FiatAppGenStateJSON : FiatAppGenState but with JSON
 func FiatAppGenStateJSON(cdc *wire.Codec, appGenTxs []json.RawMessage) (appState json.RawMessage, err error) {
-	
+
 	// create the final app state
 	genesisState, err := FiatAppGenState(cdc, appGenTxs)
 	if err != nil {

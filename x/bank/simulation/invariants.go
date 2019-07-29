@@ -3,14 +3,14 @@ package simulation
 import (
 	"fmt"
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
-	
-	"github.com/comdex-blockchain/baseapp"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/auth"
-	"github.com/comdex-blockchain/x/mock"
-	"github.com/comdex-blockchain/x/mock/simulation"
+
+	"github.com/commitHub/commitBlockchain/baseapp"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/auth"
+	"github.com/commitHub/commitBlockchain/x/mock"
+	"github.com/commitHub/commitBlockchain/x/mock/simulation"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -37,13 +37,13 @@ func TotalCoinsInvariant(mapper auth.AccountMapper, totalSupplyFn func() sdk.Coi
 	return func(t *testing.T, app *baseapp.BaseApp, log string) {
 		ctx := app.NewContext(false, abci.Header{})
 		totalCoins := sdk.Coins{}
-		
+
 		chkAccount := func(acc auth.Account) bool {
 			coins := acc.GetCoins()
 			totalCoins = totalCoins.Plus(coins)
 			return false
 		}
-		
+
 		mapper.IterateAccounts(ctx, chkAccount)
 		require.Equal(t, totalSupplyFn(), totalCoins, log)
 	}

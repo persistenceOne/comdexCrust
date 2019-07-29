@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
-	
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestRand(t *testing.T) {
 		ticket := 10000 + ticketCounter%89999
 		number := 10000 + rand.Intn(89999)
 		randN := "TR" + strconv.Itoa(ticket) + strconv.Itoa(now) + strconv.Itoa(number)
-		// fmt.Println(string(randN))
+		//fmt.Println(string(randN))
 		if _, ok := numbers[randN]; ok {
 			fmt.Println(string(randN))
 			require.Nil(t, count)

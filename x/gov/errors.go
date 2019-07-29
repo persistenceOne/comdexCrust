@@ -1,15 +1,15 @@
-// nolint
+//nolint
 package gov
 
 import (
 	"fmt"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 const (
 	DefaultCodespace sdk.CodespaceType = 5
-	
+
 	CodeUnknownProposal         sdk.CodeType = 1
 	CodeInactiveProposal        sdk.CodeType = 2
 	CodeAlreadyActiveProposal   sdk.CodeType = 3
@@ -23,7 +23,7 @@ const (
 	CodeInvalidProposalStatus   sdk.CodeType = 11
 )
 
-// ----------------------------------------
+//----------------------------------------
 // Error constructors
 
 func ErrUnknownProposal(codespace sdk.CodespaceType, proposalID int64) sdk.Error {

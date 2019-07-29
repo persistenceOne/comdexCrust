@@ -1,6 +1,6 @@
 package reputation
 
-// SubmitBuyerFeedbackBody : request msg
+//SubmitBuyerFeedbackBody : request msg
 type SubmitBuyerFeedbackBody struct {
 	From          string `json:"from" valid:"required~Enter the FromName"`
 	Password      string `json:"password" valid:"required~Enter the Password"`
@@ -14,7 +14,7 @@ type SubmitBuyerFeedbackBody struct {
 	Sequence      int64  `json:"sequence"`
 }
 
-// SubmitSellerFeedbackBody : request msg
+//SubmitSellerFeedbackBody : request msg
 type SubmitSellerFeedbackBody struct {
 	From          string `json:"from" valid:"required~Enter the FromName"`
 	Password      string `json:"password" valid:"required~Enter the Password"`

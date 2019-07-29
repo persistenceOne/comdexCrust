@@ -3,8 +3,8 @@ package tx
 import (
 	"encoding/json"
 	"net/http"
-	
-	"github.com/comdex-blockchain/client/context"
+
+	"github.com/commitHub/commitBlockchain/client/context"
 )
 
 // Tx Broadcast Body
@@ -16,7 +16,7 @@ type BroadcastTxBody struct {
 func BroadcastTxRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var m BroadcastTxBody
-		
+
 		decoder := json.NewDecoder(r.Body)
 		err := decoder.Decode(&m)
 		if err != nil {
@@ -24,14 +24,14 @@ func BroadcastTxRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		
+
 		res, err := cliCtx.BroadcastTx([]byte(m.TxBytes))
 		if err != nil {
 			w.WriteHeader(500)
 			w.Write([]byte(err.Error()))
 			return
 		}
-		
+
 		w.Write([]byte(string(res.Height)))
 	}
 }

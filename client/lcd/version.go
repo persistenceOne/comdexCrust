@@ -3,9 +3,9 @@ package lcd
 import (
 	"fmt"
 	"net/http"
-	
-	"github.com/comdex-blockchain/client/context"
-	"github.com/comdex-blockchain/version"
+
+	"github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/version"
 )
 
 // CLIVersionRequestHandler cli version REST handler endpoint
@@ -23,7 +23,7 @@ func NodeVersionRequestHandler(cliCtx context.CLIContext) http.HandlerFunc {
 			w.Write([]byte(fmt.Sprintf("Could't query version. Error: %s", err.Error())))
 			return
 		}
-		
+
 		w.Write(version)
 	}
 }

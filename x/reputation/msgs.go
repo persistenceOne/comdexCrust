@@ -2,22 +2,22 @@ package reputation
 
 import (
 	"encoding/json"
-	
+
 	"github.com/asaskevich/govalidator"
-	sdk "github.com/comdex-blockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
-// SubmitTraderFeedback : TraderFeedback
+//SubmitTraderFeedback : TraderFeedback
 type SubmitTraderFeedback struct {
 	TraderFeedback sdk.TraderFeedback `json:"traderfeedback"`
 }
 
-// NewSubmitTraderFeedback : creates new
+//NewSubmitTraderFeedback : creates new
 func NewSubmitTraderFeedback(traderFeedback sdk.TraderFeedback) SubmitTraderFeedback {
 	return SubmitTraderFeedback{TraderFeedback: traderFeedback}
 }
 
-// GetSignBytes : get bytes to sign
+//GetSignBytes : get bytes to sign
 func (submitTraderFeedback SubmitTraderFeedback) GetSignBytes() []byte {
 	bin, err := msgCdc.MarshalJSON(struct {
 		TraderFeedback sdk.TraderFeedback `json:"traderfeedback"`
@@ -30,22 +30,22 @@ func (submitTraderFeedback SubmitTraderFeedback) GetSignBytes() []byte {
 	return bin
 }
 
-// MsgBuyerFeedbacks : Msg for   traderFeedback
+//MsgBuyerFeedbacks : Msg for   traderFeedback
 type MsgBuyerFeedbacks struct {
 	SubmitTraderFeedbacks []SubmitTraderFeedback `json:"submitTraderFeedbacks"`
 }
 
 var _ sdk.Msg = MsgBuyerFeedbacks{}
 
-// NewMsgBuyerFeedbacks : creates msg, buyer rates seller
+//NewMsgBuyerFeedbacks : creates msg, buyer rates seller
 func NewMsgBuyerFeedbacks(submitTraderFeedbacks []SubmitTraderFeedback) MsgBuyerFeedbacks {
 	return MsgBuyerFeedbacks{SubmitTraderFeedbacks: submitTraderFeedbacks}
 }
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgBuyerFeedbacks) Type() string { return "reputation" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgBuyerFeedbacks) ValidateBasic() sdk.Error {
 	_, err := govalidator.ValidateStruct(msg)
 	if err != nil {
@@ -56,17 +56,26 @@ func (msg MsgBuyerFeedbacks) ValidateBasic() sdk.Error {
 		if err != nil {
 			return sdk.ErrInvalidAddress(err.Error())
 		}
+		if len(in.TraderFeedback.BuyerAddress) == 0 {
+			return sdk.ErrInvalidAddress(in.TraderFeedback.BuyerAddress.String())
+		} else if len(in.TraderFeedback.SellerAddress) == 0 {
+			return sdk.ErrInvalidAddress(in.TraderFeedback.SellerAddress.String())
+		} else if len(in.TraderFeedback.PegHash) == 0 {
+			return sdk.ErrUnknownRequest("peghash is empty")
+		} else if in.TraderFeedback.Rating < 0 || in.TraderFeedback.Rating > 100 {
+			return sdk.ErrUnknownRequest("Rating should be 0-100")
+		}
 	}
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgBuyerFeedbacks) GetSignBytes() []byte {
 	var submitTraderFeedbacks []json.RawMessage
 	for _, submitTraderFeedback := range msg.SubmitTraderFeedbacks {
 		submitTraderFeedbacks = append(submitTraderFeedbacks, submitTraderFeedback.GetSignBytes())
 	}
-	
+
 	b, err := msgCdc.MarshalJSON(struct {
 		SubmitTraderFeedbacks []json.RawMessage `json:"submitTraderFeedbacks"`
 	}{
@@ -78,7 +87,7 @@ func (msg MsgBuyerFeedbacks) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgBuyerFeedbacks) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.SubmitTraderFeedbacks))
 	for i, r := range msg.SubmitTraderFeedbacks {
@@ -87,7 +96,7 @@ func (msg MsgBuyerFeedbacks) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// BuildBuyerFeedbackMsg : butild the FeedbackTx
+//BuildBuyerFeedbackMsg : butild the FeedbackTx
 func BuildBuyerFeedbackMsg(buyerAddress sdk.AccAddress, sellerAddress sdk.AccAddress, pegHash sdk.PegHash, score int64) sdk.Msg {
 	traderFeedback := sdk.NewTraderFeedback(buyerAddress, sellerAddress, pegHash, score)
 	submitTraderFeedback := NewSubmitTraderFeedback(traderFeedback)
@@ -95,22 +104,22 @@ func BuildBuyerFeedbackMsg(buyerAddress sdk.AccAddress, sellerAddress sdk.AccAdd
 	return &msg
 }
 
-// MsgSellerFeedbacks : Msg for   traderFeedback
+//MsgSellerFeedbacks : Msg for   traderFeedback
 type MsgSellerFeedbacks struct {
 	SubmitTraderFeedbacks []SubmitTraderFeedback `json:" submitTraderFeedbacks"`
 }
 
 var _ sdk.Msg = MsgSellerFeedbacks{}
 
-// NewMsgSellerFeedbacks : creates msg, Seller rates Buyer
+//NewMsgSellerFeedbacks : creates msg, Seller rates Buyer
 func NewMsgSellerFeedbacks(submitTraderFeedbacks []SubmitTraderFeedback) MsgSellerFeedbacks {
 	return MsgSellerFeedbacks{SubmitTraderFeedbacks: submitTraderFeedbacks}
 }
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgSellerFeedbacks) Type() string { return "reputation" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgSellerFeedbacks) ValidateBasic() sdk.Error {
 	_, err := govalidator.ValidateStruct(msg)
 	if err != nil {
@@ -121,17 +130,26 @@ func (msg MsgSellerFeedbacks) ValidateBasic() sdk.Error {
 		if err != nil {
 			return sdk.ErrInvalidAddress(err.Error())
 		}
+		if len(in.TraderFeedback.BuyerAddress) == 0 {
+			return sdk.ErrInvalidAddress(in.TraderFeedback.BuyerAddress.String())
+		} else if len(in.TraderFeedback.SellerAddress) == 0 {
+			return sdk.ErrInvalidAddress(in.TraderFeedback.SellerAddress.String())
+		} else if len(in.TraderFeedback.PegHash) == 0 {
+			return sdk.ErrUnknownRequest("peghash is empty")
+		} else if in.TraderFeedback.Rating < 0 || in.TraderFeedback.Rating > 100 {
+			return sdk.ErrUnknownRequest("Rating should be 0-100")
+		}
 	}
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgSellerFeedbacks) GetSignBytes() []byte {
 	var submitTraderFeedbacks []json.RawMessage
 	for _, submitTraderFeedback := range msg.SubmitTraderFeedbacks {
 		submitTraderFeedbacks = append(submitTraderFeedbacks, submitTraderFeedback.GetSignBytes())
 	}
-	
+
 	b, err := msgCdc.MarshalJSON(struct {
 		SubmitTraderFeedbacks []json.RawMessage `json:"submitTraderFeedbacks"`
 	}{
@@ -143,7 +161,7 @@ func (msg MsgSellerFeedbacks) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgSellerFeedbacks) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.SubmitTraderFeedbacks))
 	for i, r := range msg.SubmitTraderFeedbacks {
@@ -152,7 +170,7 @@ func (msg MsgSellerFeedbacks) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// BuildSellerFeedbackMsg : butild the FeedbackTx
+//BuildSellerFeedbackMsg : butild the FeedbackTx
 func BuildSellerFeedbackMsg(buyerAddress sdk.AccAddress, sellerAddress sdk.AccAddress, pegHash sdk.PegHash, score int64) sdk.Msg {
 	traderFeedback := sdk.NewTraderFeedback(buyerAddress, sellerAddress, pegHash, score)
 	submitTraderFeedback := NewSubmitTraderFeedback(traderFeedback)

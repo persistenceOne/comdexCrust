@@ -12,7 +12,7 @@
 
 # WARNING!!!
 rm -rf ~/.basecoind ~/.basecli
-cd $GOPATH/src/github.com/comdex-blockchain
+cd $GOPATH/src/github.com/commit-blockchain
 # make get_vendor_deps
 make build
 

@@ -8,16 +8,16 @@ import (
 	"path"
 	"path/filepath"
 	"sort"
-	
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	
-	"github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/crypto/keys"
+
+	"github.com/commitHub/commitBlockchain/client"
+	"github.com/commitHub/commitBlockchain/crypto/keys"
 	"github.com/tendermint/tendermint/crypto"
-	
+
 	cfg "github.com/tendermint/tendermint/config"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 	cmn "github.com/tendermint/tendermint/libs/common"
@@ -25,21 +25,21 @@ import (
 	"github.com/tendermint/tendermint/p2p"
 	pvm "github.com/tendermint/tendermint/privval"
 	tmtypes "github.com/tendermint/tendermint/types"
-	
-	clkeys "github.com/comdex-blockchain/client/keys"
-	serverconfig "github.com/comdex-blockchain/server/config"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+
+	clkeys "github.com/commitHub/commitBlockchain/client/keys"
+	serverconfig "github.com/commitHub/commitBlockchain/server/config"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
-// Parameter names, for init gen-tx command
+//Parameter names, for init gen-tx command
 var (
 	FlagName       = "name"
 	FlagClientHome = "home-client"
 	FlagOWK        = "owk"
 )
 
-// parameter names, init command
+//parameter names, init command
 var (
 	FlagOverwrite = "overwrite"
 	FlagWithTxs   = "with-txs"
@@ -70,10 +70,10 @@ func GenTxCmd(ctx *Context, cdc *wire.Codec, appInit AppInit) *cobra.Command {
 		Short: "Create genesis transaction file (under [--home]/config/gentx/gentx-[nodeID].json)",
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, args []string) error {
-			
+
 			config := ctx.Config
 			config.SetRoot(viper.GetString(tmcli.HomeFlag))
-			
+
 			ip := viper.GetString(FlagIP)
 			if len(ip) == 0 {
 				eip, err := externalIP()
@@ -82,7 +82,7 @@ func GenTxCmd(ctx *Context, cdc *wire.Codec, appInit AppInit) *cobra.Command {
 				}
 				ip = eip
 			}
-			
+
 			genTxConfig := serverconfig.GenTx{
 				viper.GetString(FlagName),
 				viper.GetString(FlagClientHome),
@@ -121,12 +121,12 @@ func gentxWithConfig(cdc *wire.Codec, appInit AppInit, config *cfg.Config, genTx
 	}
 	nodeID := string(nodeKey.ID())
 	pubKey := readOrCreatePrivValidator(config)
-	
+
 	appGenTx, cliPrint, validator, err := appInit.AppGenTx(cdc, pubKey, genTxConfig)
 	if err != nil {
 		return
 	}
-	
+
 	tx := GenesisTx{
 		NodeID:    nodeID,
 		IP:        genTxConfig.IP,
@@ -149,12 +149,12 @@ func gentxWithConfig(cdc *wire.Codec, appInit AppInit, config *cfg.Config, genTx
 	if err != nil {
 		return
 	}
-	
+
 	// Write updated config with moniker
 	config.Moniker = genTxConfig.Name
 	configFilePath := filepath.Join(config.RootDir, "config", "config.toml")
 	cfg.WriteConfigFile(configFilePath, config)
-	
+
 	return
 }
 
@@ -165,7 +165,7 @@ func InitCmd(ctx *Context, cdc *wire.Codec, appInit AppInit) *cobra.Command {
 		Short: "Initialize genesis config, priv-validator file, and p2p-node file",
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
-			
+
 			config := ctx.Config
 			config.SetRoot(viper.GetString(tmcli.HomeFlag))
 			initConfig := InitConfig{
@@ -174,7 +174,7 @@ func InitCmd(ctx *Context, cdc *wire.Codec, appInit AppInit) *cobra.Command {
 				filepath.Join(config.RootDir, "config", "gentx"),
 				viper.GetBool(FlagOverwrite),
 			}
-			
+
 			chainID, nodeID, appMessage, err := initWithConfig(cdc, appInit, config, initConfig)
 			if err != nil {
 				return err
@@ -221,12 +221,12 @@ func initWithConfig(cdc *wire.Codec, appInit AppInit, config *cfg.Config, initCo
 	}
 	nodeID = string(nodeKey.ID())
 	pubKey := readOrCreatePrivValidator(config)
-	
+
 	if initConfig.ChainID == "" {
 		initConfig.ChainID = fmt.Sprintf("test-chain-%v", cmn.RandStr(6))
 	}
 	chainID = initConfig.ChainID
-	
+
 	genFile := config.GenesisFile()
 	if !initConfig.Overwrite && cmn.FileExists(genFile) {
 		err = fmt.Errorf("genesis.json file already exists: %v", genFile)
@@ -236,7 +236,7 @@ func initWithConfig(cdc *wire.Codec, appInit AppInit, config *cfg.Config, initCo
 	var appGenTxs []json.RawMessage
 	var validators []tmtypes.GenesisValidator
 	var persistentPeers string
-	
+
 	if initConfig.GenTxs {
 		validators, appGenTxs, persistentPeers, err = processGenTxs(initConfig.GenTxsDir, cdc)
 		if err != nil {
@@ -252,7 +252,7 @@ func initWithConfig(cdc *wire.Codec, appInit AppInit, config *cfg.Config, initCo
 			viper.GetBool(FlagOWK),
 			"127.0.0.1",
 		}
-		
+
 		// Write updated config with moniker
 		config.Moniker = genTxConfig.Name
 		configFilePath := filepath.Join(config.RootDir, "config", "config.toml")
@@ -265,30 +265,30 @@ func initWithConfig(cdc *wire.Codec, appInit AppInit, config *cfg.Config, initCo
 		validators = []tmtypes.GenesisValidator{validator}
 		appGenTxs = []json.RawMessage{appGenTx}
 	}
-	
+
 	appState, err := appInit.AppGenState(cdc, appGenTxs)
 	if err != nil {
 		return
 	}
-	
+
 	err = writeGenesisFile(cdc, genFile, initConfig.ChainID, validators, appState)
 	if err != nil {
 		return
 	}
-	
+
 	return
 }
 
 // append a genesis-piece
 func processGenTxs(genTxsDir string, cdc *wire.Codec) (
 	validators []tmtypes.GenesisValidator, appGenTxs []json.RawMessage, persistentPeers string, err error) {
-	
+
 	var fos []os.FileInfo
 	fos, err = ioutil.ReadDir(genTxsDir)
 	if err != nil {
 		return
 	}
-	
+
 	genTxs := make(map[string]GenesisTx)
 	var nodeIDs []string
 	for _, fo := range fos {
@@ -296,7 +296,7 @@ func processGenTxs(genTxsDir string, cdc *wire.Codec) (
 		if !fo.IsDir() && (path.Ext(filename) != ".json") {
 			continue
 		}
-		
+
 		// get the genTx
 		var bz []byte
 		bz, err = ioutil.ReadFile(filename)
@@ -308,20 +308,20 @@ func processGenTxs(genTxsDir string, cdc *wire.Codec) (
 		if err != nil {
 			return
 		}
-		
+
 		genTxs[genTx.NodeID] = genTx
 		nodeIDs = append(nodeIDs, genTx.NodeID)
 	}
-	
+
 	sort.Strings(nodeIDs)
-	
+
 	for _, nodeID := range nodeIDs {
 		genTx := genTxs[nodeID]
-		
+
 		// combine some stuff
 		validators = append(validators, genTx.Validator)
 		appGenTxs = append(appGenTxs, genTx.AppGenTx)
-		
+
 		// Add a persistent peer
 		comma := ","
 		if len(persistentPeers) == 0 {
@@ -329,11 +329,11 @@ func processGenTxs(genTxsDir string, cdc *wire.Codec) (
 		}
 		persistentPeers += fmt.Sprintf("%s%s@%s:26656", comma, genTx.NodeID, genTx.IP)
 	}
-	
+
 	return
 }
 
-// ________________________________________________________________________________________
+//________________________________________________________________________________________
 
 // read of create the private key file for this config
 func readOrCreatePrivValidator(tmConfig *cfg.Config) crypto.PubKey {
@@ -357,32 +357,33 @@ func writeGenesisFile(cdc *wire.Codec, genesisFile, chainID string, validators [
 		Validators: validators,
 		AppState:   appState,
 	}
-	
+
 	if err := genDoc.ValidateAndComplete(); err != nil {
 		return err
 	}
-	
+
 	return genDoc.SaveAs(genesisFile)
 }
 
-// _____________________________________________________________________
+//_____________________________________________________________________
 
 // Core functionality passed from the application to the server init command
 type AppInit struct {
+
 	// flags required for application init functions
 	FlagsAppGenState *pflag.FlagSet
 	FlagsAppGenTx    *pflag.FlagSet
-	
+
 	// create the application genesis tx
 	AppGenTx func(cdc *wire.Codec, pk crypto.PubKey, genTxConfig serverconfig.GenTx) (
 		appGenTx, cliPrint json.RawMessage, validator tmtypes.GenesisValidator, err error)
-	
+
 	// AppGenState creates the core parameters initialization. It takes in a
 	// pubkey meant to represent the pubkey of the validator of this machine.
 	AppGenState func(cdc *wire.Codec, appGenTxs []json.RawMessage) (appState json.RawMessage, err error)
 }
 
-// _____________________________________________________________________
+//_____________________________________________________________________
 
 // simple default application init
 var DefaultAppInit = AppInit{
@@ -398,14 +399,14 @@ type SimpleGenTx struct {
 // Generate a genesis transaction
 func SimpleAppGenTx(cdc *wire.Codec, pk crypto.PubKey, genTxConfig serverconfig.GenTx) (
 	appGenTx, cliPrint json.RawMessage, validator tmtypes.GenesisValidator, err error) {
-	
+
 	var addr sdk.AccAddress
 	var secret string
 	addr, secret, err = GenerateCoinKey()
 	if err != nil {
 		return
 	}
-	
+
 	var bz []byte
 	simpleGenTx := SimpleGenTx{addr}
 	bz, err = cdc.MarshalJSON(simpleGenTx)
@@ -413,14 +414,14 @@ func SimpleAppGenTx(cdc *wire.Codec, pk crypto.PubKey, genTxConfig serverconfig.
 		return
 	}
 	appGenTx = json.RawMessage(bz)
-	
+
 	mm := map[string]string{"secret": secret}
 	bz, err = cdc.MarshalJSON(mm)
 	if err != nil {
 		return
 	}
 	cliPrint = json.RawMessage(bz)
-	
+
 	validator = tmtypes.GenesisValidator{
 		PubKey: pk,
 		Power:  10,
@@ -430,18 +431,18 @@ func SimpleAppGenTx(cdc *wire.Codec, pk crypto.PubKey, genTxConfig serverconfig.
 
 // create the genesis app state
 func SimpleAppGenState(cdc *wire.Codec, appGenTxs []json.RawMessage) (appState json.RawMessage, err error) {
-	
+
 	if len(appGenTxs) != 1 {
 		err = errors.New("must provide a single genesis transaction")
 		return
 	}
-	
+
 	var genTx SimpleGenTx
 	err = cdc.UnmarshalJSON(appGenTxs[0], &genTx)
 	if err != nil {
 		return
 	}
-	
+
 	appState = json.RawMessage(fmt.Sprintf(`{
   "accounts": [{
     "address": "%s",
@@ -456,17 +457,17 @@ func SimpleAppGenState(cdc *wire.Codec, appGenTxs []json.RawMessage) (appState j
 	return
 }
 
-// ___________________________________________________________________________________________
+//___________________________________________________________________________________________
 
 // GenerateCoinKey returns the address of a public key, along with the secret
 // phrase to recover the private key.
 func GenerateCoinKey() (sdk.AccAddress, string, error) {
-	
+
 	// construct an in-memory key store
 	keybase := keys.New(
 		dbm.NewMemDB(),
 	)
-	
+
 	// generate a private key, with recovery phrase
 	info, secret, err := keybase.CreateMnemonic("name", keys.English, "pass", keys.Secp256k1)
 	if err != nil {
@@ -479,7 +480,7 @@ func GenerateCoinKey() (sdk.AccAddress, string, error) {
 // GenerateSaveCoinKey returns the address of a public key, along with the secret
 // phrase to recover the private key.
 func GenerateSaveCoinKey(clientRoot, keyName, keyPass string, overwrite bool) (sdk.AccAddress, string, error) {
-	
+
 	// get the keystore from the client
 	keybase, err := clkeys.GetKeyBaseFromDir(clientRoot)
 	if err != nil {

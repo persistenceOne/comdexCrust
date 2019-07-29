@@ -11,20 +11,20 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-	
-	"github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/client/keys"
-	crkeys "github.com/comdex-blockchain/crypto/keys"
-	gapp "github.com/comdex-blockchain/main/app"
-	"github.com/comdex-blockchain/server"
-	"github.com/comdex-blockchain/tests"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/auth"
-	
+
+	"github.com/commitHub/commitBlockchain/client"
+	keys "github.com/commitHub/commitBlockchain/client/keys"
+	crkeys "github.com/commitHub/commitBlockchain/crypto/keys"
+	gapp "github.com/commitHub/commitBlockchain/main/app"
+	"github.com/commitHub/commitBlockchain/server"
+	"github.com/commitHub/commitBlockchain/tests"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/auth"
+
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmcfg "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto"
@@ -46,7 +46,7 @@ func makePathname() string {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	sep := string(filepath.Separator)
 	return strings.Replace(p, sep, "_", -1)
 }
@@ -55,26 +55,26 @@ func makePathname() string {
 func GetConfig() *tmcfg.Config {
 	pathname := makePathname()
 	config := tmcfg.ResetTestRoot(pathname)
-	
+
 	tmAddr, _, err := server.FreeTCPAddr()
 	if err != nil {
 		panic(err)
 	}
-	
+
 	rcpAddr, _, err := server.FreeTCPAddr()
 	if err != nil {
 		panic(err)
 	}
-	
+
 	grpcAddr, _, err := server.FreeTCPAddr()
 	if err != nil {
 		panic(err)
 	}
-	
+
 	config.P2P.ListenAddress = tmAddr
 	config.RPC.ListenAddress = rcpAddr
 	config.RPC.GRPCListenAddress = grpcAddr
-	
+
 	return config
 }
 
@@ -86,12 +86,12 @@ func GetConfig() *tmcfg.Config {
 func GetKeyBase(t *testing.T) crkeys.Keybase {
 	dir, err := ioutil.TempDir("", "lcd_test")
 	require.NoError(t, err)
-	
+
 	viper.Set(cli.HomeFlag, dir)
-	
+
 	keybase, err := keys.GetKeyBase()
 	require.NoError(t, err)
-	
+
 	return keybase
 }
 
@@ -103,10 +103,10 @@ func CreateAddr(t *testing.T, name, password string, kb crkeys.Keybase) (sdk.Acc
 		info crkeys.Info
 		seed string
 	)
-	
+
 	info, seed, err = kb.CreateMnemonic(name, crkeys.English, password, crkeys.Secp256k1)
 	require.NoError(t, err)
-	
+
 	return sdk.AccAddress(info.GetPubKey().Address()), seed
 }
 
@@ -119,26 +119,26 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 	config.Consensus.TimeoutCommit = 100
 	config.Consensus.SkipTimeoutCommit = false
 	config.TxIndex.IndexAllTags = true
-	
+
 	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
 	logger = log.NewFilter(logger, log.AllowError())
-	
+
 	privValidatorFile := config.PrivValidatorFile()
 	privVal := pvm.LoadOrGenFilePV(privValidatorFile)
 	privVal.Reset()
-	
+
 	db := dbm.NewMemDB()
 	app := gapp.NewMainApp(logger, db, nil)
 	cdc = gapp.MakeCodec()
-	
+
 	genesisFile := config.GenesisFile()
 	genDoc, err := tmtypes.GenesisDocFromFile(genesisFile)
 	require.NoError(t, err)
-	
+
 	if nValidators < 1 {
 		panic("InitializeTestLCD must use at least one validator")
 	}
-	
+
 	for i := 1; i < nValidators; i++ {
 		genDoc.Validators = append(genDoc.Validators,
 			tmtypes.GenesisValidator{
@@ -148,25 +148,25 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 			},
 		)
 	}
-	
+
 	var validatorsPKs []crypto.PubKey
-	
+
 	// NOTE: It's bad practice to reuse public key address for the owner
 	// address but doing in the test for simplicity.
 	var appGenTxs []json.RawMessage
 	for _, gdValidator := range genDoc.Validators {
 		pk := gdValidator.PubKey
 		validatorsPKs = append(validatorsPKs, pk)
-		
+
 		appGenTx, _, _, err := gapp.MainAppGenTxNF(cdc, pk, sdk.AccAddress(pk.Address()), "test_val1")
 		require.NoError(t, err)
-		
+
 		appGenTxs = append(appGenTxs, appGenTx)
 	}
-	
+
 	genesisState, err := gapp.MainAppGenState(cdc, appGenTxs[:])
 	require.NoError(t, err)
-	
+
 	// add some tokens to init accounts
 	for _, addr := range initAddrs {
 		accAuth := auth.NewBaseAccountWithAddress(addr)
@@ -175,35 +175,35 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 		genesisState.Accounts = append(genesisState.Accounts, acc)
 		genesisState.StakeData.Pool.LooseTokens = genesisState.StakeData.Pool.LooseTokens.Add(sdk.NewDec(100))
 	}
-	
+
 	appState, err := wire.MarshalJSONIndent(cdc, genesisState)
 	require.NoError(t, err)
 	genDoc.AppState = appState
-	
+
 	listenAddr, port, err := server.FreeTCPAddr()
 	require.NoError(t, err)
-	
+
 	// XXX: Need to set this so LCD knows the tendermint node address!
 	viper.Set(client.FlagNode, config.RPC.ListenAddress)
 	viper.Set(client.FlagChainID, genDoc.ChainID)
-	
+
 	node, err := startTM(config, logger, genDoc, privVal, app)
 	require.NoError(t, err)
-	
+
 	tests.WaitForNextHeightTM(tests.ExtractPortFromAddress(config.RPC.ListenAddress))
 	lcd, err := startLCD(logger, listenAddr, cdc)
 	require.NoError(t, err)
-	
+
 	tests.WaitForLCDStart(port)
 	tests.WaitForHeight(1, port)
-	
+
 	cleanup := func() {
 		logger.Debug("cleaning up LCD initialization")
 		node.Stop()
 		node.Wait()
 		lcd.Close()
 	}
-	
+
 	return cleanup, validatorsPKs, port
 }
 
@@ -230,15 +230,15 @@ func startTM(
 	if err != nil {
 		return nil, err
 	}
-	
+
 	err = node.Start()
 	if err != nil {
 		return nil, err
 	}
-	
+
 	tests.WaitForRPC(tmcfg.RPC.ListenAddress)
 	logger.Info("Tendermint running!")
-	
+
 	return node, err
 }
 
@@ -259,16 +259,16 @@ func Request(t *testing.T, port, method, path string, payload []byte) (*http.Res
 	)
 	url := fmt.Sprintf("http://localhost:%v%v", port, path)
 	fmt.Println("REQUEST " + method + " " + url)
-	
+
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(payload))
 	require.Nil(t, err)
-	
+
 	res, err = http.DefaultClient.Do(req)
 	require.Nil(t, err)
-	
+
 	output, err := ioutil.ReadAll(res.Body)
 	res.Body.Close()
 	require.Nil(t, err)
-	
+
 	return res, string(output)
 }

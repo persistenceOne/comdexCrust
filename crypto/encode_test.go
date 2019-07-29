@@ -3,9 +3,9 @@ package crypto
 import (
 	"os"
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
-	
+
 	tcrypto "github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
@@ -47,16 +47,16 @@ func checkAminoJSON(t *testing.T, src interface{}, dst interface{}, isNil bool) 
 	require.Nil(t, err, "%+v", err)
 }
 
-// nolint
+//nolint
 func ExamplePrintRegisteredTypes() {
 	cdc.PrintTypes(os.Stdout)
 	// Output: | Type | Name | Prefix | Length | Notes |
-	// | ---- | ---- | ------ | ----- | ------ |
-	// | PrivKeyLedgerSecp256k1 | tendermint/PrivKeyLedgerSecp256k1 | 0x10CAB393 | variable |  |
-	// | PubKeyEd25519 | tendermint/PubKeyEd25519 | 0x1624DE64 | 0x20 |  |
-	// | PubKeySecp256k1 | tendermint/PubKeySecp256k1 | 0xEB5AE987 | 0x21 |  |
-	// | PrivKeyEd25519 | tendermint/PrivKeyEd25519 | 0xA3288910 | 0x40 |  |
-	// | PrivKeySecp256k1 | tendermint/PrivKeySecp256k1 | 0xE1B0F79B | 0x20 |  |
+	//| ---- | ---- | ------ | ----- | ------ |
+	//| PrivKeyLedgerSecp256k1 | tendermint/PrivKeyLedgerSecp256k1 | 0x10CAB393 | variable |  |
+	//| PubKeyEd25519 | tendermint/PubKeyEd25519 | 0x1624DE64 | 0x20 |  |
+	//| PubKeySecp256k1 | tendermint/PubKeySecp256k1 | 0xEB5AE987 | 0x21 |  |
+	//| PrivKeyEd25519 | tendermint/PrivKeyEd25519 | 0xA3288910 | 0x40 |  |
+	//| PrivKeySecp256k1 | tendermint/PrivKeySecp256k1 | 0xE1B0F79B | 0x20 |  |
 }
 
 func TestKeyEncodings(t *testing.T) {
@@ -75,23 +75,23 @@ func TestKeyEncodings(t *testing.T) {
 			pubSize:  38,
 		},
 	}
-	
+
 	for _, tc := range cases {
-		
+
 		// Check (de/en)codings of PrivKeys.
 		var priv2, priv3 tcrypto.PrivKey
 		checkAminoBinary(t, tc.privKey, &priv2, tc.privSize)
 		require.EqualValues(t, tc.privKey, priv2)
 		checkAminoJSON(t, tc.privKey, &priv3, false) // TODO also check Prefix bytes.
 		require.EqualValues(t, tc.privKey, priv3)
-		
+
 		// Check (de/en)codings of Signatures.
 		var sig1, sig2 []byte
 		sig1, err := tc.privKey.Sign([]byte("something"))
 		require.NoError(t, err)
 		checkAminoBinary(t, sig1, &sig2, -1) // Signature size changes for Secp anyways.
 		require.EqualValues(t, sig1, sig2)
-		
+
 		// Check (de/en)codings of PubKeys.
 		pubKey := tc.privKey.PubKey()
 		var pub2, pub3 tcrypto.PubKey
@@ -103,20 +103,20 @@ func TestKeyEncodings(t *testing.T) {
 }
 
 func TestNilEncodings(t *testing.T) {
-	
+
 	// Check nil Signature.
 	var a, b []byte
 	checkAminoJSON(t, &a, &b, true)
 	require.EqualValues(t, a, b)
-	
+
 	// Check nil PubKey.
 	var c, d tcrypto.PubKey
 	checkAminoJSON(t, &c, &d, true)
 	require.EqualValues(t, c, d)
-	
+
 	// Check nil PrivKey.
 	var e, f tcrypto.PrivKey
 	checkAminoJSON(t, &e, &f, true)
 	require.EqualValues(t, e, f)
-	
+
 }

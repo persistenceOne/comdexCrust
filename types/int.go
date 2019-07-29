@@ -2,7 +2,7 @@ package types
 
 import (
 	"encoding/json"
-	
+
 	"math/big"
 	"math/rand"
 )
@@ -118,7 +118,7 @@ func NewIntWithDecimal(n int64, dec int) Int {
 	exp := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(dec)), nil)
 	i := new(big.Int)
 	i.Mul(big.NewInt(n), exp)
-	
+
 	// Check overflow
 	if i.BitLen() > 255 {
 		panic("NewIntWithDecimal() out of bound")
@@ -350,7 +350,7 @@ func NewUintWithDecimal(n uint64, dec int) Uint {
 	exp := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(dec)), nil)
 	i := new(big.Int)
 	i.Mul(new(big.Int).SetUint64(n), exp)
-	
+
 	// Check overflow
 	if i.Sign() == -1 || i.Sign() == 1 && i.BitLen() > 256 {
 		panic("NewUintWithDecimal() out of bound")

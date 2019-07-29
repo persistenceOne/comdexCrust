@@ -6,19 +6,19 @@ import (
 	"io/ioutil"
 	"net/http"
 	"reflect"
-	
+
 	"github.com/asaskevich/govalidator"
-	cliclient "github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/client/context"
-	"github.com/comdex-blockchain/client/utils"
-	"github.com/comdex-blockchain/crypto/keys"
-	"github.com/comdex-blockchain/rest"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/acl"
-	aclTypes "github.com/comdex-blockchain/x/acl"
-	authctx "github.com/comdex-blockchain/x/auth/client/context"
-	"github.com/comdex-blockchain/x/ibc"
+	cliclient "github.com/commitHub/commitBlockchain/client"
+	"github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/client/utils"
+	"github.com/commitHub/commitBlockchain/crypto/keys"
+	"github.com/commitHub/commitBlockchain/rest"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/acl"
+	aclTypes "github.com/commitHub/commitBlockchain/x/acl"
+	authctx "github.com/commitHub/commitBlockchain/x/auth/client/context"
+	"github.com/commitHub/commitBlockchain/x/ibc"
 )
 
 // IssueAssetHandlerFunction - http request handler to IssueAsset
@@ -27,10 +27,10 @@ import (
 func IssueAssetHandlerFunction(cdc *wire.Codec, kb keys.Keybase, cliCtx context.CLIContext, kafka bool, kafkaState rest.KafkaState) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		
+
 		var m ibc.IssueAssetBody
 		var to, takerAddress sdk.AccAddress
-		
+
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -41,13 +41,13 @@ func IssueAssetHandlerFunction(cdc *wire.Codec, kb keys.Keybase, cliCtx context.
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		_, err = govalidator.ValidateStruct(m)
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		txCtx := authctx.TxContext{
 			Codec:         cdc,
 			ChainID:       m.SourceChainID,
@@ -55,33 +55,33 @@ func IssueAssetHandlerFunction(cdc *wire.Codec, kb keys.Keybase, cliCtx context.
 			Sequence:      m.Sequence,
 			Gas:           m.Gas,
 		}
-		
+
 		adjustment, ok := utils.ParseFloat64OrReturnBadRequest(w, m.GasAdjustment, cliclient.DefaultGasAdjustment)
 		if !ok {
 			return
 		}
-		
+
 		cliCtx = cliCtx.WithGasAdjustment(adjustment)
 		cliCtx = cliCtx.WithFromAddressName(m.From)
 		cliCtx.JSON = true
-		
+
 		if err := cliCtx.EnsureAccountExists(); err != nil {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		from, err := cliCtx.GetFromAddress()
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		toStr := m.To
-		if (!m.Moderated && toStr == "") || (m.Moderated && toStr != "") {
+		if (m.Moderated && toStr == "") || (!m.Moderated && toStr != "") {
 			utils.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("private variable is not valid for toAddress."))
 			return
 		}
-		
+
 		if toStr == "" {
 			to = from
 		} else {
@@ -90,7 +90,7 @@ func IssueAssetHandlerFunction(cdc *wire.Codec, kb keys.Keybase, cliCtx context.
 				utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}
-			if m.Moderated {
+			if !m.Moderated {
 				if to.String() != from.String() {
 					utils.WriteErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Cannot issue an issue. receiverAddress should same as issuerAddress."))
 					return
@@ -109,13 +109,13 @@ func IssueAssetHandlerFunction(cdc *wire.Codec, kb keys.Keybase, cliCtx context.
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("couldn't query account. Error: %s", err.Error()))
 			return
 		}
-		
+
 		// the query will return empty if there is no data for this account
 		if len(res) == 0 {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Unauthorized transaction"))
 			return
 		}
-		
+
 		// decode the value
 		decoder := aclTypes.GetACLAccountDecoder(cdc)
 		account, err := decoder(res)
@@ -127,7 +127,7 @@ func IssueAssetHandlerFunction(cdc *wire.Codec, kb keys.Keybase, cliCtx context.
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Unauthorized transaction"))
 			return
 		}
-		if !m.Moderated {
+		if m.Moderated {
 			zoneID := account.GetZoneID()
 			zoneData, err := cliCtx.QueryStore(acl.ZoneStoreKey(zoneID), "acl")
 			if err != nil {
@@ -150,10 +150,10 @@ func IssueAssetHandlerFunction(cdc *wire.Codec, kb keys.Keybase, cliCtx context.
 			Moderated:     m.Moderated,
 			TakerAddress:  takerAddress,
 		}
-		
+
 		msg := ibc.BuildIssueAssetMsg(from, to, assetPeg, m.SourceChainID, m.DestinationChainID)
 		// build message
-		
+
 		if kafka == true {
 			ticketID := rest.TicketIDGenerator("IBCIA")
 			jsonResponse := rest.SendToKafka(rest.NewKafkaMsgFromRest(msg, ticketID, txCtx, cliCtx, m.Password), kafkaState, cdc)

@@ -4,21 +4,21 @@ import (
 	"encoding/json"
 	"math/rand"
 	"testing"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/bank"
-	"github.com/comdex-blockchain/x/mock"
-	"github.com/comdex-blockchain/x/mock/simulation"
-	"github.com/comdex-blockchain/x/stake"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/bank"
+	"github.com/commitHub/commitBlockchain/x/mock"
+	"github.com/commitHub/commitBlockchain/x/mock/simulation"
+	"github.com/commitHub/commitBlockchain/x/stake"
 )
 
 // TestStakeWithRandomMessages
 func TestStakeWithRandomMessages(t *testing.T) {
 	mapp := mock.NewApp()
-	
+
 	bank.RegisterWire(mapp.Cdc)
 	mapper := mapp.AccountMapper
 	coinKeeper := bank.NewKeeper(mapper)
@@ -31,17 +31,17 @@ func TestStakeWithRandomMessages(t *testing.T) {
 			ValidatorUpdates: validatorUpdates,
 		}
 	})
-	
+
 	err := mapp.CompleteSetup([]*sdk.KVStoreKey{stakeKey})
 	if err != nil {
 		panic(err)
 	}
-	
+
 	appStateFn := func(r *rand.Rand, keys []crypto.PrivKey, accs []sdk.AccAddress) json.RawMessage {
 		mock.RandomSetGenesis(r, mapp, accs, []string{"stake"})
 		return json.RawMessage("{}")
 	}
-	
+
 	simulation.Simulate(
 		t, mapp.BaseApp, appStateFn,
 		[]simulation.Operation{

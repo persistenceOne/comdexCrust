@@ -2,28 +2,28 @@ package fiatFactory
 
 import (
 	"encoding/json"
-	
+
 	"github.com/asaskevich/govalidator"
-	sdk "github.com/comdex-blockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
-// *****Comdex
+//*****Comdex
 
-// *****IssueFiat
+//*****IssueFiat
 
-// IssueFiat - transaction input
+//IssueFiat - transaction input
 type IssueFiat struct {
 	IssuerAddress sdk.AccAddress `json:"issuerAddress"`
 	ToAddress     sdk.AccAddress `json:"toAddress"`
 	FiatPeg       sdk.FiatPeg    `json:"fiatPeg"`
 }
 
-// NewIssueFiat : initializer
+//NewIssueFiat : initializer
 func NewIssueFiat(issuerAddress sdk.AccAddress, toAddress sdk.AccAddress, fiatPeg sdk.FiatPeg) IssueFiat {
 	return IssueFiat{issuerAddress, toAddress, fiatPeg}
 }
 
-// GetSignBytes : get bytes to sign
+//GetSignBytes : get bytes to sign
 func (in IssueFiat) GetSignBytes() []byte {
 	bin, err := msgCdc.MarshalJSON(struct {
 		IssuerAddress string      `json:"issuerAddress"`
@@ -40,28 +40,28 @@ func (in IssueFiat) GetSignBytes() []byte {
 	return bin
 }
 
-// #####IssueFiat
+//#####IssueFiat
 
-// *****MsgFactoryIssueFiats
+//*****MsgFactoryIssueFiats
 
-// MsgFactoryIssueFiats : high level issuance of fiats module
+//MsgFactoryIssueFiats : high level issuance of fiats module
 type MsgFactoryIssueFiats struct {
 	IssueFiats []IssueFiat `json:"issueFiats"`
 }
 
-// NewMsgFactoryIssueFiats : initilizer
+//NewMsgFactoryIssueFiats : initilizer
 func NewMsgFactoryIssueFiats(issueFiats []IssueFiat) MsgFactoryIssueFiats {
 	return MsgFactoryIssueFiats{issueFiats}
 }
 
-// ***** Implementing sdk.Msg
+//***** Implementing sdk.Msg
 
 var _ sdk.Msg = MsgFactoryIssueFiats{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgFactoryIssueFiats) Type() string { return "fiatFactory" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgFactoryIssueFiats) ValidateBasic() sdk.Error {
 	_, err := govalidator.ValidateStruct(msg)
 	if err != nil {
@@ -81,13 +81,13 @@ func (msg MsgFactoryIssueFiats) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgFactoryIssueFiats) GetSignBytes() []byte {
 	var issueFiats []json.RawMessage
 	for _, issueFiat := range msg.IssueFiats {
 		issueFiats = append(issueFiats, issueFiat.GetSignBytes())
 	}
-	
+
 	b, err := msgCdc.MarshalJSON(struct {
 		IssueFiats []json.RawMessage `json:"issueFiats"`
 	}{
@@ -99,7 +99,7 @@ func (msg MsgFactoryIssueFiats) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgFactoryIssueFiats) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.IssueFiats))
 	for i, in := range msg.IssueFiats {
@@ -108,20 +108,20 @@ func (msg MsgFactoryIssueFiats) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// BuildIssueFiatMsg : butild the issueFiatTx
+//BuildIssueFiatMsg : butild the issueFiatTx
 func BuildIssueFiatMsg(from sdk.AccAddress, to sdk.AccAddress, fiatPeg sdk.FiatPeg) sdk.Msg {
 	issueFiat := NewIssueFiat(from, to, fiatPeg)
 	msg := NewMsgFactoryIssueFiats([]IssueFiat{issueFiat})
 	return msg
 }
 
-// ##### Implement sdk.Msg
+//##### Implement sdk.Msg
 
-// #####MsgFactoryIssueFiats
+//#####MsgFactoryIssueFiats
 
-// ****RedeemFiat
+//****RedeemFiat
 
-// RedeemFiat : transaction input
+//RedeemFiat : transaction input
 type RedeemFiat struct {
 	RelayerAddress  sdk.AccAddress    `json:"relayerAddress"`
 	RedeemerAddress sdk.AccAddress    `json:"redeemerAddress"`
@@ -129,12 +129,12 @@ type RedeemFiat struct {
 	FiatPegWallet   sdk.FiatPegWallet `json:"fiatPegWallet"`
 }
 
-// NewRedeemFiat : initializer
+//NewRedeemFiat : initializer
 func NewRedeemFiat(relayerAddress sdk.AccAddress, redeemerAddress sdk.AccAddress, amount int64, fiatPegWallet sdk.FiatPegWallet) RedeemFiat {
 	return RedeemFiat{relayerAddress, redeemerAddress, amount, fiatPegWallet}
 }
 
-// GetSignBytes : get bytes to sign
+//GetSignBytes : get bytes to sign
 func (in RedeemFiat) GetSignBytes() []byte {
 	bin, err := msgCdc.MarshalJSON(struct {
 		RelayerAddress  string            `json:"relayerAddress"`
@@ -153,28 +153,28 @@ func (in RedeemFiat) GetSignBytes() []byte {
 	return bin
 }
 
-// #####RedeemFiat
+//#####RedeemFiat
 
-// *****MsgFactoryRedeemFiats
+//*****MsgFactoryRedeemFiats
 
-// MsgFactoryRedeemFiats : high level issuance of fiats module
+//MsgFactoryRedeemFiats : high level issuance of fiats module
 type MsgFactoryRedeemFiats struct {
 	RedeemFiats []RedeemFiat `json:"redeemFiats"`
 }
 
-// NewMsgFactoryRedeemFiats : initilizer
+//NewMsgFactoryRedeemFiats : initilizer
 func NewMsgFactoryRedeemFiats(redeemFiats []RedeemFiat) MsgFactoryRedeemFiats {
 	return MsgFactoryRedeemFiats{redeemFiats}
 }
 
-// ***** Implementing sdk.Msg
+//***** Implementing sdk.Msg
 
 var _ sdk.Msg = MsgFactoryRedeemFiats{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgFactoryRedeemFiats) Type() string { return "fiatFactory" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgFactoryRedeemFiats) ValidateBasic() sdk.Error {
 	_, err := govalidator.ValidateStruct(msg)
 	if err != nil {
@@ -194,13 +194,13 @@ func (msg MsgFactoryRedeemFiats) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgFactoryRedeemFiats) GetSignBytes() []byte {
 	var redeemFiats []json.RawMessage
 	for _, redeemFiat := range msg.RedeemFiats {
 		redeemFiats = append(redeemFiats, redeemFiat.GetSignBytes())
 	}
-	
+
 	b, err := msgCdc.MarshalJSON(struct {
 		RedeemFiats []json.RawMessage `json:"redeemFiats"`
 	}{
@@ -212,7 +212,7 @@ func (msg MsgFactoryRedeemFiats) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgFactoryRedeemFiats) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.RedeemFiats))
 	for i, in := range msg.RedeemFiats {
@@ -221,20 +221,20 @@ func (msg MsgFactoryRedeemFiats) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// BuildRedeemFiatMsg : butild the issueFiatTx
+//BuildRedeemFiatMsg : butild the issueFiatTx
 func BuildRedeemFiatMsg(relayerAddress sdk.AccAddress, redeemerAddress sdk.AccAddress, amount int64, fiatPegWallet sdk.FiatPegWallet) sdk.Msg {
 	redeemFiat := NewRedeemFiat(relayerAddress, redeemerAddress, amount, fiatPegWallet)
 	msg := NewMsgFactoryRedeemFiats([]RedeemFiat{redeemFiat})
 	return msg
 }
 
-// ##### Implement sdk.Msg
+//##### Implement sdk.Msg
 
-// #####MsgFactoryRedeemFiats
+//#####MsgFactoryRedeemFiats
 
-// *****SendFiat
+//*****SendFiat
 
-// SendFiat - transaction input
+//SendFiat - transaction input
 type SendFiat struct {
 	RelayerAddress sdk.AccAddress    `json:"relayerAddress"`
 	FromAddress    sdk.AccAddress    `json:"fromAddress"`
@@ -243,12 +243,12 @@ type SendFiat struct {
 	FiatPegWallet  sdk.FiatPegWallet `json:"fiatPegWallet"`
 }
 
-// NewSendFiat : initializer
+//NewSendFiat : initializer
 func NewSendFiat(relayerAddress sdk.AccAddress, fromAddress sdk.AccAddress, toAddress sdk.AccAddress, pegHash sdk.PegHash, fiatPegWallet sdk.FiatPegWallet) SendFiat {
 	return SendFiat{relayerAddress, fromAddress, toAddress, pegHash, fiatPegWallet}
 }
 
-// GetSignBytes : get bytes to sign
+//GetSignBytes : get bytes to sign
 func (in SendFiat) GetSignBytes() []byte {
 	bin, err := msgCdc.MarshalJSON(struct {
 		RelayerAddress string            `json:"relayerAddress"`
@@ -269,28 +269,28 @@ func (in SendFiat) GetSignBytes() []byte {
 	return bin
 }
 
-// #####SendFiat
+//#####SendFiat
 
-// *****MsgFactorySendFiats
+//*****MsgFactorySendFiats
 
-// MsgFactorySendFiats : high level issuance of fiats module
+//MsgFactorySendFiats : high level issuance of fiats module
 type MsgFactorySendFiats struct {
 	SendFiats []SendFiat `json:"sendFiats"`
 }
 
-// NewMsgFactorySendFiats : initilizer
+//NewMsgFactorySendFiats : initilizer
 func NewMsgFactorySendFiats(sendFiats []SendFiat) MsgFactorySendFiats {
 	return MsgFactorySendFiats{sendFiats}
 }
 
-// ***** Implementing sdk.Msg
+//***** Implementing sdk.Msg
 
 var _ sdk.Msg = MsgFactorySendFiats{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgFactorySendFiats) Type() string { return "fiatFactory" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgFactorySendFiats) ValidateBasic() sdk.Error {
 	_, err := govalidator.ValidateStruct(msg)
 	if err != nil {
@@ -312,13 +312,13 @@ func (msg MsgFactorySendFiats) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgFactorySendFiats) GetSignBytes() []byte {
 	var sendFiats []json.RawMessage
 	for _, sendFiat := range msg.SendFiats {
 		sendFiats = append(sendFiats, sendFiat.GetSignBytes())
 	}
-	
+
 	b, err := msgCdc.MarshalJSON(struct {
 		SendFiats []json.RawMessage `json:"sendFiats"`
 	}{
@@ -330,7 +330,7 @@ func (msg MsgFactorySendFiats) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgFactorySendFiats) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.SendFiats))
 	for i, in := range msg.SendFiats {
@@ -339,37 +339,37 @@ func (msg MsgFactorySendFiats) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// BuildSendFiatMsg : build the sendFiatTx
+//BuildSendFiatMsg : build the sendFiatTx
 func BuildSendFiatMsg(relayerAddress sdk.AccAddress, fromAddress sdk.AccAddress, toAddress sdk.AccAddress, pegHash sdk.PegHash, fiatPegWallet sdk.FiatPegWallet) sdk.Msg {
 	sendFiat := NewSendFiat(relayerAddress, fromAddress, toAddress, pegHash, fiatPegWallet)
 	msg := NewMsgFactorySendFiats([]SendFiat{sendFiat})
 	return msg
 }
 
-// ##### Implement sdk.Msg
+//##### Implement sdk.Msg
 
-// #####MsgFactorySendFiats
+//#####MsgFactorySendFiats
 
-// *****MsgFactoryExecuteFiats
+//*****MsgFactoryExecuteFiats
 
-// MsgFactoryExecuteFiats : high level issuance of fiats module
+//MsgFactoryExecuteFiats : high level issuance of fiats module
 type MsgFactoryExecuteFiats struct {
 	SendFiats []SendFiat `json:"sendFiats"`
 }
 
-// NewMsgFactoryExecuteFiats : initilizer
+//NewMsgFactoryExecuteFiats : initilizer
 func NewMsgFactoryExecuteFiats(sendFiats []SendFiat) MsgFactoryExecuteFiats {
 	return MsgFactoryExecuteFiats{sendFiats}
 }
 
-// ***** Implementing sdk.Msg
+//***** Implementing sdk.Msg
 
 var _ sdk.Msg = MsgFactoryExecuteFiats{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgFactoryExecuteFiats) Type() string { return "fiatFactory" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgFactoryExecuteFiats) ValidateBasic() sdk.Error {
 	_, err := govalidator.ValidateStruct(msg)
 	if err != nil {
@@ -391,13 +391,13 @@ func (msg MsgFactoryExecuteFiats) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgFactoryExecuteFiats) GetSignBytes() []byte {
 	var sendFiats []json.RawMessage
 	for _, sendFiat := range msg.SendFiats {
 		sendFiats = append(sendFiats, sendFiat.GetSignBytes())
 	}
-	
+
 	b, err := msgCdc.MarshalJSON(struct {
 		SendFiats []json.RawMessage `json:"sendFiats"`
 	}{
@@ -409,7 +409,7 @@ func (msg MsgFactoryExecuteFiats) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgFactoryExecuteFiats) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.SendFiats))
 	for i, in := range msg.SendFiats {
@@ -418,14 +418,14 @@ func (msg MsgFactoryExecuteFiats) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// BuildExecuteFiatMsg : build the executeFiatTx
+//BuildExecuteFiatMsg : build the executeFiatTx
 func BuildExecuteFiatMsg(relayerAddress sdk.AccAddress, fromAddress sdk.AccAddress, toAddress sdk.AccAddress, pegHash sdk.PegHash, fiatPegWallet sdk.FiatPegWallet) sdk.Msg {
 	sendFiat := NewSendFiat(relayerAddress, fromAddress, toAddress, pegHash, fiatPegWallet)
 	msg := NewMsgFactoryExecuteFiats([]SendFiat{sendFiat})
 	return msg
 }
 
-// ##### Implement sdk.Msg
+//##### Implement sdk.Msg
 
-// #####MsgFactoryExecuteFiats
-// #####Comdex
+//#####MsgFactoryExecuteFiats
+//#####Comdex

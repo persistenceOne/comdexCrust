@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 	"testing"
-	
-	"github.com/comdex-blockchain/server"
-	"github.com/comdex-blockchain/tests"
+
+	"github.com/commitHub/commitBlockchain/server"
+	"github.com/commitHub/commitBlockchain/tests"
 	"github.com/stretchr/testify/require"
 )
 

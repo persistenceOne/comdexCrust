@@ -2,7 +2,7 @@
 package tags
 
 import (
-	sdk "github.com/comdex-blockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 var (
@@ -13,7 +13,7 @@ var (
 	ActionCompleteUnbonding    = []byte("complete-unbonding")
 	ActionBeginRedelegation    = []byte("begin-redelegation")
 	ActionCompleteRedelegation = []byte("complete-redelegation")
-	
+
 	Action       = sdk.TagAction
 	SrcValidator = sdk.TagSrcValidator
 	DstValidator = sdk.TagDstValidator

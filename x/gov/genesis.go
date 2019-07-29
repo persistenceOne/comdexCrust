@@ -1,7 +1,7 @@
 package gov
 
 import (
-	sdk "github.com/comdex-blockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // GenesisState - all staking state that must be provided at genesis
@@ -26,7 +26,7 @@ func DefaultGenesisState() GenesisState {
 	return GenesisState{
 		StartingProposalID: 1,
 		DepositProcedure: DepositProcedure{
-			MinDeposit:       sdk.Coins{sdk.NewInt64Coin("steak", 10)},
+			MinDeposit:       sdk.Coins{sdk.NewInt64Coin("commit", 10)},
 			MaxDepositPeriod: 200,
 		},
 		VotingProcedure: VotingProcedure{
@@ -58,7 +58,7 @@ func WriteGenesis(ctx sdk.Context, k Keeper) GenesisState {
 	depositProcedure := k.GetDepositProcedure(ctx)
 	votingProcedure := k.GetVotingProcedure(ctx)
 	tallyingProcedure := k.GetTallyingProcedure(ctx)
-	
+
 	return GenesisState{
 		StartingProposalID: startingProposalID,
 		DepositProcedure:   depositProcedure,

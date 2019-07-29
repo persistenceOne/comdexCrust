@@ -6,16 +6,16 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	
-	"github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/client/context"
-	"github.com/comdex-blockchain/client/utils"
-	"github.com/comdex-blockchain/crypto/keys"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	authctx "github.com/comdex-blockchain/x/auth/client/context"
-	"github.com/comdex-blockchain/x/slashing"
-	
+
+	"github.com/commitHub/commitBlockchain/client"
+	"github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/client/utils"
+	"github.com/commitHub/commitBlockchain/crypto/keys"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	authctx "github.com/commitHub/commitBlockchain/x/auth/client/context"
+	"github.com/commitHub/commitBlockchain/x/slashing"
+
 	"github.com/gorilla/mux"
 )
 
@@ -52,24 +52,24 @@ func unjailRequestHandlerFn(cdc *wire.Codec, kb keys.Keybase, cliCtx context.CLI
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		info, err := kb.Get(m.LocalAccountName)
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusUnauthorized, err.Error())
 			return
 		}
-		
+
 		valAddr, err := sdk.ValAddressFromBech32(m.ValidatorAddr)
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Couldn't decode validator. Error: %s", err.Error()))
 			return
 		}
-		
+
 		if !bytes.Equal(info.GetPubKey().Address(), valAddr) {
 			utils.WriteErrorResponse(w, http.StatusUnauthorized, "Must use own validator address")
 			return
 		}
-		
+
 		txCtx := authctx.TxContext{
 			Codec:         cdc,
 			ChainID:       m.ChainID,
@@ -77,15 +77,15 @@ func unjailRequestHandlerFn(cdc *wire.Codec, kb keys.Keybase, cliCtx context.CLI
 			Sequence:      m.Sequence,
 			Gas:           m.Gas,
 		}
-		
+
 		msg := slashing.NewMsgUnjail(valAddr)
-		
+
 		adjustment, ok := utils.ParseFloat64OrReturnBadRequest(w, m.GasAdjustment, client.DefaultGasAdjustment)
 		if !ok {
 			return
 		}
 		cliCtx = cliCtx.WithGasAdjustment(adjustment)
-		
+
 		if utils.HasDryRunArg(r) || m.Gas == 0 {
 			newCtx, err := utils.EnrichCtxWithGas(txCtx, cliCtx, m.LocalAccountName, []sdk.Msg{msg})
 			if err != nil {
@@ -98,25 +98,25 @@ func unjailRequestHandlerFn(cdc *wire.Codec, kb keys.Keybase, cliCtx context.CLI
 			}
 			txCtx = newCtx
 		}
-		
+
 		txBytes, err := txCtx.BuildAndSign(m.LocalAccountName, m.Password, []sdk.Msg{msg})
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusUnauthorized, "Must use own validator address")
 			return
 		}
-		
+
 		res, err := cliCtx.BroadcastTx(txBytes)
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		output, err := json.MarshalIndent(res, "", "  ")
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		w.Write(output)
 	}
 }

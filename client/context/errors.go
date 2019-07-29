@@ -1,7 +1,7 @@
 package context
 
 import (
-	sdk "github.com/comdex-blockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
 	"github.com/pkg/errors"
 )
 

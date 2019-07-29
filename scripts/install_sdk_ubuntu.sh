@@ -29,7 +29,7 @@ echo "export PATH=\$PATH:\$GOPATH/bin" >> ~/.profile
 source ~/.profile
 
 # get the code and move into repo
-REPO=github.com/comdex-blockchain
+REPO=github.com/commit-blockchain
 go get $REPO
 cd $GOPATH/src/$REPO
 

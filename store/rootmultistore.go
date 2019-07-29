@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"io"
 	"strings"
-	
+
 	"golang.org/x/crypto/ripemd160"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/merkle"
 	dbm "github.com/tendermint/tendermint/libs/db"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 const (
@@ -29,7 +29,7 @@ type rootMultiStore struct {
 	storesParams map[StoreKey]storeParams
 	stores       map[StoreKey]CommitStore
 	keysByName   map[string]StoreKey
-	
+
 	traceWriter  io.Writer
 	traceContext TraceContext
 }
@@ -97,7 +97,7 @@ func (rs *rootMultiStore) LoadLatestVersion() error {
 
 // Implements CommitMultiStore.
 func (rs *rootMultiStore) LoadVersion(ver int64) error {
-	
+
 	// Special logic for version 0
 	if ver == 0 {
 		for key, storeParams := range rs.storesParams {
@@ -108,18 +108,18 @@ func (rs *rootMultiStore) LoadVersion(ver int64) error {
 			}
 			rs.stores[key] = store
 		}
-		
+
 		rs.lastCommitID = CommitID{}
 		return nil
 	}
 	// Otherwise, version is 1 or greater
-	
+
 	// Get commitInfo
 	cInfo, err := getCommitInfo(rs.db, ver)
 	if err != nil {
 		return err
 	}
-	
+
 	// Load each Store
 	var newStores = make(map[StoreKey]CommitStore)
 	for _, storeInfo := range cInfo.StoreInfos {
@@ -131,7 +131,7 @@ func (rs *rootMultiStore) LoadVersion(ver int64) error {
 		}
 		newStores[key] = store
 	}
-	
+
 	// TODO: detecting transient is quite adhoc
 	// If any nontransient CommitStoreLoaders were not used, return error.
 	for key, param := range rs.storesParams {
@@ -141,7 +141,7 @@ func (rs *rootMultiStore) LoadVersion(ver int64) error {
 			}
 		}
 	}
-	
+
 	// Success.
 	rs.lastCommitID = cInfo.CommitID()
 	rs.stores = newStores
@@ -167,7 +167,7 @@ func (rs *rootMultiStore) WithTracingContext(tc TraceContext) MultiStore {
 	} else {
 		rs.traceContext = tc
 	}
-	
+
 	return rs
 }
 
@@ -182,7 +182,7 @@ func (rs *rootMultiStore) ResetTraceContext() MultiStore {
 	return rs
 }
 
-// ----------------------------------------
+//----------------------------------------
 // +CommitStore
 
 // Implements Committer/CommitStore.
@@ -192,17 +192,17 @@ func (rs *rootMultiStore) LastCommitID() CommitID {
 
 // Implements Committer/CommitStore.
 func (rs *rootMultiStore) Commit() CommitID {
-	
+
 	// Commit stores.
 	version := rs.lastCommitID.Version + 1
 	commitInfo := commitStores(version, rs.stores)
-	
+
 	// Need to update atomically.
 	batch := rs.db.NewBatch()
 	setCommitInfo(batch, version, commitInfo)
 	setLatestVersion(batch, version)
 	batch.Write()
-	
+
 	// Prepare for next version.
 	commitID := CommitID{
 		Version: version,
@@ -222,7 +222,7 @@ func (rs *rootMultiStore) CacheWrapWithTrace(_ io.Writer, _ TraceContext) CacheW
 	return rs.CacheWrap()
 }
 
-// ----------------------------------------
+//----------------------------------------
 // +MultiStore
 
 // Implements MultiStore.
@@ -240,11 +240,11 @@ func (rs *rootMultiStore) GetStore(key StoreKey) Store {
 // tracer, otherwise, the original KVStore will be returned.
 func (rs *rootMultiStore) GetKVStore(key StoreKey) KVStore {
 	store := rs.stores[key].(KVStore)
-	
+
 	if rs.TracingEnabled() {
 		store = NewTraceKVStore(store, rs.traceWriter, rs.traceContext)
 	}
-	
+
 	return store
 }
 
@@ -263,7 +263,7 @@ func (rs *rootMultiStore) getStoreByName(name string) Store {
 	return rs.stores[key]
 }
 
-// ---------------------- Query ------------------
+//---------------------- Query ------------------
 
 // Query calls substore.Query with the same `req` where `req.Path` is
 // modified to remove the substore prefix.
@@ -276,7 +276,7 @@ func (rs *rootMultiStore) Query(req abci.RequestQuery) abci.ResponseQuery {
 	if err != nil {
 		return err.QueryResult()
 	}
-	
+
 	store := rs.getStoreByName(storeName)
 	if store == nil {
 		msg := fmt.Sprintf("no such store: %s", storeName)
@@ -287,22 +287,22 @@ func (rs *rootMultiStore) Query(req abci.RequestQuery) abci.ResponseQuery {
 		msg := fmt.Sprintf("store %s doesn't support queries", storeName)
 		return sdk.ErrUnknownRequest(msg).QueryResult()
 	}
-	
+
 	// trim the path and make the query
 	req.Path = subpath
 	res := queryable.Query(req)
-	
+
 	if !req.Prove || !RequireProof(subpath) {
 		return res
 	}
-	
+
 	commitInfo, errMsg := getCommitInfo(rs.db, res.Height)
 	if errMsg != nil {
 		return sdk.ErrInternal(errMsg.Error()).QueryResult()
 	}
-	
+
 	res.Proof = buildMultiStoreProof(res.Proof, storeName, commitInfo.StoreInfos)
-	
+
 	return res
 }
 
@@ -322,7 +322,7 @@ func parsePath(path string) (storeName string, subpath string, err sdk.Error) {
 	return
 }
 
-// ----------------------------------------
+//----------------------------------------
 
 func (rs *rootMultiStore) loadCommitStoreFromParams(key sdk.StoreKey, id CommitID, params storeParams) (store CommitStore, err error) {
 	var db dbm.DB
@@ -363,7 +363,7 @@ func (rs *rootMultiStore) nameToKey(name string) StoreKey {
 	panic("Unknown name " + name)
 }
 
-// ----------------------------------------
+//----------------------------------------
 // storeParams
 
 type storeParams struct {
@@ -372,14 +372,15 @@ type storeParams struct {
 	typ StoreType
 }
 
-// ----------------------------------------
+//----------------------------------------
 // commitInfo
 
 // NOTE: Keep commitInfo a simple immutable struct.
 type commitInfo struct {
+
 	// Version
 	Version int64
-	
+
 	// Store info for
 	StoreInfos []storeInfo
 }
@@ -401,7 +402,7 @@ func (ci commitInfo) CommitID() CommitID {
 	}
 }
 
-// ----------------------------------------
+//----------------------------------------
 // storeInfo
 
 // storeInfo contains the name and core reference for an
@@ -432,7 +433,7 @@ func (si storeInfo) Hash() []byte {
 	return hasher.Sum(nil)
 }
 
-// ----------------------------------------
+//----------------------------------------
 // Misc.
 
 func getLatestVersion(db dbm.DB) int64 {
@@ -457,15 +458,15 @@ func setLatestVersion(batch dbm.Batch, version int64) {
 // Commits each store and returns a new commitInfo.
 func commitStores(version int64, storeMap map[StoreKey]CommitStore) commitInfo {
 	storeInfos := make([]storeInfo, 0, len(storeMap))
-	
+
 	for key, store := range storeMap {
 		// Commit
 		commitID := store.Commit()
-		
+
 		if store.GetStoreType() == sdk.StoreTypeTransient {
 			continue
 		}
-		
+
 		// Record CommitID
 		si := storeInfo{}
 		si.Name = key.Name()
@@ -473,7 +474,7 @@ func commitStores(version int64, storeMap map[StoreKey]CommitStore) commitInfo {
 		// si.Core.StoreType = store.GetStoreType()
 		storeInfos = append(storeInfos, si)
 	}
-	
+
 	ci := commitInfo{
 		Version:    version,
 		StoreInfos: storeInfos,
@@ -483,14 +484,14 @@ func commitStores(version int64, storeMap map[StoreKey]CommitStore) commitInfo {
 
 // Gets commitInfo from disk.
 func getCommitInfo(db dbm.DB, ver int64) (commitInfo, error) {
-	
+
 	// Get from DB.
 	cInfoKey := fmt.Sprintf(commitInfoKeyFmt, ver)
 	cInfoBytes := db.Get([]byte(cInfoKey))
 	if cInfoBytes == nil {
 		return commitInfo{}, fmt.Errorf("failed to get rootMultiStore: no data")
 	}
-	
+
 	// Parse bytes.
 	var cInfo commitInfo
 	err := cdc.UnmarshalBinary(cInfoBytes, &cInfo)

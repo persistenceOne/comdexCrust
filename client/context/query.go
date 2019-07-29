@@ -3,17 +3,17 @@ package context
 import (
 	"fmt"
 	"io"
-	
-	"github.com/comdex-blockchain/client/keys"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/auth"
-	
+
+	"github.com/commitHub/commitBlockchain/client/keys"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/auth"
+
 	"github.com/pkg/errors"
-	
+
 	"strings"
-	
-	"github.com/comdex-blockchain/store"
-	"github.com/comdex-blockchain/wire"
+
+	"github.com/commitHub/commitBlockchain/store"
+	"github.com/commitHub/commitBlockchain/wire"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	tmliteProxy "github.com/tendermint/tendermint/lite/proxy"
@@ -27,7 +27,7 @@ func (ctx CLIContext) GetNode() (rpcclient.Client, error) {
 	if ctx.Client == nil {
 		return nil, errors.New("no RPC client defined")
 	}
-	
+
 	return ctx.Client, nil
 }
 
@@ -54,7 +54,7 @@ func (ctx CLIContext) QuerySubspace(subspace []byte, storeName string) (res []sd
 	if err != nil {
 		return res, err
 	}
-	
+
 	ctx.Codec.MustUnmarshalBinary(resRaw, &res)
 	return
 }
@@ -65,19 +65,19 @@ func (ctx CLIContext) GetAccount(address []byte) (auth.Account, error) {
 	if ctx.AccDecoder == nil {
 		return nil, errors.New("account decoder required but not provided")
 	}
-	
+
 	res, err := ctx.QueryStore(auth.AddressStoreKey(address), ctx.AccountStore)
 	if err != nil {
 		return nil, err
 	} else if len(res) == 0 {
 		return nil, err
 	}
-	
+
 	account, err := ctx.AccDecoder(res)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return account, nil
 }
 
@@ -86,17 +86,17 @@ func (ctx CLIContext) GetFromAddress() (from sdk.AccAddress, err error) {
 	if ctx.FromAddressName == "" {
 		return nil, errors.Errorf("must provide a from address name")
 	}
-	
+
 	keybase, err := keys.GetKeyBase()
 	if err != nil {
 		return nil, err
 	}
-	
+
 	info, err := keybase.Get(ctx.FromAddressName)
 	if err != nil {
 		return nil, errors.Errorf("no key for: %s", ctx.FromAddressName)
 	}
-	
+
 	return sdk.AccAddress(info.GetPubKey().Address()), nil
 }
 
@@ -107,7 +107,7 @@ func (ctx CLIContext) GetAccountNumber(address []byte) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	
+
 	return account.GetAccountNumber(), nil
 }
 
@@ -118,7 +118,7 @@ func (ctx CLIContext) GetAccountSequence(address []byte) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	
+
 	return account.GetSequence(), nil
 }
 
@@ -128,24 +128,24 @@ func (ctx CLIContext) BroadcastTx(tx []byte) (*ctypes.ResultBroadcastTxCommit, e
 	if err != nil {
 		return nil, err
 	}
-	
+
 	res, err := node.BroadcastTxCommit(tx)
 	if err != nil {
 		return res, err
 	}
-	
+
 	if !res.CheckTx.IsOK() {
 		return res, errors.Errorf("checkTx failed: (%d) %s",
 			res.CheckTx.Code,
 			res.CheckTx.Log)
 	}
-	
+
 	if !res.DeliverTx.IsOK() {
 		return res, errors.Errorf("deliverTx failed: (%d) %s",
 			res.DeliverTx.Code,
 			res.DeliverTx.Log)
 	}
-	
+
 	return res, err
 }
 
@@ -156,12 +156,12 @@ func (ctx CLIContext) BroadcastTxAsync(tx []byte) (*ctypes.ResultBroadcastTx, er
 	if err != nil {
 		return nil, err
 	}
-	
+
 	res, err := node.BroadcastTxAsync(tx)
 	if err != nil {
 		return res, err
 	}
-	
+
 	return res, err
 }
 
@@ -172,16 +172,16 @@ func (ctx CLIContext) EnsureAccountExists() error {
 	if err != nil {
 		return err
 	}
-	
+
 	accountBytes, err := ctx.QueryStore(auth.AddressStoreKey(addr), ctx.AccountStore)
 	if err != nil {
 		return err
 	}
-	
+
 	if len(accountBytes) == 0 {
 		return ErrInvalidAccount(addr)
 	}
-	
+
 	return nil
 }
 
@@ -193,11 +193,11 @@ func (ctx CLIContext) EnsureAccountExistsFromAddr(addr sdk.AccAddress) error {
 	if err != nil {
 		return err
 	}
-	
+
 	if len(accountBytes) == 0 {
 		return ErrInvalidAccount(addr)
 	}
-	
+
 	return nil
 }
 
@@ -209,7 +209,7 @@ func (ctx CLIContext) EnsureBroadcastTx(txBytes []byte) error {
 	if ctx.Async {
 		return ctx.ensureBroadcastTxAsync(txBytes)
 	}
-	
+
 	return ctx.ensureBroadcastTx(txBytes)
 }
 
@@ -226,19 +226,19 @@ func (ctx CLIContext) ensureBroadcastTxAsync(txBytes []byte) error {
 	if err != nil {
 		return err
 	}
-	
+
 	if ctx.JSON {
 		type toJSON struct {
 			TxHash string
 		}
-		
+
 		if ctx.Logger != nil {
 			resJSON := toJSON{res.Hash.String()}
 			bz, err := ctx.Codec.MarshalJSON(resJSON)
 			if err != nil {
 				return err
 			}
-			
+
 			ctx.Logger.Write(bz)
 			io.WriteString(ctx.Logger, "\n")
 		}
@@ -247,7 +247,7 @@ func (ctx CLIContext) ensureBroadcastTxAsync(txBytes []byte) error {
 			io.WriteString(ctx.Logger, fmt.Sprintf("Async tx sent (tx hash: %s)\n", res.Hash))
 		}
 	}
-	
+
 	return nil
 }
 
@@ -256,7 +256,7 @@ func (ctx CLIContext) ensureBroadcastTxAsyncWithResponse(txBytes []byte) ([]byte
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if ctx.JSON {
 		type toJSON struct {
 			TxHash string
@@ -276,7 +276,7 @@ func (ctx CLIContext) ensureBroadcastTxAsyncWithResponse(txBytes []byte) ([]byte
 			io.WriteString(ctx.Logger, fmt.Sprintf("Async tx sent (tx hash: %s)\n", res.Hash))
 		}
 	}
-	
+
 	return nil, nil
 }
 
@@ -285,7 +285,7 @@ func (ctx CLIContext) ensureBroadcastTx(txBytes []byte) error {
 	if err != nil {
 		return err
 	}
-	
+
 	if ctx.JSON {
 		// since JSON is intended for automated scripts, always include
 		// response in JSON mode.
@@ -294,33 +294,33 @@ func (ctx CLIContext) ensureBroadcastTx(txBytes []byte) error {
 			TxHash   string
 			Response string
 		}
-		
+
 		if ctx.Logger != nil {
 			resJSON := toJSON{res.Height, res.Hash.String(), fmt.Sprintf("%+v", res.DeliverTx)}
 			bz, err := ctx.Codec.MarshalJSON(resJSON)
 			if err != nil {
 				return err
 			}
-			
+
 			ctx.Logger.Write(bz)
 			io.WriteString(ctx.Logger, "\n")
 		}
-		
+
 		return nil
 	}
-	
+
 	if ctx.Logger != nil {
 		resStr := fmt.Sprintf("Committed at block %d (tx hash: %s)\n", res.Height, res.Hash.String())
-		
+
 		if ctx.PrintResponse {
 			resStr = fmt.Sprintf("Committed at block %d (tx hash: %s, response: %+v)\n",
 				res.Height, res.Hash.String(), res.DeliverTx,
 			)
 		}
-		
+
 		io.WriteString(ctx.Logger, resStr)
 	}
-	
+
 	return nil
 }
 
@@ -329,7 +329,7 @@ func (ctx CLIContext) ensureBroadcastTxWithResponse(txBytes []byte) ([]byte, err
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if ctx.JSON {
 		// since JSON is intended for automated scripts, always include
 		// response in JSON mode.
@@ -343,27 +343,27 @@ func (ctx CLIContext) ensureBroadcastTxWithResponse(txBytes []byte) ([]byte, err
 		if err != nil {
 			return nil, err
 		}
-		
+
 		if ctx.Logger != nil {
 			ctx.Logger.Write(bz)
 			io.WriteString(ctx.Logger, "\n")
 		}
-		
+
 		return bz, nil
 	}
-	
+
 	if ctx.Logger != nil {
 		resStr := fmt.Sprintf("Committed at block %d (tx hash: %s)\n", res.Height, res.Hash.String())
-		
+
 		if ctx.PrintResponse {
 			resStr = fmt.Sprintf("Committed at block %d (tx hash: %s, response: %+v)\n",
 				res.Height, res.Hash.String(), res.DeliverTx,
 			)
 		}
-		
+
 		io.WriteString(ctx.Logger, resStr)
 	}
-	
+
 	return nil, nil
 }
 
@@ -374,60 +374,60 @@ func (ctx CLIContext) query(path string, key cmn.HexBytes) (res []byte, err erro
 	if err != nil {
 		return res, err
 	}
-	
+
 	opts := rpcclient.ABCIQueryOptions{
 		Height:  ctx.Height,
 		Trusted: ctx.TrustNode,
 	}
-	
+
 	result, err := node.ABCIQueryWithOptions(path, key, opts)
 	if err != nil {
 		return res, err
 	}
-	
+
 	resp := result.Response
 	if !resp.IsOK() {
 		return res, errors.Errorf("query failed: (%d) %s", resp.Code, resp.Log)
 	}
-	
+
 	// Data from trusted node or subspace query doesn't need verification
 	if ctx.TrustNode || !isQueryStoreWithProof(path) {
 		return resp.Value, nil
 	}
-	
+
 	err = ctx.verifyProof(path, resp)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return resp.Value, nil
 }
 
 // verifyProof perform response proof verification
 func (ctx CLIContext) verifyProof(path string, resp abci.ResponseQuery) error {
-	
+
 	if ctx.Certifier == nil {
 		return fmt.Errorf("missing valid certifier to verify data from untrusted node")
 	}
-	
+
 	node, err := ctx.GetNode()
 	if err != nil {
 		return err
 	}
-	
+
 	// AppHash for height H is in header H+1
 	commit, err := tmliteProxy.GetCertifiedCommit(resp.Height+1, node, ctx.Certifier)
 	if err != nil {
 		return err
 	}
-	
+
 	var multiStoreProof store.MultiStoreProof
 	cdc := wire.NewCodec()
 	err = cdc.UnmarshalBinary(resp.Proof, &multiStoreProof)
 	if err != nil {
 		return errors.Wrap(err, "failed to unmarshalBinary rangeProof")
 	}
-	
+
 	// Verify the substore commit hash against trusted appHash
 	substoreCommitHash, err := store.VerifyMultiStoreCommitInfo(multiStoreProof.StoreName,
 		multiStoreProof.StoreInfos, commit.Header.AppHash)
@@ -458,7 +458,7 @@ func isQueryStoreWithProof(path string) bool {
 	if len(paths) != 3 {
 		return false
 	}
-	
+
 	if store.RequireProof("/" + paths[2]) {
 		return true
 	}

@@ -1,19 +1,19 @@
 package assetFactory
 
 import (
-	"github.com/comdex-blockchain/types"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+	"github.com/commitHub/commitBlockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	wire "github.com/commitHub/commitBlockchain/wire"
 )
 
-// AssetPegMapper : encoder decoder for asset type
+//AssetPegMapper : encoder decoder for asset type
 type AssetPegMapper struct {
 	key   sdk.StoreKey
 	proto func() sdk.AssetPeg
 	cdc   *wire.Codec
 }
 
-// NewAssetPegMapper : returns asset mapper
+//NewAssetPegMapper : returns asset mapper
 func NewAssetPegMapper(cdc *wire.Codec, key sdk.StoreKey, proto func() sdk.AssetPeg) AssetPegMapper {
 	return AssetPegMapper{
 		key:   key,
@@ -22,12 +22,12 @@ func NewAssetPegMapper(cdc *wire.Codec, key sdk.StoreKey, proto func() sdk.Asset
 	}
 }
 
-// AssetPegHashStoreKey : converts peg hash to keystore key
+//AssetPegHashStoreKey : converts peg hash to keystore key
 func AssetPegHashStoreKey(assetPegHash sdk.PegHash) []byte {
 	return append([]byte("PegHash:"), assetPegHash.Bytes()...)
 }
 
-// encode the AssetPeg inteface
+//encode the AssetPeg inteface
 func (am AssetPegMapper) encodeAssetPeg(asset sdk.AssetPeg) []byte {
 	bz, err := am.cdc.MarshalBinaryBare(asset)
 	if err != nil {
@@ -36,7 +36,7 @@ func (am AssetPegMapper) encodeAssetPeg(asset sdk.AssetPeg) []byte {
 	return bz
 }
 
-// decode the AssetPeg interface
+//decode the AssetPeg interface
 func (am AssetPegMapper) decodeAssetPeg(bz []byte) (asset sdk.AssetPeg) {
 	err := am.cdc.UnmarshalBinaryBare(bz, &asset)
 	if err != nil {
@@ -45,7 +45,7 @@ func (am AssetPegMapper) decodeAssetPeg(bz []byte) (asset sdk.AssetPeg) {
 	return
 }
 
-// SetAssetPeg : set asset peg
+//SetAssetPeg : set asset peg
 func (am AssetPegMapper) SetAssetPeg(ctx sdk.Context, asset sdk.AssetPeg) {
 	pegHash := asset.GetPegHash()
 	store := ctx.KVStore(am.key)
@@ -53,7 +53,7 @@ func (am AssetPegMapper) SetAssetPeg(ctx sdk.Context, asset sdk.AssetPeg) {
 	store.Set(AssetPegHashStoreKey(pegHash), bz)
 }
 
-// GetAssetPeg : get asset peg
+//GetAssetPeg : get asset peg
 func (am AssetPegMapper) GetAssetPeg(ctx sdk.Context, pegHash sdk.PegHash) types.AssetPeg {
 	store := ctx.KVStore(am.key)
 	bz := store.Get(AssetPegHashStoreKey(pegHash))
@@ -64,7 +64,7 @@ func (am AssetPegMapper) GetAssetPeg(ctx sdk.Context, pegHash sdk.PegHash) types
 	return acc
 }
 
-// IterateAssets : iterate over assets in kv store and add assets
+//IterateAssets : iterate over assets in kv store and add assets
 func (am AssetPegMapper) IterateAssets(ctx sdk.Context, process func(sdk.AssetPeg) (stop bool)) {
 	store := ctx.KVStore(am.key)
 	iter := sdk.KVStorePrefixIterator(store, []byte("PegHash:"))

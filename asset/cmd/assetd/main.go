@@ -3,11 +3,11 @@ package main
 import (
 	"encoding/json"
 	"io"
-	
-	"github.com/comdex-blockchain/baseapp"
-	
-	"github.com/comdex-blockchain/asset/app"
-	"github.com/comdex-blockchain/server"
+
+	"github.com/commitHub/commitBlockchain/baseapp"
+
+	"github.com/commitHub/commitBlockchain/asset/app"
+	"github.com/commitHub/commitBlockchain/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -20,19 +20,19 @@ import (
 func main() {
 	cdc := app.MakeCodec()
 	ctx := server.NewDefaultContext()
-	
+
 	rootCmd := &cobra.Command{
 		Use:               "assetd",
 		Short:             "Asset Daemon (server)",
 		PersistentPreRunE: server.PersistentPreRunEFn(ctx),
 	}
-	
+
 	server.AddCommands(ctx, cdc, rootCmd, app.AssetAppInit(),
 		server.ConstructAppCreator(newApp, "asset"),
 		server.ConstructAppExporter(exportAppStateAndTMValidators, "asset"))
-	
+
 	executor := cli.PrepareBaseCmd(rootCmd, "CA", app.DefaultNodeHome)
-	
+
 	err := executor.Execute()
 	if err != nil {
 		panic(err)

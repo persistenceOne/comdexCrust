@@ -2,8 +2,8 @@ package fiatFactory
 
 import (
 	"reflect"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // NewHandler returns a handler for "fiatFactory" type messages.
@@ -25,7 +25,7 @@ func NewHandler(k Keeper) sdk.Handler {
 	}
 }
 
-// Handle MsgFactoryIssueFiat
+//Handle MsgFactoryIssueFiat
 func handleMsgFactoryIssueFiat(ctx sdk.Context, k Keeper, msg MsgFactoryIssueFiats) sdk.Result {
 	tags, err := k.IssueFiatsToWallets(ctx, msg.IssueFiats)
 	if err != nil {
@@ -36,7 +36,7 @@ func handleMsgFactoryIssueFiat(ctx sdk.Context, k Keeper, msg MsgFactoryIssueFia
 	}
 }
 
-// Handle MsgFactoryRedeemFiat
+//Handle MsgFactoryRedeemFiat
 func handleMsgFactoryRedeemFiat(ctx sdk.Context, k Keeper, msg MsgFactoryRedeemFiats) sdk.Result {
 	tags, err := k.RedeemFiatsFromWallets(ctx, msg.RedeemFiats)
 	if err != nil {
@@ -47,7 +47,7 @@ func handleMsgFactoryRedeemFiat(ctx sdk.Context, k Keeper, msg MsgFactoryRedeemF
 	}
 }
 
-// Hande MsgFactorySendFiats
+//Hande MsgFactorySendFiats
 func handleMsgFactorySendFiats(ctx sdk.Context, k Keeper, msg MsgFactorySendFiats) sdk.Result {
 	tags, err := k.SendFiatsToOrders(ctx, msg.SendFiats)
 	if err != nil {
@@ -58,7 +58,7 @@ func handleMsgFactorySendFiats(ctx sdk.Context, k Keeper, msg MsgFactorySendFiat
 	}
 }
 
-// Hande MsgFactoryExecuteFiats
+//Hande MsgFactoryExecuteFiats
 func handleMsgFactoryExecuteFiats(ctx sdk.Context, k Keeper, msg MsgFactoryExecuteFiats) sdk.Result {
 	tags, err := k.ExecuteFiatOrders(ctx, msg.SendFiats)
 	if err != nil {

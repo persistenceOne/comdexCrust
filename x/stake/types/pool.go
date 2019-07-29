@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"time"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
 // Pool - dynamic parameters of the current state
@@ -15,9 +15,9 @@ type Pool struct {
 	BondedTokens      sdk.Dec   `json:"bonded_tokens"`       // reserve of bonded tokens
 	InflationLastTime time.Time `json:"inflation_last_time"` // block which the last inflation was processed
 	Inflation         sdk.Dec   `json:"inflation"`           // current annual inflation rate
-	
+
 	DateLastCommissionReset int64 `json:"date_last_commission_reset"` // unix timestamp for last commission accounting reset (daily)
-	
+
 	// Fee Related
 	PrevBondedShares sdk.Dec `json:"prev_bonded_shares"` // last recorded bonded shares - for fee calculations
 }
@@ -41,14 +41,14 @@ func InitialPool() Pool {
 	}
 }
 
-// ____________________________________________________________________
+//____________________________________________________________________
 
 // Sum total of all staking tokens in the pool
 func (p Pool) TokenSupply() sdk.Dec {
 	return p.LooseTokens.Add(p.BondedTokens)
 }
 
-// ____________________________________________________________________
+//____________________________________________________________________
 
 // get the bond ratio of the global state
 func (p Pool) BondedRatio() sdk.Dec {
@@ -59,7 +59,7 @@ func (p Pool) BondedRatio() sdk.Dec {
 	return sdk.ZeroDec()
 }
 
-// _______________________________________________________________________
+//_______________________________________________________________________
 
 func (p Pool) looseTokensToBonded(bondedTokens sdk.Dec) Pool {
 	p.BondedTokens = p.BondedTokens.Add(bondedTokens)
@@ -79,7 +79,7 @@ func (p Pool) bondedTokensToLoose(bondedTokens sdk.Dec) Pool {
 	return p
 }
 
-// _______________________________________________________________________
+//_______________________________________________________________________
 // Inflation
 
 const precision = 10000            // increased to this precision for accuracy
@@ -91,7 +91,7 @@ func (p Pool) ProcessProvisions(params Params) Pool {
 	provisions := p.Inflation.
 		Mul(p.TokenSupply()).
 		Quo(hrsPerYrDec)
-	
+
 	// TODO add to the fees provisions
 	p.LooseTokens = p.LooseTokens.Add(provisions)
 	return p
@@ -99,20 +99,20 @@ func (p Pool) ProcessProvisions(params Params) Pool {
 
 // get the next inflation rate for the hour
 func (p Pool) NextInflation(params Params) (inflation sdk.Dec) {
-	
+
 	// The target annual inflation rate is recalculated for each previsions cycle. The
 	// inflation is also subject to a rate change (positive or negative) depending on
 	// the distance from the desired ratio (67%). The maximum rate change possible is
 	// defined to be 13% per year, however the annual inflation is capped as between
 	// 7% and 20%.
-	
+
 	// (1 - bondedRatio/GoalBonded) * InflationRateChange
 	inflationRateChangePerYear := sdk.OneDec().
 		Sub(p.BondedRatio().
 			Quo(params.GoalBonded)).
 		Mul(params.InflationRateChange)
 	inflationRateChange := inflationRateChangePerYear.Quo(hrsPerYrDec)
-	
+
 	// increase the new annual inflation for this next cycle
 	inflation = p.Inflation.Add(inflationRateChange)
 	if inflation.GT(params.InflationMax) {
@@ -121,14 +121,14 @@ func (p Pool) NextInflation(params Params) (inflation sdk.Dec) {
 	if inflation.LT(params.InflationMin) {
 		inflation = params.InflationMin
 	}
-	
+
 	return inflation
 }
 
 // HumanReadableString returns a human readable string representation of a
 // pool.
 func (p Pool) HumanReadableString() string {
-	
+
 	resp := "Pool \n"
 	resp += fmt.Sprintf("Loose Tokens: %s\n", p.LooseTokens)
 	resp += fmt.Sprintf("Bonded Tokens: %s\n", p.BondedTokens)

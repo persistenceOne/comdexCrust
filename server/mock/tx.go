@@ -1,12 +1,12 @@
-// nolint
+//nolint
 package mock
 
 import (
 	"bytes"
 	"fmt"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/auth"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/auth"
 )
 
 // An sdk.Tx which is its own sdk.Msg.
@@ -60,7 +60,7 @@ func (tx kvstoreTx) GetSignatures() []auth.StdSignature {
 // all the signatures and can be used to authenticate.
 func decodeTx(txBytes []byte) (sdk.Tx, sdk.Error) {
 	var tx sdk.Tx
-	
+
 	split := bytes.Split(txBytes, []byte("="))
 	if len(split) == 1 {
 		k := split[0]
@@ -71,6 +71,6 @@ func decodeTx(txBytes []byte) (sdk.Tx, sdk.Error) {
 	} else {
 		return nil, sdk.ErrTxDecode("too many =")
 	}
-	
+
 	return tx, nil
 }

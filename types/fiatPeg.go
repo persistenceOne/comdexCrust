@@ -6,31 +6,31 @@ import (
 	"sort"
 )
 
-// FiatPeg : peg issued against each fiat transaction
+//FiatPeg : peg issued against each fiat transaction
 type FiatPeg interface {
 	GetPegHash() PegHash
 	SetPegHash(PegHash) error
-	
+
 	GetTransactionID() string
 	SetTransactionID(string) error
-	
+
 	GetTransactionAmount() int64
 	SetTransactionAmount(int64) error
-	
+
 	GetRedeemedAmount() int64
 	SetRedeemedAmount(int64) error
-	
+
 	GetOwners() []Owner
 	SetOwners([]Owner) error
 }
 
-// Owner : partial or full owner of a transaction
+//Owner : partial or full owner of a transaction
 type Owner struct {
 	OwnerAddress AccAddress `json:"ownerAddress"`
 	Amount       int64      `json:"amount"`
 }
 
-// BaseFiatPeg : fiat peg basic implementation
+//BaseFiatPeg : fiat peg basic implementation
 type BaseFiatPeg struct {
 	PegHash           PegHash `json:"pegHash" `
 	TransactionID     string  `json:"transactionID" valid:"required~TxID is mandatory,matches(^[A-Z0-9]+$)~Invalid TransactionId,length(2|40)~TransactionId length between 2-40"`
@@ -41,55 +41,55 @@ type BaseFiatPeg struct {
 
 var _ FiatPeg = (*BaseFiatPeg)(nil)
 
-// GetPegHash : getter
+//GetPegHash : getter
 func (baseFiatPeg BaseFiatPeg) GetPegHash() PegHash { return baseFiatPeg.PegHash }
 
-// SetPegHash : setter
+//SetPegHash : setter
 func (baseFiatPeg *BaseFiatPeg) SetPegHash(pegHash PegHash) error {
 	baseFiatPeg.PegHash = pegHash
 	return nil
 }
 
-// GetTransactionID : getter
+//GetTransactionID : getter
 func (baseFiatPeg BaseFiatPeg) GetTransactionID() string { return baseFiatPeg.TransactionID }
 
-// SetTransactionID : setter
+//SetTransactionID : setter
 func (baseFiatPeg *BaseFiatPeg) SetTransactionID(transactionID string) error {
 	baseFiatPeg.TransactionID = transactionID
 	return nil
 }
 
-// GetTransactionAmount : getter
+//GetTransactionAmount : getter
 func (baseFiatPeg BaseFiatPeg) GetTransactionAmount() int64 { return baseFiatPeg.TransactionAmount }
 
-// SetTransactionAmount : setter
+//SetTransactionAmount : setter
 func (baseFiatPeg *BaseFiatPeg) SetTransactionAmount(transactionAmount int64) error {
 	baseFiatPeg.TransactionAmount = transactionAmount
 	return nil
 }
 
-// GetRedeemedAmount : getter
+//GetRedeemedAmount : getter
 func (baseFiatPeg BaseFiatPeg) GetRedeemedAmount() int64 { return baseFiatPeg.RedeemedAmount }
 
-// SetRedeemedAmount : setter
+//SetRedeemedAmount : setter
 func (baseFiatPeg *BaseFiatPeg) SetRedeemedAmount(redeemedAmount int64) error {
 	baseFiatPeg.RedeemedAmount = redeemedAmount
 	return nil
 }
 
-// GetOwners : getter
+//GetOwners : getter
 func (baseFiatPeg BaseFiatPeg) GetOwners() []Owner { return baseFiatPeg.Owners }
 
-// SetOwners : setter
+//SetOwners : setter
 func (baseFiatPeg *BaseFiatPeg) SetOwners(owners []Owner) error {
 	baseFiatPeg.Owners = owners
 	return nil
 }
 
-// FiatPegDecoder : decoder function for fiat peg
+//FiatPegDecoder : decoder function for fiat peg
 type FiatPegDecoder func(fiatPegBytes []byte) (FiatPeg, error)
 
-// GetFiatPegHashHex : convert string to hex peg hash
+//GetFiatPegHashHex : convert string to hex peg hash
 func GetFiatPegHashHex(pegHashStr string) (pegHash PegHash, err error) {
 	if len(pegHashStr) == 0 {
 		return pegHash, errors.New("must use provide pegHash")
@@ -101,22 +101,22 @@ func GetFiatPegHashHex(pegHashStr string) (pegHash PegHash, err error) {
 	return PegHash(bz), nil
 }
 
-// NewBaseFiatPegWithPegHash a base fiat peg with peg hash
+//NewBaseFiatPegWithPegHash a base fiat peg with peg hash
 func NewBaseFiatPegWithPegHash(pegHash PegHash) BaseFiatPeg {
 	return BaseFiatPeg{
 		PegHash: pegHash,
 	}
 }
 
-// FiatPegWallet : A wallet of fiat peg tokens
+//FiatPegWallet : A wallet of fiat peg tokens
 type FiatPegWallet []BaseFiatPeg
 
-// ProtoBaseFiatPeg : create a new interface prototype
+//ProtoBaseFiatPeg : create a new interface prototype
 func ProtoBaseFiatPeg() FiatPeg {
 	return &BaseFiatPeg{}
 }
 
-// ToFiatPeg : convert base fiat peg to interface fiat peg
+//ToFiatPeg : convert base fiat peg to interface fiat peg
 func ToFiatPeg(baseFiatPeg BaseFiatPeg) FiatPeg {
 	fiatI := ProtoBaseFiatPeg()
 	fiatI.SetOwners(baseFiatPeg.Owners)
@@ -127,7 +127,7 @@ func ToFiatPeg(baseFiatPeg BaseFiatPeg) FiatPeg {
 	return fiatI
 }
 
-// ToBaseFiatPeg : convert interface fiat peg to base fiat peg
+//ToBaseFiatPeg : convert interface fiat peg to base fiat peg
 func ToBaseFiatPeg(fiatPeg FiatPeg) BaseFiatPeg {
 	var baseFiatPeg BaseFiatPeg
 	baseFiatPeg.Owners = fiatPeg.GetOwners()
@@ -159,7 +159,7 @@ func (fiatPegWallet FiatPegWallet) Sort() FiatPegWallet {
 	return fiatPegWallet
 }
 
-// SubtractFiatPegWalletFromWallet : subtract fiat peg  wallet from wallet
+//SubtractFiatPegWalletFromWallet : subtract fiat peg  wallet from wallet
 func SubtractFiatPegWalletFromWallet(inFiatPegWallet FiatPegWallet, fiatPegWallet FiatPegWallet) FiatPegWallet {
 	for _, inFiatPeg := range inFiatPegWallet {
 		for i, fiatPeg := range fiatPegWallet {
@@ -173,7 +173,7 @@ func SubtractFiatPegWalletFromWallet(inFiatPegWallet FiatPegWallet, fiatPegWalle
 	return fiatPegWallet
 }
 
-// SubtractAmountFromWallet : subtract fiat peg from wallet
+//SubtractAmountFromWallet : subtract fiat peg from wallet
 func SubtractAmountFromWallet(amount int64, fiatPegWallet FiatPegWallet) (sentFiatPegWallet FiatPegWallet, oldFiatPegWallet FiatPegWallet) {
 	var collected int64
 	fiatPegWallet = fiatPegWallet.Sort()
@@ -200,10 +200,10 @@ func SubtractAmountFromWallet(amount int64, fiatPegWallet FiatPegWallet) (sentFi
 		return
 	}
 	return FiatPegWallet{}, FiatPegWallet{}
-	
+
 }
 
-// RedeemAmountFromWallet : subtract fiat peg from wallet
+//RedeemAmountFromWallet : subtract fiat peg from wallet
 func RedeemAmountFromWallet(amount int64, fiatPegWallet FiatPegWallet) (emptiedFiatPegWallet FiatPegWallet, redeemerFiatPegWallet FiatPegWallet) {
 	var collected int64
 	for _, fiatPeg := range fiatPegWallet {
@@ -212,7 +212,7 @@ func RedeemAmountFromWallet(amount int64, fiatPegWallet FiatPegWallet) (emptiedF
 				collected += fiatPeg.TransactionAmount
 				emptiedFiatPegWallet = append(emptiedFiatPegWallet, fiatPeg)
 			} else if fiatPeg.TransactionAmount > amount-collected {
-				fiatPeg.TransactionAmount -= amount - collected
+				fiatPeg.TransactionAmount -= (amount - collected)
 				fiatPeg.RedeemedAmount = amount - collected
 				redeemerFiatPegWallet = append(redeemerFiatPegWallet, fiatPeg)
 				collected += amount - collected
@@ -227,10 +227,10 @@ func RedeemAmountFromWallet(amount int64, fiatPegWallet FiatPegWallet) (emptiedF
 		return
 	}
 	return FiatPegWallet{}, FiatPegWallet{}
-	
+
 }
 
-// AddFiatPegToWallet : add fiat peg to wallet
+//AddFiatPegToWallet : add fiat peg to wallet
 func AddFiatPegToWallet(fiatPegWallet FiatPegWallet, inFiatPegWallet FiatPegWallet) FiatPegWallet {
 	for _, inFiatPeg := range inFiatPegWallet {
 		added := false
@@ -250,7 +250,7 @@ func AddFiatPegToWallet(fiatPegWallet FiatPegWallet, inFiatPegWallet FiatPegWall
 	return fiatPegWallet
 }
 
-// IssueFiatPeg : issues fiat peg from the zones wallet to the provided wallet
+//IssueFiatPeg : issues fiat peg from the zones wallet to the provided wallet
 func IssueFiatPeg(issuerFiatPegWallet FiatPegWallet, receiverFiatPegWallet FiatPegWallet, fiatPeg FiatPeg) (FiatPegWallet, FiatPegWallet, FiatPeg) {
 	issuedFiatPegHash := issuerFiatPegWallet[len(issuerFiatPegWallet)-1].PegHash
 	issuerFiatPegWallet = issuerFiatPegWallet[:len(issuerFiatPegWallet)-1]
@@ -259,7 +259,7 @@ func IssueFiatPeg(issuerFiatPegWallet FiatPegWallet, receiverFiatPegWallet FiatP
 	return issuerFiatPegWallet, receiverFiatPegWallet, fiatPeg
 }
 
-// GetFiatPegWalletBalance :  gets the total sum of all fiat pegs in a wallet
+//GetFiatPegWalletBalance :  gets the total sum of all fiat pegs in a wallet
 func GetFiatPegWalletBalance(fiatPegWallet FiatPegWallet) int64 {
 	var balance int64
 	for _, fiatPeg := range fiatPegWallet {
@@ -268,7 +268,7 @@ func GetFiatPegWalletBalance(fiatPegWallet FiatPegWallet) int64 {
 	return balance
 }
 
-// TransferFiatPegsToWallet : subtracts and changes owners of fiat peg in fiat chain
+//TransferFiatPegsToWallet : subtracts and changes owners of fiat peg in fiat chain
 func TransferFiatPegsToWallet(fiatPegWallet FiatPegWallet, oldFiatPegWallet FiatPegWallet, fromAddress AccAddress, toAddress AccAddress) FiatPegWallet {
 	for _, fiatPeg := range fiatPegWallet {
 		transfered := false
@@ -307,14 +307,14 @@ func TransferFiatPegsToWallet(fiatPegWallet FiatPegWallet, oldFiatPegWallet Fiat
 	return oldFiatPegWallet
 }
 
-// RedeemFiatPegsFromWallet : subtracts and changes owners of fiat peg in fiat chain
+//RedeemFiatPegsFromWallet : subtracts and changes owners of fiat peg in fiat chain
 func RedeemFiatPegsFromWallet(fiatPegWallet FiatPegWallet, oldFiatPegWallet FiatPegWallet, fromAddress AccAddress) FiatPegWallet {
 	for _, fiatPeg := range fiatPegWallet {
 		transfered := false
 		for j, oldFiatPeg := range oldFiatPegWallet {
 			if fiatPeg.GetPegHash().String() == oldFiatPeg.GetPegHash().String() {
 				subtracted := 0
-				
+
 				for i, owner := range oldFiatPeg.Owners {
 					if owner.OwnerAddress.String() == fromAddress.String() && owner.Amount > fiatPeg.RedeemedAmount {
 						owner.Amount -= fiatPeg.RedeemedAmount
@@ -325,13 +325,13 @@ func RedeemFiatPegsFromWallet(fiatPegWallet FiatPegWallet, oldFiatPegWallet Fiat
 						subtracted++
 					}
 				}
-				
+
 				if subtracted != 1 {
 					return nil
 				}
 				oldFiatPeg.TransactionAmount -= fiatPeg.RedeemedAmount
 				oldFiatPeg.RedeemedAmount += fiatPeg.RedeemedAmount
-				
+
 				transfered = true
 				oldFiatPegWallet[j] = oldFiatPeg
 				break

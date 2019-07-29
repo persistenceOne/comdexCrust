@@ -1,10 +1,10 @@
 package gov
 
 import (
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/bank"
-	"github.com/comdex-blockchain/x/params"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	wire "github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/bank"
+	"github.com/commitHub/commitBlockchain/x/params"
 )
 
 // nolint
@@ -18,22 +18,22 @@ const (
 type Keeper struct {
 	// The reference to the ParamSetter to get and set Global Params
 	ps params.Setter
-	
+
 	// The reference to the CoinKeeper to modify balances
 	ck bank.Keeper
-	
+
 	// The ValidatorSet to get information about validators
 	vs sdk.ValidatorSet
-	
+
 	// The reference to the DelegationSet to get information about delegators
 	ds sdk.DelegationSet
-	
+
 	// The (unexposed) keys used to access the stores from the Context.
 	storeKey sdk.StoreKey
-	
+
 	// The wire codec for binary encoding/decoding.
 	cdc *wire.Codec
-	
+
 	// Reserved codespace
 	codespace sdk.CodespaceType
 }
@@ -88,10 +88,10 @@ func (keeper Keeper) GetProposal(ctx sdk.Context, proposalID int64) Proposal {
 	if bz == nil {
 		return nil
 	}
-	
+
 	var proposal Proposal
 	keeper.cdc.MustUnmarshalBinary(bz, &proposal)
-	
+
 	return proposal
 }
 
@@ -111,18 +111,18 @@ func (keeper Keeper) DeleteProposal(ctx sdk.Context, proposal Proposal) {
 // nolint: gocyclo
 // Get Proposal from store by ProposalID
 func (keeper Keeper) GetProposalsFiltered(ctx sdk.Context, voterAddr sdk.AccAddress, depositerAddr sdk.AccAddress, status ProposalStatus, numLatest int64) []Proposal {
-	
+
 	maxProposalID, err := keeper.peekCurrentProposalID(ctx)
 	if err != nil {
 		return nil
 	}
-	
+
 	matchingProposals := []Proposal{}
-	
+
 	if numLatest <= 0 {
 		numLatest = maxProposalID
 	}
-	
+
 	for proposalID := maxProposalID - numLatest; proposalID < maxProposalID; proposalID++ {
 		if voterAddr != nil && len(voterAddr) != 0 {
 			_, found := keeper.GetVote(ctx, proposalID, voterAddr)
@@ -130,25 +130,25 @@ func (keeper Keeper) GetProposalsFiltered(ctx sdk.Context, voterAddr sdk.AccAddr
 				continue
 			}
 		}
-		
+
 		if depositerAddr != nil && len(depositerAddr) != 0 {
 			_, found := keeper.GetDeposit(ctx, proposalID, depositerAddr)
 			if !found {
 				continue
 			}
 		}
-		
+
 		proposal := keeper.GetProposal(ctx, proposalID)
 		if proposal == nil {
 			continue
 		}
-		
+
 		if validProposalStatus(status) {
 			if proposal.GetStatus() != status {
 				continue
 			}
 		}
-		
+
 		matchingProposals = append(matchingProposals, proposal)
 	}
 	return matchingProposals
@@ -254,18 +254,18 @@ func (keeper Keeper) AddVote(ctx sdk.Context, proposalID int64, voterAddr sdk.Ac
 	if proposal.GetStatus() != StatusVotingPeriod {
 		return ErrInactiveProposal(keeper.codespace, proposalID)
 	}
-	
+
 	if !validVoteOption(option) {
 		return ErrInvalidVote(keeper.codespace, option)
 	}
-	
+
 	vote := Vote{
 		ProposalID: proposalID,
 		Voter:      voterAddr,
 		Option:     option,
 	}
 	keeper.setVote(ctx, proposalID, voterAddr, vote)
-	
+
 	return nil
 }
 
@@ -327,22 +327,22 @@ func (keeper Keeper) AddDeposit(ctx sdk.Context, proposalID int64, depositerAddr
 	if proposal == nil {
 		return ErrUnknownProposal(keeper.codespace, proposalID), false
 	}
-	
+
 	// Check if proposal is still depositable
 	if (proposal.GetStatus() != StatusDepositPeriod) && (proposal.GetStatus() != StatusVotingPeriod) {
 		return ErrAlreadyFinishedProposal(keeper.codespace, proposalID), false
 	}
-	
+
 	// Subtract coins from depositer's account
 	_, _, err := keeper.ck.SubtractCoins(ctx, depositerAddr, depositAmount)
 	if err != nil {
 		return err, false
 	}
-	
+
 	// Update Proposal
 	proposal.SetTotalDeposit(proposal.GetTotalDeposit().Plus(depositAmount))
 	keeper.SetProposal(ctx, proposal)
-	
+
 	// Check if deposit tipped proposal into voting period
 	// Active voting period if so
 	activatedVotingPeriod := false
@@ -350,7 +350,7 @@ func (keeper Keeper) AddDeposit(ctx sdk.Context, proposalID int64, depositerAddr
 		keeper.activateVotingPeriod(ctx, proposal)
 		activatedVotingPeriod = true
 	}
-	
+
 	// Add or update deposit object
 	currDeposit, found := keeper.GetDeposit(ctx, proposalID, depositerAddr)
 	if !found {
@@ -360,7 +360,7 @@ func (keeper Keeper) AddDeposit(ctx sdk.Context, proposalID int64, depositerAddr
 		currDeposit.Amount = currDeposit.Amount.Plus(depositAmount)
 		keeper.setDeposit(ctx, proposalID, depositerAddr, currDeposit)
 	}
-	
+
 	return nil, activatedVotingPeriod
 }
 
@@ -374,19 +374,19 @@ func (keeper Keeper) GetDeposits(ctx sdk.Context, proposalID int64) sdk.Iterator
 func (keeper Keeper) RefundDeposits(ctx sdk.Context, proposalID int64) {
 	store := ctx.KVStore(keeper.storeKey)
 	depositsIterator := keeper.GetDeposits(ctx, proposalID)
-	
+
 	for ; depositsIterator.Valid(); depositsIterator.Next() {
 		deposit := &Deposit{}
 		keeper.cdc.MustUnmarshalBinary(depositsIterator.Value(), deposit)
-		
+
 		_, _, err := keeper.ck.AddCoins(ctx, deposit.Depositer, deposit.Amount)
 		if err != nil {
 			panic("should not happen")
 		}
-		
+
 		store.Delete(depositsIterator.Key())
 	}
-	
+
 	depositsIterator.Close()
 }
 
@@ -394,11 +394,11 @@ func (keeper Keeper) RefundDeposits(ctx sdk.Context, proposalID int64) {
 func (keeper Keeper) DeleteDeposits(ctx sdk.Context, proposalID int64) {
 	store := ctx.KVStore(keeper.storeKey)
 	depositsIterator := keeper.GetDeposits(ctx, proposalID)
-	
+
 	for ; depositsIterator.Valid(); depositsIterator.Next() {
 		store.Delete(depositsIterator.Key())
 	}
-	
+
 	depositsIterator.Close()
 }
 
@@ -411,10 +411,10 @@ func (keeper Keeper) getActiveProposalQueue(ctx sdk.Context) ProposalQueue {
 	if bz == nil {
 		return nil
 	}
-	
+
 	var proposalQueue ProposalQueue
 	keeper.cdc.MustUnmarshalBinary(bz, &proposalQueue)
-	
+
 	return proposalQueue
 }
 
@@ -456,11 +456,11 @@ func (keeper Keeper) getInactiveProposalQueue(ctx sdk.Context) ProposalQueue {
 	if bz == nil {
 		return nil
 	}
-	
+
 	var proposalQueue ProposalQueue
-	
+
 	keeper.cdc.MustUnmarshalBinary(bz, &proposalQueue)
-	
+
 	return proposalQueue
 }
 

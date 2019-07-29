@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strconv"
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 func TestNewMsgSend(t *testing.T) {}
@@ -21,7 +21,7 @@ func TestMsgSendType(t *testing.T) {
 		Inputs:  []Input{NewInput(addr1, coins)},
 		Outputs: []Output{NewOutput(addr2, coins)},
 	}
-	
+
 	// TODO some failures for bad result
 	require.Equal(t, msg.Type(), "bank")
 }
@@ -31,7 +31,7 @@ func TestInputValidation(t *testing.T) {
 	addr2 := sdk.AccAddress([]byte{7, 8})
 	someCoins := sdk.Coins{sdk.NewInt64Coin("atom", 123)}
 	multiCoins := sdk.Coins{sdk.NewInt64Coin("atom", 123), sdk.NewInt64Coin("eth", 20)}
-	
+
 	var emptyAddr sdk.AccAddress
 	emptyCoins := sdk.Coins{}
 	emptyCoins2 := sdk.Coins{sdk.NewInt64Coin("eth", 0)}
@@ -39,7 +39,7 @@ func TestInputValidation(t *testing.T) {
 	minusCoins := sdk.Coins{sdk.NewInt64Coin("eth", -34)}
 	someMinusCoins := sdk.Coins{sdk.NewInt64Coin("atom", 20), sdk.NewInt64Coin("eth", -34)}
 	unsortedCoins := sdk.Coins{sdk.NewInt64Coin("eth", 1), sdk.NewInt64Coin("atom", 1)}
-	
+
 	cases := []struct {
 		valid bool
 		txIn  Input
@@ -48,7 +48,7 @@ func TestInputValidation(t *testing.T) {
 		{true, NewInput(addr1, someCoins)},
 		{true, NewInput(addr2, someCoins)},
 		{true, NewInput(addr2, multiCoins)},
-		
+
 		{false, NewInput(emptyAddr, someCoins)},  // empty address
 		{false, NewInput(addr1, emptyCoins)},     // invalid coins
 		{false, NewInput(addr1, emptyCoins2)},    // invalid coins
@@ -57,7 +57,7 @@ func TestInputValidation(t *testing.T) {
 		{false, NewInput(addr1, someMinusCoins)}, // negative coins
 		{false, NewInput(addr1, unsortedCoins)},  // unsorted coins
 	}
-	
+
 	for i, tc := range cases {
 		err := tc.txIn.ValidateBasic()
 		if tc.valid {
@@ -73,7 +73,7 @@ func TestOutputValidation(t *testing.T) {
 	addr2 := sdk.AccAddress([]byte{7, 8})
 	someCoins := sdk.Coins{sdk.NewInt64Coin("atom", 123)}
 	multiCoins := sdk.Coins{sdk.NewInt64Coin("atom", 123), sdk.NewInt64Coin("eth", 20)}
-	
+
 	var emptyAddr sdk.AccAddress
 	emptyCoins := sdk.Coins{}
 	emptyCoins2 := sdk.Coins{sdk.NewInt64Coin("eth", 0)}
@@ -81,7 +81,7 @@ func TestOutputValidation(t *testing.T) {
 	minusCoins := sdk.Coins{sdk.NewInt64Coin("eth", -34)}
 	someMinusCoins := sdk.Coins{sdk.NewInt64Coin("atom", 20), sdk.NewInt64Coin("eth", -34)}
 	unsortedCoins := sdk.Coins{sdk.NewInt64Coin("eth", 1), sdk.NewInt64Coin("atom", 1)}
-	
+
 	cases := []struct {
 		valid bool
 		txOut Output
@@ -90,7 +90,7 @@ func TestOutputValidation(t *testing.T) {
 		{true, NewOutput(addr1, someCoins)},
 		{true, NewOutput(addr2, someCoins)},
 		{true, NewOutput(addr2, multiCoins)},
-		
+
 		{false, NewOutput(emptyAddr, someCoins)},  // empty address
 		{false, NewOutput(addr1, emptyCoins)},     // invalid coins
 		{false, NewOutput(addr1, emptyCoins2)},    // invalid coins
@@ -99,7 +99,7 @@ func TestOutputValidation(t *testing.T) {
 		{false, NewOutput(addr1, someMinusCoins)}, // negative coins
 		{false, NewOutput(addr1, unsortedCoins)},  // unsorted coins
 	}
-	
+
 	for i, tc := range cases {
 		err := tc.txOut.ValidateBasic()
 		if tc.valid {
@@ -117,16 +117,16 @@ func TestMsgSendValidation(t *testing.T) {
 	atom124 := sdk.Coins{sdk.NewInt64Coin("atom", 124)}
 	eth123 := sdk.Coins{sdk.NewInt64Coin("eth", 123)}
 	atom123eth123 := sdk.Coins{sdk.NewInt64Coin("atom", 123), sdk.NewInt64Coin("eth", 123)}
-	
+
 	input1 := NewInput(addr1, atom123)
 	input2 := NewInput(addr1, eth123)
 	output1 := NewOutput(addr2, atom123)
 	output2 := NewOutput(addr2, atom124)
 	output3 := NewOutput(addr2, eth123)
 	outputMulti := NewOutput(addr2, atom123eth123)
-	
+
 	var emptyAddr sdk.AccAddress
-	
+
 	cases := []struct {
 		valid bool
 		tx    MsgSend
@@ -157,7 +157,7 @@ func TestMsgSendValidation(t *testing.T) {
 			Inputs:  []Input{input2},
 			Outputs: []Output{output1}}, // amounts dont match
 		},
-		
+
 		{true, MsgSend{
 			Inputs:  []Input{input1},
 			Outputs: []Output{output1}},
@@ -167,7 +167,7 @@ func TestMsgSendValidation(t *testing.T) {
 			Outputs: []Output{outputMulti}},
 		},
 	}
-	
+
 	for i, tc := range cases {
 		err := tc.tx.ValidateBasic()
 		if tc.valid {
@@ -187,7 +187,7 @@ func TestMsgSendGetSignBytes(t *testing.T) {
 		Outputs: []Output{NewOutput(addr2, coins)},
 	}
 	res := msg.GetSignBytes()
-	
+
 	expected := `{"inputs":[{"address":"cosmos1d9h8qat57ljhcm","coins":[{"amount":"10","denom":"atom"}]}],"outputs":[{"address":"cosmos1da6hgur4wsmpnjyg","coins":[{"amount":"10","denom":"atom"}]}]}`
 	require.Equal(t, expected, string(res))
 }
@@ -239,7 +239,7 @@ func TestMsgIssueType(t *testing.T) {
 		Banker:  sdk.AccAddress([]byte("input")),
 		Outputs: []Output{NewOutput(addr, coins)},
 	}
-	
+
 	// TODO some failures for bad result
 	require.Equal(t, msg.Type(), "bank")
 }
@@ -273,7 +273,7 @@ func TestMsgIssueGetSignBytes(t *testing.T) {
 		Outputs: []Output{NewOutput(addr, coins)},
 	}
 	res := msg.GetSignBytes()
-	
+
 	expected := `{"banker":"cosmos1d9h8qat57ljhcm","outputs":[{"address":"cosmos1d3hkzm3dveex7mfdvfsku6cjngpcj","coins":[{"amount":"10","denom":"atom"}]}]}`
 	require.Equal(t, expected, string(res))
 }
@@ -374,7 +374,7 @@ func TestMsgBankIssueAssetsGetSignBytes(t *testing.T) {
 		IssueAssets: []IssueAsset{issueAsset},
 	}
 	res := msg.GetSignBytes()
-	expected := `{"issueAssets":[{"issuerAddress":"cosmos1f9ehxat9g9jxgun9wdessv22y8","toAddress":"cosmos123h5zerywfjhxuclxj67f","assetPeg":{"type":"comdex-blockchain/AssetPeg","value":{"pegHash":"31","documentHash":"AB1234","assetType":"sdfg","assetQuantity":"1234","quantityUnit":"MT","ownerAddress":"cosmos1550dq7","locked":false}}}]}`
+	expected := `{"issueAssets":[{"issuerAddress":"cosmos1f9ehxat9g9jxgun9wdessv22y8","toAddress":"cosmos123h5zerywfjhxuclxj67f","assetPeg":{"type":"commit-blockchain/AssetPeg","value":{"pegHash":"31","documentHash":"AB1234","assetType":"sdfg","assetQuantity":"1234","quantityUnit":"MT","ownerAddress":"cosmos1550dq7","locked":false}}}]}`
 	require.Equal(t, expected, string(res))
 }
 
@@ -453,7 +453,7 @@ func TestMsgBankIssueFiatsGetSignBytes(t *testing.T) {
 		IssueFiats: []IssueFiat{issueFiat},
 	}
 	res := msg.GetSignBytes()
-	expected := `{"issueFiats":[{"issuerAddress":"cosmos1f9ehxat9g9jxgun9wdessv22y8","toAddress":"cosmos123h5zerywfjhxuclxj67f","fiatPeg":{"type":"comdex-blockchain/FiatPeg","value":{"pegHash":"31","transactionID":"AB1234","transactionAmount":"1234","redeemedAmount":"0","owners":[{"ownerAddress":"cosmos1famkuetjg9jxgun9wdes77yfn5","amount":"1234"}]}}}]}`
+	expected := `{"issueFiats":[{"issuerAddress":"cosmos1f9ehxat9g9jxgun9wdessv22y8","toAddress":"cosmos123h5zerywfjhxuclxj67f","fiatPeg":{"type":"commit-blockchain/FiatPeg","value":{"pegHash":"31","transactionID":"AB1234","transactionAmount":"1234","redeemedAmount":"0","owners":[{"ownerAddress":"cosmos1famkuetjg9jxgun9wdes77yfn5","amount":"1234"}]}}}]}`
 	require.Equal(t, expected, string(res))
 }
 

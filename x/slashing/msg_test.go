@@ -2,10 +2,10 @@ package slashing
 
 import (
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 func TestMsgUnjailGetSignBytes(t *testing.T) {

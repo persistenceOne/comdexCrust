@@ -2,8 +2,8 @@ package slashing
 
 import (
 	"time"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // nolint
@@ -62,19 +62,19 @@ var (
 	// defaultMaxEvidenceAge = 60 * 60 * 24 * 7 * 3
 	// TODO Temporarily set to 2 minutes for testnets.
 	defaultMaxEvidenceAge int64 = 60 * 2
-	
+
 	// TODO Temporarily set to five minutes for testnets
 	defaultDoubleSignUnbondDuration int64 = 60 * 5
-	
+
 	// TODO Temporarily set to 10000 blocks for testnets
 	defaultSignedBlocksWindow int64 = 10000
-	
+
 	// TODO Temporarily set to 10 minutes for testnets
 	defaultDowntimeUnbondDuration int64 = 60 * 10
-	
+
 	defaultMinSignedPerWindow = sdk.NewDecWithPrec(5, 1)
-	
+
 	defaultSlashFractionDoubleSign = sdk.NewDec(1).Quo(sdk.NewDec(20))
-	
+
 	defaultSlashFractionDowntime = sdk.NewDec(1).Quo(sdk.NewDec(100))
 )

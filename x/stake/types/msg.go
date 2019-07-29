@@ -2,8 +2,8 @@ package types
 
 import (
 	"bytes"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 	"github.com/tendermint/tendermint/crypto"
 )
 
@@ -15,7 +15,7 @@ var _, _, _ sdk.Msg = &MsgCreateValidator{}, &MsgEditValidator{}, &MsgDelegate{}
 var _, _ sdk.Msg = &MsgBeginUnbonding{}, &MsgCompleteUnbonding{}
 var _, _ sdk.Msg = &MsgBeginRedelegate{}, &MsgCompleteRedelegate{}
 
-// ______________________________________________________________________
+//______________________________________________________________________
 
 // MsgCreateValidator - struct for unbonding transactions
 type MsgCreateValidator struct {
@@ -29,7 +29,7 @@ type MsgCreateValidator struct {
 // Default way to create validator. Delegator address and validator address are the same
 func NewMsgCreateValidator(valAddr sdk.ValAddress, pubkey crypto.PubKey,
 	selfDelegation sdk.Coin, description Description) MsgCreateValidator {
-	
+
 	return NewMsgCreateValidatorOnBehalfOf(
 		sdk.AccAddress(valAddr), valAddr, pubkey, selfDelegation, description,
 	)
@@ -47,14 +47,14 @@ func NewMsgCreateValidatorOnBehalfOf(delAddr sdk.AccAddress, valAddr sdk.ValAddr
 	}
 }
 
-// nolint
+//nolint
 func (msg MsgCreateValidator) Type() string { return MsgType }
 
 // Return address(es) that must sign over msg.GetSignBytes()
 func (msg MsgCreateValidator) GetSigners() []sdk.AccAddress {
 	// delegator is first signer so delegator pays fees
 	addrs := []sdk.AccAddress{msg.DelegatorAddr}
-	
+
 	if !bytes.Equal(msg.DelegatorAddr.Bytes(), msg.ValidatorAddr.Bytes()) {
 		// if validator addr is not same as delegator addr, validator must sign
 		// msg as well
@@ -101,7 +101,7 @@ func (msg MsgCreateValidator) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// ______________________________________________________________________
+//______________________________________________________________________
 
 // MsgEditValidator - struct for editing a validator
 type MsgEditValidator struct {
@@ -116,7 +116,7 @@ func NewMsgEditValidator(valAddr sdk.ValAddress, description Description) MsgEdi
 	}
 }
 
-// nolint
+//nolint
 func (msg MsgEditValidator) Type() string { return MsgType }
 func (msg MsgEditValidator) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.AccAddress(msg.ValidatorAddr)}
@@ -149,7 +149,7 @@ func (msg MsgEditValidator) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// ______________________________________________________________________
+//______________________________________________________________________
 
 // MsgDelegate - struct for bonding transactions
 type MsgDelegate struct {
@@ -166,7 +166,7 @@ func NewMsgDelegate(delAddr sdk.AccAddress, valAddr sdk.ValAddress, delegation s
 	}
 }
 
-// nolint
+//nolint
 func (msg MsgDelegate) Type() string { return MsgType }
 func (msg MsgDelegate) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.DelegatorAddr}
@@ -195,7 +195,7 @@ func (msg MsgDelegate) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// ______________________________________________________________________
+//______________________________________________________________________
 
 // MsgDelegate - struct for bonding transactions
 type MsgBeginRedelegate struct {
@@ -206,8 +206,8 @@ type MsgBeginRedelegate struct {
 }
 
 func NewMsgBeginRedelegate(delAddr sdk.AccAddress, valSrcAddr,
-valDstAddr sdk.ValAddress, sharesAmount sdk.Dec) MsgBeginRedelegate {
-	
+	valDstAddr sdk.ValAddress, sharesAmount sdk.Dec) MsgBeginRedelegate {
+
 	return MsgBeginRedelegate{
 		DelegatorAddr:    delAddr,
 		ValidatorSrcAddr: valSrcAddr,
@@ -216,7 +216,7 @@ valDstAddr sdk.ValAddress, sharesAmount sdk.Dec) MsgBeginRedelegate {
 	}
 }
 
-// nolint
+//nolint
 func (msg MsgBeginRedelegate) Type() string { return MsgType }
 func (msg MsgBeginRedelegate) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.DelegatorAddr}
@@ -273,7 +273,7 @@ func NewMsgCompleteRedelegate(delAddr sdk.AccAddress, valSrcAddr, valDstAddr sdk
 	}
 }
 
-// nolint
+//nolint
 func (msg MsgCompleteRedelegate) Type() string { return MsgType }
 func (msg MsgCompleteRedelegate) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.DelegatorAddr}
@@ -302,7 +302,7 @@ func (msg MsgCompleteRedelegate) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// ______________________________________________________________________
+//______________________________________________________________________
 
 // MsgBeginUnbonding - struct for unbonding transactions
 type MsgBeginUnbonding struct {
@@ -319,7 +319,7 @@ func NewMsgBeginUnbonding(delAddr sdk.AccAddress, valAddr sdk.ValAddress, shares
 	}
 }
 
-// nolint
+//nolint
 func (msg MsgBeginUnbonding) Type() string                 { return MsgType }
 func (msg MsgBeginUnbonding) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{msg.DelegatorAddr} }
 
@@ -367,7 +367,7 @@ func NewMsgCompleteUnbonding(delAddr sdk.AccAddress, valAddr sdk.ValAddress) Msg
 	}
 }
 
-// nolint
+//nolint
 func (msg MsgCompleteUnbonding) Type() string { return MsgType }
 func (msg MsgCompleteUnbonding) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.DelegatorAddr}

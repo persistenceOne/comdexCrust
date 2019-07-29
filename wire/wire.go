@@ -3,8 +3,8 @@ package wire
 import (
 	"bytes"
 	"encoding/json"
-	
-	"github.com/tendermint/go-amino"
+
+	amino "github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/crypto/encoding/amino"
 )
 
@@ -28,7 +28,7 @@ func MarshalJSONIndent(cdc *Codec, obj interface{}) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	var out bytes.Buffer
 	err = json.Indent(&out, bz, "", "  ")
 	if err != nil {
@@ -37,7 +37,7 @@ func MarshalJSONIndent(cdc *Codec, obj interface{}) ([]byte, error) {
 	return out.Bytes(), nil
 }
 
-// __________________________________________________________________
+//__________________________________________________________________
 
 // Cdc : generic sealed codec to be used throughout sdk
 var Cdc *Codec

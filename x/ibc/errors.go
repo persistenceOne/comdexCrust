@@ -1,17 +1,17 @@
 package ibc
 
 import (
-	sdk "github.com/comdex-blockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // IBC errors reserve 200 ~ 299.
 const (
 	DefaultCodespace sdk.CodespaceType = 3
-	
+
 	// IBC errors reserve 200 - 299.
 	CodeInvalidSequence sdk.CodeType = 200
 	CodeIdenticalChains sdk.CodeType = 201
-	CodeUnknownRequest               = sdk.CodeUnknownRequest
+	CodeUnknownRequest  sdk.CodeType = sdk.CodeUnknownRequest
 )
 
 func codeToDefaultMsg(code sdk.CodeType) string {
@@ -31,7 +31,7 @@ func ErrInvalidSequence(codespace sdk.CodespaceType) sdk.Error {
 	return newError(codespace, CodeInvalidSequence, "")
 }
 
-// ErrIdenticalChains :
+//ErrIdenticalChains :
 func ErrIdenticalChains(codespace sdk.CodespaceType) sdk.Error {
 	return newError(codespace, CodeIdenticalChains, "")
 }

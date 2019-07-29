@@ -5,13 +5,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
-	
-	"github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/client/context"
-	"github.com/comdex-blockchain/client/utils"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	authctx "github.com/comdex-blockchain/x/auth/client/context"
+
+	"github.com/commitHub/commitBlockchain/client"
+	"github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/client/utils"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	authctx "github.com/commitHub/commitBlockchain/x/auth/client/context"
 )
 
 type baseReq struct {
@@ -43,22 +43,22 @@ func (req baseReq) baseReqValidate(w http.ResponseWriter) bool {
 		utils.WriteErrorResponse(w, http.StatusUnauthorized, "Name required but not specified")
 		return false
 	}
-	
+
 	if len(req.Password) == 0 {
 		utils.WriteErrorResponse(w, http.StatusUnauthorized, "Password required but not specified")
 		return false
 	}
-	
+
 	if len(req.ChainID) == 0 {
 		utils.WriteErrorResponse(w, http.StatusUnauthorized, "ChainID required but not specified")
 		return false
 	}
-	
+
 	if req.AccountNumber < 0 {
 		utils.WriteErrorResponse(w, http.StatusUnauthorized, "Account Number required but not specified")
 		return false
 	}
-	
+
 	if req.Sequence < 0 {
 		utils.WriteErrorResponse(w, http.StatusUnauthorized, "Sequence required but not specified")
 		return false
@@ -77,13 +77,13 @@ func signAndBuild(w http.ResponseWriter, r *http.Request, cliCtx context.CLICont
 		ChainID:       baseReq.ChainID,
 		Gas:           baseReq.Gas,
 	}
-	
+
 	adjustment, ok := utils.ParseFloat64OrReturnBadRequest(w, baseReq.GasAdjustment, client.DefaultGasAdjustment)
 	if !ok {
 		return
 	}
 	cliCtx = cliCtx.WithGasAdjustment(adjustment)
-	
+
 	if utils.HasDryRunArg(r) || baseReq.Gas == 0 {
 		newCtx, err := utils.EnrichCtxWithGas(txCtx, cliCtx, baseReq.Name, []sdk.Msg{msg})
 		if err != nil {
@@ -101,19 +101,19 @@ func signAndBuild(w http.ResponseWriter, r *http.Request, cliCtx context.CLICont
 		utils.WriteErrorResponse(w, http.StatusUnauthorized, err.Error())
 		return
 	}
-	
+
 	res, err := cliCtx.BroadcastTx(txBytes)
 	if err != nil {
 		utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	
+
 	output, err := wire.MarshalJSONIndent(cdc, res)
 	if err != nil {
 		utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	
+
 	w.Write(output)
 }
 

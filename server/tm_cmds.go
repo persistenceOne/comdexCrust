@@ -2,13 +2,13 @@ package server
 
 import (
 	"fmt"
-	
-	"github.com/comdex-blockchain/wire"
+
+	"github.com/commitHub/commitBlockchain/wire"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	
-	"github.com/comdex-blockchain/client"
-	sdk "github.com/comdex-blockchain/types"
+
+	"github.com/commitHub/commitBlockchain/client"
+	sdk "github.com/commitHub/commitBlockchain/types"
 	tcmd "github.com/tendermint/tendermint/cmd/tendermint/commands"
 	"github.com/tendermint/tendermint/p2p"
 	pvm "github.com/tendermint/tendermint/privval"
@@ -37,20 +37,20 @@ func ShowValidatorCmd(ctx *Context) *cobra.Command {
 		Use:   "show-validator",
 		Short: "Show this node's tendermint validator info",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			
+
 			cfg := ctx.Config
 			privValidator := pvm.LoadOrGenFilePV(cfg.PrivValidatorFile())
 			valPubKey := privValidator.PubKey
-			
+
 			if viper.GetBool(client.FlagJson) {
 				return printlnJSON(valPubKey)
 			}
-			
+
 			pubkey, err := sdk.Bech32ifyConsPub(valPubKey)
 			if err != nil {
 				return err
 			}
-			
+
 			fmt.Println(pubkey)
 			return nil
 		},
@@ -68,16 +68,16 @@ func ShowAddressCmd(ctx *Context) *cobra.Command {
 			cfg := ctx.Config
 			privValidator := pvm.LoadOrGenFilePV(cfg.PrivValidatorFile())
 			valAddr := (sdk.ValAddress)(privValidator.Address)
-			
+
 			if viper.GetBool(client.FlagJson) {
 				return printlnJSON(valAddr)
 			}
-			
+
 			fmt.Println(valAddr.String())
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().Bool(client.FlagJson, false, "get machine parseable output")
 	return cmd
 }

@@ -4,19 +4,19 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	
+
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-	
-	"github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/client/context"
-	sdk "github.com/comdex-blockchain/types"
+
+	"github.com/commitHub/commitBlockchain/client"
+	"github.com/commitHub/commitBlockchain/client/context"
+	sdk "github.com/commitHub/commitBlockchain/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 // TODO these next two functions feel kinda hacky based on their placement
 
-// ValidatorCommand returns the validator set for a given height
+//ValidatorCommand returns the validator set for a given height
 func ValidatorCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "validator-set [height]",
@@ -49,7 +49,7 @@ func bech32ValidatorOutput(validator *tmtypes.Validator) (ValidatorOutput, error
 	if err != nil {
 		return ValidatorOutput{}, err
 	}
-	
+
 	return ValidatorOutput{
 		Address:     sdk.ValAddress(validator.Address),
 		PubKey:      bechValPubkey,
@@ -64,29 +64,29 @@ func getValidators(cliCtx context.CLIContext, height *int64) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	validatorsRes, err := node.Validators(height)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	outputValidatorsRes := ResultValidatorsOutput{
 		BlockHeight: validatorsRes.BlockHeight,
 		Validators:  make([]ValidatorOutput, len(validatorsRes.Validators)),
 	}
-	
+
 	for i := 0; i < len(validatorsRes.Validators); i++ {
 		outputValidatorsRes.Validators[i], err = bech32ValidatorOutput(validatorsRes.Validators[i])
 		if err != nil {
 			return nil, err
 		}
 	}
-	
+
 	output, err := cdc.MarshalJSON(outputValidatorsRes)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return output, nil
 }
 
@@ -105,12 +105,12 @@ func printValidators(cmd *cobra.Command, args []string) error {
 			height = &tmp
 		}
 	}
-	
+
 	output, err := getValidators(context.NewCLIContext(), height)
 	if err != nil {
 		return err
 	}
-	
+
 	fmt.Println(string(output))
 	return nil
 }
@@ -121,28 +121,28 @@ func printValidators(cmd *cobra.Command, args []string) error {
 func ValidatorSetRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		
+
 		height, err := strconv.ParseInt(vars["height"], 10, 64)
 		if err != nil {
 			w.WriteHeader(400)
 			w.Write([]byte("ERROR: Couldn't parse block height. Assumed format is '/validatorsets/{height}'."))
 			return
 		}
-		
+
 		chainHeight, err := GetChainHeight(cliCtx)
 		if height > chainHeight {
 			w.WriteHeader(404)
 			w.Write([]byte("ERROR: Requested block height is bigger then the chain length."))
 			return
 		}
-		
+
 		output, err := getValidators(cliCtx, &height)
 		if err != nil {
 			w.WriteHeader(500)
 			w.Write([]byte(err.Error()))
 			return
 		}
-		
+
 		w.Write(output)
 	}
 }
@@ -156,14 +156,14 @@ func LatestValidatorSetRequestHandlerFn(cliCtx context.CLIContext) http.HandlerF
 			w.Write([]byte(err.Error()))
 			return
 		}
-		
+
 		output, err := getValidators(cliCtx, &height)
 		if err != nil {
 			w.WriteHeader(500)
 			w.Write([]byte(err.Error()))
 			return
 		}
-		
+
 		w.Write(output)
 	}
 }

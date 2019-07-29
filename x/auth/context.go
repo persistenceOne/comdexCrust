@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"github.com/comdex-blockchain/types"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 /*

@@ -3,39 +3,39 @@ package main
 import (
 	"encoding/json"
 	"io"
-	
+
 	"github.com/spf13/viper"
-	
+
 	"github.com/spf13/cobra"
-	
-	"github.com/comdex-blockchain/baseapp"
+
+	"github.com/commitHub/commitBlockchain/baseapp"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/cli"
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
 	tmtypes "github.com/tendermint/tendermint/types"
-	
-	"github.com/comdex-blockchain/fiat/app"
-	"github.com/comdex-blockchain/server"
+
+	"github.com/commitHub/commitBlockchain/fiat/app"
+	"github.com/commitHub/commitBlockchain/server"
 )
 
 func main() {
 	cdc := app.MakeCodec()
 	ctx := server.NewDefaultContext()
-	
+
 	rootCmd := &cobra.Command{
 		Use:               "fiatd",
 		Short:             "Fiat Daemon (server)",
 		PersistentPreRunE: server.PersistentPreRunEFn(ctx),
 	}
-	
+
 	server.AddCommands(ctx, cdc, rootCmd, app.FiatAppInit(),
 		server.ConstructAppCreator(newApp, "fiat"),
 		server.ConstructAppExporter(exportAppStateAndTMValidators, "fiat"))
-	
+
 	// prepare and add flags
 	executor := cli.PrepareBaseCmd(rootCmd, "CF", app.DefaultNodeHome)
-	
+
 	err := executor.Execute()
 	if err != nil {
 		panic(err)

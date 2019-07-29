@@ -1,13 +1,13 @@
 package bank
 
 import (
-	sdk "github.com/comdex-blockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // Bank errors reserve 100 ~ 199.
 const (
 	DefaultCodespace sdk.CodespaceType = 2
-	
+
 	CodeInvalidInput  sdk.CodeType = 101
 	CodeInvalidOutput sdk.CodeType = 102
 )
@@ -30,7 +30,7 @@ func ErrInvalidInput(codespace sdk.CodespaceType, msg string) sdk.Error {
 	return newError(codespace, CodeInvalidInput, msg)
 }
 
-// ErrNoInputs :
+//ErrNoInputs :
 func ErrNoInputs(codespace sdk.CodespaceType) sdk.Error {
 	return newError(codespace, CodeInvalidInput, "")
 }
@@ -45,7 +45,7 @@ func ErrNoOutputs(codespace sdk.CodespaceType) sdk.Error {
 	return newError(codespace, CodeInvalidOutput, "")
 }
 
-// ----------------------------------------
+//----------------------------------------
 
 func msgOrDefaultMsg(msg string, code sdk.CodeType) string {
 	if msg != "" {

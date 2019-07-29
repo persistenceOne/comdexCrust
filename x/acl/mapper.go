@@ -1,11 +1,11 @@
 package acl
 
 import (
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
-// Mapper :  Acl mapper object
+//Mapper :  Acl mapper object
 type Mapper struct {
 	key   sdk.StoreKey
 	proto func() sdk.ACLAccount
@@ -26,17 +26,17 @@ func AccountStoreKey(addr sdk.AccAddress) []byte {
 	return append([]byte("address:"), addr.Bytes()...)
 }
 
-// ZoneStoreKey : create the key for zone
+//ZoneStoreKey : create the key for zone
 func ZoneStoreKey(zoneID sdk.ZoneID) []byte {
 	return append([]byte("zoneID:"), zoneID.Bytes()...)
 }
 
-// OrganizationStoreKey : create the key for organization
+//OrganizationStoreKey : create the key for organization
 func OrganizationStoreKey(organizationID sdk.OrganizationID) []byte {
 	return append([]byte("organizationID:"), organizationID.Bytes()...)
 }
 
-// GetAccount : Get Acl Account
+//GetAccount : Get Acl Account
 func (am Mapper) GetAccount(ctx sdk.Context, addr sdk.AccAddress) sdk.ACLAccount {
 	store := ctx.KVStore(am.key)
 	bz := store.Get(AccountStoreKey(addr))
@@ -47,7 +47,7 @@ func (am Mapper) GetAccount(ctx sdk.Context, addr sdk.AccAddress) sdk.ACLAccount
 	return acc
 }
 
-// GetZone : Get Acl zone
+//GetZone : Get Acl zone
 func (am Mapper) GetZone(ctx sdk.Context, zoneID sdk.ZoneID) sdk.AccAddress {
 	store := ctx.KVStore(am.key)
 	bz := store.Get(ZoneStoreKey(zoneID))
@@ -58,7 +58,7 @@ func (am Mapper) GetZone(ctx sdk.Context, zoneID sdk.ZoneID) sdk.AccAddress {
 	return accAddress
 }
 
-// GetOrganization : Get Acl organization
+//GetOrganization : Get Acl organization
 func (am Mapper) GetOrganization(ctx sdk.Context, organizationID sdk.OrganizationID) sdk.Organization {
 	store := ctx.KVStore(am.key)
 	bz := store.Get(OrganizationStoreKey(organizationID))
@@ -97,7 +97,7 @@ func (am Mapper) SetOrganization(ctx sdk.Context, accAddress sdk.AccAddress, org
 	return nil
 }
 
-// IterateAccounts : iterate over account in kv store and add accounts
+//IterateAccounts : iterate over account in kv store and add accounts
 func (am Mapper) IterateAccounts(ctx sdk.Context, process func(sdk.ACLAccount) (stop bool)) {
 	store := ctx.KVStore(am.key)
 	iter := sdk.KVStorePrefixIterator(store, []byte("address:"))
@@ -114,7 +114,7 @@ func (am Mapper) IterateAccounts(ctx sdk.Context, process func(sdk.ACLAccount) (
 	}
 }
 
-// IterateZones : iterate over zones in kv store and process them
+//IterateZones : iterate over zones in kv store and process them
 func (am Mapper) IterateZones(ctx sdk.Context, process func(sdk.AccAddress) (stop bool)) {
 	store := ctx.KVStore(am.key)
 	iter := sdk.KVStorePrefixIterator(store, []byte("zoneID:"))
@@ -131,7 +131,7 @@ func (am Mapper) IterateZones(ctx sdk.Context, process func(sdk.AccAddress) (sto
 	}
 }
 
-// IterateOrganizations : iterate over organizations in kv store and process them
+//IterateOrganizations : iterate over organizations in kv store and process them
 func (am Mapper) IterateOrganizations(ctx sdk.Context, process func(sdk.AccAddress) (stop bool)) {
 	store := ctx.KVStore(am.key)
 	iter := sdk.KVStorePrefixIterator(store, []byte("organizationID:"))

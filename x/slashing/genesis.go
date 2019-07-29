@@ -1,8 +1,8 @@
 package slashing
 
 import (
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/stake/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/stake/types"
 )
 
 // InitGenesis initializes the keeper's address to pubkey map.

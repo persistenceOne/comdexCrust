@@ -5,7 +5,7 @@ import (
 	"io"
 	"sort"
 	"sync"
-	
+
 	cmn "github.com/tendermint/tendermint/libs/common"
 )
 
@@ -44,7 +44,7 @@ func (ci *cacheKVStore) Get(key []byte) (value []byte) {
 	ci.mtx.Lock()
 	defer ci.mtx.Unlock()
 	ci.assertValidKey(key)
-	
+
 	cacheValue, ok := ci.cache[string(key)]
 	if !ok {
 		value = ci.parent.Get(key)
@@ -52,7 +52,7 @@ func (ci *cacheKVStore) Get(key []byte) (value []byte) {
 	} else {
 		value = cacheValue.value
 	}
-	
+
 	return value
 }
 
@@ -61,7 +61,7 @@ func (ci *cacheKVStore) Set(key []byte, value []byte) {
 	ci.mtx.Lock()
 	defer ci.mtx.Unlock()
 	ci.assertValidKey(key)
-	
+
 	ci.setCacheValue(key, value, false, true)
 }
 
@@ -76,7 +76,7 @@ func (ci *cacheKVStore) Delete(key []byte) {
 	ci.mtx.Lock()
 	defer ci.mtx.Unlock()
 	ci.assertValidKey(key)
-	
+
 	ci.setCacheValue(key, nil, true, true)
 }
 
@@ -94,7 +94,7 @@ func (ci *cacheKVStore) Gas(meter GasMeter, config GasConfig) KVStore {
 func (ci *cacheKVStore) Write() {
 	ci.mtx.Lock()
 	defer ci.mtx.Unlock()
-	
+
 	// We need a copy of all of the keys.
 	// Not the best, but probably not a bottleneck depending.
 	keys := make([]string, 0, len(ci.cache))
@@ -103,9 +103,9 @@ func (ci *cacheKVStore) Write() {
 			keys = append(keys, key)
 		}
 	}
-	
+
 	sort.Strings(keys)
-	
+
 	// TODO: Consider allowing usage of Batch, which would allow the write to
 	// at least happen atomically.
 	for _, key := range keys {
@@ -118,12 +118,12 @@ func (ci *cacheKVStore) Write() {
 			ci.parent.Set([]byte(key), cacheValue.value)
 		}
 	}
-	
+
 	// Clear the cache
 	ci.cache = make(map[string]cValue)
 }
 
-// ----------------------------------------
+//----------------------------------------
 // To cache-wrap this cacheKVStore further.
 
 // Implements CacheWrapper.
@@ -136,7 +136,7 @@ func (ci *cacheKVStore) CacheWrapWithTrace(w io.Writer, tc TraceContext) CacheWr
 	return NewCacheKVStore(NewTraceKVStore(ci, w, tc))
 }
 
-// ----------------------------------------
+//----------------------------------------
 // Iteration
 
 // Implements KVStore.
@@ -151,43 +151,43 @@ func (ci *cacheKVStore) ReverseIterator(start, end []byte) Iterator {
 
 func (ci *cacheKVStore) iterator(start, end []byte, ascending bool) Iterator {
 	var parent, cache Iterator
-	
+
 	if ascending {
 		parent = ci.parent.Iterator(start, end)
 	} else {
 		parent = ci.parent.ReverseIterator(start, end)
 	}
-	
+
 	items := ci.dirtyItems(ascending)
 	cache = newMemIterator(start, end, items)
-	
+
 	return newCacheMergeIterator(parent, cache, ascending)
 }
 
 // Constructs a slice of dirty items, to use w/ memIterator.
 func (ci *cacheKVStore) dirtyItems(ascending bool) []cmn.KVPair {
 	items := make([]cmn.KVPair, 0, len(ci.cache))
-	
+
 	for key, cacheValue := range ci.cache {
 		if !cacheValue.dirty {
 			continue
 		}
-		
+
 		items = append(items, cmn.KVPair{Key: []byte(key), Value: cacheValue.value})
 	}
-	
+
 	sort.Slice(items, func(i, j int) bool {
 		if ascending {
 			return bytes.Compare(items[i].Key, items[j].Key) < 0
 		}
-		
+
 		return bytes.Compare(items[i].Key, items[j].Key) > 0
 	})
-	
+
 	return items
 }
 
-// ----------------------------------------
+//----------------------------------------
 // etc
 
 func (ci *cacheKVStore) assertValidKey(key []byte) {

@@ -6,7 +6,7 @@ import (
 	"net"
 	"os"
 	"testing"
-	
+
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/cli"
@@ -19,7 +19,7 @@ func FreeTCPAddr() (addr, port string, err error) {
 	if err != nil {
 		return "", "", err
 	}
-	
+
 	closer := func() {
 		err := l.Close()
 		if err != nil {
@@ -27,9 +27,9 @@ func FreeTCPAddr() (addr, port string, err error) {
 			panic(err)
 		}
 	}
-	
+
 	defer closer()
-	
+
 	portI := l.Addr().(*net.TCPAddr).Port
 	port = fmt.Sprintf("%d", portI)
 	addr = fmt.Sprintf("tcp://0.0.0.0:%s", port)

@@ -3,13 +3,13 @@ package fiatFactory
 import (
 	"encoding/json"
 	"testing"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 	"github.com/stretchr/testify/require"
 	cmn "github.com/tendermint/tendermint/libs/common"
 )
 
-// TestInstantiateAndAssignFiat tests function instantiateAndAssignFiat
+//TestInstantiateAndAssignFiat tests function instantiateAndAssignFiat
 func TestInstantiateAndAssignFiat(t *testing.T) {
 	cdc, ctx, fiatMapper, _ := initiateSetupMultiStore()
 	fiatPeg := issueFiat[0].FiatPeg
@@ -24,7 +24,7 @@ func TestInstantiateAndAssignFiat(t *testing.T) {
 	var tagList []jsonData
 	data, _ := cdc.MarshalJSONIndent(tags, "", "")
 	json.Unmarshal(data, &Tags)
-	
+
 	var tagData jsonData
 	for _, tag := range Tags {
 		tagData.key = string(tag.Key)
@@ -43,11 +43,11 @@ func TestInstantiateAndAssignFiat(t *testing.T) {
 // TestMainIssueFiatsToWallets tests function issueFiatsToWallets
 func TestMainIssueFiatsToWallets(t *testing.T) {
 	cdc, ctx, fiatMapper, _ := initiateSetupMultiStore()
-	
+
 	fiatPeg := issueFiat[0].FiatPeg
 	fiatMapper.SetFiatPeg(ctx, fiatPeg)
 	tags, _ := issueFiatsToWallets(ctx, fiatMapper, issueFiat)
-	
+
 	var Tags cmn.KVPairs
 	type jsonData struct {
 		key   string
@@ -56,7 +56,7 @@ func TestMainIssueFiatsToWallets(t *testing.T) {
 	var tagList []jsonData
 	data, _ := cdc.MarshalJSONIndent(tags, "", "")
 	json.Unmarshal(data, &Tags)
-	
+
 	var tagData jsonData
 	for _, tag := range Tags {
 		tagData.key = string(tag.Key)
@@ -75,11 +75,11 @@ func TestMainIssueFiatsToWallets(t *testing.T) {
 // TestIssueFiatsToWallets tests function IssueFiatsToWallets
 func TestIssueFiatsToWallets(t *testing.T) {
 	cdc, ctx, fiatMapper, fiatKeeper := initiateSetupMultiStore()
-	
+
 	fiatPeg := issueFiat[0].FiatPeg
 	fiatMapper.SetFiatPeg(ctx, fiatPeg)
 	tags, _ := fiatKeeper.IssueFiatsToWallets(ctx, issueFiat)
-	
+
 	var Tags cmn.KVPairs
 	type jsonData struct {
 		key   string
@@ -95,7 +95,7 @@ func TestIssueFiatsToWallets(t *testing.T) {
 		tagData.value = string(tag.Value)
 		tagList = append(tagList, tagData)
 	}
-	
+
 	t.Log(tagList)
 	require.Equal(t, "recepient", tagList[0].key)
 	require.Equal(t, "issuer", tagList[1].key)
@@ -108,7 +108,7 @@ func TestIssueFiatsToWallets(t *testing.T) {
 // TestIssueFiatsToWalletsError handles error case for the IssueFiatsToWallets
 func TestIssueFiatsToWalletsError(t *testing.T) {
 	_, ctx, _, fiatKeeper := initiateSetupMultiStore()
-	
+
 	tags, _ := fiatKeeper.IssueFiatsToWallets(ctx, issueFiat)
 	t.Log(tags)
 	require.Nil(t, tags)
@@ -146,19 +146,19 @@ func TestRedeemFiatsFromWallet(t *testing.T) {
 // TestSendFiats tests function sendFiats
 func TestSendFiats(t *testing.T) {
 	cdc, ctx, fiatMapper, _ := initiateSetupMultiStore()
-	
+
 	fiatPegWallet := testSendFiat[0].FiatPegWallet
 	for _, fiat := range fiatPegWallet {
 		fiatMapper.SetFiatPeg(ctx, &fiat)
 	}
-	
+
 	var Tags cmn.KVPairs
 	type jsonData struct {
 		key   string
 		value string
 	}
 	var tagList []jsonData
-	
+
 	tags, _ := sendFiats(testSendFiat[0].FiatPegWallet, fiatMapper, ctx, testSendFiat[0].PegHash, testSendFiat[0].FromAddress, testSendFiat[0].ToAddress)
 	data, _ := cdc.MarshalJSONIndent(tags, "", "")
 	json.Unmarshal(data, &Tags)
@@ -168,7 +168,7 @@ func TestSendFiats(t *testing.T) {
 		tagData.value = string(tag.Value)
 		tagList = append(tagList, tagData)
 	}
-	
+
 	t.Log(tagList)
 	require.Equal(t, "recepient", tagList[0].key)
 	require.Equal(t, "sender", tagList[1].key)
@@ -204,7 +204,7 @@ func TestSendFiatToOrder(t *testing.T) {
 	require.Equal(t, "recepient", tagList[0].key)
 	require.Equal(t, "sender", tagList[1].key)
 	require.Equal(t, "fiat", tagList[2].key)
-	require.Equal(t, sdk.AccAddress(sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash)).String(), tagList[0].value)
+	require.Equal(t, sdk.AccAddress((sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash))).String(), tagList[0].value)
 	require.Equal(t, testSendFiat[0].FromAddress.String(), tagList[1].value)
 	require.Equal(t, string(testSendFiat[0].PegHash), tagList[2].value)
 }
@@ -235,7 +235,7 @@ func TestMainSendFiatsToOrders(t *testing.T) {
 	require.Equal(t, "recepient", tagList[0].key)
 	require.Equal(t, "sender", tagList[1].key)
 	require.Equal(t, "fiat", tagList[2].key)
-	require.Equal(t, sdk.AccAddress(sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash)).String(), tagList[0].value)
+	require.Equal(t, sdk.AccAddress((sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash))).String(), tagList[0].value)
 	require.Equal(t, testSendFiat[0].FromAddress.String(), tagList[1].value)
 	require.Equal(t, string(testSendFiat[0].PegHash), tagList[2].value)
 }
@@ -243,7 +243,7 @@ func TestMainSendFiatsToOrders(t *testing.T) {
 // TestSendFiatsToOrdersError
 func TestSendFiatsToOrdersError(t *testing.T) {
 	_, ctx, _, fiatKeeper := initiateSetupMultiStore()
-	
+
 	tags, _ := fiatKeeper.SendFiatsToOrders(ctx, testSendFiat)
 	require.Nil(t, tags)
 }
@@ -273,7 +273,7 @@ func TestSendFiatsToOrders(t *testing.T) {
 	require.Equal(t, "recepient", tagList[0].key)
 	require.Equal(t, "sender", tagList[1].key)
 	require.Equal(t, "fiat", tagList[2].key)
-	require.Equal(t, sdk.AccAddress(sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash)).String(), tagList[0].value)
+	require.Equal(t, sdk.AccAddress((sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash))).String(), tagList[0].value)
 	require.Equal(t, testSendFiat[0].FromAddress.String(), tagList[1].value)
 	require.Equal(t, string(testSendFiat[0].PegHash), tagList[2].value)
 }
@@ -281,7 +281,7 @@ func TestSendFiatsToOrders(t *testing.T) {
 func TestSendFiatFromOrder(t *testing.T) {
 	cdc, ctx, fiatMapper, _ := initiateSetupMultiStore()
 	fiatPegWallet := testSendFiat[0].FiatPegWallet
-	testSendFiat[0].FiatPegWallet[0].Owners[0].OwnerAddress = sdk.AccAddress(sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash))
+	testSendFiat[0].FiatPegWallet[0].Owners[0].OwnerAddress = sdk.AccAddress((sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash)))
 	for _, fiat := range fiatPegWallet {
 		fiatMapper.SetFiatPeg(ctx, &fiat)
 	}
@@ -291,7 +291,7 @@ func TestSendFiatFromOrder(t *testing.T) {
 		value string
 	}
 	var tagList []jsonData
-	
+
 	tags, _ := sendFiatFromOrder(ctx, fiatMapper, testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash, testSendFiat[0].FiatPegWallet)
 	data, _ := cdc.MarshalJSONIndent(tags, "", "")
 	json.Unmarshal(data, &Tags)
@@ -306,13 +306,13 @@ func TestSendFiatFromOrder(t *testing.T) {
 	require.Equal(t, "sender", tagList[1].key)
 	require.Equal(t, "fiat", tagList[2].key)
 	require.Equal(t, testSendFiat[0].ToAddress.String(), tagList[0].value)
-	require.Equal(t, sdk.AccAddress(sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash)).String(), tagList[1].value)
+	require.Equal(t, sdk.AccAddress((sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash))).String(), tagList[1].value)
 	require.Equal(t, string(testSendFiat[0].PegHash), tagList[2].value)
 }
 
 func TestMainExecuteFiatOrdersError(t *testing.T) {
 	var testSendFiat1 = []SendFiat{
-		{
+		SendFiat{
 			RelayerAddress: sdk.AccAddress([]byte("relayer")),
 			FromAddress:    sdk.AccAddress([]byte("from")),
 			ToAddress:      sdk.AccAddress([]byte("to")),
@@ -324,11 +324,11 @@ func TestMainExecuteFiatOrdersError(t *testing.T) {
 					TransactionAmount: 9,
 					RedeemedAmount:    3,
 					Owners: []sdk.Owner{
-						{
+						sdk.Owner{
 							OwnerAddress: sdk.AccAddress([]byte("from")),
 							Amount:       2000,
 						},
-						{
+						sdk.Owner{
 							OwnerAddress: sdk.AccAddress([]byte("relayer")),
 							Amount:       3000,
 						},
@@ -337,13 +337,13 @@ func TestMainExecuteFiatOrdersError(t *testing.T) {
 			},
 		},
 	}
-	
+
 	_, ctx, fiatMapper, _ := initiateSetupMultiStore()
 	fiatPegWallet := testSendFiat1[0].FiatPegWallet
 	for _, fiat := range fiatPegWallet {
 		fiatMapper.SetFiatPeg(ctx, &fiat)
 	}
-	
+
 	tags, _ := executeFiatOrders(ctx, fiatMapper, testSendFiat1)
 	t.Log(tags)
 	require.Nil(t, tags)
@@ -351,7 +351,7 @@ func TestMainExecuteFiatOrdersError(t *testing.T) {
 func TestMainExecuteFiatOrders(t *testing.T) {
 	cdc, ctx, fiatMapper, _ := initiateSetupMultiStore()
 	fiatPegWallet := testSendFiat[0].FiatPegWallet
-	testSendFiat[0].FiatPegWallet[0].Owners[0].OwnerAddress = sdk.AccAddress(sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash))
+	testSendFiat[0].FiatPegWallet[0].Owners[0].OwnerAddress = sdk.AccAddress((sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash)))
 	for _, fiat := range fiatPegWallet {
 		fiatMapper.SetFiatPeg(ctx, &fiat)
 	}
@@ -361,7 +361,7 @@ func TestMainExecuteFiatOrders(t *testing.T) {
 		value string
 	}
 	var tagList []jsonData
-	
+
 	tags, _ := executeFiatOrders(ctx, fiatMapper, testSendFiat)
 	data, _ := cdc.MarshalJSONIndent(tags, "", "")
 	json.Unmarshal(data, &Tags)
@@ -376,14 +376,14 @@ func TestMainExecuteFiatOrders(t *testing.T) {
 	require.Equal(t, "sender", tagList[1].key)
 	require.Equal(t, "fiat", tagList[2].key)
 	require.Equal(t, testSendFiat[0].ToAddress.String(), tagList[0].value)
-	require.Equal(t, sdk.AccAddress(sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash)).String(), tagList[1].value)
+	require.Equal(t, sdk.AccAddress((sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash))).String(), tagList[1].value)
 	require.Equal(t, string(testSendFiat[0].PegHash), tagList[2].value)
 }
 
 func TestExecuteFiatOrders(t *testing.T) {
 	cdc, ctx, fiatMapper, fiatKeeper := initiateSetupMultiStore()
 	fiatPegWallet := testSendFiat[0].FiatPegWallet
-	testSendFiat[0].FiatPegWallet[0].Owners[0].OwnerAddress = sdk.AccAddress(sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash))
+	testSendFiat[0].FiatPegWallet[0].Owners[0].OwnerAddress = sdk.AccAddress((sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash)))
 	for _, fiat := range fiatPegWallet {
 		fiatMapper.SetFiatPeg(ctx, &fiat)
 	}
@@ -393,7 +393,7 @@ func TestExecuteFiatOrders(t *testing.T) {
 		value string
 	}
 	var tagList []jsonData
-	
+
 	tags, _ := fiatKeeper.ExecuteFiatOrders(ctx, testSendFiat)
 	data, _ := cdc.MarshalJSONIndent(tags, "", "")
 	json.Unmarshal(data, &Tags)
@@ -408,6 +408,6 @@ func TestExecuteFiatOrders(t *testing.T) {
 	require.Equal(t, "sender", tagList[1].key)
 	require.Equal(t, "fiat", tagList[2].key)
 	require.Equal(t, testSendFiat[0].ToAddress.String(), tagList[0].value)
-	require.Equal(t, sdk.AccAddress(sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash)).String(), tagList[1].value)
+	require.Equal(t, sdk.AccAddress((sdk.GenerateNegotiationIDBytes(testSendFiat[0].FromAddress, testSendFiat[0].ToAddress, testSendFiat[0].PegHash))).String(), tagList[1].value)
 	require.Equal(t, string(testSendFiat[0].PegHash), tagList[2].value)
 }

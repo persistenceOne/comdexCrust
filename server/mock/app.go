@@ -4,17 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
 	tmtypes "github.com/tendermint/tendermint/types"
-	
-	bam "github.com/comdex-blockchain/baseapp"
-	gc "github.com/comdex-blockchain/server/config"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+
+	bam "github.com/commitHub/commitBlockchain/baseapp"
+	gc "github.com/commitHub/commitBlockchain/server/config"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
 // NewApp creates a simple mock kvstore app for testing. It should work
@@ -25,26 +25,26 @@ func NewApp(rootDir string, logger log.Logger) (abci.Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Capabilities key to access the main KVStore.
 	capKeyMainStore := sdk.NewKVStoreKey("main")
-	
+
 	// Create BaseApp.
 	baseApp := bam.NewBaseApp("kvstore", logger, db, decodeTx)
-	
+
 	// Set mounts for BaseApp's MultiStore.
 	baseApp.MountStoresIAVL(capKeyMainStore)
-	
+
 	baseApp.SetInitChainer(InitChainer(capKeyMainStore))
-	
+
 	// Set a handler Route.
 	baseApp.Router().AddRoute("kvstore", KVStoreHandler(capKeyMainStore))
-	
+
 	// Load latest version.
 	if err := baseApp.LoadLatestVersion(capKeyMainStore); err != nil {
 		return nil, err
 	}
-	
+
 	return baseApp, nil
 }
 
@@ -56,14 +56,14 @@ func KVStoreHandler(storeKey sdk.StoreKey) sdk.Handler {
 		if !ok {
 			panic("KVStoreHandler should only receive kvstoreTx")
 		}
-		
+
 		// tx is already unmarshalled
 		key := dTx.key
 		value := dTx.value
-		
+
 		store := ctx.KVStore(storeKey)
 		store.Set(key, value)
-		
+
 		return sdk.Result{
 			Code: 0,
 			Log:  fmt.Sprintf("set %s=%s", key, value),
@@ -87,14 +87,14 @@ type GenesisJSON struct {
 func InitChainer(key sdk.StoreKey) func(sdk.Context, abci.RequestInitChain) abci.ResponseInitChain {
 	return func(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 		stateJSON := req.AppStateBytes
-		
+
 		genesisState := new(GenesisJSON)
 		err := json.Unmarshal(stateJSON, genesisState)
 		if err != nil {
-			panic(err) // TODO https://github.com/comdex-blockchain/issues/468
+			panic(err) // TODO https://github.com/commitHub/commitBlockchain/issues/468
 			// return sdk.ErrGenesisParse("").TraceCause(err, "")
 		}
-		
+
 		for _, val := range genesisState.Values {
 			store := ctx.KVStore(key)
 			store.Set([]byte(val.Key), []byte(val.Value))
@@ -130,7 +130,7 @@ func AppGenStateEmpty(_ *wire.Codec, _ []json.RawMessage) (appState json.RawMess
 // Return a validator, not much else
 func AppGenTx(_ *wire.Codec, pk crypto.PubKey, genTxConfig gc.GenTx) (
 	appGenTx, cliPrint json.RawMessage, validator tmtypes.GenesisValidator, err error) {
-	
+
 	validator = tmtypes.GenesisValidator{
 		PubKey: pk,
 		Power:  10,

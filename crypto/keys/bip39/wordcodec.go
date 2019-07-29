@@ -2,7 +2,7 @@ package bip39
 
 import (
 	"strings"
-	
+
 	"github.com/bartekn/go-bip39"
 )
 

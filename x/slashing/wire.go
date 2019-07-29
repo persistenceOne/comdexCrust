@@ -1,12 +1,12 @@
 package slashing
 
 import (
-	"github.com/comdex-blockchain/wire"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
 // Register concrete types on wire codec
 func RegisterWire(cdc *wire.Codec) {
-	cdc.RegisterConcrete(MsgUnjail{}, "comdex-blockchain/MsgUnjail", nil)
+	cdc.RegisterConcrete(MsgUnjail{}, "commit-blockchain/MsgUnjail", nil)
 }
 
 var cdcEmpty = wire.NewCodec()

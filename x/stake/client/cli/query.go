@@ -2,16 +2,16 @@ package cli
 
 import (
 	"fmt"
-	
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
-	
-	"github.com/comdex-blockchain/client/context"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/stake"
-	"github.com/comdex-blockchain/x/stake/types"
+
+	"github.com/commitHub/commitBlockchain/client/context"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/stake"
+	"github.com/commitHub/commitBlockchain/x/stake/types"
 )
 
 // GetCmdQueryValidator implements the validator query command.
@@ -25,19 +25,19 @@ func GetCmdQueryValidator(storeName string, cdc *wire.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			
+
 			key := stake.GetValidatorKey(addr)
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			res, err := cliCtx.QueryStore(key, storeName)
 			if err != nil {
 				return err
 			} else if len(res) == 0 {
 				return fmt.Errorf("No validator found with address %s", args[0])
 			}
-			
+
 			validator := types.MustUnmarshalValidator(cdc, addr, res)
-			
+
 			switch viper.Get(cli.OutputFlag) {
 			case "text":
 				human, err := validator.HumanReadableString()
@@ -45,22 +45,22 @@ func GetCmdQueryValidator(storeName string, cdc *wire.Codec) *cobra.Command {
 					return err
 				}
 				fmt.Println(human)
-			
+
 			case "json":
 				// parse out the validator
 				output, err := wire.MarshalJSONIndent(cdc, validator)
 				if err != nil {
 					return err
 				}
-				
+
 				fmt.Println(string(output))
 			}
-			
+
 			// TODO: output with proofs / machine parseable etc.
 			return nil
 		},
 	}
-	
+
 	return cmd
 }
 
@@ -72,12 +72,12 @@ func GetCmdQueryValidators(storeName string, cdc *wire.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			key := stake.ValidatorsKey
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			resKVs, err := cliCtx.QuerySubspace(key, storeName)
 			if err != nil {
 				return err
 			}
-			
+
 			// parse out the validators
 			var validators []stake.Validator
 			for _, kv := range resKVs {
@@ -85,7 +85,7 @@ func GetCmdQueryValidators(storeName string, cdc *wire.Codec) *cobra.Command {
 				validator := types.MustUnmarshalValidator(cdc, addr, kv.Value)
 				validators = append(validators, validator)
 			}
-			
+
 			switch viper.Get(cli.OutputFlag) {
 			case "text":
 				for _, validator := range validators {
@@ -93,7 +93,7 @@ func GetCmdQueryValidators(storeName string, cdc *wire.Codec) *cobra.Command {
 					if err != nil {
 						return err
 					}
-					
+
 					fmt.Println(resp)
 				}
 			case "json":
@@ -101,16 +101,16 @@ func GetCmdQueryValidators(storeName string, cdc *wire.Codec) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				
+
 				fmt.Println(string(output))
 				return nil
 			}
-			
+
 			// TODO: output with proofs / machine parseable etc.
 			return nil
 		},
 	}
-	
+
 	return cmd
 }
 
@@ -124,51 +124,51 @@ func GetCmdQueryDelegation(storeName string, cdc *wire.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			
+
 			delAddr, err := sdk.AccAddressFromBech32(viper.GetString(FlagAddressDelegator))
 			if err != nil {
 				return err
 			}
-			
+
 			key := stake.GetDelegationKey(delAddr, valAddr)
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			res, err := cliCtx.QueryStore(key, storeName)
 			if err != nil {
 				return err
 			}
-			
+
 			// parse out the delegation
 			delegation, err := types.UnmarshalDelegation(cdc, key, res)
 			if err != nil {
 				return err
 			}
-			
+
 			switch viper.Get(cli.OutputFlag) {
 			case "text":
 				resp, err := delegation.HumanReadableString()
 				if err != nil {
 					return err
 				}
-				
+
 				fmt.Println(resp)
 			case "json":
 				output, err := wire.MarshalJSONIndent(cdc, delegation)
 				if err != nil {
 					return err
 				}
-				
+
 				fmt.Println(string(output))
 				return nil
 			}
-			
+
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().AddFlagSet(fsValidator)
 	cmd.Flags().AddFlagSet(fsDelegator)
-	
+
 	return cmd
 }
 
@@ -184,34 +184,34 @@ func GetCmdQueryDelegations(storeName string, cdc *wire.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			
+
 			key := stake.GetDelegationsKey(delegatorAddr)
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			resKVs, err := cliCtx.QuerySubspace(key, storeName)
 			if err != nil {
 				return err
 			}
-			
+
 			// parse out the validators
 			var delegations []stake.Delegation
 			for _, kv := range resKVs {
 				delegation := types.MustUnmarshalDelegation(cdc, kv.Key, kv.Value)
 				delegations = append(delegations, delegation)
 			}
-			
+
 			output, err := wire.MarshalJSONIndent(cdc, delegations)
 			if err != nil {
 				return err
 			}
-			
+
 			fmt.Println(string(output))
-			
+
 			// TODO: output with proofs / machine parseable etc.
 			return nil
 		},
 	}
-	
+
 	return cmd
 }
 
@@ -226,48 +226,48 @@ func GetCmdQueryUnbondingDelegation(storeName string, cdc *wire.Codec) *cobra.Co
 			if err != nil {
 				return err
 			}
-			
+
 			delAddr, err := sdk.AccAddressFromBech32(viper.GetString(FlagAddressDelegator))
 			if err != nil {
 				return err
 			}
-			
+
 			key := stake.GetUBDKey(delAddr, valAddr)
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			res, err := cliCtx.QueryStore(key, storeName)
 			if err != nil {
 				return err
 			}
-			
+
 			// parse out the unbonding delegation
 			ubd := types.MustUnmarshalUBD(cdc, key, res)
-			
+
 			switch viper.Get(cli.OutputFlag) {
 			case "text":
 				resp, err := ubd.HumanReadableString()
 				if err != nil {
 					return err
 				}
-				
+
 				fmt.Println(resp)
 			case "json":
 				output, err := wire.MarshalJSONIndent(cdc, ubd)
 				if err != nil {
 					return err
 				}
-				
+
 				fmt.Println(string(output))
 				return nil
 			}
-			
+
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().AddFlagSet(fsValidator)
 	cmd.Flags().AddFlagSet(fsDelegator)
-	
+
 	return cmd
 }
 
@@ -283,34 +283,34 @@ func GetCmdQueryUnbondingDelegations(storeName string, cdc *wire.Codec) *cobra.C
 			if err != nil {
 				return err
 			}
-			
+
 			key := stake.GetUBDsKey(delegatorAddr)
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			resKVs, err := cliCtx.QuerySubspace(key, storeName)
 			if err != nil {
 				return err
 			}
-			
+
 			// parse out the validators
 			var ubds []stake.UnbondingDelegation
 			for _, kv := range resKVs {
 				ubd := types.MustUnmarshalUBD(cdc, kv.Key, kv.Value)
 				ubds = append(ubds, ubd)
 			}
-			
+
 			output, err := wire.MarshalJSONIndent(cdc, ubds)
 			if err != nil {
 				return err
 			}
-			
+
 			fmt.Println(string(output))
-			
+
 			// TODO: output with proofs / machine parseable etc.
 			return nil
 		},
 	}
-	
+
 	return cmd
 }
 
@@ -325,53 +325,53 @@ func GetCmdQueryRedelegation(storeName string, cdc *wire.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			
+
 			valDstAddr, err := sdk.ValAddressFromBech32(viper.GetString(FlagAddressValidatorDst))
 			if err != nil {
 				return err
 			}
-			
+
 			delAddr, err := sdk.AccAddressFromBech32(viper.GetString(FlagAddressDelegator))
 			if err != nil {
 				return err
 			}
-			
+
 			key := stake.GetREDKey(delAddr, valSrcAddr, valDstAddr)
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			res, err := cliCtx.QueryStore(key, storeName)
 			if err != nil {
 				return err
 			}
-			
+
 			// parse out the unbonding delegation
 			red := types.MustUnmarshalRED(cdc, key, res)
-			
+
 			switch viper.Get(cli.OutputFlag) {
 			case "text":
 				resp, err := red.HumanReadableString()
 				if err != nil {
 					return err
 				}
-				
+
 				fmt.Println(resp)
 			case "json":
 				output, err := wire.MarshalJSONIndent(cdc, red)
 				if err != nil {
 					return err
 				}
-				
+
 				fmt.Println(string(output))
 				return nil
 			}
-			
+
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().AddFlagSet(fsRedelegation)
 	cmd.Flags().AddFlagSet(fsDelegator)
-	
+
 	return cmd
 }
 
@@ -387,34 +387,34 @@ func GetCmdQueryRedelegations(storeName string, cdc *wire.Codec) *cobra.Command 
 			if err != nil {
 				return err
 			}
-			
+
 			key := stake.GetREDsKey(delegatorAddr)
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			resKVs, err := cliCtx.QuerySubspace(key, storeName)
 			if err != nil {
 				return err
 			}
-			
+
 			// parse out the validators
 			var reds []stake.Redelegation
 			for _, kv := range resKVs {
 				red := types.MustUnmarshalRED(cdc, kv.Key, kv.Value)
 				reds = append(reds, red)
 			}
-			
+
 			output, err := wire.MarshalJSONIndent(cdc, reds)
 			if err != nil {
 				return err
 			}
-			
+
 			fmt.Println(string(output))
-			
+
 			// TODO: output with proofs / machine parseable etc.
 			return nil
 		},
 	}
-	
+
 	return cmd
 }
 
@@ -427,33 +427,33 @@ func GetCmdQueryPool(storeName string, cdc *wire.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			key := stake.PoolKey
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			res, err := cliCtx.QueryStore(key, storeName)
 			if err != nil {
 				return err
 			}
-			
+
 			pool := types.MustUnmarshalPool(cdc, res)
-			
+
 			switch viper.Get(cli.OutputFlag) {
 			case "text":
 				human := pool.HumanReadableString()
-				
+
 				fmt.Println(human)
-			
+
 			case "json":
 				// parse out the pool
 				output, err := wire.MarshalJSONIndent(cdc, pool)
 				if err != nil {
 					return err
 				}
-				
+
 				fmt.Println(string(output))
 			}
 			return nil
 		},
 	}
-	
+
 	return cmd
 }
 
@@ -466,32 +466,32 @@ func GetCmdQueryParams(storeName string, cdc *wire.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			key := stake.ParamKey
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			res, err := cliCtx.QueryStore(key, storeName)
 			if err != nil {
 				return err
 			}
-			
+
 			params := types.MustUnmarshalParams(cdc, res)
-			
+
 			switch viper.Get(cli.OutputFlag) {
 			case "text":
 				human := params.HumanReadableString()
-				
+
 				fmt.Println(human)
-			
+
 			case "json":
 				// parse out the params
 				output, err := wire.MarshalJSONIndent(cdc, params)
 				if err != nil {
 					return err
 				}
-				
+
 				fmt.Println(string(output))
 			}
 			return nil
 		},
 	}
-	
+
 	return cmd
 }

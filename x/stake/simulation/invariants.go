@@ -2,15 +2,15 @@ package simulation
 
 import (
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
-	
-	"github.com/comdex-blockchain/baseapp"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/auth"
-	"github.com/comdex-blockchain/x/bank"
-	"github.com/comdex-blockchain/x/mock/simulation"
-	"github.com/comdex-blockchain/x/stake"
+
+	"github.com/commitHub/commitBlockchain/baseapp"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/auth"
+	"github.com/commitHub/commitBlockchain/x/bank"
+	"github.com/commitHub/commitBlockchain/x/mock/simulation"
+	"github.com/commitHub/commitBlockchain/x/stake"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -28,8 +28,8 @@ func AllInvariants(ck bank.Keeper, k stake.Keeper, am auth.AccountMapper) simula
 func SupplyInvariants(ck bank.Keeper, k stake.Keeper, am auth.AccountMapper) simulation.Invariant {
 	return func(t *testing.T, app *baseapp.BaseApp, log string) {
 		ctx := app.NewContext(false, abci.Header{})
-		// pool := k.GetPool(ctx)
-		
+		//pool := k.GetPool(ctx)
+
 		loose := sdk.ZeroInt()
 		bonded := sdk.ZeroDec()
 		am.IterateAccounts(ctx, func(acc auth.Account) bool {
@@ -51,17 +51,17 @@ func SupplyInvariants(ck bank.Keeper, k stake.Keeper, am auth.AccountMapper) sim
 			}
 			return false
 		})
-		
+
 		// Loose tokens should equal coin supply plus unbonding delegations plus tokens on unbonded validators
-		// XXX TODO https://github.com/comdex-blockchain/issues/2063#issuecomment-413720872
+		// XXX TODO https://github.com/commitHub/commitBlockchain/issues/2063#issuecomment-413720872
 		// require.True(t, pool.LooseTokens.RoundInt64() == loose.Int64(), "expected loose tokens to equal total steak held by accounts - pool.LooseTokens: %v, sum of account tokens: %v\nlog: %s",
-		// 	 pool.LooseTokens.RoundInt64(), loose.Int64(), log)
-		
+		//	 pool.LooseTokens.RoundInt64(), loose.Int64(), log)
+
 		// Bonded tokens should equal sum of tokens with bonded validators
-		// XXX TODO https://github.com/comdex-blockchain/issues/2063#issuecomment-413720872
+		// XXX TODO https://github.com/commitHub/commitBlockchain/issues/2063#issuecomment-413720872
 		// require.True(t, pool.BondedTokens.RoundInt64() == bonded.RoundInt64(), "expected bonded tokens to equal total steak held by bonded validators - pool.BondedTokens: %v, sum of bonded validator tokens: %v\nlog: %s",
 		//   pool.BondedTokens.RoundInt64(), bonded.RoundInt64(), log)
-		
+
 		// TODO Inflation check on total supply
 	}
 }

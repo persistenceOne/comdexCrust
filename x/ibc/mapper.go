@@ -2,9 +2,9 @@ package ibc
 
 import (
 	"fmt"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	wire "github.com/commitHub/commitBlockchain/wire"
 )
 
 // Mapper : IBC Mapper
@@ -38,14 +38,14 @@ func (ibcm Mapper) PostIBCPacket(ctx sdk.Context, packet IBCTransferMsg) sdk.Err
 	if err != nil {
 		panic(err)
 	}
-	
+
 	store.Set(EgressKey(packet.DestChain, index), bz)
 	bz, err = ibcm.cdc.MarshalBinary(index + 1)
 	if err != nil {
 		panic(err)
 	}
 	store.Set(EgressLengthKey(packet.DestChain), bz)
-	
+
 	return nil
 }
 
@@ -82,14 +82,14 @@ func unmarshalBinaryPanic(cdc *wire.Codec, bz []byte, ptr interface{}) {
 func (ibcm Mapper) GetIngressSequence(ctx sdk.Context, srcChain string) int64 {
 	store := ctx.KVStore(ibcm.key)
 	key := IngressSequenceKey(srcChain)
-	
+
 	bz := store.Get(key)
 	if bz == nil {
 		zero := marshalBinaryPanic(ibcm.cdc, int64(0))
 		store.Set(key, zero)
 		return 0
 	}
-	
+
 	var res int64
 	unmarshalBinaryPanic(ibcm.cdc, bz, &res)
 	return res
@@ -100,7 +100,7 @@ func (ibcm Mapper) GetIngressSequence(ctx sdk.Context, srcChain string) int64 {
 func (ibcm Mapper) SetIngressSequence(ctx sdk.Context, srcChain string, sequence int64) {
 	store := ctx.KVStore(ibcm.key)
 	key := IngressSequenceKey(srcChain)
-	
+
 	bz := marshalBinaryPanic(ibcm.cdc, sequence)
 	store.Set(key, bz)
 }
@@ -133,9 +133,9 @@ func IngressSequenceKey(srcChain string) []byte {
 	return []byte(fmt.Sprintf("ingress/%s", srcChain))
 }
 
-// *****comdex
+//*****comdex
 
-// PostIBCMsgIssueAssetsPacket : post issue asset packet to asset chain
+//PostIBCMsgIssueAssetsPacket : post issue asset packet to asset chain
 func (ibcm Mapper) PostIBCMsgIssueAssetsPacket(ctx sdk.Context, msg MsgIssueAssets) sdk.Error {
 	store := ctx.KVStore(ibcm.key)
 	index := ibcm.getEgressLength(store, msg.IssueAssets[0].DestinationChain)
@@ -143,7 +143,7 @@ func (ibcm Mapper) PostIBCMsgIssueAssetsPacket(ctx sdk.Context, msg MsgIssueAsse
 	if err != nil {
 		panic(err)
 	}
-	
+
 	store.Set(EgressKey(msg.IssueAssets[0].DestinationChain, index), bz)
 	bz, err = ibcm.cdc.MarshalBinary(int64(index + 1))
 	if err != nil {
@@ -153,7 +153,7 @@ func (ibcm Mapper) PostIBCMsgIssueAssetsPacket(ctx sdk.Context, msg MsgIssueAsse
 	return nil
 }
 
-// PostIBCMsgRedeemAssetsPacket :
+//PostIBCMsgRedeemAssetsPacket :
 func (ibcm Mapper) PostIBCMsgRedeemAssetsPacket(ctx sdk.Context, msg MsgRedeemAssets) sdk.Error {
 	store := ctx.KVStore(ibcm.key)
 	index := ibcm.getEgressLength(store, msg.RedeemAssets[0].DestinationChain)
@@ -161,7 +161,7 @@ func (ibcm Mapper) PostIBCMsgRedeemAssetsPacket(ctx sdk.Context, msg MsgRedeemAs
 	if err != nil {
 		panic(err)
 	}
-	
+
 	store.Set(EgressKey(msg.RedeemAssets[0].DestinationChain, index), bz)
 	bz, err = ibcm.cdc.MarshalBinary(int64(index + 1))
 	if err != nil {
@@ -171,7 +171,7 @@ func (ibcm Mapper) PostIBCMsgRedeemAssetsPacket(ctx sdk.Context, msg MsgRedeemAs
 	return nil
 }
 
-// PostIBCMsgSendAssetsPacket :
+//PostIBCMsgSendAssetsPacket :
 func (ibcm Mapper) PostIBCMsgSendAssetsPacket(ctx sdk.Context, msg MsgSendAssets) sdk.Error {
 	store := ctx.KVStore(ibcm.key)
 	index := ibcm.getEgressLength(store, msg.SendAssets[0].DestinationChain)
@@ -179,7 +179,7 @@ func (ibcm Mapper) PostIBCMsgSendAssetsPacket(ctx sdk.Context, msg MsgSendAssets
 	if err != nil {
 		panic(err)
 	}
-	
+
 	store.Set(EgressKey(msg.SendAssets[0].DestinationChain, index), bz)
 	bz, err = ibcm.cdc.MarshalBinary(int64(index + 1))
 	if err != nil {
@@ -189,7 +189,7 @@ func (ibcm Mapper) PostIBCMsgSendAssetsPacket(ctx sdk.Context, msg MsgSendAssets
 	return nil
 }
 
-// PostIBCTransferMsg : post ibc transafer msg
+//PostIBCTransferMsg : post ibc transafer msg
 func (ibcm Mapper) PostIBCTransferMsg(ctx sdk.Context, packet IBCTransferMsg) sdk.Error {
 	// write everything into the state
 	store := ctx.KVStore(ibcm.key)
@@ -198,18 +198,18 @@ func (ibcm Mapper) PostIBCTransferMsg(ctx sdk.Context, packet IBCTransferMsg) sd
 	if err != nil {
 		panic(err)
 	}
-	
+
 	store.Set(EgressKey(packet.DestChain, index), bz)
 	bz, err = ibcm.cdc.MarshalBinary(int64(index + 1))
 	if err != nil {
 		panic(err)
 	}
 	store.Set(EgressLengthKey(packet.DestChain), bz)
-	
+
 	return nil
 }
 
-// PostIBCMsgIssueFiatsPacket : post issue fiat packet to fiat chain
+//PostIBCMsgIssueFiatsPacket : post issue fiat packet to fiat chain
 func (ibcm Mapper) PostIBCMsgIssueFiatsPacket(ctx sdk.Context, msg MsgIssueFiats) sdk.Error {
 	store := ctx.KVStore(ibcm.key)
 	index := ibcm.getEgressLength(store, msg.IssueFiats[0].DestinationChain)
@@ -217,7 +217,7 @@ func (ibcm Mapper) PostIBCMsgIssueFiatsPacket(ctx sdk.Context, msg MsgIssueFiats
 	if err != nil {
 		panic(err)
 	}
-	
+
 	store.Set(EgressKey(msg.IssueFiats[0].DestinationChain, index), bz)
 	bz, err = ibcm.cdc.MarshalBinary(int64(index + 1))
 	if err != nil {
@@ -227,7 +227,7 @@ func (ibcm Mapper) PostIBCMsgIssueFiatsPacket(ctx sdk.Context, msg MsgIssueFiats
 	return nil
 }
 
-// PostIBCMsgRedeemFiatsPacket :
+//PostIBCMsgRedeemFiatsPacket :
 func (ibcm Mapper) PostIBCMsgRedeemFiatsPacket(ctx sdk.Context, msg MsgRedeemFiats) sdk.Error {
 	store := ctx.KVStore(ibcm.key)
 	index := ibcm.getEgressLength(store, msg.RedeemFiats[0].DestinationChain)
@@ -235,7 +235,7 @@ func (ibcm Mapper) PostIBCMsgRedeemFiatsPacket(ctx sdk.Context, msg MsgRedeemFia
 	if err != nil {
 		panic(err)
 	}
-	
+
 	store.Set(EgressKey(msg.RedeemFiats[0].DestinationChain, index), bz)
 	bz, err = ibcm.cdc.MarshalBinary(int64(index + 1))
 	if err != nil {
@@ -245,7 +245,7 @@ func (ibcm Mapper) PostIBCMsgRedeemFiatsPacket(ctx sdk.Context, msg MsgRedeemFia
 	return nil
 }
 
-// PostIBCMsgSendFiatsPacket :
+//PostIBCMsgSendFiatsPacket :
 func (ibcm Mapper) PostIBCMsgSendFiatsPacket(ctx sdk.Context, msg MsgSendFiats) sdk.Error {
 	store := ctx.KVStore(ibcm.key)
 	index := ibcm.getEgressLength(store, msg.SendFiats[0].DestinationChain)
@@ -253,7 +253,7 @@ func (ibcm Mapper) PostIBCMsgSendFiatsPacket(ctx sdk.Context, msg MsgSendFiats) 
 	if err != nil {
 		panic(err)
 	}
-	
+
 	store.Set(EgressKey(msg.SendFiats[0].DestinationChain, index), bz)
 	bz, err = ibcm.cdc.MarshalBinary(int64(index + 1))
 	if err != nil {
@@ -267,40 +267,40 @@ func (ibcm Mapper) PostIBCMsgSendFiatsPacket(ctx sdk.Context, msg MsgSendFiats) 
 func (ibcm Mapper) PostIBCMsgBuyerExecuteOrdersPacket(ctx sdk.Context, msg MsgBuyerExecuteOrders) sdk.Error {
 	store := ctx.KVStore(ibcm.key)
 	index := ibcm.getEgressLength(store, msg.BuyerExecuteOrders[0].DestinationChain)
-	
+
 	bz, err := ibcm.cdc.MarshalBinary(msg)
 	if err != nil {
 		panic(err)
 	}
-	
+
 	store.Set(EgressKey(msg.BuyerExecuteOrders[0].DestinationChain, index), bz)
 	bz, err = ibcm.cdc.MarshalBinary(int64(index + 1))
 	if err != nil {
 		panic(err)
 	}
-	
+
 	store.Set(EgressLengthKey(msg.BuyerExecuteOrders[0].DestinationChain), bz)
 	return nil
 }
 
-// PostIBCMsgSellerExecuteOrdersPacket :
+//PostIBCMsgSellerExecuteOrdersPacket :
 func (ibcm Mapper) PostIBCMsgSellerExecuteOrdersPacket(ctx sdk.Context, msg MsgSellerExecuteOrders) sdk.Error {
 	store := ctx.KVStore(ibcm.key)
 	index := ibcm.getEgressLength(store, msg.SellerExecuteOrders[0].DestinationChain)
-	
+
 	bz, err := ibcm.cdc.MarshalBinary(msg)
 	if err != nil {
 		panic(err)
 	}
-	
+
 	store.Set(EgressKey(msg.SellerExecuteOrders[0].DestinationChain, index), bz)
 	bz, err = ibcm.cdc.MarshalBinary(int64(index + 1))
 	if err != nil {
 		panic(err)
 	}
-	
+
 	store.Set(EgressLengthKey(msg.SellerExecuteOrders[0].DestinationChain), bz)
 	return nil
 }
 
-// #####comdex
+//#####comdex

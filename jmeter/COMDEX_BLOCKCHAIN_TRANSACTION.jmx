@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.0 r1840935">
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.1.1 r1855137">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="MyFirstTestPlan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -138,9 +138,11 @@
             <stringProp name="-927042162">organizationID</stringProp>
             <stringProp name="-1829107106">organizationName</stringProp>
             <stringProp name="-217175826">organizationPassword</stringProp>
+            <stringProp name="2054147731">buyerContractHash</stringProp>
+            <stringProp name="1001441887">sellerContractHash</stringProp>
           </collectionProp>
           <collectionProp name="UserParameters.thread_values">
-            <collectionProp name="2004798968">
+            <collectionProp name="915853304">
               <stringProp name="2104144096">${__V(buyer_${__Random(1,9999,)})}</stringProp>
               <stringProp name="-337963486">${__V(seller_${__Random(1,9999,)})}</stringProp>
               <stringProp name="-247923657">${__RandomString(500,ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890,)}</stringProp>
@@ -169,6 +171,8 @@
               <stringProp name="-1426534394">${__RandomString(2,abcdef,)}</stringProp>
               <stringProp name="-2087306545">${__V(org_${__Random(1,9999,)})}</stringProp>
               <stringProp name="865561950">${__RandomString(${__Random(8,24,)},abcdefghijklmnopqrstuvwxyz1234567890!@#$&amp;ABCDEFGHIJKLMOPQRSTUVWXYZ,)}</stringProp>
+              <stringProp name="1936083692">${__RandomString(40,ABCDEFabcdef1234567890,)}</stringProp>
+              <stringProp name="1936083692">${__RandomString(40,ABCDEFabcdef1234567890,)}</stringProp>
             </collectionProp>
           </collectionProp>
           <boolProp name="UserParameters.per_iteration">true</boolProp>
@@ -333,9 +337,11 @@
             <stringProp name="-927042162">organizationID</stringProp>
             <stringProp name="-217175826">organizationPassword</stringProp>
             <stringProp name="-1829107106">organizationName</stringProp>
+            <stringProp name="2054147731">buyerContractHash</stringProp>
+            <stringProp name="1001441887">sellerContractHash</stringProp>
           </collectionProp>
           <collectionProp name="UserParameters.thread_values">
-            <collectionProp name="-1274011430">
+            <collectionProp name="-1809911206">
               <stringProp name="2104144096">${__V(buyer_${__Random(1,9999,)})}</stringProp>
               <stringProp name="-337963486">${__V(seller_${__Random(1,9999,)})}</stringProp>
               <stringProp name="-247923657">${__RandomString(500,ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890,)}</stringProp>
@@ -364,6 +370,8 @@
               <stringProp name="-1426534394">${__RandomString(2,abcdef,)}</stringProp>
               <stringProp name="865561950">${__RandomString(${__Random(8,24,)},abcdefghijklmnopqrstuvwxyz1234567890!@#$&amp;ABCDEFGHIJKLMOPQRSTUVWXYZ,)}</stringProp>
               <stringProp name="2147029166">${__V(organization_${__Random(1,9999,)})}</stringProp>
+              <stringProp name="1936083692">${__RandomString(40,ABCDEFabcdef1234567890,)}</stringProp>
+              <stringProp name="1936083692">${__RandomString(40,ABCDEFabcdef1234567890,)}</stringProp>
             </collectionProp>
           </collectionProp>
           <boolProp name="UserParameters.per_iteration">true</boolProp>
@@ -478,9 +486,11 @@
             <stringProp name="-927042162">organizationID</stringProp>
             <stringProp name="-1829107106">organizationName</stringProp>
             <stringProp name="-217175826">organizationPassword</stringProp>
+            <stringProp name="2054147731">buyerContractHash</stringProp>
+            <stringProp name="1001441887">sellerContractHash</stringProp>
           </collectionProp>
           <collectionProp name="UserParameters.thread_values">
-            <collectionProp name="1472825698">
+            <collectionProp name="790649058">
               <stringProp name="2104144096">${__V(buyer_${__Random(1,9999,)})}</stringProp>
               <stringProp name="-337963486">${__V(seller_${__Random(1,9999,)})}</stringProp>
               <stringProp name="-247923657">${__RandomString(500,ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890,)}</stringProp>
@@ -509,6 +519,8 @@
               <stringProp name="-1426534394">${__RandomString(2,abcdef,)}</stringProp>
               <stringProp name="-827250411">${__V(zone_${__Random(1,9999,)})}</stringProp>
               <stringProp name="865561950">${__RandomString(${__Random(8,24,)},abcdefghijklmnopqrstuvwxyz1234567890!@#$&amp;ABCDEFGHIJKLMOPQRSTUVWXYZ,)}</stringProp>
+              <stringProp name="1936083692">${__RandomString(40,ABCDEFabcdef1234567890,)}</stringProp>
+              <stringProp name="1936083692">${__RandomString(40,ABCDEFabcdef1234567890,)}</stringProp>
             </collectionProp>
           </collectionProp>
           <boolProp name="UserParameters.per_iteration">true</boolProp>
@@ -5438,7 +5450,7 @@
 	&quot;to&quot;:&quot;${zone_address}&quot;,&#xd;
 	&quot;chainID&quot;:&quot;comdex-main&quot;,&#xd;
 	&quot;password&quot;:&quot;1234567890&quot;,&#xd;
-	&quot;amount&quot;:[{&quot;denom&quot;:&quot;comdex&quot;,&quot;amount&quot;:&quot;10&quot;}]&#xd;
+	&quot;amount&quot;:[{&quot;denom&quot;:&quot;ucommit&quot;,&quot;amount&quot;:&quot;10&quot;}]&#xd;
 }&#xd;
 </stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
@@ -5539,7 +5551,7 @@
 	&quot;to&quot;:&quot;${organization_address}&quot;,&#xd;
 	&quot;chainID&quot;:&quot;comdex-main&quot;,&#xd;
 	&quot;password&quot;:&quot;1234567890&quot;,&#xd;
-	&quot;amount&quot;:[{&quot;denom&quot;:&quot;comdex&quot;,&quot;amount&quot;:&quot;10&quot;}]&#xd;
+	&quot;amount&quot;:[{&quot;denom&quot;:&quot;ucommit&quot;,&quot;amount&quot;:&quot;10&quot;}]&#xd;
 }&#xd;
 </stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
@@ -5853,7 +5865,7 @@
 	&quot;to&quot;:&quot;${seller_address}&quot;,&#xd;
 	&quot;chainID&quot;:&quot;comdex-main&quot;,&#xd;
 	&quot;password&quot;:&quot;1234567890&quot;,&#xd;
-	&quot;amount&quot;:[{&quot;denom&quot;:&quot;comdex&quot;,&quot;amount&quot;:&quot;10&quot;}]&#xd;
+	&quot;amount&quot;:[{&quot;denom&quot;:&quot;ucommit&quot;,&quot;amount&quot;:&quot;10&quot;}]&#xd;
 }&#xd;
 </stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
@@ -5902,7 +5914,7 @@
      &quot;assetQuantity&quot;: ${asset_quantity},&#xd;
      &quot;chainID&quot;: &quot;comdex-main&quot;,&#xd;
 	&quot;password&quot;: &quot;${zonePassword}&quot;,&#xd;
-	&quot;moderated&quot;:false,&#xd;
+	&quot;moderated&quot;:true,&#xd;
 	&quot;takerAddress&quot;:&quot;${buyer_address}&quot;,&#xd;
 	&quot;gas&quot;: 99999999&#xd;
 }&#xd;
@@ -6452,6 +6464,7 @@
 	&quot;time&quot;: 200,&#xd;
 	&quot;pegHash&quot;: &quot;${pegHash}&quot;,&#xd;
 	&quot;chainID&quot;: &quot;comdex-main&quot;,&#xd;
+	&quot;buyerContractHash&quot;:&quot;${buyerContractHash}&quot;,&#xd;
 	&quot;gas&quot;: 99999999&#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
@@ -6593,6 +6606,7 @@
 	&quot;time&quot;: 200,&#xd;
 	&quot;pegHash&quot;: &quot;${pegHash}&quot;,&#xd;
 	&quot;chainID&quot;: &quot;comdex-main&quot;,&#xd;
+	&quot;sellerContractHash&quot;:&quot;${sellerContractHash}&quot;,&#xd;
 	&quot;gas&quot;: 99999999&#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
@@ -7744,7 +7758,7 @@ vars.put(&quot;final_transaction_amount&quot;, finalTransaction);</stringProp>
 	&quot;gas&quot;: 99999999,&#xd;
 	&quot;sourceChainID&quot;:&quot;comdex-main&quot;,&#xd;
 	&quot;destinationChainID&quot;:&quot;comdex-asset&quot;,&#xd;
-	&quot;moderated&quot;:false&#xd;
+	&quot;moderated&quot;:true&#xd;
 }&#xd;
 </stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
@@ -8545,7 +8559,7 @@ vars.put(&quot;final_transaction_amount&quot;, finalTransaction);</stringProp>
      &quot;assetQuantity&quot;: ${asset_quantity},&#xd;
      &quot;chainID&quot;: &quot;comdex-main&quot;,&#xd;
 	&quot;password&quot;: &quot;${sellerPassword}&quot;,&#xd;
-	&quot;moderated&quot;:true,&#xd;
+	&quot;moderated&quot;:false,&#xd;
 	&quot;gas&quot;: 99999999&#xd;
 }&#xd;
 </stringProp>

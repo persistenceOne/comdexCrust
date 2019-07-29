@@ -2,8 +2,8 @@ package slashing
 
 import (
 	"encoding/binary"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // key prefix bytes

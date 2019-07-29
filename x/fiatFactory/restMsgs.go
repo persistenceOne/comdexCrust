@@ -1,6 +1,6 @@
 package fiatFactory
 
-// IssueFiatBody : a struct for implementation of issue fiat in fiat chain
+//IssueFiatBody : a struct for implementation of issue fiat in fiat chain
 type IssueFiatBody struct {
 	From              string `json:"from" valid:"required~Enter the FromName"`
 	To                string `json:"to" valid:"required~Enter the ToAddress,matches(^cosmos[a-z0-9]{39}$)~ToAddress is Invalid"`
@@ -15,7 +15,7 @@ type IssueFiatBody struct {
 	Gas               int64  `json:"gas"`
 }
 
-// SendFiatBody : a struct for implementation of send fiat in fiat chain
+//SendFiatBody : a struct for implementation of send fiat in fiat chain
 type SendFiatBody struct {
 	From          string `json:"from" valid:"required~Enter the FromName"`
 	Password      string `json:"password" valid:"required~Enter the Password"`
@@ -31,7 +31,7 @@ type SendFiatBody struct {
 	Amount        int64  `json:"amount" valid:"required~Enter the Valid Amount,matches(^[1-9]{1}[0-9]*$)~Invalid Amount"`
 }
 
-// ExecuteFiatBody : a struct for implementation of exectute fiat order in fiat chain
+//ExecuteFiatBody : a struct for implementation of exectute fiat order in fiat chain
 type ExecuteFiatBody struct {
 	From          string `json:"from" valid:"required~Enter the FromName"`
 	Password      string `json:"password" valid:"required~Enter the Password"`
@@ -47,7 +47,7 @@ type ExecuteFiatBody struct {
 	Amount        int64  `json:"amount" valid:"required~Enter the Valid Amount,matches(^[1-9]{1}[0-9]*$)~Invalid Amount"`
 }
 
-// RedeemFiatBody implement struct for redeem fiat
+//RedeemFiatBody implement struct for redeem fiat
 type RedeemFiatBody struct {
 	From           string `json:"from" valid:"required~Enter the FromName"`
 	Password       string `json:"password" valid:"required~Enter the Password"`

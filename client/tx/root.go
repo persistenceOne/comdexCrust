@@ -3,9 +3,9 @@ package tx
 import (
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-	
-	"github.com/comdex-blockchain/client/context"
-	"github.com/comdex-blockchain/wire"
+
+	"github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
 // AddCommands adds a number of tx-query related subcommands

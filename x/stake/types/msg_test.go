@@ -2,10 +2,10 @@ package types
 
 import (
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 	"github.com/tendermint/tendermint/crypto"
 )
 
@@ -33,7 +33,7 @@ func TestMsgCreateValidator(t *testing.T) {
 		{"negative bond", "a", "b", "c", "d", addr1, pk1, coinNeg, false},
 		{"negative bond", "a", "b", "c", "d", addr1, pk1, coinNeg, false},
 	}
-	
+
 	for _, tc := range tests {
 		description := NewDescription(tc.moniker, tc.identity, tc.website, tc.details)
 		msg := NewMsgCreateValidator(tc.validatorAddr, tc.pubkey, tc.bond, description)
@@ -57,7 +57,7 @@ func TestMsgEditValidator(t *testing.T) {
 		{"empty description", "", "", "", "", addr1, false},
 		{"empty address", "a", "b", "c", "d", emptyAddr, false},
 	}
-	
+
 	for _, tc := range tests {
 		description := NewDescription(tc.moniker, tc.identity, tc.website, tc.details)
 		msg := NewMsgEditValidator(tc.validatorAddr, description)
@@ -89,7 +89,7 @@ func TestMsgCreateValidatorOnBehalfOf(t *testing.T) {
 		{"negative bond", "a", "b", "c", "d", sdk.AccAddress(addr1), addr2, pk2, coinNeg, false},
 		{"negative bond", "a", "b", "c", "d", sdk.AccAddress(addr1), addr2, pk2, coinNeg, false},
 	}
-	
+
 	for _, tc := range tests {
 		description := NewDescription(tc.moniker, tc.identity, tc.website, tc.details)
 		msg := NewMsgCreateValidatorOnBehalfOf(tc.delegatorAddr, tc.validatorAddr, tc.validatorPubKey, tc.bond, description)
@@ -99,11 +99,11 @@ func TestMsgCreateValidatorOnBehalfOf(t *testing.T) {
 			require.NotNil(t, msg.ValidateBasic(), "test: %v", tc.name)
 		}
 	}
-	
+
 	msg := NewMsgCreateValidator(addr1, pk1, coinPos, Description{})
 	addrs := msg.GetSigners()
 	require.Equal(t, []sdk.AccAddress{sdk.AccAddress(addr1)}, addrs, "Signers on default msg is wrong")
-	
+
 	msg = NewMsgCreateValidatorOnBehalfOf(sdk.AccAddress(addr2), addr1, pk1, coinPos, Description{})
 	addrs = msg.GetSigners()
 	require.Equal(t, []sdk.AccAddress{sdk.AccAddress(addr2), sdk.AccAddress(addr1)}, addrs, "Signers for onbehalfof msg is wrong")
@@ -125,7 +125,7 @@ func TestMsgDelegate(t *testing.T) {
 		{"empty bond", sdk.AccAddress(addr1), addr2, coinZero, false},
 		{"negative bond", sdk.AccAddress(addr1), addr2, coinNeg, false},
 	}
-	
+
 	for _, tc := range tests {
 		msg := NewMsgDelegate(tc.delegatorAddr, tc.validatorAddr, tc.bond)
 		if tc.expectPass {
@@ -153,7 +153,7 @@ func TestMsgBeginRedelegate(t *testing.T) {
 		{"empty source validator", sdk.AccAddress(addr1), emptyAddr, addr3, sdk.NewDecWithPrec(1, 1), false},
 		{"empty destination validator", sdk.AccAddress(addr1), addr2, emptyAddr, sdk.NewDecWithPrec(1, 1), false},
 	}
-	
+
 	for _, tc := range tests {
 		msg := NewMsgBeginRedelegate(tc.delegatorAddr, tc.validatorSrcAddr, tc.validatorDstAddr, tc.sharesAmount)
 		if tc.expectPass {
@@ -178,7 +178,7 @@ func TestMsgCompleteRedelegate(t *testing.T) {
 		{"empty source validator", sdk.AccAddress(addr1), emptyAddr, addr3, false},
 		{"empty destination validator", sdk.AccAddress(addr1), addr2, emptyAddr, false},
 	}
-	
+
 	for _, tc := range tests {
 		msg := NewMsgCompleteRedelegate(tc.delegatorAddr, tc.validatorSrcAddr, tc.validatorDstAddr)
 		if tc.expectPass {
@@ -204,7 +204,7 @@ func TestMsgBeginUnbonding(t *testing.T) {
 		{"empty delegator", sdk.AccAddress(emptyAddr), addr1, sdk.NewDecWithPrec(1, 1), false},
 		{"empty validator", sdk.AccAddress(addr1), emptyAddr, sdk.NewDecWithPrec(1, 1), false},
 	}
-	
+
 	for _, tc := range tests {
 		msg := NewMsgBeginUnbonding(tc.delegatorAddr, tc.validatorAddr, tc.sharesAmount)
 		if tc.expectPass {
@@ -227,7 +227,7 @@ func TestMsgCompleteUnbonding(t *testing.T) {
 		{"empty delegator", sdk.AccAddress(emptyAddr), addr1, false},
 		{"empty validator", sdk.AccAddress(addr1), emptyAddr, false},
 	}
-	
+
 	for _, tc := range tests {
 		msg := NewMsgCompleteUnbonding(tc.delegatorAddr, tc.validatorAddr)
 		if tc.expectPass {

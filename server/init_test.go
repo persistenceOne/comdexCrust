@@ -2,20 +2,20 @@ package server
 
 import (
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
-	
+
 	"github.com/tendermint/tendermint/libs/log"
-	
-	"github.com/comdex-blockchain/server/mock"
-	"github.com/comdex-blockchain/wire"
+
+	"github.com/commitHub/commitBlockchain/server/mock"
+	"github.com/commitHub/commitBlockchain/wire"
 	tcmd "github.com/tendermint/tendermint/cmd/tendermint/commands"
 )
 
 // TODO update
 func TestInitCmd(t *testing.T) {
 	defer setupViper(t)()
-	
+
 	logger := log.NewNopLogger()
 	cfg, err := tcmd.ParseConfig()
 	require.Nil(t, err)

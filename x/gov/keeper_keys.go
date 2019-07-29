@@ -2,8 +2,8 @@ package gov
 
 import (
 	"fmt"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // TODO remove some of these prefixes once have working multistore

@@ -2,7 +2,7 @@ package types
 
 import (
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -28,7 +28,7 @@ func TestSortJSON(t *testing.T) {
 			want:    `{"alt_bytes":null,"chain_id":"test-chain-1","fee_bytes":{"amount":[{"amount":5,"denom":"photon"}],"gas":10000},"msg_bytes":{"inputs":[{"address":"696E707574","coins":[{"amount":10,"denom":"atom"}]}],"outputs":[{"address":"6F7574707574","coins":[{"amount":10,"denom":"atom"}]}]},"sequence":1}`,
 			wantErr: false},
 	}
-	
+
 	for tcIndex, tc := range cases {
 		got, err := SortJSON([]byte(tc.unsortedJSON))
 		if tc.wantErr {
@@ -39,7 +39,7 @@ func TestSortJSON(t *testing.T) {
 			require.NotPanics(t, func() { MustSortJSON([]byte(tc.unsortedJSON)) })
 			require.Equal(t, got, MustSortJSON([]byte(tc.unsortedJSON)))
 		}
-		
+
 		require.Equal(t, string(got), tc.want)
 	}
 }

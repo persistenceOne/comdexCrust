@@ -39,7 +39,7 @@ echo "set path=($path $GOPATH/bin)" >> ~/.tcshrc
 source ~/.tcshrc
 
 # get the code and move into repo
-set REPO=github.com/comdex-blockchain
+set REPO=github.com/commit-blockchain
 go get $REPO
 cd $GOPATH/src/$REPO
 

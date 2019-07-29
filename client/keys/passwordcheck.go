@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	
-	"github.com/comdex-blockchain/crypto/keys"
+
+	"github.com/commitHub/commitBlockchain/crypto/keys"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +27,7 @@ func runCheckCmd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	_, err = kb.ExportPrivateKeyObject(name, password)
 	if err != nil {
 		return err

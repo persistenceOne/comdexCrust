@@ -1,20 +1,20 @@
 package order
 
 import (
-	sdk "github.com/comdex-blockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
-// Keeper : asset keeper
+//Keeper : asset keeper
 type Keeper struct {
 	om Mapper
 }
 
-// NewKeeper : return a new keeper
+//NewKeeper : return a new keeper
 func NewKeeper(om Mapper) Keeper {
 	return Keeper{om: om}
 }
 
-// SendAssetsToOrder fiat pegs to order
+//SendAssetsToOrder fiat pegs to order
 func (keeper Keeper) SendAssetsToOrder(ctx sdk.Context, fromAddress sdk.AccAddress, toAddress sdk.AccAddress, assetPeg sdk.AssetPeg) sdk.Error {
 	negotiationID := sdk.NegotiationID(append(append(toAddress.Bytes(), fromAddress.Bytes()...), assetPeg.GetPegHash().Bytes()...))
 	order := keeper.om.GetOrder(ctx, negotiationID)
@@ -26,7 +26,7 @@ func (keeper Keeper) SendAssetsToOrder(ctx sdk.Context, fromAddress sdk.AccAddre
 	return nil
 }
 
-// SendFiatsToOrder fiat pegs to order
+//SendFiatsToOrder fiat pegs to order
 func (keeper Keeper) SendFiatsToOrder(ctx sdk.Context, fromAddress sdk.AccAddress, toAddress sdk.AccAddress, pegHash sdk.PegHash, fiatPegWallet sdk.FiatPegWallet) sdk.Error {
 	negotiationID := sdk.NegotiationID(append(append(fromAddress.Bytes(), toAddress.Bytes()...), pegHash.Bytes()...))
 	order := keeper.om.GetOrder(ctx, negotiationID)
@@ -38,7 +38,7 @@ func (keeper Keeper) SendFiatsToOrder(ctx sdk.Context, fromAddress sdk.AccAddres
 	return nil
 }
 
-// SendFiatsFromOrder fiat pegs to seller
+//SendFiatsFromOrder fiat pegs to seller
 func (keeper Keeper) SendFiatsFromOrder(ctx sdk.Context, fromAddress sdk.AccAddress, toAddress sdk.AccAddress, pegHash sdk.PegHash, fiatPegWallet sdk.FiatPegWallet) sdk.FiatPegWallet {
 	negotiationID := sdk.NegotiationID(append(append(fromAddress.Bytes(), toAddress.Bytes()...), pegHash.Bytes()...))
 	order := keeper.om.GetOrder(ctx, negotiationID)
@@ -48,7 +48,7 @@ func (keeper Keeper) SendFiatsFromOrder(ctx sdk.Context, fromAddress sdk.AccAddr
 	return updatedFiatPegWallet
 }
 
-// SendAssetFromOrder asset peg to buyer
+//SendAssetFromOrder asset peg to buyer
 func (keeper Keeper) SendAssetFromOrder(ctx sdk.Context, fromAddress sdk.AccAddress, toAddress sdk.AccAddress, assetPeg sdk.AssetPeg) sdk.AssetPegWallet {
 	negotiationID := sdk.NegotiationID(append(append(fromAddress.Bytes(), toAddress.Bytes()...), assetPeg.GetPegHash().Bytes()...))
 	order := keeper.om.GetOrder(ctx, negotiationID)
@@ -58,7 +58,7 @@ func (keeper Keeper) SendAssetFromOrder(ctx sdk.Context, fromAddress sdk.AccAddr
 	return updatedAssetPegWallet
 }
 
-// GetOrderDetails : get the order details
+//GetOrderDetails : get the order details
 func (keeper Keeper) GetOrderDetails(ctx sdk.Context, buyerAddress sdk.AccAddress, sellerAddress sdk.AccAddress, pegHash sdk.PegHash) (sdk.Error, sdk.AssetPegWallet, sdk.FiatPegWallet, string, string) {
 	negotiationID := sdk.NegotiationID(append(append(buyerAddress.Bytes(), sellerAddress.Bytes()...), pegHash.Bytes()...))
 	order := keeper.om.GetOrder(ctx, negotiationID)
@@ -68,7 +68,7 @@ func (keeper Keeper) GetOrderDetails(ctx sdk.Context, buyerAddress sdk.AccAddres
 	return nil, order.GetAssetPegWallet(), order.GetFiatPegWallet(), order.GetFiatProofHash(), order.GetAWBProofHash()
 }
 
-// SetOrderFiatProofHash : Set FiatProofHash to Order
+//SetOrderFiatProofHash : Set FiatProofHash to Order
 func (keeper Keeper) SetOrderFiatProofHash(ctx sdk.Context, buyerAddress sdk.AccAddress, sellerAddress sdk.AccAddress, pegHash sdk.PegHash, fiatProofHash string) {
 	negotiationID := sdk.NegotiationID(append(append(buyerAddress.Bytes(), sellerAddress.Bytes()...), pegHash.Bytes()...))
 	order := keeper.om.GetOrder(ctx, negotiationID)
@@ -76,7 +76,7 @@ func (keeper Keeper) SetOrderFiatProofHash(ctx sdk.Context, buyerAddress sdk.Acc
 	keeper.om.SetOrder(ctx, order)
 }
 
-// SetOrderAWBProofHash : Set AWBProofHash to Order
+//SetOrderAWBProofHash : Set AWBProofHash to Order
 func (keeper Keeper) SetOrderAWBProofHash(ctx sdk.Context, buyerAddress sdk.AccAddress, sellerAddress sdk.AccAddress, pegHash sdk.PegHash, awbProofHash string) {
 	negotiationID := sdk.NegotiationID(append(append(buyerAddress.Bytes(), sellerAddress.Bytes()...), pegHash.Bytes()...))
 	order := keeper.om.GetOrder(ctx, negotiationID)

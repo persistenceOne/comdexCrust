@@ -3,8 +3,8 @@ package gov
 import (
 	"encoding/json"
 	"fmt"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 	"github.com/pkg/errors"
 )
 
@@ -47,7 +47,7 @@ func (depositA Deposit) Empty() bool {
 // Type that represents VoteOption as a byte
 type VoteOption byte
 
-// nolint
+//nolint
 const (
 	OptionEmpty      VoteOption = 0x00
 	OptionYes        VoteOption = 0x01
@@ -106,7 +106,7 @@ func (vo *VoteOption) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return nil
 	}
-	
+
 	bz2, err := VoteOptionFromString(s)
 	if err != nil {
 		return err

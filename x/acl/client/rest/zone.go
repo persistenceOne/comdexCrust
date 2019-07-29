@@ -2,22 +2,23 @@ package rest
 
 import (
 	"net/http"
-	
-	"github.com/comdex-blockchain/x/acl"
-	
-	"github.com/comdex-blockchain/client/context"
-	"github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+
+	"github.com/commitHub/commitBlockchain/x/acl"
+
+	"github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
 	"github.com/gorilla/mux"
 )
 
-// GetZoneRequestHandler : query zone account address Handler
-func GetZoneRequestHandler(storeName string, r *mux.Router, cdc *wire.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+//GetZoneRequestHandler : query zone account address Handler
+func GetZoneRequestHandler(storeName string, r *mux.Router, cdc *wire.Codec, cliContext context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		vars := mux.Vars(r)
 		strZoneID := vars["zoneID"]
-		
+		cliCtx := cliContext
+
 		zoneID, err := types.GetZoneIDFromString(strZoneID)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)

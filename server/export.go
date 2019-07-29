@@ -2,12 +2,12 @@ package server
 
 import (
 	"fmt"
-	
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	
-	"github.com/comdex-blockchain/wire"
+
+	"github.com/commitHub/commitBlockchain/wire"
 	tmtypes "github.com/tendermint/tendermint/types"
 	"io/ioutil"
 	"path"
@@ -25,7 +25,7 @@ func ExportCmd(ctx *Context, cdc *wire.Codec, appExporter AppExporter) *cobra.Co
 			if err != nil {
 				return err
 			}
-			
+
 			if emptyState {
 				fmt.Println("WARNING: State is not initialized. Returning genesis file.")
 				genesisFile := path.Join(home, "config", "genesis.json")
@@ -36,25 +36,25 @@ func ExportCmd(ctx *Context, cdc *wire.Codec, appExporter AppExporter) *cobra.Co
 				fmt.Println(string(genesis))
 				return nil
 			}
-			
+
 			appState, validators, err := appExporter(home, ctx.Logger, traceStore)
 			if err != nil {
 				return errors.Errorf("error exporting state: %v\n", err)
 			}
-			
+
 			doc, err := tmtypes.GenesisDocFromFile(ctx.Config.GenesisFile())
 			if err != nil {
 				return err
 			}
-			
+
 			doc.AppState = appState
 			doc.Validators = validators
-			
+
 			encoded, err := wire.MarshalJSONIndent(cdc, doc)
 			if err != nil {
 				return err
 			}
-			
+
 			fmt.Println(string(encoded))
 			return nil
 		},
@@ -66,6 +66,6 @@ func isEmptyState(home string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	
+
 	return len(files) == 0, nil
 }

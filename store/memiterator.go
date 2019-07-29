@@ -2,7 +2,7 @@ package store
 
 import (
 	"bytes"
-	
+
 	cmn "github.com/tendermint/tendermint/libs/common"
 	dbm "github.com/tendermint/tendermint/libs/db"
 )
@@ -65,7 +65,7 @@ func (mi *memIterator) Close() {
 	mi.items = nil
 }
 
-// ----------------------------------------
+//----------------------------------------
 // Misc.
 
 // bytes.Compare but bounded on both sides by nil.

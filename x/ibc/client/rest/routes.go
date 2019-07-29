@@ -1,10 +1,10 @@
 package rest
 
 import (
-	"github.com/comdex-blockchain/client/context"
-	"github.com/comdex-blockchain/crypto/keys"
-	"github.com/comdex-blockchain/rest"
-	"github.com/comdex-blockchain/wire"
+	"github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/crypto/keys"
+	"github.com/commitHub/commitBlockchain/rest"
+	"github.com/commitHub/commitBlockchain/wire"
 	"github.com/gorilla/mux"
 )
 
@@ -19,7 +19,7 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *wire.Codec, k
 	r.HandleFunc("/ibc/{destchain}/{address}/send", TransferRequestHandlerFn(cdc, kb, cliCtx)).Methods("POST")
 	r.HandleFunc("/ibcBuyerExecuteOrder", BuyerExecuteOrderHandlerFunction(cdc, kb, cliCtx, kafka, kafkaState)).Methods("POST")
 	r.HandleFunc("/ibcSellerExecuteOrder", SellerExecuteOrderHandlerFuncion(cdc, kb, cliCtx, kafka, kafkaState)).Methods("POST")
-	
+
 }
 
 // RegisterRoutesKafka : Central function to define routes that get registered by the main application

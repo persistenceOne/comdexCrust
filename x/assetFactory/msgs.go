@@ -2,29 +2,29 @@ package assetFactory
 
 import (
 	"encoding/json"
-	
+
 	"github.com/asaskevich/govalidator"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
-// *****Comdex
+//*****Comdex
 
-// *****IssueAsset
+//*****IssueAsset
 
-// IssueAsset - transaction input
+//IssueAsset - transaction input
 type IssueAsset struct {
 	IssuerAddress sdk.AccAddress `json:"issuerAddress"`
 	ToAddress     sdk.AccAddress `json:"toAddress"`
 	AssetPeg      sdk.AssetPeg   `json:"assetPeg"`
 }
 
-// NewIssueAsset : initializer
+//NewIssueAsset : initializer
 func NewIssueAsset(issuerAddress sdk.AccAddress, toAddress sdk.AccAddress, assetPeg sdk.AssetPeg) IssueAsset {
 	return IssueAsset{issuerAddress, toAddress, assetPeg}
 }
 
-// GetSignBytes : get bytes to sign
+//GetSignBytes : get bytes to sign
 func (in IssueAsset) GetSignBytes() []byte {
 	bin, err := msgCdc.MarshalJSON(struct {
 		IssuerAddress string       `json:"issuerAddress"`
@@ -41,28 +41,28 @@ func (in IssueAsset) GetSignBytes() []byte {
 	return bin
 }
 
-// #####IssueAsset
+//#####IssueAsset
 
-// *****MsgFactoryIssueAssets
+//*****MsgFactoryIssueAssets
 
-// MsgFactoryIssueAssets : high level issuance of assets module
+//MsgFactoryIssueAssets : high level issuance of assets module
 type MsgFactoryIssueAssets struct {
 	IssueAssets []IssueAsset `json:"issueAssets"`
 }
 
-// NewMsgFactoryIssueAssets : initilizer
+//NewMsgFactoryIssueAssets : initilizer
 func NewMsgFactoryIssueAssets(issueAssets []IssueAsset) MsgFactoryIssueAssets {
 	return MsgFactoryIssueAssets{issueAssets}
 }
 
-// ***** Implementing sdk.Msg
+//***** Implementing sdk.Msg
 
 var _ sdk.Msg = MsgFactoryIssueAssets{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgFactoryIssueAssets) Type() string { return "assetFactory" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgFactoryIssueAssets) ValidateBasic() sdk.Error {
 	_, err := govalidator.ValidateStruct(msg)
 	if err != nil {
@@ -82,13 +82,13 @@ func (msg MsgFactoryIssueAssets) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgFactoryIssueAssets) GetSignBytes() []byte {
 	var issueAssets []json.RawMessage
 	for _, issueAsset := range msg.IssueAssets {
 		issueAssets = append(issueAssets, issueAsset.GetSignBytes())
 	}
-	
+
 	b, err := msgCdc.MarshalJSON(struct {
 		IssueAssets []json.RawMessage `json:"issueAssets"`
 	}{
@@ -100,7 +100,7 @@ func (msg MsgFactoryIssueAssets) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgFactoryIssueAssets) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.IssueAssets))
 	for i, in := range msg.IssueAssets {
@@ -109,20 +109,20 @@ func (msg MsgFactoryIssueAssets) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// BuildIssueAssetMsg : butild the issueAssetTx
+//BuildIssueAssetMsg : butild the issueAssetTx
 func BuildIssueAssetMsg(from sdk.AccAddress, to sdk.AccAddress, assetPeg sdk.AssetPeg) sdk.Msg {
 	issueAsset := NewIssueAsset(from, to, assetPeg)
 	msg := NewMsgFactoryIssueAssets([]IssueAsset{issueAsset})
 	return msg
 }
 
-// ##### Implement sdk.Msg
+//##### Implement sdk.Msg
 
-// #####MsgFactoryIssueAssets
+//#####MsgFactoryIssueAssets
 
-// *****RedeemAsset
+//*****RedeemAsset
 
-// RedeemAsset - transaction input
+//RedeemAsset - transaction input
 type RedeemAsset struct {
 	RelayerAddress sdk.AccAddress `json:"relayerAddress"`
 	OwnerAddress   sdk.AccAddress `json:"ownerAddress"`
@@ -130,12 +130,12 @@ type RedeemAsset struct {
 	PegHash        sdk.PegHash    `json:"pegHash"`
 }
 
-// NewRedeemAsset : initializer
+//NewRedeemAsset : initializer
 func NewRedeemAsset(relayerAddress sdk.AccAddress, ownerAddress sdk.AccAddress, toAddress sdk.AccAddress, pegHash sdk.PegHash) RedeemAsset {
 	return RedeemAsset{relayerAddress, ownerAddress, toAddress, pegHash}
 }
 
-// GetSignBytes : get bytes to sign
+//GetSignBytes : get bytes to sign
 func (in RedeemAsset) GetSignBytes() []byte {
 	bin, err := msgCdc.MarshalJSON(struct {
 		RelayerAddress string      `json:"relayerAddress"`
@@ -154,28 +154,28 @@ func (in RedeemAsset) GetSignBytes() []byte {
 	return bin
 }
 
-// #####RedeemAsset
+//#####RedeemAsset
 
-// *****MsgFactoryRedeemAssets
+//*****MsgFactoryRedeemAssets
 
-// MsgFactoryRedeemAssets : high level redeem of assets module
+//MsgFactoryRedeemAssets : high level redeem of assets module
 type MsgFactoryRedeemAssets struct {
 	RedeemAssets []RedeemAsset `json:"redeemAssets"`
 }
 
-// NewMsgFactoryRedeemAssets : initilizer
+//NewMsgFactoryRedeemAssets : initilizer
 func NewMsgFactoryRedeemAssets(redeemAssets []RedeemAsset) MsgFactoryRedeemAssets {
 	return MsgFactoryRedeemAssets{redeemAssets}
 }
 
-// ***** Implementing sdk.Msg
+//***** Implementing sdk.Msg
 
 var _ sdk.Msg = MsgFactoryRedeemAssets{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgFactoryRedeemAssets) Type() string { return "assetFactory" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgFactoryRedeemAssets) ValidateBasic() sdk.Error {
 	_, err := govalidator.ValidateStruct(msg)
 	if err != nil {
@@ -195,13 +195,13 @@ func (msg MsgFactoryRedeemAssets) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgFactoryRedeemAssets) GetSignBytes() []byte {
 	var redeemAssets []json.RawMessage
 	for _, redeemAsset := range msg.RedeemAssets {
 		redeemAssets = append(redeemAssets, redeemAsset.GetSignBytes())
 	}
-	
+
 	bz, err := msgCdc.MarshalJSON(struct {
 		RedeemAssets []json.RawMessage `json:"redeemAssets"`
 	}{
@@ -213,7 +213,7 @@ func (msg MsgFactoryRedeemAssets) GetSignBytes() []byte {
 	return bz
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgFactoryRedeemAssets) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.RedeemAssets))
 	for i, in := range msg.RedeemAssets {
@@ -222,20 +222,20 @@ func (msg MsgFactoryRedeemAssets) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// BuildRedeemAssetMsg : build the redeemAssetTx
+//BuildRedeemAssetMsg : build the redeemAssetTx
 func BuildRedeemAssetMsg(relayerAddress sdk.AccAddress, ownerAddress sdk.AccAddress, toAddress sdk.AccAddress, pegHash sdk.PegHash) sdk.Msg {
 	redeemAsset := NewRedeemAsset(relayerAddress, ownerAddress, toAddress, pegHash)
 	msg := NewMsgFactoryRedeemAssets([]RedeemAsset{redeemAsset})
 	return msg
 }
 
-// ##### Implement sdk.Msg
+//##### Implement sdk.Msg
 
-// #####MsgFactoryRedeemAssets
+//#####MsgFactoryRedeemAssets
 
-// *****SendAsset
+//*****SendAsset
 
-// SendAsset - transaction input
+//SendAsset - transaction input
 type SendAsset struct {
 	RelayerAddress sdk.AccAddress `json:"relayerAddress"`
 	FromAddress    sdk.AccAddress `json:"fromAddress"`
@@ -243,12 +243,12 @@ type SendAsset struct {
 	PegHash        sdk.PegHash    `json:"pegHash"`
 }
 
-// NewSendAsset : initializer
+//NewSendAsset : initializer
 func NewSendAsset(relayerAddress sdk.AccAddress, fromAddress sdk.AccAddress, toAddress sdk.AccAddress, pegHash sdk.PegHash) SendAsset {
 	return SendAsset{relayerAddress, fromAddress, toAddress, pegHash}
 }
 
-// GetSignBytes : get bytes to sign
+//GetSignBytes : get bytes to sign
 func (in SendAsset) GetSignBytes() []byte {
 	bin, err := msgCdc.MarshalJSON(struct {
 		RelayerAddress string      `json:"relayerAddress"`
@@ -267,28 +267,28 @@ func (in SendAsset) GetSignBytes() []byte {
 	return bin
 }
 
-// #####SendAsset
+//#####SendAsset
 
-// *****MsgFactorySendAssets
+//*****MsgFactorySendAssets
 
-// MsgFactorySendAssets : high level issuance of assets module
+//MsgFactorySendAssets : high level issuance of assets module
 type MsgFactorySendAssets struct {
 	SendAssets []SendAsset `json:"sendAssets"`
 }
 
-// NewMsgFactorySendAssets : initilizer
+//NewMsgFactorySendAssets : initilizer
 func NewMsgFactorySendAssets(sendAssets []SendAsset) MsgFactorySendAssets {
 	return MsgFactorySendAssets{sendAssets}
 }
 
-// ***** Implementing sdk.Msg
+//***** Implementing sdk.Msg
 
 var _ sdk.Msg = MsgFactorySendAssets{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgFactorySendAssets) Type() string { return "assetFactory" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgFactorySendAssets) ValidateBasic() sdk.Error {
 	_, err := govalidator.ValidateStruct(msg)
 	if err != nil {
@@ -308,13 +308,13 @@ func (msg MsgFactorySendAssets) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgFactorySendAssets) GetSignBytes() []byte {
 	var sendAssets []json.RawMessage
 	for _, sendAsset := range msg.SendAssets {
 		sendAssets = append(sendAssets, sendAsset.GetSignBytes())
 	}
-	
+
 	b, err := msgCdc.MarshalJSON(struct {
 		SendAssets []json.RawMessage `json:"sendAssets"`
 	}{
@@ -326,7 +326,7 @@ func (msg MsgFactorySendAssets) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgFactorySendAssets) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.SendAssets))
 	for i, in := range msg.SendAssets {
@@ -335,37 +335,37 @@ func (msg MsgFactorySendAssets) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// BuildSendAssetMsg : build the sendAssetTx
+//BuildSendAssetMsg : build the sendAssetTx
 func BuildSendAssetMsg(relayerAddress sdk.AccAddress, fromAddress sdk.AccAddress, toAddress sdk.AccAddress, pegHash sdk.PegHash) sdk.Msg {
 	sendAsset := NewSendAsset(relayerAddress, fromAddress, toAddress, pegHash)
 	msg := NewMsgFactorySendAssets([]SendAsset{sendAsset})
 	return msg
 }
 
-// ##### Implement sdk.Msg
+//##### Implement sdk.Msg
 
-// #####MsgFactorySendAssets
+//#####MsgFactorySendAssets
 
-// *****MsgFactoryExecuteAssets
+//*****MsgFactoryExecuteAssets
 
-// MsgFactoryExecuteAssets : high level issuance of assets module
+//MsgFactoryExecuteAssets : high level issuance of assets module
 type MsgFactoryExecuteAssets struct {
 	SendAssets []SendAsset `json:"sendAssets"`
 }
 
-// NewMsgFactoryExecuteAssets : initilizer
+//NewMsgFactoryExecuteAssets : initilizer
 func NewMsgFactoryExecuteAssets(sendAssets []SendAsset) MsgFactoryExecuteAssets {
 	return MsgFactoryExecuteAssets{sendAssets}
 }
 
-// ***** Implementing sdk.Msg
+//***** Implementing sdk.Msg
 
 var _ sdk.Msg = MsgFactoryExecuteAssets{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgFactoryExecuteAssets) Type() string { return "assetFactory" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgFactoryExecuteAssets) ValidateBasic() sdk.Error {
 	_, err := govalidator.ValidateStruct(msg)
 	if err != nil {
@@ -385,13 +385,13 @@ func (msg MsgFactoryExecuteAssets) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgFactoryExecuteAssets) GetSignBytes() []byte {
 	var sendAssets []json.RawMessage
 	for _, sendAsset := range msg.SendAssets {
 		sendAssets = append(sendAssets, sendAsset.GetSignBytes())
 	}
-	
+
 	b, err := msgCdc.MarshalJSON(struct {
 		SendAssets []json.RawMessage `json:"sendAssets"`
 	}{
@@ -403,7 +403,7 @@ func (msg MsgFactoryExecuteAssets) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgFactoryExecuteAssets) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.SendAssets))
 	for i, in := range msg.SendAssets {
@@ -412,15 +412,15 @@ func (msg MsgFactoryExecuteAssets) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// BuildExecuteAssetMsg : build the executeAssetTx
+//BuildExecuteAssetMsg : build the executeAssetTx
 func BuildExecuteAssetMsg(relayerAddress sdk.AccAddress, fromAddress sdk.AccAddress, toAddress sdk.AccAddress, pegHash sdk.PegHash) sdk.Msg {
 	sendAsset := NewSendAsset(relayerAddress, fromAddress, toAddress, pegHash)
 	msg := NewMsgFactoryExecuteAssets([]SendAsset{sendAsset})
 	return msg
 }
 
-// ##### Implement sdk.Msg
+//##### Implement sdk.Msg
 
-// #####MsgFactoryExecuteAssets
+//#####MsgFactoryExecuteAssets
 
-// #####Comdex
+//#####Comdex

@@ -1,8 +1,8 @@
 package keys
 
 import (
-	ccrypto "github.com/comdex-blockchain/crypto"
-	"github.com/tendermint/go-amino"
+	ccrypto "github.com/commitHub/commitBlockchain/crypto"
+	amino "github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/crypto/encoding/amino"
 )
 

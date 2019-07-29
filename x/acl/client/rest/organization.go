@@ -3,34 +3,36 @@ package rest
 import (
 	"fmt"
 	"net/http"
-	
-	"github.com/comdex-blockchain/x/acl"
-	
-	"github.com/comdex-blockchain/client/context"
-	"github.com/comdex-blockchain/client/utils"
-	"github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+
+	"github.com/commitHub/commitBlockchain/x/acl"
+
+	"github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/client/utils"
+	"github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
 	"github.com/gorilla/mux"
 )
 
-// GetOrganizationRequestHandler query organization account address Handler
-func GetOrganizationRequestHandler(storeName string, r *mux.Router, cdc *wire.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+//GetOrganizationRequestHandler query organization account address Handler
+func GetOrganizationRequestHandler(storeName string, r *mux.Router, cdc *wire.Codec, cliContext context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		vars := mux.Vars(r)
 		strOrganizationID := vars["organizationID"]
+		cliCtx := cliContext
+
 		if strOrganizationID == "" {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		
+
 		organizationID, err := types.GetOrganizationIDFromString(strOrganizationID)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(err.Error()))
 			return
 		}
-		
+
 		res, err := cliCtx.QueryStore(acl.OrganizationStoreKey(organizationID), storeName)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)

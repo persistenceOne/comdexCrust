@@ -6,9 +6,9 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	
-	"github.com/comdex-blockchain/blockExplorer/constants"
-	"github.com/comdex-blockchain/blockExplorer/handler"
+
+	"github.com/commitHub/commitBlockchain/blockExplorer/constants"
+	"github.com/commitHub/commitBlockchain/blockExplorer/handler"
 )
 
 func checkOrigin(r *http.Request) bool {

@@ -1,4 +1,4 @@
-cd %GOPATH%\src\github.com\comdex-blockchain
+cd %GOPATH%\src\github.com\commit-blockchain
 
 go get github.com/golang/dep/cmd/dep
 go get ./...

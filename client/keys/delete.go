@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	
-	"github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/crypto/keys"
+
+	"github.com/commitHub/commitBlockchain/client"
+	keys "github.com/commitHub/commitBlockchain/crypto/keys"
 	"github.com/gorilla/mux"
-	
+
 	"github.com/spf13/cobra"
 )
 
@@ -24,24 +24,24 @@ func deleteKeyCommand() *cobra.Command {
 
 func runDeleteCmd(cmd *cobra.Command, args []string) error {
 	name := args[0]
-	
+
 	kb, err := GetKeyBase()
 	if err != nil {
 		return err
 	}
-	
+
 	_, err = kb.Get(name)
 	if err != nil {
 		return err
 	}
-	
+
 	buf := client.BufferStdin()
 	oldpass, err := client.GetPassword(
 		"DANGER - enter password to permanently delete key:", buf)
 	if err != nil {
 		return err
 	}
-	
+
 	err = kb.Delete(name, oldpass)
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func runDeleteCmd(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// //////////////////////
+////////////////////////
 // REST
 
 // delete key request REST body
@@ -64,7 +64,7 @@ func DeleteKeyRequestHandler(w http.ResponseWriter, r *http.Request) {
 	name := vars["name"]
 	var kb keys.Keybase
 	var m DeleteKeyBody
-	
+
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&m)
 	if err != nil {
@@ -72,14 +72,14 @@ func DeleteKeyRequestHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	
+
 	kb, err = GetKeyBase()
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write([]byte(err.Error()))
 		return
 	}
-	
+
 	// TODO handle error if key is not available or pass is wrong
 	err = kb.Delete(name, m.Password)
 	if err != nil {
@@ -87,6 +87,6 @@ func DeleteKeyRequestHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	
+
 	w.WriteHeader(200)
 }

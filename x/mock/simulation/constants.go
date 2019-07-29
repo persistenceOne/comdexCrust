@@ -3,19 +3,19 @@ package simulation
 const (
 	// Fraction of double-signing evidence from a past height
 	pastEvidenceFraction float64 = 0.5
-	
+
 	// Minimum time per block
 	minTimePerBlock int64 = 86400 / 2
-	
+
 	// Maximum time per block
 	maxTimePerBlock int64 = 86400
-	
+
 	// Number of keys
 	numKeys int = 250
-	
+
 	// Chance that double-signing evidence is found on a given block
 	evidenceFraction float64 = 0.01
-	
+
 	// TODO Remove in favor of binary search for invariant violation
 	onOperation bool = false
 )

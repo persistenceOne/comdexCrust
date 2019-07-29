@@ -2,7 +2,7 @@ package types
 
 import (
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -18,19 +18,19 @@ func TestGasMeter(t *testing.T) {
 		{65535, []Gas{32768, 32767}},
 		{65536, []Gas{32768, 32767, 1}},
 	}
-	
+
 	for tcnum, tc := range cases {
 		meter := NewGasMeter(tc.limit)
 		used := int64(0)
-		
+
 		for unum, usage := range tc.usage {
 			used += usage
 			require.NotPanics(t, func() { meter.ConsumeGas(usage, "") }, "Not exceeded limit but panicked. tc #%d, usage #%d", tcnum, unum)
 			require.Equal(t, used, meter.GasConsumed(), "Gas consumption not match. tc #%d, usage #%d", tcnum, unum)
 		}
-		
+
 		require.Panics(t, func() { meter.ConsumeGas(1, "") }, "Exceeded but not panicked. tc #%d", tcnum)
 		break
-		
+
 	}
 }

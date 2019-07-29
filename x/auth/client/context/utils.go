@@ -15,11 +15,11 @@ func defaultChainID() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	doc, err := tmtypes.GenesisDocFromFile(cfg.GenesisFile())
 	if err != nil {
 		return "", err
 	}
-	
+
 	return doc.ChainID, nil
 }

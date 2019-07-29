@@ -4,9 +4,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	
+
 	"github.com/tendermint/tendermint/abci/server"
-	
+
 	tcmd "github.com/tendermint/tendermint/cmd/tendermint/commands"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/node"
@@ -32,20 +32,20 @@ func StartCmd(ctx *Context, appCreator AppCreator) *cobra.Command {
 				ctx.Logger.Info("Starting ABCI without Tendermint")
 				return startStandAlone(ctx, appCreator)
 			}
-			
+
 			ctx.Logger.Info("Starting ABCI with Tendermint")
-			
+
 			_, err := startInProcess(ctx, appCreator)
 			return err
 		},
 	}
-	
+
 	// core flags for the ABCI application
 	cmd.Flags().Bool(flagWithTendermint, true, "Run abci app embedded in-process with tendermint")
 	cmd.Flags().String(flagAddress, "tcp://0.0.0.0:26658", "Listen address")
 	cmd.Flags().String(flagTraceStore, "", "Enable KVStore tracing to an output file")
 	cmd.Flags().String(flagPruning, "syncable", "Pruning strategy: syncable, nothing, everything")
-	
+
 	// add support for all Tendermint-specific command line options
 	tcmd.AddNodeFlags(cmd)
 	return cmd
@@ -55,24 +55,24 @@ func startStandAlone(ctx *Context, appCreator AppCreator) error {
 	addr := viper.GetString(flagAddress)
 	home := viper.GetString("home")
 	traceStore := viper.GetString(flagTraceStore)
-	
+
 	app, err := appCreator(home, ctx.Logger, traceStore)
 	if err != nil {
 		return err
 	}
-	
+
 	svr, err := server.NewServer(addr, "socket", app)
 	if err != nil {
 		return errors.Errorf("error creating listener: %v\n", err)
 	}
-	
+
 	svr.SetLogger(ctx.Logger.With("module", "abci-server"))
-	
+
 	err = svr.Start()
 	if err != nil {
 		cmn.Exit(err.Error())
 	}
-	
+
 	// wait forever
 	cmn.TrapSignal(func() {
 		// cleanup
@@ -88,12 +88,12 @@ func startInProcess(ctx *Context, appCreator AppCreator) (*node.Node, error) {
 	cfg := ctx.Config
 	home := cfg.RootDir
 	traceStore := viper.GetString(flagTraceStore)
-	
+
 	app, err := appCreator(home, ctx.Logger, traceStore)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// create & start tendermint node
 	tmNode, err := node.NewNode(
 		cfg,
@@ -107,12 +107,12 @@ func startInProcess(ctx *Context, appCreator AppCreator) (*node.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	err = tmNode.Start()
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// trap signal (run forever)
 	tmNode.RunForever()
 	return tmNode, nil

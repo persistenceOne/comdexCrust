@@ -4,25 +4,25 @@ import (
 	"fmt"
 	"math/rand"
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
-	
-	"github.com/comdex-blockchain/baseapp"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/auth"
-	"github.com/comdex-blockchain/x/mock"
-	"github.com/comdex-blockchain/x/mock/simulation"
-	"github.com/comdex-blockchain/x/stake"
+
+	"github.com/commitHub/commitBlockchain/baseapp"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/auth"
+	"github.com/commitHub/commitBlockchain/x/mock"
+	"github.com/commitHub/commitBlockchain/x/mock/simulation"
+	"github.com/commitHub/commitBlockchain/x/stake"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 )
 
 // SimulateMsgCreateValidator
 func SimulateMsgCreateValidator(m auth.AccountMapper, k stake.Keeper) simulation.Operation {
-	
+
 	return func(t *testing.T, r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context,
 		keys []crypto.PrivKey, log string, event func(string)) (action string, fOp []simulation.FutureOperation, err sdk.Error) {
-		
+
 		denom := k.GetParams(ctx).BondDenom
 		description := stake.Description{
 			Moniker: simulation.RandStringOfLength(r, 10),
@@ -59,10 +59,10 @@ func SimulateMsgCreateValidator(m auth.AccountMapper, k stake.Keeper) simulation
 
 // SimulateMsgEditValidator
 func SimulateMsgEditValidator(k stake.Keeper) simulation.Operation {
-	
+
 	return func(t *testing.T, r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context,
 		keys []crypto.PrivKey, log string, event func(string)) (action string, fOp []simulation.FutureOperation, err sdk.Error) {
-		
+
 		description := stake.Description{
 			Moniker:  simulation.RandStringOfLength(r, 10),
 			Identity: simulation.RandStringOfLength(r, 10),
@@ -90,10 +90,10 @@ func SimulateMsgEditValidator(k stake.Keeper) simulation.Operation {
 
 // SimulateMsgDelegate
 func SimulateMsgDelegate(m auth.AccountMapper, k stake.Keeper) simulation.Operation {
-	
+
 	return func(t *testing.T, r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context,
 		keys []crypto.PrivKey, log string, event func(string)) (action string, fOp []simulation.FutureOperation, err sdk.Error) {
-		
+
 		denom := k.GetParams(ctx).BondDenom
 		validatorKey := simulation.RandomKey(r, keys)
 		validatorAddress := sdk.ValAddress(validatorKey.PubKey().Address())
@@ -125,10 +125,10 @@ func SimulateMsgDelegate(m auth.AccountMapper, k stake.Keeper) simulation.Operat
 
 // SimulateMsgBeginUnbonding
 func SimulateMsgBeginUnbonding(m auth.AccountMapper, k stake.Keeper) simulation.Operation {
-	
+
 	return func(t *testing.T, r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context,
 		keys []crypto.PrivKey, log string, event func(string)) (action string, fOp []simulation.FutureOperation, err sdk.Error) {
-		
+
 		denom := k.GetParams(ctx).BondDenom
 		validatorKey := simulation.RandomKey(r, keys)
 		validatorAddress := sdk.ValAddress(validatorKey.PubKey().Address())
@@ -160,10 +160,10 @@ func SimulateMsgBeginUnbonding(m auth.AccountMapper, k stake.Keeper) simulation.
 
 // SimulateMsgCompleteUnbonding
 func SimulateMsgCompleteUnbonding(k stake.Keeper) simulation.Operation {
-	
+
 	return func(t *testing.T, r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context,
 		keys []crypto.PrivKey, log string, event func(string)) (action string, fOp []simulation.FutureOperation, err sdk.Error) {
-		
+
 		validatorKey := simulation.RandomKey(r, keys)
 		validatorAddress := sdk.ValAddress(validatorKey.PubKey().Address())
 		delegatorKey := simulation.RandomKey(r, keys)
@@ -186,10 +186,10 @@ func SimulateMsgCompleteUnbonding(k stake.Keeper) simulation.Operation {
 
 // SimulateMsgBeginRedelegate
 func SimulateMsgBeginRedelegate(m auth.AccountMapper, k stake.Keeper) simulation.Operation {
-	
+
 	return func(t *testing.T, r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context,
 		keys []crypto.PrivKey, log string, event func(string)) (action string, fOp []simulation.FutureOperation, err sdk.Error) {
-		
+
 		denom := k.GetParams(ctx).BondDenom
 		sourceValidatorKey := simulation.RandomKey(r, keys)
 		sourceValidatorAddress := sdk.ValAddress(sourceValidatorKey.PubKey().Address())
@@ -225,10 +225,10 @@ func SimulateMsgBeginRedelegate(m auth.AccountMapper, k stake.Keeper) simulation
 
 // SimulateMsgCompleteRedelegate
 func SimulateMsgCompleteRedelegate(k stake.Keeper) simulation.Operation {
-	
+
 	return func(t *testing.T, r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context,
 		keys []crypto.PrivKey, log string, event func(string)) (action string, fOp []simulation.FutureOperation, err sdk.Error) {
-		
+
 		validatorSrcKey := simulation.RandomKey(r, keys)
 		validatorSrcAddress := sdk.ValAddress(validatorSrcKey.PubKey().Address())
 		validatorDstKey := simulation.RandomKey(r, keys)

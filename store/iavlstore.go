@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"io"
 	"sync"
-	
+
 	"github.com/tendermint/go-amino"
 	"github.com/tendermint/iavl"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	dbm "github.com/tendermint/tendermint/libs/db"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 const (
@@ -30,7 +30,7 @@ func LoadIAVLStore(db dbm.DB, id CommitID, pruning sdk.PruningStrategy) (CommitS
 	return iavl, nil
 }
 
-// ----------------------------------------
+//----------------------------------------
 
 var _ KVStore = (*iavlStore)(nil)
 var _ CommitStore = (*iavlStore)(nil)
@@ -38,13 +38,14 @@ var _ Queryable = (*iavlStore)(nil)
 
 // iavlStore Implements KVStore and CommitStore.
 type iavlStore struct {
+
 	// The underlying tree.
 	tree *iavl.VersionedTree
-	
+
 	// How many old versions we hold onto.
 	// A value of 0 means keep no recent states.
 	numRecent int64
-	
+
 	// This is the distance between state-sync waypoint states to be stored.
 	// See https://github.com/tendermint/tendermint/issues/828
 	// A value of 1 means store every state.
@@ -72,7 +73,7 @@ func (st *iavlStore) Commit() CommitID {
 		// TODO: Do we want to extend Commit to allow returning errors?
 		panic(err)
 	}
-	
+
 	// Release an old version of history, if not a sync waypoint.
 	previous := version - 1
 	if st.numRecent < previous {
@@ -84,7 +85,7 @@ func (st *iavlStore) Commit() CommitID {
 			}
 		}
 	}
-	
+
 	return CommitID{
 		Version: version,
 		Hash:    hash,
@@ -200,16 +201,16 @@ func (st *iavlStore) Query(req abci.RequestQuery) (res abci.ResponseQuery) {
 		msg := "Query cannot be zero length"
 		return sdk.ErrTxDecode(msg).QueryResult()
 	}
-	
+
 	tree := st.tree
-	
+
 	// store the height we chose in the response, with 0 being changed to the
 	// latest height
 	res.Height = getHeight(tree, req)
-	
+
 	switch req.Path {
 	case "/store", "/key": // Get by key
-		key := req.Data    // Data holds the key bytes
+		key := req.Data // Data holds the key bytes
 		res.Key = key
 		if !st.VersionExists(res.Height) {
 			res.Log = cmn.ErrorWrap(iavl.ErrVersionDoesNotExist, "").Error()
@@ -249,32 +250,32 @@ func (st *iavlStore) Query(req abci.RequestQuery) (res abci.ResponseQuery) {
 	return
 }
 
-// ----------------------------------------
+//----------------------------------------
 
 // Implements Iterator.
 type iavlIterator struct {
 	// Underlying store
 	tree *iavl.Tree
-	
+
 	// Domain
 	start, end []byte
-	
+
 	// Iteration order
 	ascending bool
-	
+
 	// Channel to push iteration values.
 	iterCh chan cmn.KVPair
-	
+
 	// Close this to release goroutine.
 	quitCh chan struct{}
-	
+
 	// Close this to signal that state is initialized.
 	initCh chan struct{}
-	
-	// ----------------------------------------
+
+	//----------------------------------------
 	// What follows are mutable state.
 	mtx sync.Mutex
-	
+
 	invalid bool   // True once, true forever
 	key     []byte // The current key
 	value   []byte // The current value
@@ -331,7 +332,7 @@ func (iter *iavlIterator) Domain() (start, end []byte) {
 func (iter *iavlIterator) Valid() bool {
 	iter.waitInit()
 	iter.mtx.Lock()
-	
+
 	validity := !iter.invalid
 	iter.mtx.Unlock()
 	return validity
@@ -342,7 +343,7 @@ func (iter *iavlIterator) Next() {
 	iter.waitInit()
 	iter.mtx.Lock()
 	iter.assertIsValid(true)
-	
+
 	iter.receiveNext()
 	iter.mtx.Unlock()
 }
@@ -352,7 +353,7 @@ func (iter *iavlIterator) Key() []byte {
 	iter.waitInit()
 	iter.mtx.Lock()
 	iter.assertIsValid(true)
-	
+
 	key := iter.key
 	iter.mtx.Unlock()
 	return key
@@ -363,7 +364,7 @@ func (iter *iavlIterator) Value() []byte {
 	iter.waitInit()
 	iter.mtx.Lock()
 	iter.assertIsValid(true)
-	
+
 	val := iter.value
 	iter.mtx.Unlock()
 	return val
@@ -374,18 +375,18 @@ func (iter *iavlIterator) Close() {
 	close(iter.quitCh)
 }
 
-// ----------------------------------------
+//----------------------------------------
 
 func (iter *iavlIterator) setNext(key, value []byte) {
 	iter.assertIsValid(false)
-	
+
 	iter.key = key
 	iter.value = value
 }
 
 func (iter *iavlIterator) setInvalid() {
 	iter.assertIsValid(false)
-	
+
 	iter.invalid = true
 }
 
@@ -414,7 +415,7 @@ func (iter *iavlIterator) assertIsValid(unlockMutex bool) {
 	}
 }
 
-// ----------------------------------------
+//----------------------------------------
 
 func cp(bz []byte) (ret []byte) {
 	if bz == nil {

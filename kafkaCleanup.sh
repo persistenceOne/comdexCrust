@@ -1,13 +1,13 @@
 #!/bin/bash
 
-cd kafka_2.11-2.1.0
+cd kafka_2.11-2.2.1
 
 bin/zookeeper-server-start.sh config/zookeeper.properties &
 
 bin/kafka-server-start.sh config/server.properties &
 
 sleep 2s
-declare -a topics=($( bin/kafka-topics.sh --list --zookeeper localhost:2181 ))
+declare -a topics=$( bin/kafka-topics.sh --list --zookeeper localhost:2181 )
 echo "====================================================="
 
 for topic in "${topics[@]}"

@@ -1,7 +1,7 @@
 package params
 
 import (
-	sdk "github.com/comdex-blockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // GenesisState defines initial activated msg types

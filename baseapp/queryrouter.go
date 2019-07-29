@@ -1,7 +1,7 @@
 package baseapp
 
 import (
-	sdk "github.com/comdex-blockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // QueryRouter provides queryables for each query path.

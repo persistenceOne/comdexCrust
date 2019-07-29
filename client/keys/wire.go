@@ -1,7 +1,7 @@
 package keys
 
 import (
-	"github.com/comdex-blockchain/wire"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
 var cdc *wire.Codec

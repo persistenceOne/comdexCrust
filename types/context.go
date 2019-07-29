@@ -3,9 +3,9 @@ package types
 import (
 	"context"
 	"sync"
-	
+
 	"github.com/golang/protobuf/proto"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
@@ -54,7 +54,7 @@ func (c Context) IsZero() bool {
 	return c.Context == nil
 }
 
-// ----------------------------------------
+//----------------------------------------
 // Getting a value
 
 // Value context value for the provided key
@@ -79,7 +79,7 @@ func (c Context) TransientStore(key StoreKey) KVStore {
 	return c.multiStore().GetKVStore(key).Gas(c.GasMeter(), cachedTransientGasConfig)
 }
 
-// ----------------------------------------
+//----------------------------------------
 // With* (setting a value)
 
 // WithValue nolint
@@ -97,7 +97,7 @@ func (c Context) WithCacheWrapper(key interface{}, value CacheWrapper) Context {
 	return c.withValue(key, value)
 }
 
-// WithProtoMsg returns context with WithProtoMsg
+//WithProtoMsg returns context with WithProtoMsg
 func (c Context) WithProtoMsg(key interface{}, value proto.Message) Context {
 	return c.withValue(key, value)
 }
@@ -117,7 +117,7 @@ func (c Context) WithUint32(key interface{}, value uint32) Context {
 	return c.withValue(key, value)
 }
 
-// WithUint64 returns context with WithUint64
+//WithUint64 returns context with WithUint64
 func (c Context) WithUint64(key interface{}, value uint64) Context {
 	return c.withValue(key, value)
 }
@@ -128,7 +128,7 @@ func (c Context) withValue(key interface{}, value interface{}) Context {
 		key:   key,
 		value: value,
 	}) // increment version for all relatives.
-	
+
 	return Context{
 		Context: context.WithValue(c.Context, key, value),
 		pst:     c.pst,
@@ -136,7 +136,7 @@ func (c Context) withValue(key interface{}, value interface{}) Context {
 	}
 }
 
-// ----------------------------------------
+//----------------------------------------
 // Values that require no key.
 
 type contextKey int // local to the context module
@@ -195,7 +195,7 @@ func (c Context) SigningValidators() []abci.SigningValidator {
 	return c.Value(contextKeySigningValidators).([]abci.SigningValidator)
 }
 
-// GasMeter :
+//GasMeter :
 func (c Context) GasMeter() GasMeter {
 	return c.Value(contextKeyGasMeter).(GasMeter)
 }
@@ -225,7 +225,7 @@ func (c Context) WithConsensusParams(params *abci.ConsensusParams) Context {
 		WithGasMeter(NewGasMeter(params.TxSize.MaxGas))
 }
 
-// WithChainID : returns context WithChainID
+//WithChainID : returns context WithChainID
 func (c Context) WithChainID(chainID string) Context {
 	return c.withValue(contextKeyChainID, chainID)
 }
@@ -235,7 +235,7 @@ func (c Context) WithTxBytes(txBytes []byte) Context {
 	return c.withValue(contextKeyTxBytes, txBytes)
 }
 
-// WithLogger : returns context with WithLogger
+//WithLogger : returns context with WithLogger
 func (c Context) WithLogger(logger log.Logger) Context {
 	return c.withValue(contextKeyLogger, logger)
 }
@@ -258,7 +258,7 @@ func (c Context) CacheContext() (cc Context, writeCache func()) {
 	return cc, cms.Write
 }
 
-// ----------------------------------------
+//----------------------------------------
 // thePast
 
 // GetOp : Returns false if ver <= 0 || ver > len(c.pst.ops).
@@ -267,7 +267,7 @@ func (c Context) GetOp(ver int64) (Op, bool) {
 	return c.pst.getOp(ver)
 }
 
-// ----------------------------------------
+//----------------------------------------
 // Misc.
 
 type cloner interface {

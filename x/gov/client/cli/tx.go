@@ -3,19 +3,19 @@ package cli
 import (
 	"fmt"
 	"os"
-	
-	"github.com/comdex-blockchain/client/context"
-	"github.com/comdex-blockchain/client/utils"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	authcmd "github.com/comdex-blockchain/x/auth/client/cli"
-	authctx "github.com/comdex-blockchain/x/auth/client/context"
-	"github.com/comdex-blockchain/x/gov"
-	
+
+	"github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/client/utils"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	authcmd "github.com/commitHub/commitBlockchain/x/auth/client/cli"
+	authctx "github.com/commitHub/commitBlockchain/x/auth/client/context"
+	"github.com/commitHub/commitBlockchain/x/gov"
+
 	"encoding/json"
 	"io/ioutil"
 	"strings"
-	
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -76,55 +76,55 @@ $ gaiacli gov submit-proposal --title="Test Proposal" --description="My awesome 
 			if err != nil {
 				return err
 			}
-			
+
 			txCtx := authctx.NewTxContextFromCLI().WithCodec(cdc)
 			cliCtx := context.NewCLIContext().
 				WithCodec(cdc).
 				WithLogger(os.Stdout).
 				WithAccountDecoder(authcmd.GetAccountDecoder(cdc))
-			
+
 			fromAddr, err := cliCtx.GetFromAddress()
 			if err != nil {
 				return err
 			}
-			
+
 			amount, err := sdk.ParseCoins(proposal.Deposit)
 			if err != nil {
 				return err
 			}
-			
+
 			proposalType, err := gov.ProposalTypeFromString(proposal.Type)
 			if err != nil {
 				return err
 			}
-			
+
 			msg := gov.NewMsgSubmitProposal(proposal.Title, proposal.Description, proposalType, fromAddr, amount)
-			
+
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
 			}
-			
+
 			// Build and sign the transaction, then broadcast to Tendermint
 			// proposalID must be returned, and it is a part of response.
 			cliCtx.PrintResponse = true
 			return utils.SendTx(txCtx, cliCtx, []sdk.Msg{msg})
 		},
 	}
-	
+
 	cmd.Flags().String(flagTitle, "", "title of proposal")
 	cmd.Flags().String(flagDescription, "", "description of proposal")
 	cmd.Flags().String(flagProposalType, "", "proposalType of proposal")
 	cmd.Flags().String(flagDeposit, "", "deposit of proposal")
 	cmd.Flags().String(flagProposal, "", "proposal file path (if this path is given, other proposal flags are ignored)")
-	
+
 	return cmd
 }
 
 func parseSubmitProposalFlags() (*proposal, error) {
 	proposal := &proposal{}
 	proposalFile := viper.GetString(flagProposal)
-	
+
 	if proposalFile == "" {
 		proposal.Title = viper.GetString(flagTitle)
 		proposal.Description = viper.GetString(flagDescription)
@@ -132,23 +132,23 @@ func parseSubmitProposalFlags() (*proposal, error) {
 		proposal.Deposit = viper.GetString(flagDeposit)
 		return proposal, nil
 	}
-	
+
 	for _, flag := range proposalFlags {
 		if viper.GetString(flag) != "" {
 			return nil, fmt.Errorf("--%s flag provided alongside --proposal, which is a noop", flag)
 		}
 	}
-	
+
 	contents, err := ioutil.ReadFile(proposalFile)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	err = json.Unmarshal(contents, proposal)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return proposal, nil
 }
 
@@ -163,35 +163,35 @@ func GetCmdDeposit(cdc *wire.Codec) *cobra.Command {
 				WithCodec(cdc).
 				WithLogger(os.Stdout).
 				WithAccountDecoder(authcmd.GetAccountDecoder(cdc))
-			
+
 			depositerAddr, err := cliCtx.GetFromAddress()
 			if err != nil {
 				return err
 			}
-			
+
 			proposalID := viper.GetInt64(flagProposalID)
-			
+
 			amount, err := sdk.ParseCoins(viper.GetString(flagDeposit))
 			if err != nil {
 				return err
 			}
-			
+
 			msg := gov.NewMsgDeposit(depositerAddr, proposalID, amount)
-			
+
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
 			}
-			
+
 			// Build and sign the transaction, then broadcast to a Tendermint
 			// node.
 			return utils.SendTx(txCtx, cliCtx, []sdk.Msg{msg})
 		},
 	}
-	
+
 	cmd.Flags().String(flagProposalID, "", "proposalID of proposal depositing on")
 	cmd.Flags().String(flagDeposit, "", "amount of deposit")
-	
+
 	return cmd
 }
 
@@ -206,40 +206,40 @@ func GetCmdVote(cdc *wire.Codec) *cobra.Command {
 				WithCodec(cdc).
 				WithLogger(os.Stdout).
 				WithAccountDecoder(authcmd.GetAccountDecoder(cdc))
-			
+
 			voterAddr, err := cliCtx.GetFromAddress()
 			if err != nil {
 				return err
 			}
-			
+
 			proposalID := viper.GetInt64(flagProposalID)
 			option := viper.GetString(flagOption)
-			
+
 			byteVoteOption, err := gov.VoteOptionFromString(option)
 			if err != nil {
 				return err
 			}
-			
+
 			msg := gov.NewMsgVote(voterAddr, proposalID, byteVoteOption)
-			
+
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
 			}
-			
+
 			fmt.Printf("Vote[Voter:%s,ProposalID:%d,Option:%s]",
 				voterAddr.String(), msg.ProposalID, msg.Option.String(),
 			)
-			
+
 			// Build and sign the transaction, then broadcast to a Tendermint
 			// node.
 			return utils.SendTx(txCtx, cliCtx, []sdk.Msg{msg})
 		},
 	}
-	
+
 	cmd.Flags().String(flagProposalID, "", "proposalID of proposal voting on")
 	cmd.Flags().String(flagOption, "", "vote option {Yes, No, NoWithVeto, Abstain}")
-	
+
 	return cmd
 }
 
@@ -251,28 +251,28 @@ func GetCmdQueryProposal(queryRoute string, cdc *wire.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			proposalID := viper.GetInt64(flagProposalID)
-			
+
 			params := gov.QueryProposalParams{
 				ProposalID: proposalID,
 			}
-			
+
 			bz, err := cdc.MarshalJSON(params)
 			if err != nil {
 				return err
 			}
-			
+
 			res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/proposal", queryRoute), bz)
 			if err != nil {
 				return err
 			}
-			
+
 			fmt.Println(string(res))
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().String(flagProposalID, "", "proposalID of proposal being queried")
-	
+
 	return cmd
 }
 
@@ -287,11 +287,11 @@ func GetCmdQueryProposals(queryRoute string, cdc *wire.Codec) *cobra.Command {
 			bechVoterAddr := viper.GetString(flagVoter)
 			strProposalStatus := viper.GetString(flagStatus)
 			latestProposalsIDs := viper.GetInt64(flagLatestProposalIDs)
-			
+
 			params := gov.QueryProposalsParams{
 				NumLatestProposals: latestProposalsIDs,
 			}
-			
+
 			if len(bechDepositerAddr) != 0 {
 				depositerAddr, err := sdk.AccAddressFromBech32(bechDepositerAddr)
 				if err != nil {
@@ -299,7 +299,7 @@ func GetCmdQueryProposals(queryRoute string, cdc *wire.Codec) *cobra.Command {
 				}
 				params.Depositer = depositerAddr
 			}
-			
+
 			if len(bechVoterAddr) != 0 {
 				voterAddr, err := sdk.AccAddressFromBech32(bechVoterAddr)
 				if err != nil {
@@ -307,7 +307,7 @@ func GetCmdQueryProposals(queryRoute string, cdc *wire.Codec) *cobra.Command {
 				}
 				params.Voter = voterAddr
 			}
-			
+
 			if len(strProposalStatus) != 0 {
 				proposalStatus, err := gov.ProposalStatusFromString(strProposalStatus)
 				if err != nil {
@@ -315,43 +315,43 @@ func GetCmdQueryProposals(queryRoute string, cdc *wire.Codec) *cobra.Command {
 				}
 				params.ProposalStatus = proposalStatus
 			}
-			
+
 			bz, err := cdc.MarshalJSON(params)
 			if err != nil {
 				return err
 			}
-			
+
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/proposals", queryRoute), bz)
 			if err != nil {
 				return err
 			}
-			
+
 			var matchingProposals []gov.Proposal
 			err = cdc.UnmarshalJSON(res, &matchingProposals)
 			if err != nil {
 				return err
 			}
-			
+
 			if len(matchingProposals) == 0 {
 				fmt.Println("No matching proposals found")
 				return nil
 			}
-			
+
 			for _, proposal := range matchingProposals {
 				fmt.Printf("  %d - %s\n", proposal.GetProposalID(), proposal.GetTitle())
 			}
-			
+
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().String(flagLatestProposalIDs, "", "(optional) limit to latest [number] proposals. Defaults to all proposals")
 	cmd.Flags().String(flagDepositer, "", "(optional) filter by proposals deposited on by depositer")
 	cmd.Flags().String(flagVoter, "", "(optional) filter by proposals voted on by voted")
 	cmd.Flags().String(flagStatus, "", "(optional) filter proposals by proposal status")
-	
+
 	return cmd
 }
 
@@ -364,12 +364,12 @@ func GetCmdQueryVote(queryRoute string, cdc *wire.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			proposalID := viper.GetInt64(flagProposalID)
-			
+
 			voterAddr, err := sdk.AccAddressFromBech32(viper.GetString(flagVoter))
 			if err != nil {
 				return err
 			}
-			
+
 			params := gov.QueryVoteParams{
 				Voter:      voterAddr,
 				ProposalID: proposalID,
@@ -378,20 +378,20 @@ func GetCmdQueryVote(queryRoute string, cdc *wire.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			
+
 			res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/vote", queryRoute), bz)
 			if err != nil {
 				return err
 			}
-			
+
 			fmt.Println(string(res))
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().String(flagProposalID, "", "proposalID of proposal voting on")
 	cmd.Flags().String(flagVoter, "", "bech32 voter address")
-	
+
 	return cmd
 }
 
@@ -403,7 +403,7 @@ func GetCmdQueryVotes(queryRoute string, cdc *wire.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			proposalID := viper.GetInt64(flagProposalID)
-			
+
 			params := gov.QueryVotesParams{
 				ProposalID: proposalID,
 			}
@@ -411,19 +411,19 @@ func GetCmdQueryVotes(queryRoute string, cdc *wire.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			
+
 			res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/votes", queryRoute), bz)
 			if err != nil {
 				return err
 			}
-			
+
 			fmt.Println(string(res))
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().String(flagProposalID, "", "proposalID of which proposal's votes are being queried")
-	
+
 	return cmd
 }
 
@@ -436,12 +436,12 @@ func GetCmdQueryDeposit(queryRoute string, cdc *wire.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			proposalID := viper.GetInt64(flagProposalID)
-			
+
 			depositerAddr, err := sdk.AccAddressFromBech32(viper.GetString(flagDepositer))
 			if err != nil {
 				return err
 			}
-			
+
 			params := gov.QueryDepositParams{
 				Depositer:  depositerAddr,
 				ProposalID: proposalID,
@@ -450,20 +450,20 @@ func GetCmdQueryDeposit(queryRoute string, cdc *wire.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			
+
 			res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/deposit", queryRoute), bz)
 			if err != nil {
 				return err
 			}
-			
+
 			fmt.Println(string(res))
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().String(flagProposalID, "", "proposalID of proposal deposited on")
 	cmd.Flags().String(flagDepositer, "", "bech32 depositer address")
-	
+
 	return cmd
 }
 
@@ -475,7 +475,7 @@ func GetCmdQueryDeposits(queryRoute string, cdc *wire.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			proposalID := viper.GetInt64(flagProposalID)
-			
+
 			params := gov.QueryDepositsParams{
 				ProposalID: proposalID,
 			}
@@ -483,19 +483,19 @@ func GetCmdQueryDeposits(queryRoute string, cdc *wire.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			
+
 			res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/deposits", queryRoute), bz)
 			if err != nil {
 				return err
 			}
-			
+
 			fmt.Println(string(res))
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().String(flagProposalID, "", "proposalID of which proposal's deposits are being queried")
-	
+
 	return cmd
 }
 
@@ -507,7 +507,7 @@ func GetCmdQueryTally(queryRoute string, cdc *wire.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			proposalID := viper.GetInt64(flagProposalID)
-			
+
 			params := gov.QueryTallyParams{
 				ProposalID: proposalID,
 			}
@@ -515,18 +515,18 @@ func GetCmdQueryTally(queryRoute string, cdc *wire.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			
+
 			res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/tally", queryRoute), bz)
 			if err != nil {
 				return err
 			}
-			
+
 			fmt.Println(string(res))
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().String(flagProposalID, "", "proposalID of which proposal is being tallied")
-	
+
 	return cmd
 }

@@ -3,19 +3,19 @@ package hd
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/comdex-blockchain/crypto/keys/bip39"
+	"github.com/commitHub/commitBlockchain/crypto/keys/bip39"
 )
 
-// nolint
+//nolint
 func ExampleStringifyPathParams() {
 	path := NewParams(44, 0, 0, false, 0)
 	fmt.Println(path.String())
 	// Output: 44'/0'/0'/0/0
 }
 
-// nolint
+//nolint
 func ExampleSomeBIP32TestVecs() {
-	
+
 	seed := bip39.MnemonicToSeed("barrel original fuel morning among eternal " +
 		"filter ball stove pluck matrix mechanic")
 	master, ch := ComputeMastersFromSeed(seed)
@@ -30,34 +30,34 @@ func ExampleSomeBIP32TestVecs() {
 	// ether
 	priv, _ = DerivePrivateKeyForPath(master, ch, "44'/60'/0'/0/0")
 	fmt.Println(hex.EncodeToString(priv[:]))
-	
+
 	fmt.Println()
 	fmt.Println("keys generated via https://coinomi.com/recovery-phrase-tool.html")
 	fmt.Println()
-	
+
 	seed = bip39.MnemonicToSeed(
 		"advice process birth april short trust crater change bacon monkey medal garment " +
 			"gorilla ranch hour rival razor call lunar mention taste vacant woman sister")
 	master, ch = ComputeMastersFromSeed(seed)
 	priv, _ = DerivePrivateKeyForPath(master, ch, "44'/1'/1'/0/4")
 	fmt.Println(hex.EncodeToString(priv[:]))
-	
+
 	seed = bip39.MnemonicToSeed("idea naive region square margin day captain habit " +
 		"gun second farm pact pulse someone armed")
 	master, ch = ComputeMastersFromSeed(seed)
 	priv, _ = DerivePrivateKeyForPath(master, ch, "44'/0'/0'/0/420")
 	fmt.Println(hex.EncodeToString(priv[:]))
-	
+
 	fmt.Println()
 	fmt.Println("BIP 32 example")
 	fmt.Println()
-	
+
 	// bip32 path: m/0/7
 	seed = bip39.MnemonicToSeed("monitor flock loyal sick object grunt duty ride develop assault harsh history")
 	master, ch = ComputeMastersFromSeed(seed)
 	priv, _ = DerivePrivateKeyForPath(master, ch, "0/7")
 	fmt.Println(hex.EncodeToString(priv[:]))
-	
+
 	// Output: keys from fundraiser test-vector (cosmos, bitcoin, ether)
 	//
 	// bfcb217c058d8bbafd5e186eae936106ca3e943889b0b4a093ae13822fd3170c

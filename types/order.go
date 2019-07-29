@@ -4,16 +4,16 @@ package types
 type Order interface {
 	GetNegotiationID() NegotiationID
 	SetNegotiationID(NegotiationID) error
-	
+
 	GetAssetPegWallet() AssetPegWallet
 	SetAssetPegWallet(AssetPegWallet) error
-	
+
 	GetFiatPegWallet() FiatPegWallet
 	SetFiatPegWallet(FiatPegWallet) error
-	
+
 	GetFiatProofHash() string
 	SetFiatProofHash(string) error
-	
+
 	GetAWBProofHash() string
 	SetAWBProofHash(string) error
 }
@@ -34,60 +34,60 @@ func ProtoBaseOrder() Order {
 	return &BaseOrder{}
 }
 
-// GetNegotiationID : getter
+//GetNegotiationID : getter
 func (baseOrder BaseOrder) GetNegotiationID() NegotiationID {
 	return baseOrder.NegotiationID
 }
 
-// SetNegotiationID : setter
+//SetNegotiationID : setter
 func (baseOrder *BaseOrder) SetNegotiationID(negotiationID NegotiationID) error {
 	baseOrder.NegotiationID = negotiationID
 	return nil
 }
 
-// GetAssetPegWallet : getter
+//GetAssetPegWallet : getter
 func (baseOrder BaseOrder) GetAssetPegWallet() AssetPegWallet {
 	return baseOrder.AssetPegWallet
 }
 
-// SetAssetPegWallet : setter
+//SetAssetPegWallet : setter
 func (baseOrder *BaseOrder) SetAssetPegWallet(assetPegWallet AssetPegWallet) error {
 	baseOrder.AssetPegWallet = assetPegWallet
 	return nil
 }
 
-// GetFiatPegWallet : getter
+//GetFiatPegWallet : getter
 func (baseOrder BaseOrder) GetFiatPegWallet() FiatPegWallet {
 	return baseOrder.FiatPegWallet
 }
 
-// SetFiatPegWallet : setter
+//SetFiatPegWallet : setter
 func (baseOrder *BaseOrder) SetFiatPegWallet(fiatPegWallet FiatPegWallet) error {
 	baseOrder.FiatPegWallet = fiatPegWallet
 	return nil
 }
 
-// GetFiatProofHash : getter
+//GetFiatProofHash : getter
 func (baseOrder BaseOrder) GetFiatProofHash() string {
 	return baseOrder.FiatProofHash
 }
 
-// SetFiatProofHash : setter
+//SetFiatProofHash : setter
 func (baseOrder *BaseOrder) SetFiatProofHash(fiatProofHash string) error {
 	baseOrder.FiatProofHash = fiatProofHash
 	return nil
 }
 
-// GetAWBProofHash : getter
+//GetAWBProofHash : getter
 func (baseOrder BaseOrder) GetAWBProofHash() string {
 	return baseOrder.AWBProofHash
 }
 
-// SetAWBProofHash : setter
+//SetAWBProofHash : setter
 func (baseOrder *BaseOrder) SetAWBProofHash(awbProofHash string) error {
 	baseOrder.AWBProofHash = awbProofHash
 	return nil
 }
 
-// OrderDecoder : decoder function for order
+//OrderDecoder : decoder function for order
 type OrderDecoder func(orderBytes []byte) (Order, error)

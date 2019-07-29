@@ -4,21 +4,23 @@ import (
 	"encoding/json"
 	"io"
 	"os"
-	
-	bam "github.com/comdex-blockchain/baseapp"
-	"github.com/comdex-blockchain/rest"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/acl"
-	"github.com/comdex-blockchain/x/assetFactory"
-	"github.com/comdex-blockchain/x/auth"
-	"github.com/comdex-blockchain/x/bank"
-	"github.com/comdex-blockchain/x/fiatFactory"
-	"github.com/comdex-blockchain/x/ibc"
-	"github.com/comdex-blockchain/x/negotiation"
-	"github.com/comdex-blockchain/x/order"
-	"github.com/comdex-blockchain/x/reputation"
-	"github.com/comdex-blockchain/x/stake"
+
+	bam "github.com/commitHub/commitBlockchain/baseapp"
+	"github.com/commitHub/commitBlockchain/rest"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/acl"
+	"github.com/commitHub/commitBlockchain/x/assetFactory"
+	"github.com/commitHub/commitBlockchain/x/auth"
+	"github.com/commitHub/commitBlockchain/x/bank"
+	"github.com/commitHub/commitBlockchain/x/fiatFactory"
+	"github.com/commitHub/commitBlockchain/x/gov"
+	"github.com/commitHub/commitBlockchain/x/ibc"
+	"github.com/commitHub/commitBlockchain/x/negotiation"
+	"github.com/commitHub/commitBlockchain/x/order"
+	"github.com/commitHub/commitBlockchain/x/params"
+	"github.com/commitHub/commitBlockchain/x/reputation"
+	"github.com/commitHub/commitBlockchain/x/stake"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	dbm "github.com/tendermint/tendermint/libs/db"
@@ -43,7 +45,7 @@ var (
 type MainApp struct {
 	*bam.BaseApp
 	cdc *wire.Codec
-	
+
 	keyMain        *sdk.KVStoreKey
 	keyAccount     *sdk.KVStoreKey
 	keyIBC         *sdk.KVStoreKey
@@ -52,7 +54,9 @@ type MainApp struct {
 	keyOrder       *sdk.KVStoreKey
 	keyACL         *sdk.KVStoreKey
 	keyReputation  *sdk.KVStoreKey
-	
+	keyGov         *sdk.KVStoreKey
+	keyParams      *sdk.KVStoreKey
+
 	accountMapper       auth.AccountMapper
 	feeCollectionKeeper auth.FeeCollectionKeeper
 	coinKeeper          bank.Keeper
@@ -66,6 +70,8 @@ type MainApp struct {
 	aclKeeper           acl.Keeper
 	reputationMapper    reputation.Mapper
 	reputationKeeper    reputation.Keeper
+	govKeeper           gov.Keeper
+	paramsKeeper        params.Keeper
 }
 
 // NewMainApp returns a reference to a new MainApp given a logger and
@@ -76,7 +82,7 @@ type MainApp struct {
 func NewMainApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppOptions ...func(*bam.BaseApp)) *MainApp {
 	// create and register app-level codec for TXs and accounts
 	cdc := MakeCodec()
-	
+
 	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	// create your application type
@@ -92,7 +98,7 @@ func NewMainApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppOptio
 		keyACL:         sdk.NewKVStoreKey("acl"),
 		keyReputation:  sdk.NewKVStoreKey("reputation"),
 	}
-	
+
 	// define and attach the mappers and keepers
 	app.accountMapper = auth.NewAccountMapper(
 		cdc,
@@ -109,7 +115,7 @@ func NewMainApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppOptio
 		app.keyNegotiation,       // target store
 		sdk.ProtoBaseNegotiation, // prototype
 	)
-	
+
 	app.orderMapper = order.NewMapper(
 		app.cdc,
 		app.keyOrder,       // target store
@@ -122,34 +128,37 @@ func NewMainApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppOptio
 	)
 	app.aclKeeper = acl.NewKeeper(app.aclMapper)
 	app.coinKeeper = bank.NewKeeper(app.accountMapper)
+	app.paramsKeeper = params.NewKeeper(app.cdc, app.keyParams)
 	app.ibcMapper = ibc.NewMapper(app.cdc, app.keyIBC, app.RegisterCodespace(ibc.DefaultCodespace))
 	app.stakeKeeper = stake.NewKeeper(app.cdc, app.keyStake, app.coinKeeper, app.RegisterCodespace(stake.DefaultCodespace))
 	app.negotiationKeeper = negotiation.NewKeeper(app.negotiationMapper, app.accountMapper)
 	app.orderKeeper = order.NewKeeper(app.orderMapper)
 	app.reputationKeeper = reputation.NewKeeper(app.reputationMapper)
+	app.govKeeper = gov.NewKeeper(app.cdc, app.keyGov, app.paramsKeeper.Setter(), app.coinKeeper, app.stakeKeeper, gov.DefaultCodespace)
 	// register message routes
 	app.Router().
 		AddRoute("bank", bank.NewAssetFiatHandler(app.coinKeeper, app.negotiationKeeper, app.orderKeeper, app.aclKeeper, app.reputationKeeper)).
 		AddRoute("ibc", ibc.NewHandler(app.ibcMapper, app.coinKeeper, app.aclKeeper, app.negotiationKeeper, app.orderKeeper, app.reputationKeeper)).
 		AddRoute("stake", stake.NewHandler(app.stakeKeeper)).
+		AddRoute("gov", gov.NewHandler(app.govKeeper)).
 		AddRoute("negotiation", negotiation.NewHandler(app.negotiationKeeper, app.aclKeeper, app.reputationKeeper)).
 		AddRoute("reputation", reputation.NewFeedbackHandler(app.reputationKeeper, app.orderKeeper))
-	
+
 	// perform initialization logic
 	app.SetInitChainer(app.initChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
 	app.SetAnteHandler(auth.NewAnteHandler(app.accountMapper, app.feeCollectionKeeper))
-	
+
 	// mount the multistore and load the latest state
 	app.MountStoresIAVL(app.keyMain, app.keyAccount, app.keyIBC, app.keyStake, app.keyNegotiation, app.keyOrder, app.keyACL, app.keyReputation)
 	err := app.LoadLatestVersion(app.keyMain)
 	if err != nil {
 		cmn.Exit(err.Error())
 	}
-	
+
 	app.Seal()
-	
+
 	return app
 }
 
@@ -157,7 +166,7 @@ func NewMainApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppOptio
 // with the codec.
 func MakeCodec() *wire.Codec {
 	cdc := wire.NewCodec()
-	
+
 	wire.RegisterCrypto(cdc)
 	sdk.RegisterWire(cdc)
 	bank.RegisterWire(cdc)
@@ -189,7 +198,7 @@ func (app *MainApp) BeginBlocker(_ sdk.Context, _ abci.RequestBeginBlock) abci.R
 // application.
 func (app *MainApp) EndBlocker(ctx sdk.Context, _ abci.RequestEndBlock) abci.ResponseEndBlock {
 	validatorUpdates := stake.EndBlocker(ctx, app.stakeKeeper)
-	
+
 	return abci.ResponseEndBlock{
 		ValidatorUpdates: validatorUpdates,
 	}
@@ -202,26 +211,26 @@ func (app *MainApp) EndBlocker(ctx sdk.Context, _ abci.RequestEndBlock) abci.Res
 // application's account mapper.
 func (app *MainApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	stateJSON := req.AppStateBytes
-	
+
 	var genesisState GenesisState
 	err := app.cdc.UnmarshalJSON(stateJSON, &genesisState)
 	if err != nil {
 		panic(err)
 	}
-	
+
 	for _, gacc := range genesisState.Accounts {
 		acc := gacc.ToAccount()
 		acc.AccountNumber = app.accountMapper.GetNextAccountNumber(ctx)
 		app.accountMapper.SetAccount(ctx, acc)
 	}
-	
+
 	// load the initial stake information
 	stake.InitGenesis(ctx, app.stakeKeeper, genesisState.StakeData)
 	order.InitOrder(ctx, app.orderKeeper)
 	negotiation.InitNegotiation(ctx, app.negotiationKeeper)
 	acl.InitACL(ctx, app.aclKeeper)
 	reputation.InitReputation(ctx, app.reputationKeeper)
-	
+
 	return abci.ResponseInitChain{}
 }
 
@@ -230,7 +239,7 @@ func (app *MainApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci
 // returned if any step getting the state or set of validators fails.
 func (app *MainApp) ExportAppStateAndValidators() (appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
 	ctx := app.NewContext(true, abci.Header{})
-	
+
 	// iterate to get the accounts
 	accounts := []GenesisAccount{}
 	appendAccount := func(acc auth.Account) (stop bool) {
@@ -239,7 +248,7 @@ func (app *MainApp) ExportAppStateAndValidators() (appState json.RawMessage, val
 		return false
 	}
 	app.accountMapper.IterateAccounts(ctx, appendAccount)
-	
+
 	genState := GenesisState{
 		Accounts:  accounts,
 		StakeData: stake.WriteGenesis(ctx, app.stakeKeeper),

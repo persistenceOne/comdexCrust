@@ -2,10 +2,10 @@ package mock
 
 import (
 	"io"
-	
+
 	dbm "github.com/tendermint/tendermint/libs/db"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 var _ sdk.MultiStore = multiStore{}

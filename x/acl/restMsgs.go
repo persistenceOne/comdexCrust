@@ -1,6 +1,6 @@
 package acl
 
-// DefineACLBody : Request object to DefineAcl
+//DefineACLBody : Request object to DefineAcl
 type DefineACLBody struct {
 	From               string `json:"from" valid:"required~Enter the from"`
 	Password           string `json:"password" valid:"required~Enter the password"`
@@ -28,7 +28,7 @@ type DefineACLBody struct {
 	ReleaseAsset       string `json:"releaseAsset"  valid:"required~Enter the releaseAsset, matches(^(true|TRUE|True|false|FALSE|False)*$)~Invalid releaseAsset"`
 }
 
-// DefineOrganizationBody : request object to define organization
+//DefineOrganizationBody : request object to define organization
 type DefineOrganizationBody struct {
 	From           string `json:"from" valid:"required~Enter the from"`
 	To             string `json:"to" valid:"required~Enter the to Address,matches(^cosmos[a-z0-9]{39}$)~to Address is Invalid"`
@@ -42,7 +42,7 @@ type DefineOrganizationBody struct {
 	ZoneID         string `json:"zoneID" valid:"required~Enter the zoneID, matches(^[A-Fa-f0-9]+$)~Invalid zoneID,length(2|40)~ZoneID length should be 2 to 40"`
 }
 
-// DefineZoneBody : request object to add zone
+//DefineZoneBody : request object to add zone
 type DefineZoneBody struct {
 	From          string `json:"from" valid:"required~Enter the from"`
 	To            string `json:"to" valid:"required~Enter the toAddress,matches(^cosmos[a-z0-9]{39}$)~toAddress is Invalid"`

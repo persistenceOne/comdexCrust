@@ -1,7 +1,7 @@
 package keys
 
 import (
-	"github.com/comdex-blockchain/client"
+	"github.com/commitHub/commitBlockchain/client"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 )

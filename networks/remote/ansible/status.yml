@@ -6,12 +6,12 @@
   gather_facts: no
 
   tasks:
-    - name: Gather status
-      uri:
-        body_format: json
-        url: "http://{{ansible_host}}:26657/status"
-      register: status
+  - name: Gather status
+    uri:
+      body_format: json
+      url: "http://{{ansible_host}}:26657/status"
+    register: status
 
-    - name: Print status
-      debug: var=status.json.result
+  - name: Print status
+    debug: var=status.json.result
 

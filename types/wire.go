@@ -1,6 +1,6 @@
 package types
 
-import "github.com/comdex-blockchain/wire"
+import wire "github.com/commitHub/commitBlockchain/wire"
 
 // RegisterWire : Register the sdk message type
 func RegisterWire(cdc *wire.Codec) {

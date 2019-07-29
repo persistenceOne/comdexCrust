@@ -2,7 +2,7 @@ package types
 
 import (
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -22,7 +22,7 @@ func TestEmptyTags(t *testing.T) {
 func TestNewTags(t *testing.T) {
 	b := NewTags("a", []byte("1"))
 	require.Equal(t, b, Tags{MakeTag("a", []byte("1"))})
-	
+
 	require.Panics(t, func() { NewTags("a", []byte("1"), "b") })
 	require.Panics(t, func() { NewTags("a", 1) })
 	require.Panics(t, func() { NewTags(1, 1) })

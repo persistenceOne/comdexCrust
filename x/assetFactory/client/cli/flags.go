@@ -4,7 +4,7 @@ import (
 	flag "github.com/spf13/pflag"
 )
 
-// noLint
+//noLint
 const (
 	FlagTo            = "to"
 	FlagAmount        = "amount"

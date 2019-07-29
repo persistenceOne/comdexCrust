@@ -1,11 +1,11 @@
 package keeper
 
 import (
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	
-	"github.com/comdex-blockchain/x/bank"
-	"github.com/comdex-blockchain/x/stake/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+
+	"github.com/commitHub/commitBlockchain/x/bank"
+	"github.com/commitHub/commitBlockchain/x/stake/types"
 )
 
 // keeper of the stake store
@@ -14,7 +14,7 @@ type Keeper struct {
 	cdc            *wire.Codec
 	coinKeeper     bank.Keeper
 	validatorHooks sdk.ValidatorHooks
-	
+
 	// codespace
 	codespace sdk.CodespaceType
 }
@@ -39,25 +39,25 @@ func (k Keeper) WithValidatorHooks(v sdk.ValidatorHooks) Keeper {
 	return k
 }
 
-// _________________________________________________________________________
+//_________________________________________________________________________
 
 // return the codespace
 func (k Keeper) Codespace() sdk.CodespaceType {
 	return k.codespace
 }
 
-// _________________________________________________________________________
+//_________________________________________________________________________
 // some generic reads/writes that don't need their own files
 
 // load/save the global staking params
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	store := ctx.KVStore(k.storeKey)
-	
+
 	b := store.Get(ParamKey)
 	if b == nil {
 		panic("Stored params should not have been nil")
 	}
-	
+
 	k.cdc.MustUnmarshalBinary(b, &params)
 	return
 }
@@ -76,7 +76,7 @@ func (k Keeper) SetNewParams(ctx sdk.Context, params types.Params) {
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	store := ctx.KVStore(k.storeKey)
 	exParams := k.GetParams(ctx)
-	
+
 	// if max validator count changes, must recalculate validator set
 	if exParams.MaxValidators != params.MaxValidators {
 		k.UpdateBondedValidatorsFull(ctx)
@@ -85,7 +85,7 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	store.Set(ParamKey, b)
 }
 
-// _______________________________________________________________________
+//_______________________________________________________________________
 
 // load/save the pool
 func (k Keeper) GetPool(ctx sdk.Context) (pool types.Pool) {
@@ -105,7 +105,7 @@ func (k Keeper) SetPool(ctx sdk.Context, pool types.Pool) {
 	store.Set(PoolKey, b)
 }
 
-// __________________________________________________________________________
+//__________________________________________________________________________
 
 // get the current in-block validator operation counter
 func (k Keeper) InitIntraTxCounter(ctx sdk.Context) {

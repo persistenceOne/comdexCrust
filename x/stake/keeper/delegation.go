@@ -3,23 +3,23 @@ package keeper
 import (
 	"bytes"
 	"time"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/stake/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/stake/types"
 )
 
 // load a delegation
 func (k Keeper) GetDelegation(ctx sdk.Context,
 	delAddr sdk.AccAddress, valAddr sdk.ValAddress) (
 	delegation types.Delegation, found bool) {
-	
+
 	store := ctx.KVStore(k.storeKey)
 	key := GetDelegationKey(delAddr, valAddr)
 	value := store.Get(key)
 	if value == nil {
 		return delegation, false
 	}
-	
+
 	delegation = types.MustUnmarshalDelegation(k.cdc, key, value)
 	return delegation, true
 }
@@ -28,7 +28,7 @@ func (k Keeper) GetDelegation(ctx sdk.Context,
 func (k Keeper) GetAllDelegations(ctx sdk.Context) (delegations []types.Delegation) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, DelegationKey)
-	
+
 	i := 0
 	for ; ; i++ {
 		if !iterator.Valid() {
@@ -45,11 +45,11 @@ func (k Keeper) GetAllDelegations(ctx sdk.Context) (delegations []types.Delegati
 // load all delegations for a delegator
 func (k Keeper) GetDelegations(ctx sdk.Context, delegator sdk.AccAddress,
 	maxRetrieve int16) (delegations []types.Delegation) {
-	
+
 	store := ctx.KVStore(k.storeKey)
 	delegatorPrefixKey := GetDelegationsKey(delegator)
-	iterator := sdk.KVStorePrefixIterator(store, delegatorPrefixKey) // smallest to largest
-	
+	iterator := sdk.KVStorePrefixIterator(store, delegatorPrefixKey) //smallest to largest
+
 	delegations = make([]types.Delegation, maxRetrieve)
 	i := 0
 	for ; ; i++ {
@@ -77,19 +77,19 @@ func (k Keeper) RemoveDelegation(ctx sdk.Context, delegation types.Delegation) {
 	store.Delete(GetDelegationKey(delegation.DelegatorAddr, delegation.ValidatorAddr))
 }
 
-// _____________________________________________________________________________________
+//_____________________________________________________________________________________
 
 // load a unbonding delegation
 func (k Keeper) GetUnbondingDelegation(ctx sdk.Context,
 	delAddr sdk.AccAddress, valAddr sdk.ValAddress) (ubd types.UnbondingDelegation, found bool) {
-	
+
 	store := ctx.KVStore(k.storeKey)
 	key := GetUBDKey(delAddr, valAddr)
 	value := store.Get(key)
 	if value == nil {
 		return ubd, false
 	}
-	
+
 	ubd = types.MustUnmarshalUBD(k.cdc, key, value)
 	return ubd, true
 }
@@ -145,19 +145,19 @@ func (k Keeper) RemoveUnbondingDelegation(ctx sdk.Context, ubd types.UnbondingDe
 	store.Delete(GetUBDByValIndexKey(ubd.DelegatorAddr, ubd.ValidatorAddr))
 }
 
-// _____________________________________________________________________________________
+//_____________________________________________________________________________________
 
 // load a redelegation
 func (k Keeper) GetRedelegation(ctx sdk.Context,
 	delAddr sdk.AccAddress, valSrcAddr, valDstAddr sdk.ValAddress) (red types.Redelegation, found bool) {
-	
+
 	store := ctx.KVStore(k.storeKey)
 	key := GetREDKey(delAddr, valSrcAddr, valDstAddr)
 	value := store.Get(key)
 	if value == nil {
 		return red, false
 	}
-	
+
 	red = types.MustUnmarshalRED(k.cdc, key, value)
 	return red, true
 }
@@ -183,14 +183,14 @@ func (k Keeper) GetRedelegationsFromValidator(ctx sdk.Context, valAddr sdk.ValAd
 // has a redelegation
 func (k Keeper) HasReceivingRedelegation(ctx sdk.Context,
 	delAddr sdk.AccAddress, valDstAddr sdk.ValAddress) bool {
-	
+
 	store := ctx.KVStore(k.storeKey)
 	prefix := GetREDsByDelToValDstIndexKey(delAddr, valDstAddr)
-	iterator := sdk.KVStorePrefixIterator(store, prefix) // smallest to largest
-	
+	iterator := sdk.KVStorePrefixIterator(store, prefix) //smallest to largest
+
 	found := false
 	if iterator.Valid() {
-		// record found
+		//record found
 		found = true
 	}
 	iterator.Close()
@@ -216,12 +216,12 @@ func (k Keeper) RemoveRedelegation(ctx sdk.Context, red types.Redelegation) {
 	store.Delete(GetREDByValDstIndexKey(red.DelegatorAddr, red.ValidatorSrcAddr, red.ValidatorDstAddr))
 }
 
-// _____________________________________________________________________________________
+//_____________________________________________________________________________________
 
 // Perform a delegation, set/update everything necessary within the store.
 func (k Keeper) Delegate(ctx sdk.Context, delAddr sdk.AccAddress, bondAmt sdk.Coin,
 	validator types.Validator, subtractAccount bool) (newShares sdk.Dec, err sdk.Error) {
-	
+
 	// Get or create the delegator delegation
 	delegation, found := k.GetDelegation(ctx, delAddr, validator.Operator)
 	if !found {
@@ -231,7 +231,7 @@ func (k Keeper) Delegate(ctx sdk.Context, delAddr sdk.AccAddress, bondAmt sdk.Co
 			Shares:        sdk.ZeroDec(),
 		}
 	}
-	
+
 	if subtractAccount {
 		// Account new shares, save
 		_, _, err = k.coinKeeper.SubtractCoins(ctx, delegation.DelegatorAddr, sdk.Coins{bondAmt})
@@ -239,102 +239,102 @@ func (k Keeper) Delegate(ctx sdk.Context, delAddr sdk.AccAddress, bondAmt sdk.Co
 			return
 		}
 	}
-	
+
 	pool := k.GetPool(ctx)
 	validator, pool, newShares = validator.AddTokensFromDel(pool, bondAmt.Amount)
 	delegation.Shares = delegation.Shares.Add(newShares)
-	
+
 	// Update delegation height
 	delegation.Height = ctx.BlockHeight()
-	
+
 	k.SetPool(ctx, pool)
 	k.SetDelegation(ctx, delegation)
 	k.UpdateValidator(ctx, validator)
-	
+
 	return
 }
 
 // unbond the the delegation return
 func (k Keeper) unbond(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress,
 	shares sdk.Dec) (amount sdk.Dec, err sdk.Error) {
-	
+
 	// check if delegation has any shares in it unbond
 	delegation, found := k.GetDelegation(ctx, delAddr, valAddr)
 	if !found {
 		err = types.ErrNoDelegatorForAddress(k.Codespace())
 		return
 	}
-	
+
 	// retrieve the amount to remove
 	if delegation.Shares.LT(shares) {
 		err = types.ErrNotEnoughDelegationShares(k.Codespace(), delegation.Shares.String())
 		return
 	}
-	
+
 	// get validator
 	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
 		err = types.ErrNoValidatorFound(k.Codespace())
 		return
 	}
-	
+
 	// subtract shares from delegator
 	delegation.Shares = delegation.Shares.Sub(shares)
-	
+
 	// remove the delegation
 	if delegation.Shares.IsZero() {
-		
+
 		// if the delegation is the operator of the validator then
 		// trigger a jail validator
 		if bytes.Equal(delegation.DelegatorAddr, validator.Operator) && validator.Jailed == false {
 			validator.Jailed = true
 		}
-		
+
 		k.RemoveDelegation(ctx, delegation)
 	} else {
 		// Update height
 		delegation.Height = ctx.BlockHeight()
 		k.SetDelegation(ctx, delegation)
 	}
-	
+
 	// remove the coins from the validator
 	pool := k.GetPool(ctx)
 	validator, pool, amount = validator.RemoveDelShares(pool, shares)
-	
+
 	k.SetPool(ctx, pool)
-	
+
 	// update then remove validator if necessary
 	validator = k.UpdateValidator(ctx, validator)
 	if validator.DelegatorShares.IsZero() {
 		k.RemoveValidator(ctx, validator.Operator)
 	}
-	
+
 	return amount, nil
 }
 
-// ______________________________________________________________________________________________________
+//______________________________________________________________________________________________________
 
 // get info for begin functions: MinTime and CreationHeight
 func (k Keeper) getBeginInfo(ctx sdk.Context, params types.Params, valSrcAddr sdk.ValAddress) (
 	minTime time.Time, height int64, completeNow bool) {
-	
+
 	validator, found := k.GetValidator(ctx, valSrcAddr)
 	switch {
 	case !found || validator.Status == sdk.Bonded:
-		
+
 		// the longest wait - just unbonding period from now
 		minTime = ctx.BlockHeader().Time.Add(params.UnbondingTime)
 		height = ctx.BlockHeader().Height
 		return minTime, height, false
-	
+
 	case validator.IsUnbonded(ctx):
 		return minTime, height, true
-	
+
 	case validator.Status == sdk.Unbonding:
 		minTime = validator.UnbondingMinTime
 		height = validator.UnbondingHeight
 		return minTime, height, false
-	
+
 	default:
 		panic("unknown validator status")
 	}
@@ -343,23 +343,23 @@ func (k Keeper) getBeginInfo(ctx sdk.Context, params types.Params, valSrcAddr sd
 // complete unbonding an unbonding record
 func (k Keeper) BeginUnbonding(ctx sdk.Context,
 	delAddr sdk.AccAddress, valAddr sdk.ValAddress, sharesAmount sdk.Dec) sdk.Error {
-	
-	// TODO quick fix, instead we should use an index, see https://github.com/comdex-blockchain/issues/1402
+
+	// TODO quick fix, instead we should use an index, see https://github.com/commitHub/commitBlockchain/issues/1402
 	_, found := k.GetUnbondingDelegation(ctx, delAddr, valAddr)
 	if found {
 		return types.ErrExistingUnbondingDelegation(k.Codespace())
 	}
-	
+
 	returnAmount, err := k.unbond(ctx, delAddr, valAddr, sharesAmount)
 	if err != nil {
 		return err
 	}
-	
+
 	// create the unbonding delegation
 	params := k.GetParams(ctx)
 	minTime, height, completeNow := k.getBeginInfo(ctx, params, valAddr)
 	balance := sdk.Coin{params.BondDenom, returnAmount.RoundInt()}
-	
+
 	// no need to create the ubd object just complete now
 	if completeNow {
 		_, _, err := k.coinKeeper.AddCoins(ctx, delAddr, sdk.Coins{balance})
@@ -368,7 +368,7 @@ func (k Keeper) BeginUnbonding(ctx sdk.Context,
 		}
 		return nil
 	}
-	
+
 	ubd := types.UnbondingDelegation{
 		DelegatorAddr:  delAddr,
 		ValidatorAddr:  valAddr,
@@ -383,18 +383,18 @@ func (k Keeper) BeginUnbonding(ctx sdk.Context,
 
 // complete unbonding an unbonding record
 func (k Keeper) CompleteUnbonding(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) sdk.Error {
-	
+
 	ubd, found := k.GetUnbondingDelegation(ctx, delAddr, valAddr)
 	if !found {
 		return types.ErrNoUnbondingDelegation(k.Codespace())
 	}
-	
+
 	// ensure that enough time has passed
 	ctxTime := ctx.BlockHeader().Time
 	if ubd.MinTime.After(ctxTime) {
 		return types.ErrNotMature(k.Codespace(), "unbonding", "unit-time", ubd.MinTime, ctxTime)
 	}
-	
+
 	_, _, err := k.coinKeeper.AddCoins(ctx, ubd.DelegatorAddr, sdk.Coins{ubd.Balance})
 	if err != nil {
 		return err
@@ -406,17 +406,17 @@ func (k Keeper) CompleteUnbonding(ctx sdk.Context, delAddr sdk.AccAddress, valAd
 // complete unbonding an unbonding record
 func (k Keeper) BeginRedelegation(ctx sdk.Context, delAddr sdk.AccAddress,
 	valSrcAddr, valDstAddr sdk.ValAddress, sharesAmount sdk.Dec) sdk.Error {
-	
+
 	// check if this is a transitive redelegation
 	if k.HasReceivingRedelegation(ctx, delAddr, valSrcAddr) {
 		return types.ErrTransitiveRedelegation(k.Codespace())
 	}
-	
+
 	returnAmount, err := k.unbond(ctx, delAddr, valSrcAddr, sharesAmount)
 	if err != nil {
 		return err
 	}
-	
+
 	params := k.GetParams(ctx)
 	returnCoin := sdk.Coin{params.BondDenom, returnAmount.RoundInt()}
 	dstValidator, found := k.GetValidator(ctx, valDstAddr)
@@ -427,14 +427,14 @@ func (k Keeper) BeginRedelegation(ctx sdk.Context, delAddr sdk.AccAddress,
 	if err != nil {
 		return err
 	}
-	
+
 	// create the unbonding delegation
 	minTime, height, completeNow := k.getBeginInfo(ctx, params, valSrcAddr)
-	
+
 	if completeNow { // no need to create the redelegation object
 		return nil
 	}
-	
+
 	red := types.Redelegation{
 		DelegatorAddr:    delAddr,
 		ValidatorSrcAddr: valSrcAddr,
@@ -453,18 +453,18 @@ func (k Keeper) BeginRedelegation(ctx sdk.Context, delAddr sdk.AccAddress,
 // complete unbonding an ongoing redelegation
 func (k Keeper) CompleteRedelegation(ctx sdk.Context, delAddr sdk.AccAddress,
 	valSrcAddr, valDstAddr sdk.ValAddress) sdk.Error {
-	
+
 	red, found := k.GetRedelegation(ctx, delAddr, valSrcAddr, valDstAddr)
 	if !found {
 		return types.ErrNoRedelegation(k.Codespace())
 	}
-	
+
 	// ensure that enough time has passed
 	ctxTime := ctx.BlockHeader().Time
 	if red.MinTime.After(ctxTime) {
 		return types.ErrNotMature(k.Codespace(), "redelegation", "unit-time", red.MinTime, ctxTime)
 	}
-	
+
 	k.RemoveRedelegation(ctx, red)
 	return nil
 }

@@ -2,11 +2,11 @@ package store
 
 import (
 	"testing"
-	
+
 	dbm "github.com/tendermint/tendermint/libs/db"
-	
-	sdk "github.com/comdex-blockchain/types"
-	
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -71,15 +71,15 @@ func TestGasKVStoreOutOfGasIterator(t *testing.T) {
 
 func testGasKVStoreWrap(t *testing.T, store KVStore) {
 	meter := sdk.NewGasMeter(10000)
-	
+
 	store = store.Gas(meter, sdk.GasConfig{HasCost: 10})
 	require.Equal(t, int64(0), meter.GasConsumed())
-	
+
 	store.Has([]byte("key"))
 	require.Equal(t, int64(10), meter.GasConsumed())
-	
+
 	store = store.Gas(meter, sdk.GasConfig{HasCost: 20})
-	
+
 	store.Has([]byte("key"))
 	require.Equal(t, int64(40), meter.GasConsumed())
 }
@@ -89,17 +89,17 @@ func TestGasKVStoreWrap(t *testing.T) {
 	tree, _ := newTree(t, db)
 	iavl := newIAVLStore(tree, numRecent, storeEvery)
 	testGasKVStoreWrap(t, iavl)
-	
+
 	st := NewCacheKVStore(iavl)
 	testGasKVStoreWrap(t, st)
-	
+
 	pref := st.Prefix([]byte("prefix"))
 	testGasKVStoreWrap(t, pref)
-	
+
 	dsa := dbStoreAdapter{dbm.NewMemDB()}
 	testGasKVStoreWrap(t, dsa)
-	
+
 	ts := newTransientStore()
 	testGasKVStoreWrap(t, ts)
-	
+
 }

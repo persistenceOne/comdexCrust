@@ -1,22 +1,23 @@
 package keys
 
 import (
-	ccrypto "github.com/comdex-blockchain/crypto"
+	ccrypto "github.com/commitHub/commitBlockchain/crypto"
 	"github.com/tendermint/tendermint/crypto"
-	
-	"github.com/comdex-blockchain/crypto/keys/hd"
+
+	"github.com/commitHub/commitBlockchain/crypto/keys/hd"
 )
 
 // Keybase exposes operations on a generic keystore
 type Keybase interface {
+
 	// CRUD on the keystore
 	List() ([]Info, error)
 	Get(name string) (Info, error)
 	Delete(name, passphrase string) error
-	
+
 	// Sign some bytes, looking up the private key to use
 	Sign(name, passphrase string, msg []byte) ([]byte, crypto.PubKey, error)
-	
+
 	// CreateMnemonic creates a new mnemonic, and derives a hierarchical deterministic
 	// key from that.
 	CreateMnemonic(name string, language Language, passwd string, algo SigningAlgo) (info Info, seed string, err error)
@@ -28,17 +29,17 @@ type Keybase interface {
 	Derive(name, mnemonic, passwd string, params hd.BIP44Params) (Info, error)
 	// Create, store, and return a new Ledger key reference
 	CreateLedger(name string, path ccrypto.DerivationPath, algo SigningAlgo) (info Info, err error)
-	
+
 	// Create, store, and return a new offline key reference
 	CreateOffline(name string, pubkey crypto.PubKey) (info Info, err error)
-	
+
 	// The following operations will *only* work on locally-stored keys
 	Update(name, oldpass string, getNewpass func() (string, error)) error
 	Import(name string, armor string) (err error)
 	ImportPubKey(name string, armor string) (err error)
 	Export(name string) (armor string, err error)
 	ExportPubKey(name string) (armor string, err error)
-	
+
 	// *only* works on locally-stored keys. Temporary method until we redo the exporting API
 	ExportPrivateKeyObject(name string, passphrase string) (crypto.PrivKey, error)
 }

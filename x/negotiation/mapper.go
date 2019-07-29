@@ -1,18 +1,18 @@
 package negotiation
 
 import (
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	wire "github.com/commitHub/commitBlockchain/wire"
 )
 
-// Mapper : encoder decoder for negotiation type
+//Mapper : encoder decoder for negotiation type
 type Mapper struct {
 	key   sdk.StoreKey
 	proto func() sdk.Negotiation
 	cdc   *wire.Codec
 }
 
-// NewMapper : returns negotiation mapper
+//NewMapper : returns negotiation mapper
 func NewMapper(cdc *wire.Codec, key sdk.StoreKey, proto func() sdk.Negotiation) Mapper {
 	return Mapper{
 		key:   key,
@@ -21,7 +21,7 @@ func NewMapper(cdc *wire.Codec, key sdk.StoreKey, proto func() sdk.Negotiation) 
 	}
 }
 
-// StoreKey : converts negotiationID to keystore key
+//StoreKey : converts negotiationID to keystore key
 func StoreKey(negotiationID sdk.NegotiationID) []byte {
 	return append([]byte("NegotiationID:"), negotiationID.Bytes()...)
 }
@@ -42,7 +42,7 @@ func (nm Mapper) decodeNegotiation(bz []byte) (negotiation sdk.Negotiation) {
 	return
 }
 
-// SetNegotiation : Set Negotiation
+//SetNegotiation : Set Negotiation
 func (nm Mapper) SetNegotiation(ctx sdk.Context, negotiation sdk.Negotiation) {
 	negotiationID := negotiation.GetNegotiationID()
 	store := ctx.KVStore(nm.key)
@@ -50,7 +50,7 @@ func (nm Mapper) SetNegotiation(ctx sdk.Context, negotiation sdk.Negotiation) {
 	store.Set(StoreKey(negotiationID), bz)
 }
 
-// GetNegotiation : get negotiation
+//GetNegotiation : get negotiation
 func (nm Mapper) GetNegotiation(ctx sdk.Context, negotiationID sdk.NegotiationID) sdk.Negotiation {
 	store := ctx.KVStore(nm.key)
 	bz := store.Get(StoreKey(negotiationID))
@@ -61,10 +61,10 @@ func (nm Mapper) GetNegotiation(ctx sdk.Context, negotiationID sdk.NegotiationID
 	return acc
 }
 
-// IterateNegotiations : iterate over negotiations in kv store and add negotiation
+//IterateNegotiations : iterate over negotiations in kv store and add negotiation
 func (nm Mapper) IterateNegotiations(ctx sdk.Context, process func(sdk.Negotiation) (stop bool)) {
 	store := ctx.KVStore(nm.key)
-	iter := sdk.KVStorePrefixIterator(store, []byte("negotiation:"))
+	iter := sdk.KVStorePrefixIterator(store, []byte("NegotiationID:"))
 	for {
 		if !iter.Valid() {
 			return
@@ -78,7 +78,7 @@ func (nm Mapper) IterateNegotiations(ctx sdk.Context, process func(sdk.Negotiati
 	}
 }
 
-// NewNegotiation : Crates a new negotiation in the kv store
+//NewNegotiation : Crates a new negotiation in the kv store
 func (nm Mapper) NewNegotiation(buyerAddress sdk.AccAddress, sellerAddress sdk.AccAddress, pegHash sdk.PegHash) sdk.Negotiation {
 	negotiation := sdk.ProtoBaseNegotiation()
 	negotiationID := sdk.NegotiationID(append(append(buyerAddress.Bytes(), sellerAddress.Bytes()...), pegHash.Bytes()...))

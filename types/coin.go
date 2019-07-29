@@ -34,7 +34,7 @@ func (coin Coin) String() string {
 
 // SameDenomAs returns true if the two coins are the same denom
 func (coin Coin) SameDenomAs(other Coin) bool {
-	return coin.Denom == other.Denom
+	return (coin.Denom == other.Denom)
 }
 
 // IsZero returns if this represents no money
@@ -55,12 +55,12 @@ func (coin Coin) IsEqual(other Coin) bool {
 
 // IsPositive returns true if coin amount is positive
 func (coin Coin) IsPositive() bool {
-	return coin.Amount.Sign() == 1
+	return (coin.Amount.Sign() == 1)
 }
 
 // IsNotNegative returns true if coin amount is not negative
 func (coin Coin) IsNotNegative() bool {
-	return coin.Amount.Sign() != -1
+	return (coin.Amount.Sign() != -1)
 }
 
 // Plus Adds amounts of two coins with same denom
@@ -79,7 +79,7 @@ func (coin Coin) Minus(coinB Coin) Coin {
 	return Coin{coin.Denom, coin.Amount.Sub(coinB.Amount)}
 }
 
-// ----------------------------------------
+//----------------------------------------
 // Coins
 
 // Coins is a set of Coin, one per currency
@@ -89,7 +89,7 @@ func (coins Coins) String() string {
 	if len(coins) == 0 {
 		return ""
 	}
-	
+
 	out := ""
 	for _, coin := range coins {
 		out += fmt.Sprintf("%v,", coin.String())
@@ -259,10 +259,10 @@ func (coins Coins) AmountOf(denom string) Int {
 	}
 }
 
-// ----------------------------------------
+//----------------------------------------
 // Sort interface
 
-// nolint
+//nolint
 func (coins Coins) Len() int           { return len(coins) }
 func (coins Coins) Less(i, j int) bool { return coins[i].Denom < coins[j].Denom }
 func (coins Coins) Swap(i, j int)      { coins[i], coins[j] = coins[j], coins[i] }
@@ -275,7 +275,7 @@ func (coins Coins) Sort() Coins {
 	return coins
 }
 
-// ----------------------------------------
+//----------------------------------------
 // Parsing
 
 var (
@@ -290,19 +290,19 @@ var (
 // This returns an error on an empty string as well.
 func ParseCoin(coinStr string) (coin Coin, err error) {
 	coinStr = strings.TrimSpace(coinStr)
-	
+
 	matches := reCoin.FindStringSubmatch(coinStr)
 	if matches == nil {
 		err = fmt.Errorf("invalid coin expression: %s", coinStr)
 		return
 	}
 	denomStr, amountStr := matches[2], matches[1]
-	
+
 	amount, err := strconv.Atoi(amountStr)
 	if err != nil {
 		return
 	}
-	
+
 	return Coin{denomStr, NewInt(int64(amount))}, nil
 }
 
@@ -314,7 +314,7 @@ func ParseCoins(coinsStr string) (coins Coins, err error) {
 	if len(coinsStr) == 0 {
 		return nil, nil
 	}
-	
+
 	coinStrs := strings.Split(coinsStr, ",")
 	for _, coinStr := range coinStrs {
 		coin, err := ParseCoin(coinStr)
@@ -323,14 +323,14 @@ func ParseCoins(coinsStr string) (coins Coins, err error) {
 		}
 		coins = append(coins, coin)
 	}
-	
+
 	// Sort coins for determinism.
 	coins.Sort()
-	
+
 	// Validate coins before returning.
 	if !coins.IsValid() {
 		return nil, fmt.Errorf("parseCoins invalid: %#v", coins)
 	}
-	
+
 	return coins, nil
 }

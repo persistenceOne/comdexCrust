@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"fmt"
 	"time"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	tmtypes "github.com/tendermint/tendermint/types"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
 // Validator defines the total amount of bond shares and their exchange rate to
@@ -24,18 +24,18 @@ type Validator struct {
 	Operator sdk.ValAddress `json:"operator"` // sender of BondTx - UnbondTx returns here
 	PubKey   crypto.PubKey  `json:"pub_key"`  // pubkey of validator
 	Jailed   bool           `json:"jailed"`   // has the validator been jailed from bonded status?
-	
+
 	Status          sdk.BondStatus `json:"status"`           // validator status (bonded/unbonding/unbonded)
 	Tokens          sdk.Dec        `json:"tokens"`           // delegated tokens (incl. self-delegation)
 	DelegatorShares sdk.Dec        `json:"delegator_shares"` // total shares issued to a validator's delegators
-	
+
 	Description        Description `json:"description"`           // description terms for the validator
 	BondHeight         int64       `json:"bond_height"`           // earliest height as a bonded validator
 	BondIntraTxCounter int16       `json:"bond_intra_tx_counter"` // block-local tx index of validator change
-	
+
 	UnbondingHeight  int64     `json:"unbonding_height"` // if unbonding, height at which this validator has begun unbonding
 	UnbondingMinTime time.Time `json:"unbonding_time"`   // if unbonding, min time for the validator to complete unbonding
-	
+
 	Commission            sdk.Dec `json:"commission"`              // XXX the commission rate of fees charged to any delegators
 	CommissionMax         sdk.Dec `json:"commission_max"`          // XXX maximum commission rate which this validator can ever charge
 	CommissionChangeRate  sdk.Dec `json:"commission_change_rate"`  // XXX maximum daily increase of the validator commission
@@ -122,7 +122,7 @@ func UnmarshalValidator(cdc *wire.Codec, operatorAddr, value []byte) (validator 
 	if err != nil {
 		return
 	}
-	
+
 	return Validator{
 		Operator:              operatorAddr,
 		PubKey:                storeValue.PubKey,
@@ -150,7 +150,7 @@ func (v Validator) HumanReadableString() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	resp := "Validator \n"
 	resp += fmt.Sprintf("Operator: %s\n", v.Operator)
 	resp += fmt.Sprintf("Validator: %s\n", bechConsPubKey)
@@ -166,29 +166,29 @@ func (v Validator) HumanReadableString() (string, error) {
 	resp += fmt.Sprintf("Max Commission Rate: %s\n", v.CommissionMax.String())
 	resp += fmt.Sprintf("Commission Change Rate: %s\n", v.CommissionChangeRate.String())
 	resp += fmt.Sprintf("Commission Change Today: %s\n", v.CommissionChangeToday.String())
-	
+
 	return resp, nil
 }
 
-// ___________________________________________________________________
+//___________________________________________________________________
 
 // validator struct for bech output
 type BechValidator struct {
 	Operator sdk.ValAddress `json:"operator"` // in bech32
 	PubKey   string         `json:"pub_key"`  // in bech32
 	Jailed   bool           `json:"jailed"`   // has the validator been jailed from bonded status?
-	
+
 	Status          sdk.BondStatus `json:"status"`           // validator status (bonded/unbonding/unbonded)
 	Tokens          sdk.Dec        `json:"tokens"`           // delegated tokens (incl. self-delegation)
 	DelegatorShares sdk.Dec        `json:"delegator_shares"` // total shares issued to a validator's delegators
-	
+
 	Description        Description `json:"description"`           // description terms for the validator
 	BondHeight         int64       `json:"bond_height"`           // earliest height as a bonded validator
 	BondIntraTxCounter int16       `json:"bond_intra_tx_counter"` // block-local tx index of validator change
-	
+
 	UnbondingHeight  int64     `json:"unbonding_height"` // if unbonding, height at which this validator has begun unbonding
 	UnbondingMinTime time.Time `json:"unbonding_time"`   // if unbonding, min time for the validator to complete unbonding
-	
+
 	Commission            sdk.Dec `json:"commission"`              // XXX the commission rate of fees charged to any delegators
 	CommissionMax         sdk.Dec `json:"commission_max"`          // XXX maximum commission rate which this validator can ever charge
 	CommissionChangeRate  sdk.Dec `json:"commission_change_rate"`  // XXX maximum daily increase of the validator commission
@@ -201,22 +201,22 @@ func (v Validator) Bech32Validator() (BechValidator, error) {
 	if err != nil {
 		return BechValidator{}, err
 	}
-	
+
 	return BechValidator{
 		Operator: v.Operator,
 		PubKey:   bechConsPubKey,
 		Jailed:   v.Jailed,
-		
+
 		Status:          v.Status,
 		Tokens:          v.Tokens,
 		DelegatorShares: v.DelegatorShares,
-		
+
 		Description:        v.Description,
 		BondHeight:         v.BondHeight,
 		BondIntraTxCounter: v.BondIntraTxCounter,
 		UnbondingHeight:    v.UnbondingHeight,
 		UnbondingMinTime:   v.UnbondingMinTime,
-		
+
 		Commission:            v.Commission,
 		CommissionMax:         v.CommissionMax,
 		CommissionChangeRate:  v.CommissionChangeRate,
@@ -224,7 +224,7 @@ func (v Validator) Bech32Validator() (BechValidator, error) {
 	}, nil
 }
 
-// ___________________________________________________________________
+//___________________________________________________________________
 
 // only the vitals - does not check bond height of IntraTxCounter
 // nolint gocyclo - why dis fail?
@@ -282,7 +282,7 @@ func (d Description) UpdateDescription(d2 Description) (Description, sdk.Error) 
 	if d2.Details == DoNotModifyDesc {
 		d2.Details = d.Details
 	}
-	
+
 	return Description{
 		Moniker:  d2.Moniker,
 		Identity: d2.Identity,
@@ -305,7 +305,7 @@ func (d Description) EnsureLength() (Description, sdk.Error) {
 	if len(d.Details) > 280 {
 		return d, ErrDescriptionLength(DefaultCodespace, "details", len(d.Details), 280)
 	}
-	
+
 	return d, nil
 }
 
@@ -331,10 +331,10 @@ func (v Validator) ABCIValidatorZero() abci.Validator {
 // UpdateStatus updates the location of the shares within a validator
 // to reflect the new status
 func (v Validator) UpdateStatus(pool Pool, NewStatus sdk.BondStatus) (Validator, Pool) {
-	
+
 	switch v.Status {
 	case sdk.Unbonded:
-		
+
 		switch NewStatus {
 		case sdk.Unbonded:
 			return v, pool
@@ -342,7 +342,7 @@ func (v Validator) UpdateStatus(pool Pool, NewStatus sdk.BondStatus) (Validator,
 			pool = pool.looseTokensToBonded(v.Tokens)
 		}
 	case sdk.Unbonding:
-		
+
 		switch NewStatus {
 		case sdk.Unbonding:
 			return v, pool
@@ -350,7 +350,7 @@ func (v Validator) UpdateStatus(pool Pool, NewStatus sdk.BondStatus) (Validator,
 			pool = pool.looseTokensToBonded(v.Tokens)
 		}
 	case sdk.Bonded:
-		
+
 		switch NewStatus {
 		case sdk.Bonded:
 			return v, pool
@@ -358,7 +358,7 @@ func (v Validator) UpdateStatus(pool Pool, NewStatus sdk.BondStatus) (Validator,
 			pool = pool.bondedTokensToLoose(v.Tokens)
 		}
 	}
-	
+
 	v.Status = NewStatus
 	return v, pool
 }
@@ -368,28 +368,28 @@ func (v Validator) RemoveTokens(pool Pool, tokens sdk.Dec) (Validator, Pool) {
 	if v.Status == sdk.Bonded {
 		pool = pool.bondedTokensToLoose(tokens)
 	}
-	
+
 	v.Tokens = v.Tokens.Sub(tokens)
 	return v, pool
 }
 
-// _________________________________________________________________________________________________________
+//_________________________________________________________________________________________________________
 
 // AddTokensFromDel adds tokens to a validator
 func (v Validator) AddTokensFromDel(pool Pool, amount sdk.Int) (Validator, Pool, sdk.Dec) {
-	
+
 	// bondedShare/delegatedShare
 	exRate := v.DelegatorShareExRate()
 	amountDec := sdk.NewDecFromInt(amount)
-	
+
 	if v.Status == sdk.Bonded {
 		pool = pool.looseTokensToBonded(amountDec)
 	}
-	
+
 	v.Tokens = v.Tokens.Add(amountDec)
 	issuedShares := amountDec.Quo(exRate)
 	v.DelegatorShares = v.DelegatorShares.Add(issuedShares)
-	
+
 	return v, pool, issuedShares
 }
 
@@ -398,11 +398,11 @@ func (v Validator) RemoveDelShares(pool Pool, delShares sdk.Dec) (Validator, Poo
 	issuedTokens := v.DelegatorShareExRate().Mul(delShares)
 	v.Tokens = v.Tokens.Sub(issuedTokens)
 	v.DelegatorShares = v.DelegatorShares.Sub(delShares)
-	
+
 	if v.Status == sdk.Bonded {
 		pool = pool.bondedTokensToLoose(issuedTokens)
 	}
-	
+
 	return v, pool, issuedTokens
 }
 
@@ -437,7 +437,7 @@ func (v Validator) IsUnbonded(ctx sdk.Context) bool {
 	return false
 }
 
-// ______________________________________________________________________
+//______________________________________________________________________
 
 // ensure fulfills the sdk validator types
 var _ sdk.Validator = Validator{}

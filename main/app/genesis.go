@@ -3,21 +3,21 @@ package app
 import (
 	"encoding/json"
 	"errors"
-	
-	"github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/crypto/keys"
-	"github.com/comdex-blockchain/server"
-	"github.com/comdex-blockchain/server/config"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/auth"
-	"github.com/comdex-blockchain/x/gov"
-	"github.com/comdex-blockchain/x/stake"
-	
-	keyss "github.com/comdex-blockchain/client/keys"
+
+	"github.com/commitHub/commitBlockchain/client"
+	"github.com/commitHub/commitBlockchain/crypto/keys"
+	"github.com/commitHub/commitBlockchain/server"
+	"github.com/commitHub/commitBlockchain/server/config"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/auth"
+	"github.com/commitHub/commitBlockchain/x/gov"
+	"github.com/commitHub/commitBlockchain/x/stake"
+
+	keyss "github.com/commitHub/commitBlockchain/client/keys"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	
+
 	"github.com/tendermint/tendermint/crypto"
 	tmtypes "github.com/tendermint/tendermint/types"
 )
@@ -29,10 +29,10 @@ var (
 	flagName       = "name"
 	flagClientHome = "home-client"
 	flagOWK        = "owk"
-	
+
 	// bonded tokens given to genesis validators/accounts
 	freeFermionVal  = int64(100)
-	freeFermionsAcc = sdk.NewInt(50)
+	freeFermionsAcc = sdk.NewInt(4294967295)
 )
 
 // GenesisState to Unmarshal
@@ -83,13 +83,13 @@ func (ga *GenesisAccount) ToAccount() (acc *auth.BaseAccount) {
 // MainAppInit : get app init parameters for server init command
 func MainAppInit() server.AppInit {
 	fsAppGenState := pflag.NewFlagSet("", pflag.ContinueOnError)
-	
+
 	fsAppGenTx := pflag.NewFlagSet("", pflag.ContinueOnError)
 	fsAppGenTx.String(flagName, "", "validator moniker, required")
 	fsAppGenTx.String(flagClientHome, DefaultCLIHome,
 		"home directory for the client, used for key generation")
 	fsAppGenTx.Bool(flagOWK, false, "overwrite the accounts created")
-	
+
 	return server.AppInit{
 		FlagsAppGenState: fsAppGenState,
 		FlagsAppGenTx:    fsAppGenTx,
@@ -112,7 +112,7 @@ func MainAppGenTx(
 	if genTxConfig.Name == "" {
 		return nil, nil, tmtypes.GenesisValidator{}, errors.New("Must specify --name (validator moniker)")
 	}
-	
+
 	var addr sdk.AccAddress
 	var kb keys.Keybase
 	secret := viper.GetString(client.FlagSeed)
@@ -130,7 +130,7 @@ func MainAppGenTx(
 	} else {
 		info, err := kb.CreateKey(genTxConfig.Name, secret, DefaultKeyPass)
 		addr = sdk.AccAddress(info.GetPubKey().Address())
-		
+
 		if err != nil {
 			return appGenTx, cliPrint, validator, err
 		}
@@ -140,17 +140,17 @@ func MainAppGenTx(
 	if err != nil {
 		return appGenTx, cliPrint, validator, err
 	}
-	
+
 	cliPrint = json.RawMessage(bz)
 	appGenTx, _, validator, err = MainAppGenTxNF(cdc, pk, addr, genTxConfig.Name)
-	
+
 	return appGenTx, cliPrint, validator, err
 }
 
 // MainAppGenTxNF : Generate a main genesis transaction without flags
 func MainAppGenTxNF(cdc *wire.Codec, pk crypto.PubKey, addr sdk.AccAddress, name string) (
 	appGenTx, cliPrint json.RawMessage, validator tmtypes.GenesisValidator, err error) {
-	
+
 	var bz []byte
 	mainGenTx := MainGenTx{
 		Name:    name,
@@ -162,7 +162,7 @@ func MainAppGenTxNF(cdc *wire.Codec, pk crypto.PubKey, addr sdk.AccAddress, name
 		return
 	}
 	appGenTx = json.RawMessage(bz)
-	
+
 	validator = tmtypes.GenesisValidator{
 		PubKey: pk,
 		Power:  freeFermionVal,
@@ -173,32 +173,32 @@ func MainAppGenTxNF(cdc *wire.Codec, pk crypto.PubKey, addr sdk.AccAddress, name
 // MainAppGenState : Create the core parameters for genesis initialization for main
 // note that the pubkey input is this machines pubkey
 func MainAppGenState(cdc *wire.Codec, appGenTxs []json.RawMessage) (genesisState GenesisState, err error) {
-	
+
 	if len(appGenTxs) == 0 {
 		err = errors.New("must provide at least genesis transaction")
 		return
 	}
-	
+
 	// start with the default staking genesis state
 	stakeData := stake.DefaultGenesisState()
-	
+
 	// get genesis flag account information
 	genaccs := make([]GenesisAccount, len(appGenTxs))
 	for i, appGenTx := range appGenTxs {
-		
+
 		var genTx MainGenTx
 		err = cdc.UnmarshalJSON(appGenTx, &genTx)
 		if err != nil {
 			return
 		}
-		
+
 		// create the genesis account, give'm few steaks and a buncha token with there name
 		accAuth := auth.NewBaseAccountWithAddress(genTx.Address)
 		accAuth.Coins = sdk.Coins{
-			{"comdex", sdk.NewInt(1000)},
-			{"steak", freeFermionsAcc},
+			{"ucommit", sdk.NewInt(4294967295)},
+			{"commit", freeFermionsAcc},
 		}
-		
+
 		// //TODO: comdex Use IBC to get all asset hashes
 		// for i := 0; i < 1024; i++ {
 		// 	pegHash, err := sdk.GetAssetPegHashHex(fmt.Sprintf("%x", strconv.Itoa(i)))
@@ -210,21 +210,21 @@ func MainAppGenState(cdc *wire.Codec, appGenTxs []json.RawMessage) (genesisState
 		acc := NewGenesisAccount(&accAuth)
 		genaccs[i] = acc
 		stakeData.Pool.LooseTokens = stakeData.Pool.LooseTokens.Add(sdk.NewDecFromInt(freeFermionsAcc)) // increase the supply
-		
+
 		// add the validator
 		if len(genTx.Name) > 0 {
 			desc := stake.NewDescription(genTx.Name, "", "", "")
 			validator := stake.NewValidator(
 				sdk.ValAddress(genTx.Address), sdk.MustGetConsPubKeyBech32(genTx.PubKey), desc,
 			)
-			
+
 			stakeData.Pool.LooseTokens = stakeData.Pool.LooseTokens.Add(sdk.NewDec(freeFermionVal)) // increase the supply
-			
+
 			// add some new shares to the validator
 			var issuedDelShares sdk.Dec
 			validator, stakeData.Pool, issuedDelShares = validator.AddTokensFromDel(stakeData.Pool, sdk.NewInt(freeFermionVal))
 			stakeData.Validators = append(stakeData.Validators, validator)
-			
+
 			// create the self-delegation from the issuedDelShares
 			delegation := stake.Delegation{
 				DelegatorAddr: sdk.AccAddress(validator.Operator),
@@ -232,11 +232,11 @@ func MainAppGenState(cdc *wire.Codec, appGenTxs []json.RawMessage) (genesisState
 				Shares:        issuedDelShares,
 				Height:        0,
 			}
-			
+
 			stakeData.Bonds = append(stakeData.Bonds, delegation)
 		}
 	}
-	
+
 	// create the final app state
 	genesisState = GenesisState{
 		Accounts:  genaccs,
@@ -248,7 +248,7 @@ func MainAppGenState(cdc *wire.Codec, appGenTxs []json.RawMessage) (genesisState
 
 // MainAppGenStateJSON but with JSON
 func MainAppGenStateJSON(cdc *wire.Codec, appGenTxs []json.RawMessage) (appState json.RawMessage, err error) {
-	
+
 	// create the final app state
 	genesisState, err := MainAppGenState(cdc, appGenTxs)
 	if err != nil {

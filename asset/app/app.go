@@ -2,21 +2,21 @@ package app
 
 import (
 	"encoding/json"
-	
-	"github.com/comdex-blockchain/rest"
-	
+
+	"github.com/commitHub/commitBlockchain/rest"
+
 	"io"
 	"os"
-	
-	bam "github.com/comdex-blockchain/baseapp"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/assetFactory"
-	"github.com/comdex-blockchain/x/auth"
-	"github.com/comdex-blockchain/x/bank"
-	"github.com/comdex-blockchain/x/ibc"
-	"github.com/comdex-blockchain/x/order"
-	"github.com/comdex-blockchain/x/stake"
+
+	bam "github.com/commitHub/commitBlockchain/baseapp"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/assetFactory"
+	"github.com/commitHub/commitBlockchain/x/auth"
+	"github.com/commitHub/commitBlockchain/x/bank"
+	"github.com/commitHub/commitBlockchain/x/ibc"
+	"github.com/commitHub/commitBlockchain/x/order"
+	"github.com/commitHub/commitBlockchain/x/stake"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	dbm "github.com/tendermint/tendermint/libs/db"
@@ -41,7 +41,7 @@ var (
 type AssetApp struct {
 	*bam.BaseApp
 	cdc *wire.Codec
-	
+
 	// keys to access the multistore
 	keyMain       *sdk.KVStoreKey
 	keyAccount    *sdk.KVStoreKey
@@ -49,7 +49,7 @@ type AssetApp struct {
 	keyStake      *sdk.KVStoreKey
 	keyAssetStore *sdk.KVStoreKey
 	keyOrderStore *sdk.KVStoreKey
-	
+
 	// manage getting and setting accounts
 	accountMapper       auth.AccountMapper
 	feeCollectionKeeper auth.FeeCollectionKeeper
@@ -70,7 +70,7 @@ type AssetApp struct {
 func NewAssetApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppOptions ...func(*bam.BaseApp)) *AssetApp {
 	// create and register app-level codec for TXs and accounts
 	cdc := MakeCodec()
-	
+
 	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	// create your application type
@@ -84,62 +84,62 @@ func NewAssetApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppOpti
 		keyAssetStore: sdk.NewKVStoreKey("asset"),
 		keyOrderStore: sdk.NewKVStoreKey("order"),
 	}
-	
+
 	// define and attach the mappers and keepers
 	app.accountMapper = auth.NewAccountMapper(
 		cdc,
 		app.keyAccount, // target store
 		auth.ProtoBaseAccount,
 	)
-	
+
 	app.assetMapper = assetFactory.NewAssetPegMapper(
 		app.cdc,
 		app.keyAssetStore,     // target store
 		sdk.ProtoBaseAssetPeg, // prototype
 	)
-	
+
 	app.orderMapper = order.NewMapper(
 		app.cdc,
 		app.keyOrderStore,
 		sdk.ProtoBaseOrder,
 	)
-	
-	// app handlers
+
+	//app handlers
 	app.coinKeeper = bank.NewKeeper(app.accountMapper)
 	app.ibcMapper = ibc.NewMapper(app.cdc, app.keyIBC, app.RegisterCodespace(ibc.DefaultCodespace))
 	app.stakeKeeper = stake.NewKeeper(app.cdc, app.keyStake, app.coinKeeper, app.RegisterCodespace(stake.DefaultCodespace))
 	app.assetKeeper = assetFactory.NewKeeper(app.assetMapper)
 	app.orderKeeper = order.NewKeeper(app.orderMapper)
-	
+
 	// register message routes
 	app.Router().
 		AddRoute("bank", bank.NewHandler(app.coinKeeper)).
 		AddRoute("ibc", ibc.NewAssetHandler(app.ibcMapper, app.coinKeeper, app.assetKeeper)).
 		AddRoute("stake", stake.NewHandler(app.stakeKeeper)).
 		AddRoute("assetFactory", assetFactory.NewHandler(app.assetKeeper))
-	
+
 	// perform initialization logic
 	app.SetInitChainer(app.initChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
 	app.SetAnteHandler(auth.NewAnteHandler(app.accountMapper, app.feeCollectionKeeper))
-	
+
 	// mount the multistore and load the latest state
 	app.MountStoresIAVL(app.keyMain, app.keyAccount, app.keyIBC, app.keyStake, app.keyAssetStore)
 	err := app.LoadLatestVersion(app.keyMain)
 	if err != nil {
 		cmn.Exit(err.Error())
 	}
-	
+
 	app.Seal()
-	
+
 	return app
 }
 
 // MakeCodec creates a new wire codec and registers all the necessary types
 // with the codec.
 func MakeCodec() *wire.Codec {
-	
+
 	cdc := wire.NewCodec()
 	wire.RegisterCrypto(cdc)
 	sdk.RegisterWire(cdc)
@@ -151,7 +151,7 @@ func MakeCodec() *wire.Codec {
 	assetFactory.RegisterAssetPeg(cdc)
 	order.RegisterWire(cdc)
 	rest.RegisterWire(cdc)
-	
+
 	return cdc
 }
 
@@ -165,7 +165,7 @@ func (app *AssetApp) BeginBlocker(_ sdk.Context, _ abci.RequestBeginBlock) abci.
 // application.
 func (app *AssetApp) EndBlocker(ctx sdk.Context, _ abci.RequestEndBlock) abci.ResponseEndBlock {
 	validatorUpdates := stake.EndBlocker(ctx, app.stakeKeeper)
-	
+
 	return abci.ResponseEndBlock{
 		ValidatorUpdates: validatorUpdates,
 	}
@@ -178,27 +178,27 @@ func (app *AssetApp) EndBlocker(ctx sdk.Context, _ abci.RequestEndBlock) abci.Re
 // application's account mapper.
 func (app *AssetApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	stateJSON := req.AppStateBytes
-	
+
 	var genesisState GenesisState
 	err := app.cdc.UnmarshalJSON(stateJSON, &genesisState)
 	if err != nil {
-		// TODO: https://github.com/comdex-blockchain/issues/468
+		// TODO: https://github.com/commitHub/commitBlockchain/issues/468
 		panic(err)
 	}
-	
+
 	for _, gacc := range genesisState.Accounts {
 		acc := gacc.ToAccount()
 		acc.AccountNumber = app.accountMapper.GetNextAccountNumber(ctx)
 		app.accountMapper.SetAccount(ctx, acc)
 	}
-	
+
 	for _, gasset := range genesisState.Assets {
 		asset := gasset.ToAssetPeg()
 		app.assetMapper.SetAssetPeg(ctx, asset)
 	}
-	
+
 	stake.InitGenesis(ctx, app.stakeKeeper, genesisState.StakeData)
-	
+
 	return abci.ResponseInitChain{}
 }
 
@@ -207,7 +207,7 @@ func (app *AssetApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abc
 // returned if any step getting the state or set of validators fails.
 func (app *AssetApp) ExportAppStateAndValidators() (appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
 	ctx := app.NewContext(true, abci.Header{})
-	
+
 	accounts := []GenesisAccount{}
 	appendAccount := func(acc auth.Account) (stop bool) {
 		account := NewGenesisAccountI(acc)
@@ -215,7 +215,7 @@ func (app *AssetApp) ExportAppStateAndValidators() (appState json.RawMessage, va
 		return false
 	}
 	app.accountMapper.IterateAccounts(ctx, appendAccount)
-	
+
 	assets := []GenesisAssetPeg{}
 	appendAssetPeg := func(asset sdk.AssetPeg) (stop bool) {
 		assetPeg := NewGenesisAssetPegI(asset)
@@ -223,7 +223,7 @@ func (app *AssetApp) ExportAppStateAndValidators() (appState json.RawMessage, va
 		return false
 	}
 	app.assetMapper.IterateAssets(ctx, appendAssetPeg)
-	
+
 	genState := GenesisState{
 		Accounts:  accounts,
 		Assets:    assets,
@@ -234,6 +234,6 @@ func (app *AssetApp) ExportAppStateAndValidators() (appState json.RawMessage, va
 		return nil, nil, err
 	}
 	validators = stake.WriteValidators(ctx, app.stakeKeeper)
-	
+
 	return appState, validators, err
 }

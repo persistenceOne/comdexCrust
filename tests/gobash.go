@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"strings"
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
 	cmn "github.com/tendermint/tendermint/libs/common"
 )
@@ -15,7 +15,7 @@ import (
 // logging STDOUT/STDERR to t.
 func ExecuteT(t *testing.T, cmd, input string) (out string) {
 	t.Log("Running", cmn.Cyan(cmd))
-	
+
 	// split cmd to name and args
 	split := strings.Split(cmd, " ")
 	require.True(t, len(split) > 0, "no command provided")
@@ -23,32 +23,32 @@ func ExecuteT(t *testing.T, cmd, input string) (out string) {
 	if len(split) > 1 {
 		args = split[1:]
 	}
-	
+
 	proc, err := StartProcess("", name, args)
 	require.NoError(t, err)
-	
+
 	// if input is provided, pass it to STDIN and close the pipe
 	if input != "" {
 		_, err = io.WriteString(proc.StdinPipe, input)
 		require.NoError(t, err)
 		proc.StdinPipe.Close()
 	}
-	
+
 	outbz, errbz, err := proc.ReadAll()
 	if err != nil {
 		fmt.Println("Err on proc.ReadAll()", err, args)
 	}
-	
+
 	proc.Wait()
-	
+
 	if len(outbz) > 0 {
 		t.Log("Stdout:", cmn.Green(string(outbz)))
 	}
-	
+
 	if len(errbz) > 0 {
 		t.Log("Stderr:", cmn.Red(string(errbz)))
 	}
-	
+
 	out = strings.Trim(string(outbz), "\n")
 	return out
 }
@@ -57,7 +57,7 @@ func ExecuteT(t *testing.T, cmd, input string) (out string) {
 // Caller should wait for .Wait() or .Stop() to terminate.
 func GoExecuteT(t *testing.T, cmd string) (proc *Process) {
 	t.Log("Running", cmn.Cyan(cmd))
-	
+
 	// Split cmd to name and args.
 	split := strings.Split(cmd, " ")
 	require.True(t, len(split) > 0, "no command provided")
@@ -65,7 +65,7 @@ func GoExecuteT(t *testing.T, cmd string) (proc *Process) {
 	if len(split) > 1 {
 		args = split[1:]
 	}
-	
+
 	// Start process.
 	proc, err := StartProcess("", name, args)
 	require.NoError(t, err)
@@ -75,7 +75,7 @@ func GoExecuteT(t *testing.T, cmd string) (proc *Process) {
 // Same as GoExecuteT but spawns a go routine to ReadAll off stdout.
 func GoExecuteTWithStdout(t *testing.T, cmd string) (proc *Process) {
 	t.Log("Running", cmn.Cyan(cmd))
-	
+
 	// Split cmd to name and args.
 	split := strings.Split(cmd, " ")
 	require.True(t, len(split) > 0, "no command provided")
@@ -83,11 +83,11 @@ func GoExecuteTWithStdout(t *testing.T, cmd string) (proc *Process) {
 	if len(split) > 1 {
 		args = split[1:]
 	}
-	
+
 	// Start process.
 	proc, err := CreateProcess("", name, args)
 	require.NoError(t, err)
-	
+
 	// Without this, the test halts ?!
 	go func() {
 		_, err := ioutil.ReadAll(proc.StdoutPipe)
@@ -96,7 +96,7 @@ func GoExecuteTWithStdout(t *testing.T, cmd string) (proc *Process) {
 			return
 		}
 	}()
-	
+
 	err = proc.Cmd.Start()
 	require.NoError(t, err)
 	proc.Pid = proc.Cmd.Process.Pid

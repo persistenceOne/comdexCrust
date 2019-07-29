@@ -2,12 +2,12 @@ package reputation
 
 import (
 	"strconv"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/order"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/order"
 )
 
-// Keeper : for txns keeping
+//Keeper : for txns keeping
 type Keeper struct {
 	fm Mapper
 }
@@ -17,13 +17,13 @@ func NewKeeper(fm Mapper) Keeper {
 	return Keeper{fm}
 }
 
-// GetBaseReputationDetails : gives feedback interface, all getters are present
+//GetBaseReputationDetails : gives feedback interface, all getters are present
 func (fk Keeper) GetBaseReputationDetails(ctx sdk.Context, addr sdk.AccAddress) (sdk.AccAddress, sdk.TransactionFeedback, sdk.TraderFeedbackHistory, int64) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	return accountReputation.GetAddress(), accountReputation.GetTransactionFeedback(), accountReputation.GetTraderFeedbackHistory(), accountReputation.GetRating()
 }
 
-// SetSendAssetsPositiveTx : increases count by 1
+//SetSendAssetsPositiveTx : increases count by 1
 func (fk Keeper) SetSendAssetsPositiveTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -32,7 +32,7 @@ func (fk Keeper) SetSendAssetsPositiveTx(ctx sdk.Context, addr sdk.AccAddress) {
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetSendAssetsNegativeTx : increases count by 1
+//SetSendAssetsNegativeTx : increases count by 1
 func (fk Keeper) SetSendAssetsNegativeTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -41,7 +41,7 @@ func (fk Keeper) SetSendAssetsNegativeTx(ctx sdk.Context, addr sdk.AccAddress) {
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetSendFiatsPositiveTx : increases count by 1
+//SetSendFiatsPositiveTx : increases count by 1
 func (fk Keeper) SetSendFiatsPositiveTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -50,7 +50,7 @@ func (fk Keeper) SetSendFiatsPositiveTx(ctx sdk.Context, addr sdk.AccAddress) {
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetSendFiatsNegativeTx : increases count by 1
+//SetSendFiatsNegativeTx : increases count by 1
 func (fk Keeper) SetSendFiatsNegativeTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -59,7 +59,7 @@ func (fk Keeper) SetSendFiatsNegativeTx(ctx sdk.Context, addr sdk.AccAddress) {
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetIBCIssueAssetsPositiveTx : increases count by 1
+//SetIBCIssueAssetsPositiveTx : increases count by 1
 func (fk Keeper) SetIBCIssueAssetsPositiveTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -68,7 +68,7 @@ func (fk Keeper) SetIBCIssueAssetsPositiveTx(ctx sdk.Context, addr sdk.AccAddres
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetIBCIssueAssetsNegativeTx : increases count by 1
+//SetIBCIssueAssetsNegativeTx : increases count by 1
 func (fk Keeper) SetIBCIssueAssetsNegativeTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -77,7 +77,7 @@ func (fk Keeper) SetIBCIssueAssetsNegativeTx(ctx sdk.Context, addr sdk.AccAddres
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetIBCIssueFiatsPositiveTx : increases count by 1
+//SetIBCIssueFiatsPositiveTx : increases count by 1
 func (fk Keeper) SetIBCIssueFiatsPositiveTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -86,7 +86,7 @@ func (fk Keeper) SetIBCIssueFiatsPositiveTx(ctx sdk.Context, addr sdk.AccAddress
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetIBCIssueFiatsNegativeTx : increases count by 1
+//SetIBCIssueFiatsNegativeTx : increases count by 1
 func (fk Keeper) SetIBCIssueFiatsNegativeTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -95,7 +95,7 @@ func (fk Keeper) SetIBCIssueFiatsNegativeTx(ctx sdk.Context, addr sdk.AccAddress
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetBuyerExecuteOrderPositiveTx : increases count by 1
+//SetBuyerExecuteOrderPositiveTx : increases count by 1
 func (fk Keeper) SetBuyerExecuteOrderPositiveTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -104,7 +104,7 @@ func (fk Keeper) SetBuyerExecuteOrderPositiveTx(ctx sdk.Context, addr sdk.AccAdd
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetBuyerExecuteOrderNegativeTx : increases count by 1
+//SetBuyerExecuteOrderNegativeTx : increases count by 1
 func (fk Keeper) SetBuyerExecuteOrderNegativeTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -113,7 +113,7 @@ func (fk Keeper) SetBuyerExecuteOrderNegativeTx(ctx sdk.Context, addr sdk.AccAdd
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetSellerExecuteOrderPositiveTx : increases count by 1
+//SetSellerExecuteOrderPositiveTx : increases count by 1
 func (fk Keeper) SetSellerExecuteOrderPositiveTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -122,7 +122,7 @@ func (fk Keeper) SetSellerExecuteOrderPositiveTx(ctx sdk.Context, addr sdk.AccAd
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetSellerExecuteOrderNegativeTx : increases count by 1
+//SetSellerExecuteOrderNegativeTx : increases count by 1
 func (fk Keeper) SetSellerExecuteOrderNegativeTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -131,7 +131,7 @@ func (fk Keeper) SetSellerExecuteOrderNegativeTx(ctx sdk.Context, addr sdk.AccAd
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetChangeBuyerBidPositiveTx : increases count by 1
+//SetChangeBuyerBidPositiveTx : increases count by 1
 func (fk Keeper) SetChangeBuyerBidPositiveTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -140,7 +140,7 @@ func (fk Keeper) SetChangeBuyerBidPositiveTx(ctx sdk.Context, addr sdk.AccAddres
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetChangeBuyerBidNegativeTx : increases count by 1
+//SetChangeBuyerBidNegativeTx : increases count by 1
 func (fk Keeper) SetChangeBuyerBidNegativeTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -149,7 +149,7 @@ func (fk Keeper) SetChangeBuyerBidNegativeTx(ctx sdk.Context, addr sdk.AccAddres
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetChangeSellerBidPositiveTx : increases count by 1
+//SetChangeSellerBidPositiveTx : increases count by 1
 func (fk Keeper) SetChangeSellerBidPositiveTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -158,7 +158,7 @@ func (fk Keeper) SetChangeSellerBidPositiveTx(ctx sdk.Context, addr sdk.AccAddre
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetChangeSellerBidNegativeTx : increases count by 1
+//SetChangeSellerBidNegativeTx : increases count by 1
 func (fk Keeper) SetChangeSellerBidNegativeTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -167,7 +167,7 @@ func (fk Keeper) SetChangeSellerBidNegativeTx(ctx sdk.Context, addr sdk.AccAddre
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetConfirmBuyerBidPositiveTx : increases count by 1
+//SetConfirmBuyerBidPositiveTx : increases count by 1
 func (fk Keeper) SetConfirmBuyerBidPositiveTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -176,7 +176,7 @@ func (fk Keeper) SetConfirmBuyerBidPositiveTx(ctx sdk.Context, addr sdk.AccAddre
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetConfirmBuyerBidNegativeTx : increases count by 1
+//SetConfirmBuyerBidNegativeTx : increases count by 1
 func (fk Keeper) SetConfirmBuyerBidNegativeTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -185,7 +185,7 @@ func (fk Keeper) SetConfirmBuyerBidNegativeTx(ctx sdk.Context, addr sdk.AccAddre
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetConfirmSellerBidPositiveTx : increases count by 1
+//SetConfirmSellerBidPositiveTx : increases count by 1
 func (fk Keeper) SetConfirmSellerBidPositiveTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -194,7 +194,7 @@ func (fk Keeper) SetConfirmSellerBidPositiveTx(ctx sdk.Context, addr sdk.AccAddr
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetConfirmSellerBidNegativeTx : increases count by 1
+//SetConfirmSellerBidNegativeTx : increases count by 1
 func (fk Keeper) SetConfirmSellerBidNegativeTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -203,7 +203,7 @@ func (fk Keeper) SetConfirmSellerBidNegativeTx(ctx sdk.Context, addr sdk.AccAddr
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetNegotiationPositiveTx : increases count by 1
+//SetNegotiationPositiveTx : increases count by 1
 func (fk Keeper) SetNegotiationPositiveTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -212,7 +212,7 @@ func (fk Keeper) SetNegotiationPositiveTx(ctx sdk.Context, addr sdk.AccAddress) 
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetNegotiationNegativeTx : increases count by 1
+//SetNegotiationNegativeTx : increases count by 1
 func (fk Keeper) SetNegotiationNegativeTx(ctx sdk.Context, addr sdk.AccAddress) {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	transactionFeedback := accountReputation.GetTransactionFeedback()
@@ -221,7 +221,7 @@ func (fk Keeper) SetNegotiationNegativeTx(ctx sdk.Context, addr sdk.AccAddress) 
 	fk.fm.SetAccountReputation(ctx, accountReputation)
 }
 
-// SetFeedback : adds new rating
+//SetFeedback : adds new rating
 func (fk Keeper) SetFeedback(ctx sdk.Context, addr sdk.AccAddress, traderFeedback sdk.TraderFeedback) sdk.Error {
 	accountReputation := fk.fm.GetAccountReputation(ctx, addr)
 	err := accountReputation.AddTraderFeedback(traderFeedback)
@@ -232,9 +232,9 @@ func (fk Keeper) SetFeedback(ctx sdk.Context, addr sdk.AccAddress, traderFeedbac
 	return nil
 }
 
-// SetBuyerRatingToFeedback : handler calls this method
+//SetBuyerRatingToFeedback : handler calls this method
 func (fk Keeper) SetBuyerRatingToFeedback(ctx sdk.Context, orderkeeper order.Keeper, msgFeedback MsgBuyerFeedbacks) (sdk.Tags, sdk.Error) {
-	
+
 	allTags := sdk.EmptyTags()
 	tags := sdk.EmptyTags()
 	for _, submitTraderFeedback := range msgFeedback.SubmitTraderFeedbacks {
@@ -243,11 +243,11 @@ func (fk Keeper) SetBuyerRatingToFeedback(ctx sdk.Context, orderkeeper order.Kee
 		if err != nil {
 			return nil, err
 		}
-		
+
 		if fiatProofHash == "" || awbProofHash == "" {
 			return nil, sdk.ErrFeedbackCannotRegister("you have not completed the transaction to give feedback")
 		}
-		
+
 		err = fk.SetFeedback(ctx, traderFeedback.SellerAddress, traderFeedback)
 		if err != nil {
 			return nil, err
@@ -261,9 +261,9 @@ func (fk Keeper) SetBuyerRatingToFeedback(ctx sdk.Context, orderkeeper order.Kee
 	return allTags, nil
 }
 
-// SetSellerRatingToFeedback : handler calls this method
+//SetSellerRatingToFeedback : handler calls this method
 func (fk Keeper) SetSellerRatingToFeedback(ctx sdk.Context, orderkeeper order.Keeper, msgFeedback MsgSellerFeedbacks) (sdk.Tags, sdk.Error) {
-	
+
 	allTags := sdk.EmptyTags()
 	tags := sdk.EmptyTags()
 	for _, submitTraderFeedback := range msgFeedback.SubmitTraderFeedbacks {
@@ -272,11 +272,11 @@ func (fk Keeper) SetSellerRatingToFeedback(ctx sdk.Context, orderkeeper order.Ke
 		if err != nil {
 			return nil, err
 		}
-		
+
 		if fiatProofHash == "" || awbProofHash == "" {
 			return nil, sdk.ErrFeedbackCannotRegister("you have not completed the transaction to give feedback")
 		}
-		
+
 		err = fk.SetFeedback(ctx, traderFeedback.BuyerAddress, traderFeedback)
 		if err != nil {
 			return nil, err

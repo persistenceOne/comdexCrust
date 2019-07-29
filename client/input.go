@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	
+
 	"github.com/bgentry/speakeasy"
-	"github.com/mattn/go-isatty"
+	isatty "github.com/mattn/go-isatty"
 	"github.com/pkg/errors"
 )
 
@@ -28,17 +28,17 @@ func GetPassword(prompt string, buf *bufio.Reader) (pass string, err error) {
 	} else {
 		pass, err = readLineFromBuf(buf)
 	}
-	
+
 	if err != nil {
 		return "", err
 	}
-	
+
 	if len(pass) < MinPassLength {
 		// Return the given password to the upstream client so it can handle a
 		// non-STDIN failure gracefully.
 		return pass, errors.Errorf("password must be at least %d characters", MinPassLength)
 	}
-	
+
 	return pass, nil
 }
 
@@ -62,7 +62,7 @@ func GetCheckPassword(prompt, prompt2 string, buf *bufio.Reader) (string, error)
 	if !inputIsTty() {
 		return GetPassword(prompt, buf)
 	}
-	
+
 	// TODO: own function???
 	pass, err := GetPassword(prompt, buf)
 	if err != nil {
@@ -90,7 +90,7 @@ func GetConfirmation(prompt string, buf *bufio.Reader) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		
+
 		response = strings.ToLower(strings.TrimSpace(response))
 		if response == "y" || response == "yes" {
 			return true, nil

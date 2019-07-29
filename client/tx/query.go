@@ -5,20 +5,20 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	
+
 	"github.com/tendermint/tendermint/libs/common"
-	
+
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	abci "github.com/tendermint/tendermint/abci/types"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	
-	"github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/client/context"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/auth"
+
+	"github.com/commitHub/commitBlockchain/client"
+	"github.com/commitHub/commitBlockchain/client/context"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/auth"
 )
 
 // QueryTxCmd implements the default command for a tx query.
@@ -31,21 +31,21 @@ func QueryTxCmd(cdc *wire.Codec) *cobra.Command {
 			// find the key to look up the account
 			hashHexStr := args[0]
 			trustNode := viper.GetBool(client.FlagTrustNode)
-			
+
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			output, err := queryTx(cdc, cliCtx, hashHexStr, trustNode)
 			if err != nil {
 				return err
 			}
-			
+
 			fmt.Println(string(output))
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().StringP(client.FlagNode, "n", "tcp://localhost:26657", "Node to connect to")
-	
+
 	// TODO: change this to false when we can
 	cmd.Flags().Bool(client.FlagTrustNode, true, "Don't verify proofs for responses")
 	return cmd
@@ -56,22 +56,22 @@ func queryTx(cdc *wire.Codec, cliCtx context.CLIContext, hashHexStr string, trus
 	if err != nil {
 		return nil, err
 	}
-	
+
 	node, err := cliCtx.GetNode()
 	if err != nil {
 		return nil, err
 	}
-	
+
 	res, err := node.Tx(hash, !trustNode)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	info, err := formatTxResult(cdc, res)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return wire.MarshalJSONIndent(cdc, info)
 }
 
@@ -81,7 +81,7 @@ func formatTxResult(cdc *wire.Codec, res *ctypes.ResultTx) (Info, error) {
 	if err != nil {
 		return Info{}, err
 	}
-	
+
 	return Info{
 		Hash:   res.Hash,
 		Height: res.Height,
@@ -100,12 +100,12 @@ type Info struct {
 
 func parseTx(cdc *wire.Codec, txBytes []byte) (sdk.Tx, error) {
 	var tx auth.StdTx
-	
+
 	err := cdc.UnmarshalBinary(txBytes, &tx)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return tx, nil
 }
 
@@ -121,14 +121,14 @@ func QueryTxRequestHandlerFn(cdc *wire.Codec, cliCtx context.CLIContext) http.Ha
 		if err != nil {
 			trustNode = true
 		}
-		
+
 		output, err := queryTx(cdc, cliCtx, hashHexStr, trustNode)
 		if err != nil {
 			w.WriteHeader(500)
 			w.Write([]byte(err.Error()))
 			return
 		}
-		
+
 		w.Write(output)
 	}
 }

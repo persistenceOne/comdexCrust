@@ -5,11 +5,11 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
-	
-	"github.com/tendermint/go-amino"
+
+	amino "github.com/tendermint/go-amino"
 	tmclient "github.com/tendermint/tendermint/rpc/client"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	"github.com/tendermint/tendermint/rpc/lib/client"
+	rpcclient "github.com/tendermint/tendermint/rpc/lib/client"
 	"strings"
 )
 
@@ -22,7 +22,7 @@ func WaitForNextHeightTM(port string) {
 // Wait for N tendermint blocks to pass using the Tendermint RPC
 // on localhost
 func WaitForNextNBlocksTM(n int64, port string) {
-	
+
 	// get the latest block and wait for n more
 	url := fmt.Sprintf("http://localhost:%v", port)
 	cl := tmclient.NewHTTP(url, "/websocket")
@@ -62,7 +62,7 @@ func waitForHeightTM(height int64, url string) {
 		if err != nil {
 			panic(err)
 		}
-		
+
 		if resBlock.Block != nil &&
 			resBlock.Block.Height >= height {
 			return
@@ -96,7 +96,7 @@ func waitForHeight(height int64, url string) {
 		if err != nil {
 			panic(err)
 		}
-		
+
 		body, err := ioutil.ReadAll(res.Body)
 		if err != nil {
 			panic(err)
@@ -105,7 +105,7 @@ func waitForHeight(height int64, url string) {
 		if err != nil {
 			panic(err)
 		}
-		
+
 		var resultBlock ctypes.ResultBlock
 		err = cdc.UnmarshalJSON(body, &resultBlock)
 		if err != nil {
@@ -113,7 +113,7 @@ func waitForHeight(height int64, url string) {
 			fmt.Println("BODY", string(body))
 			panic(err)
 		}
-		
+
 		if resultBlock.Block != nil &&
 			resultBlock.Block.Height >= height {
 			return
@@ -139,25 +139,25 @@ func WaitForTMStart(port string) {
 // it panics.
 func WaitForStart(url string) {
 	var err error
-	
+
 	// ping the status endpoint a few times a second
 	// for a few seconds until we get a good response.
 	// otherwise something probably went wrong
 	for i := 0; i < 50; i++ {
 		time.Sleep(time.Millisecond * 100)
-		
+
 		var res *http.Response
 		res, err = http.Get(url)
 		if err != nil || res == nil {
 			continue
 		}
-		// 		body, _ := ioutil.ReadAll(res.Body)
-		// 		fmt.Println("BODY", string(body))
+		//		body, _ := ioutil.ReadAll(res.Body)
+		//		fmt.Println("BODY", string(body))
 		err = res.Body.Close()
 		if err != nil {
 			panic(err)
 		}
-		
+
 		if res.StatusCode == http.StatusOK {
 			// good!
 			return

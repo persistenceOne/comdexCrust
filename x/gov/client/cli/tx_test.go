@@ -18,21 +18,21 @@ func TestParseSubmitProposalFlags(t *testing.T) {
   "deposit": "1000test"
 }
 `)
-	
+
 	badJSON, err := ioutil.TempFile("", "proposal")
 	require.Nil(t, err, "unexpected error")
 	badJSON.WriteString("bad json")
-	
+
 	// nonexistent json
 	viper.Set(flagProposal, "fileDoesNotExist")
 	_, err = parseSubmitProposalFlags()
 	require.Error(t, err)
-	
+
 	// invalid json
 	viper.Set(flagProposal, badJSON.Name())
 	_, err = parseSubmitProposalFlags()
 	require.Error(t, err)
-	
+
 	// ok json
 	viper.Set(flagProposal, okJSON.Name())
 	proposal1, err := parseSubmitProposalFlags()
@@ -41,7 +41,7 @@ func TestParseSubmitProposalFlags(t *testing.T) {
 	require.Equal(t, "My awesome proposal", proposal1.Description)
 	require.Equal(t, "Text", proposal1.Type)
 	require.Equal(t, "1000test", proposal1.Deposit)
-	
+
 	// flags that can't be used with --proposal
 	for _, incompatibleFlag := range proposalFlags {
 		viper.Set(incompatibleFlag, "some value")
@@ -49,7 +49,7 @@ func TestParseSubmitProposalFlags(t *testing.T) {
 		require.Error(t, err)
 		viper.Set(incompatibleFlag, "")
 	}
-	
+
 	// no --proposal, only flags
 	viper.Set(flagProposal, "")
 	viper.Set(flagTitle, proposal1.Title)
@@ -62,7 +62,7 @@ func TestParseSubmitProposalFlags(t *testing.T) {
 	require.Equal(t, proposal1.Description, proposal2.Description)
 	require.Equal(t, proposal1.Type, proposal2.Type)
 	require.Equal(t, proposal1.Deposit, proposal2.Deposit)
-	
+
 	err = okJSON.Close()
 	require.Nil(t, err, "unexpected error")
 	err = badJSON.Close()

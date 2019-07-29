@@ -1,12 +1,12 @@
 package rest
 
 import (
-	"github.com/comdex-blockchain/client/context"
-	"github.com/comdex-blockchain/wire"
+	"github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/wire"
 	"github.com/gorilla/mux"
 )
 
-// RegisterRoutes : ServeCommand will generate a long-running rest server
+//RegisterRoutes : ServeCommand will generate a long-running rest server
 // (aka Light Client Daemon) that exposes functionality similar
 // to the cli, but over rest
 func RegisterRoutes(ctx context.CLIContext, r *mux.Router, cdc *wire.Codec, storeName string) {

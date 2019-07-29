@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	
+
 	"github.com/spf13/cobra"
-	
-	"github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/client/context"
+
+	"github.com/commitHub/commitBlockchain/client"
+	"github.com/commitHub/commitBlockchain/client/context"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
@@ -18,8 +18,9 @@ func statusCommand() *cobra.Command {
 		Short: "Query remote node for status",
 		RunE:  printNodeStatus,
 	}
-	
+
 	cmd.Flags().StringP(client.FlagNode, "n", "tcp://localhost:26657", "Node to connect to")
+	cmd.Flags().String(client.FlagChainID, "", "chain-id")
 	return cmd
 }
 
@@ -29,7 +30,7 @@ func getNodeStatus(cliCtx context.CLIContext) (*ctypes.ResultStatus, error) {
 	if err != nil {
 		return &ctypes.ResultStatus{}, err
 	}
-	
+
 	return node.Status()
 }
 
@@ -40,13 +41,13 @@ func printNodeStatus(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	output, err := cdc.MarshalJSON(status)
 	// output, err := cdc.MarshalJSONIndent(res, "  ", "")
 	if err != nil {
 		return err
 	}
-	
+
 	fmt.Println(string(output))
 	return nil
 }
@@ -62,7 +63,7 @@ func NodeInfoRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		
+
 		nodeInfo := status.NodeInfo
 		output, err := cdc.MarshalJSON(nodeInfo)
 		if err != nil {
@@ -70,7 +71,7 @@ func NodeInfoRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		
+
 		w.Write(output)
 	}
 }
@@ -84,14 +85,14 @@ func NodeSyncingRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		
+
 		syncing := status.SyncInfo.CatchingUp
 		if err != nil {
 			w.WriteHeader(500)
 			w.Write([]byte(err.Error()))
 			return
 		}
-		
+
 		w.Write([]byte(strconv.FormatBool(syncing)))
 	}
 }

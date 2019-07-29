@@ -2,8 +2,8 @@ package server
 
 import (
 	"bytes"
-	"github.com/comdex-blockchain/server/mock"
-	"github.com/comdex-blockchain/wire"
+	"github.com/commitHub/commitBlockchain/server/mock"
+	"github.com/commitHub/commitBlockchain/wire"
 	"github.com/stretchr/testify/require"
 	tcmd "github.com/tendermint/tendermint/cmd/tendermint/commands"
 	"github.com/tendermint/tendermint/libs/log"
@@ -26,21 +26,21 @@ func TestEmptyState(t *testing.T) {
 	cmd := InitCmd(ctx, cdc, appInit)
 	err = cmd.RunE(nil, nil)
 	require.NoError(t, err)
-	
+
 	old := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 	cmd = ExportCmd(ctx, cdc, nil)
 	err = cmd.RunE(nil, nil)
 	require.NoError(t, err)
-	
+
 	outC := make(chan string)
 	go func() {
 		var buf bytes.Buffer
 		io.Copy(&buf, r)
 		outC <- buf.String()
 	}()
-	
+
 	w.Close()
 	os.Stdout = old
 	out := <-outC

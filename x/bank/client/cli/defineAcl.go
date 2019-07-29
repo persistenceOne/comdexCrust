@@ -3,21 +3,21 @@ package cli
 import (
 	"os"
 	"strconv"
-	
-	"github.com/comdex-blockchain/client/context"
-	"github.com/comdex-blockchain/client/utils"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	authcmd "github.com/comdex-blockchain/x/auth/client/cli"
-	context2 "github.com/comdex-blockchain/x/auth/client/context"
-	"github.com/comdex-blockchain/x/bank"
+
+	"github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/client/utils"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	authcmd "github.com/commitHub/commitBlockchain/x/auth/client/cli"
+	context2 "github.com/commitHub/commitBlockchain/x/auth/client/context"
+	"github.com/commitHub/commitBlockchain/x/bank"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 const storeName = "acl"
 
-// DefineACLCmd : assign Acl properties to accout from cli
+//DefineACLCmd : assign Acl properties to accout from cli
 func DefineACLCmd(cdc *wire.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "defineACL",
@@ -25,29 +25,29 @@ func DefineACLCmd(cdc *wire.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			txCtx := context2.NewTxContextFromCLI().WithCodec(cdc)
 			cliCtx := context.NewCLIContext().WithAccountDecoder(authcmd.GetAccountDecoder(cdc)).WithCodec(cdc).WithLogger(os.Stdout)
-			
+
 			if err := cliCtx.EnsureAccountExists(); err != nil {
 				return err
 			}
-			
+
 			from, err := cliCtx.GetFromAddress()
 			if err != nil {
 				return err
 			}
-			
+
 			toStr := viper.GetString(FlagTo)
-			
+
 			to, err := sdk.AccAddressFromBech32(toStr)
 			if err != nil {
 				return nil
 			}
-			
+
 			strOrganizationID := viper.GetString(FlagOrganizationID)
 			organizationID, err := sdk.GetOrganizationIDFromString(strOrganizationID)
 			if err != nil {
 				return nil
 			}
-			
+
 			strZoneID := viper.GetString(FlagZoneID)
 			zoneID, err := sdk.GetZoneIDFromString(strZoneID)
 			if err != nil {
@@ -60,9 +60,9 @@ func DefineACLCmd(cdc *wire.Codec) *cobra.Command {
 				OrganizationID: organizationID,
 				ACL:            aclRequest,
 			}
-			
+
 			msg := bank.BuildMsgDefineACL(from, to, aclAccount)
-			
+
 			return utils.SendTx(txCtx, cliCtx, []sdk.Msg{msg})
 		},
 	}
@@ -86,7 +86,7 @@ func DefineACLCmd(cdc *wire.Codec) *cobra.Command {
 	return cmd
 }
 
-// BuildACL : build and return the sdk.ACL object from string request
+//BuildACL : build and return the sdk.ACL object from string request
 func BuildACL() sdk.ACL {
 	var Request sdk.ACL
 	data, err := strconv.ParseBool(viper.GetString(FlagIssueAsset))

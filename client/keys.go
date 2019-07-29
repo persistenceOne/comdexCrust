@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/comdex-blockchain/crypto/keys"
+	"github.com/commitHub/commitBlockchain/crypto/keys"
 	dbm "github.com/tendermint/tendermint/libs/db"
 )
 

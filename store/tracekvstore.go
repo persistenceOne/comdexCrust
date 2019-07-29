@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 const (
@@ -29,10 +29,10 @@ type (
 		writer  io.Writer
 		context TraceContext
 	}
-	
+
 	// operation represents an IO operation
 	operation string
-	
+
 	// traceOperation implements a traced KVStore operation
 	traceOperation struct {
 		Operation operation              `json:"operation"`
@@ -52,7 +52,7 @@ func NewTraceKVStore(parent sdk.KVStore, writer io.Writer, tc TraceContext) *Tra
 // delegates a Get call to the parent KVStore.
 func (tkv *TraceKVStore) Get(key []byte) []byte {
 	value := tkv.parent.Get(key)
-	
+
 	writeOperation(tkv.writer, readOp, tkv.context, key, value)
 	return value
 }
@@ -103,13 +103,13 @@ func (tkv *TraceKVStore) ReverseIterator(start, end []byte) sdk.Iterator {
 // calls to it's parent KVStore.
 func (tkv *TraceKVStore) iterator(start, end []byte, ascending bool) sdk.Iterator {
 	var parent sdk.Iterator
-	
+
 	if ascending {
 		parent = tkv.parent.Iterator(start, end)
 	} else {
 		parent = tkv.parent.ReverseIterator(start, end)
 	}
-	
+
 	return newTraceIterator(tkv.writer, parent, tkv.context)
 }
 
@@ -141,7 +141,7 @@ func (ti *traceIterator) Next() {
 // Key implements the Iterator interface.
 func (ti *traceIterator) Key() []byte {
 	key := ti.parent.Key()
-	
+
 	writeOperation(ti.writer, iterKeyOp, ti.context, key, nil)
 	return key
 }
@@ -149,7 +149,7 @@ func (ti *traceIterator) Key() []byte {
 // Value implements the Iterator interface.
 func (ti *traceIterator) Value() []byte {
 	value := ti.parent.Value()
-	
+
 	writeOperation(ti.writer, iterValueOp, ti.context, nil, value)
 	return value
 }
@@ -185,19 +185,19 @@ func writeOperation(w io.Writer, op operation, tc TraceContext, key, value []byt
 		Key:       base64.StdEncoding.EncodeToString(key),
 		Value:     base64.StdEncoding.EncodeToString(value),
 	}
-	
+
 	if tc != nil {
 		traceOp.Metadata = tc
 	}
-	
+
 	raw, err := json.Marshal(traceOp)
 	if err != nil {
 		panic(fmt.Sprintf("failed to serialize trace operation: %v", err))
 	}
-	
+
 	if _, err := w.Write(raw); err != nil {
 		panic(fmt.Sprintf("failed to write trace operation: %v", err))
 	}
-	
+
 	io.WriteString(w, "\n")
 }

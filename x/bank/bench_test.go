@@ -2,11 +2,11 @@ package bank
 
 import (
 	"testing"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/auth"
-	"github.com/comdex-blockchain/x/mock"
-	
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/auth"
+	"github.com/commitHub/commitBlockchain/x/mock"
+
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -14,18 +14,18 @@ import (
 // Any long term API support commitments do not apply to this function.
 func getBenchmarkMockApp() (*mock.App, error) {
 	mapp := mock.NewApp()
-	
+
 	RegisterWire(mapp.Cdc)
 	coinKeeper := NewKeeper(mapp.AccountMapper)
 	mapp.Router().AddRoute("bank", NewHandler(coinKeeper))
-	
+
 	err := mapp.CompleteSetup([]*sdk.KVStoreKey{})
 	return mapp, err
 }
 
 func BenchmarkOneBankSendTxPerBlock(b *testing.B) {
 	benchmarkApp, _ := getBenchmarkMockApp()
-	
+
 	// Add an account at genesis
 	acc := &auth.BaseAccount{
 		Address: addr1,
@@ -33,7 +33,7 @@ func BenchmarkOneBankSendTxPerBlock(b *testing.B) {
 		Coins: sdk.Coins{sdk.NewInt64Coin("foocoin", 100000000000)},
 	}
 	accs := []auth.Account{acc}
-	
+
 	// Construct genesis state
 	mock.SetGenesis(benchmarkApp, accs)
 	// Precompute all txs

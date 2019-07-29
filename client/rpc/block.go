@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	
-	"github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/client/context"
-	
+
+	"github.com/commitHub/commitBlockchain/client"
+	"github.com/commitHub/commitBlockchain/client/context"
+
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 )
 
-// BlockCommand returns the verified block data for a given heights
+//BlockCommand returns the verified block data for a given heights
 func BlockCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "block [height]",
@@ -32,7 +32,7 @@ func getBlock(cliCtx context.CLIContext, height *int64) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// header -> BlockchainInfo
 	// header, tx -> Block
 	// results -> BlockResults
@@ -40,7 +40,7 @@ func getBlock(cliCtx context.CLIContext, height *int64) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// TODO move maarshalling into cmd/rest functions
 	// output, err := tmwire.MarshalJSON(res)
 	output, err := cdc.MarshalJSON(res)
@@ -79,7 +79,7 @@ func printBlock(cmd *cobra.Command, args []string) error {
 			height = &tmp
 		}
 	}
-	
+
 	output, err := getBlock(context.NewCLIContext(), height)
 	if err != nil {
 		return err

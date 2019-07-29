@@ -3,39 +3,39 @@ package gov
 import (
 	"encoding/json"
 	"fmt"
-	
+
 	"github.com/pkg/errors"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
-// -----------------------------------------------------------
+//-----------------------------------------------------------
 // Proposal interface
 type Proposal interface {
 	GetProposalID() int64
 	SetProposalID(int64)
-	
+
 	GetTitle() string
 	SetTitle(string)
-	
+
 	GetDescription() string
 	SetDescription(string)
-	
+
 	GetProposalType() ProposalKind
 	SetProposalType(ProposalKind)
-	
+
 	GetStatus() ProposalStatus
 	SetStatus(ProposalStatus)
-	
+
 	GetTallyResult() TallyResult
 	SetTallyResult(TallyResult)
-	
+
 	GetSubmitBlock() int64
 	SetSubmitBlock(int64)
-	
+
 	GetTotalDeposit() sdk.Coins
 	SetTotalDeposit(sdk.Coins)
-	
+
 	GetVotingStartBlock() int64
 	SetVotingStartBlock(int64)
 }
@@ -56,20 +56,20 @@ func ProposalEqual(proposalA Proposal, proposalB Proposal) bool {
 	return false
 }
 
-// -----------------------------------------------------------
+//-----------------------------------------------------------
 // Text Proposals
 type TextProposal struct {
 	ProposalID   int64        `json:"proposal_id"`   //  ID of the proposal
 	Title        string       `json:"title"`         //  Title of the proposal
 	Description  string       `json:"description"`   //  Description of the proposal
 	ProposalType ProposalKind `json:"proposal_type"` //  Type of proposal. Initial set {PlainTextProposal, SoftwareUpgradeProposal}
-	
+
 	Status      ProposalStatus `json:"proposal_status"` //  Status of the Proposal {Pending, Active, Passed, Rejected}
 	TallyResult TallyResult    `json:"tally_result"`    //  Result of Tallys
-	
+
 	SubmitBlock  int64     `json:"submit_block"`  //  Height of the block where TxGovSubmitProposal was included
 	TotalDeposit sdk.Coins `json:"total_deposit"` //  Current deposit on this proposal. Initial value is set at InitialDeposit
-	
+
 	VotingStartBlock int64 `json:"voting_start_block"` //  Height of the block where MinDeposit was reached. -1 if MinDeposit is not reached
 }
 
@@ -98,17 +98,17 @@ func (tp *TextProposal) SetVotingStartBlock(votingStartBlock int64) {
 	tp.VotingStartBlock = votingStartBlock
 }
 
-// -----------------------------------------------------------
+//-----------------------------------------------------------
 // ProposalQueue
 type ProposalQueue []int64
 
-// -----------------------------------------------------------
+//-----------------------------------------------------------
 // ProposalKind
 
 // Type that represents Proposal Type as a byte
 type ProposalKind byte
 
-// nolint
+//nolint
 const (
 	ProposalTypeNil             ProposalKind = 0x00
 	ProposalTypeText            ProposalKind = 0x01
@@ -163,7 +163,7 @@ func (pt *ProposalKind) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return nil
 	}
-	
+
 	bz2, err := ProposalTypeFromString(s)
 	if err != nil {
 		return err
@@ -196,13 +196,13 @@ func (pt ProposalKind) Format(s fmt.State, verb rune) {
 	}
 }
 
-// -----------------------------------------------------------
+//-----------------------------------------------------------
 // ProposalStatus
 
 // Type that represents Proposal Status as a byte
 type ProposalStatus byte
 
-// nolint
+//nolint
 const (
 	StatusNil           ProposalStatus = 0x00
 	StatusDepositPeriod ProposalStatus = 0x01
@@ -263,7 +263,7 @@ func (status *ProposalStatus) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return nil
 	}
-	
+
 	bz2, err := ProposalStatusFromString(s)
 	if err != nil {
 		return err
@@ -298,7 +298,7 @@ func (status ProposalStatus) Format(s fmt.State, verb rune) {
 	}
 }
 
-// -----------------------------------------------------------
+//-----------------------------------------------------------
 // Tally Results
 type TallyResult struct {
 	Yes        sdk.Dec `json:"yes"`

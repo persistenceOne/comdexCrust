@@ -2,8 +2,8 @@ package fiatFactory
 
 import (
 	"testing"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -15,7 +15,7 @@ var fiatPeg = sdk.BaseFiatPeg{
 	TransactionAmount: 100,
 	RedeemedAmount:    50,
 	Owners: []sdk.Owner{
-		{
+		sdk.Owner{
 			OwnerAddress: sdk.AccAddress([]byte("issuer")),
 			Amount:       2000,
 		},
@@ -49,11 +49,11 @@ type TestCase struct {
 }
 
 var listTests = []TestCase{
-	{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("peghash")), transactionID: "documentHash", transactionAmount: 10, redeemedAmount: 5, owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}, expectedResult: true},
-	{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("")), transactionID: "documentHash", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}, expectedResult: true},
-	{from: addresses[1], to: addresses[2], pegHash: sdk.PegHash([]byte("peghash")), transactionID: "documentHash", transactionAmount: 20, redeemedAmount: 4, owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}, expectedResult: true},
-	{from: addresses[2], to: addresses[1], pegHash: sdk.PegHash([]byte("")), transactionID: "", transactionAmount: 30, redeemedAmount: 5, owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}, expectedResult: true},
-	{from: addresses[3], to: addresses[3], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "", transactionAmount: 4, redeemedAmount: 10, owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}, expectedResult: true},
+	{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("peghash")), transactionID: "documentHash", transactionAmount: 10, redeemedAmount: 5, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}, expectedResult: true},
+	{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("")), transactionID: "documentHash", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}, expectedResult: true},
+	{from: addresses[1], to: addresses[2], pegHash: sdk.PegHash([]byte("peghash")), transactionID: "documentHash", transactionAmount: 20, redeemedAmount: 4, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}, expectedResult: true},
+	{from: addresses[2], to: addresses[1], pegHash: sdk.PegHash([]byte("")), transactionID: "", transactionAmount: 30, redeemedAmount: 5, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}, expectedResult: true},
+	{from: addresses[3], to: addresses[3], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "", transactionAmount: 4, redeemedAmount: 10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}, expectedResult: true},
 }
 
 func genIssueFiat(testCase TestCase) (sdk.BaseFiatPeg, IssueFiat) {
@@ -72,7 +72,7 @@ func genIssueFiat(testCase TestCase) (sdk.BaseFiatPeg, IssueFiat) {
 	return oneFiatPeg, oneIssueFiat
 }
 
-// Issue Fiat Test Cases
+//Issue Fiat Test Cases
 func TestNewIssueFiat(t *testing.T) {
 	for _, testCase := range listTests {
 		oneFiatPeg, oneIssueFiat := genIssueFiat(testCase)
@@ -89,7 +89,7 @@ func TestNewIssueFiat(t *testing.T) {
 func TestIssueFiatGetSignBytes(t *testing.T) {
 	for _, testCase := range listTests {
 		_, oneIssueFiat := genIssueFiat(testCase)
-		
+
 		if testCase.expectedResult {
 			require.NotNil(t, oneIssueFiat.GetSignBytes())
 		} else {
@@ -99,19 +99,19 @@ func TestIssueFiatGetSignBytes(t *testing.T) {
 }
 func TestIssueFiatValidateBasics(t *testing.T) {
 	var testValidateIssueFiats = []TestCase{
-		
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{{OwnerAddress: addresses[2], Amount: 12}}, expectedResult: true},
-		{from: addresses[0], to: addresses[0], pegHash: sdk.PegHash([]byte("pegHashpegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
-		{from: addresses[0], to: addresses[0], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{{OwnerAddress: addresses[2], Amount: 12}}, expectedResult: true},
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCD123", transactionAmount: 10, redeemedAmount: 20, owners: []sdk.Owner{{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCD123", transactionAmount: 10, redeemedAmount: -10, owners: []sdk.Owner{{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
-		
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: false},
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCD123", transactionAmount: 0, redeemedAmount: 0, owners: []sdk.Owner{{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: false},
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCD123", transactionAmount: -5, redeemedAmount: 0, owners: []sdk.Owner{{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: false},
+
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[2], Amount: 12}}, expectedResult: true},
+		{from: addresses[0], to: addresses[0], pegHash: sdk.PegHash([]byte("pegHashpegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
+		{from: addresses[0], to: addresses[0], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[2], Amount: 12}}, expectedResult: true},
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCD123", transactionAmount: 10, redeemedAmount: 20, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCD123", transactionAmount: 10, redeemedAmount: -10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
+
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: false},
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCD123", transactionAmount: 0, redeemedAmount: 0, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: false},
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCD123", transactionAmount: -5, redeemedAmount: 0, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: false},
 	}
 	for _, testCase := range testValidateIssueFiats {
 		_, oneIssueFiat := genIssueFiat(testCase)
@@ -123,9 +123,9 @@ func TestIssueFiatValidateBasics(t *testing.T) {
 	}
 }
 
-// ------------------------------------------
+//------------------------------------------
 func TestNewMsgFactoryIssueFiats(t *testing.T) {
-	
+
 	for _, testCase := range listTests {
 		oneFiatPeg, _ := genIssueFiat(testCase)
 		issueFiats := []IssueFiat{NewIssueFiat(testCase.from, testCase.to, &oneFiatPeg)}
@@ -137,16 +137,16 @@ func TestNewMsgFactoryIssueFiats(t *testing.T) {
 			require.NotEqual(t, msg, newMsgFactoryIssueFiats)
 		}
 	}
-	
+
 }
 
 func TestMsgFactoryIssueFiatsType(t *testing.T) {
-	
+
 	for _, testCase := range listTests {
 		oneFiatPeg, _ := genIssueFiat(testCase)
 		issueFiats := []IssueFiat{NewIssueFiat(testCase.from, testCase.to, &oneFiatPeg)}
 		var msg = MsgFactoryIssueFiats{issueFiats}
-		
+
 		if testCase.expectedResult {
 			require.Equal(t, "fiatFactory", msg.Type())
 		} else {
@@ -157,23 +157,23 @@ func TestMsgFactoryIssueFiatsType(t *testing.T) {
 
 func TestMsgFactoryIssueFiatsValidateBasic(t *testing.T) {
 	var testValidateIssueFiats = []TestCase{
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}, expectedResult: true},
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{{OwnerAddress: addresses[2], Amount: 12}}, expectedResult: true},
-		{from: addresses[0], to: addresses[0], pegHash: sdk.PegHash([]byte("pegHashpegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
-		{from: addresses[0], to: addresses[0], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{{OwnerAddress: addresses[2], Amount: 12}}, expectedResult: true},
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCD123", transactionAmount: 10, redeemedAmount: 20, owners: []sdk.Owner{{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCD123", transactionAmount: 10, redeemedAmount: -10, owners: []sdk.Owner{{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: false},
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCD123", transactionAmount: 0, redeemedAmount: 0, owners: []sdk.Owner{{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: false},
-		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCD123", transactionAmount: -5, redeemedAmount: 0, owners: []sdk.Owner{{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: false},
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}, expectedResult: true},
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[2], Amount: 12}}, expectedResult: true},
+		{from: addresses[0], to: addresses[0], pegHash: sdk.PegHash([]byte("pegHashpegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
+		{from: addresses[0], to: addresses[0], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[2], Amount: 12}}, expectedResult: true},
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("")), transactionID: "ABCDEF12345", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCD123", transactionAmount: 10, redeemedAmount: 20, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCD123", transactionAmount: 10, redeemedAmount: -10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: true},
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "", transactionAmount: 100, redeemedAmount: 10, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: false},
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCD123", transactionAmount: 0, redeemedAmount: 0, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: false},
+		{from: addresses[0], to: addresses[1], pegHash: sdk.PegHash([]byte("pegHash")), transactionID: "ABCD123", transactionAmount: -5, redeemedAmount: 0, owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[0], Amount: 12}}, expectedResult: false},
 	}
 	for _, testCase := range testValidateIssueFiats {
 		oneFiatPeg, _ := genIssueFiat(testCase)
 		issueFiats := []IssueFiat{NewIssueFiat(testCase.from, testCase.to, &oneFiatPeg)}
 		var msg = MsgFactoryIssueFiats{issueFiats}
-		
+
 		if testCase.expectedResult {
 			require.Nil(t, msg.ValidateBasic())
 		} else {
@@ -195,8 +195,8 @@ func TestMsgFactoryIssueFiatsGetSignBytes(t *testing.T) {
 		},
 	}
 	res := msg.GetSignBytes()
-	
-	expected := `{"issueFiats":[{"issuerAddress":"cosmos1d9ehxat9wgjjln07","toAddress":"cosmos1w3hsjttrfq","fiatPeg":{"type":"comdex-blockchain/FiatPeg","value":{"pegHash":"70656748617368","transactionID":"","transactionAmount":"0","redeemedAmount":"0","owners":null}}},{"issuerAddress":"cosmos1d9ehxat9wgcs3mnw0e","toAddress":"cosmos1w3hnz0y6kfc","fiatPeg":{"type":"comdex-blockchain/FiatPeg","value":{"pegHash":"7065674861736831","transactionID":"","transactionAmount":"0","redeemedAmount":"0","owners":null}}}]}`
+
+	expected := `{"issueFiats":[{"issuerAddress":"cosmos1d9ehxat9wgjjln07","toAddress":"cosmos1w3hsjttrfq","fiatPeg":{"type":"commit-blockchain/FiatPeg","value":{"pegHash":"70656748617368","transactionID":"","transactionAmount":"0","redeemedAmount":"0","owners":null}}},{"issuerAddress":"cosmos1d9ehxat9wgcs3mnw0e","toAddress":"cosmos1w3hnz0y6kfc","fiatPeg":{"type":"commit-blockchain/FiatPeg","value":{"pegHash":"7065674861736831","transactionID":"","transactionAmount":"0","redeemedAmount":"0","owners":null}}}]}`
 	require.Equal(t, expected, string(res))
 }
 
@@ -206,7 +206,7 @@ func TestMsgFactoryIssueFiatsGetSigners(t *testing.T) {
 		var issueFiats = []IssueFiat{TestIssueFiat, oneIssueFiat}
 		var msgFactoryIssueFiats = MsgFactoryIssueFiats{issueFiats}
 		var issuers = []sdk.AccAddress{issuerAddress, oneIssueFiat.IssuerAddress}
-		
+
 		if testCase.expectedResult {
 			require.Equal(t, msgFactoryIssueFiats.GetSigners(), issuers)
 		} else {
@@ -216,7 +216,7 @@ func TestMsgFactoryIssueFiatsGetSigners(t *testing.T) {
 }
 
 func TestBuildIssueFiatMsg(t *testing.T) {
-	
+
 	for _, testCase := range listTests {
 		oneFiatPeg, oneIssueFiat := genIssueFiat(testCase)
 		var issueFiats = []IssueFiat{oneIssueFiat}
@@ -229,7 +229,7 @@ func TestBuildIssueFiatMsg(t *testing.T) {
 	}
 }
 
-// -------------------------------------REDEEM FIAT-------------------------------------
+//-------------------------------------REDEEM FIAT-------------------------------------
 
 type TestCaseRedeem struct {
 	relayer        sdk.AccAddress
@@ -240,10 +240,10 @@ type TestCaseRedeem struct {
 }
 
 var listRedeemTests = []TestCaseRedeem{
-	{relayer: addresses[0], redeemer: addresses[1], amount: 200, fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
-	{relayer: addresses[0], redeemer: addresses[1], amount: 0, fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
-	{relayer: addresses[1], redeemer: addresses[2], amount: 200, fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
-	{relayer: addresses[0], redeemer: addresses[1], amount: 200, fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
+	{relayer: addresses[0], redeemer: addresses[1], amount: 200, fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
+	{relayer: addresses[0], redeemer: addresses[1], amount: 0, fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
+	{relayer: addresses[1], redeemer: addresses[2], amount: 200, fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
+	{relayer: addresses[0], redeemer: addresses[1], amount: 200, fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
 }
 
 func genRedeemFiat(testCase TestCaseRedeem) RedeemFiat {
@@ -277,7 +277,7 @@ func TestRedeemFiatGetSignBytes(t *testing.T) {
 	}
 }
 
-// ---------------Msg Factory Redeem Fiats
+//---------------Msg Factory Redeem Fiats
 
 func TestNewMsgFactoryRedeemFiats(t *testing.T) {
 	for _, testCase := range listRedeemTests {
@@ -305,7 +305,7 @@ func TestMsgFactoryRedeemFiatsType(t *testing.T) {
 	}
 }
 
-// -------------------------------------SEND FIAT-------------------------------------
+//-------------------------------------SEND FIAT-------------------------------------
 
 type TestCaseSend struct {
 	relayer        sdk.AccAddress
@@ -317,10 +317,10 @@ type TestCaseSend struct {
 }
 
 var listSendTests = []TestCaseSend{
-	{relayer: addresses[0], from: addresses[1], to: addresses[2], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
-	{relayer: addresses[0], from: addresses[1], to: addresses[2], pegHash: sdk.PegHash([]byte("")), fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
-	{relayer: addresses[1], from: addresses[2], to: addresses[2], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
-	{relayer: addresses[0], from: addresses[1], to: addresses[3], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
+	{relayer: addresses[0], from: addresses[1], to: addresses[2], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
+	{relayer: addresses[0], from: addresses[1], to: addresses[2], pegHash: sdk.PegHash([]byte("")), fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
+	{relayer: addresses[1], from: addresses[2], to: addresses[2], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
+	{relayer: addresses[0], from: addresses[1], to: addresses[3], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
 }
 
 func genSendFiat(testCase TestCaseSend) SendFiat {
@@ -357,10 +357,10 @@ func TestSendFiatGetSignBytes(t *testing.T) {
 
 func TestMsgFactoryRedeemFiatsValidateBasic(t *testing.T) {
 	var listRedeemTestsValidate = []TestCaseRedeem{
-		{relayer: addresses[0], redeemer: addresses[1], amount: 20, fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 1000, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 1000}}}}, expectedResult: true},
-		{relayer: addresses[0], redeemer: addresses[1], amount: 40, fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 0, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
-		{relayer: addresses[1], redeemer: addresses[2], amount: 50, fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
-		{relayer: addresses[0], redeemer: addresses[1], amount: 90, fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
+		{relayer: addresses[0], redeemer: addresses[1], amount: 20, fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 1000, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 1000}}}}, expectedResult: true},
+		{relayer: addresses[0], redeemer: addresses[1], amount: 40, fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 0, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
+		{relayer: addresses[1], redeemer: addresses[2], amount: 50, fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
+		{relayer: addresses[0], redeemer: addresses[1], amount: 90, fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
 	}
 	for _, testCase := range listRedeemTestsValidate {
 		oneRedeemFiat := genRedeemFiat(testCase)
@@ -401,7 +401,7 @@ func TestBuildRedeemFiatMsg(t *testing.T) {
 	}
 }
 
-// ---------------Msg Factory Send Fiats
+//---------------Msg Factory Send Fiats
 
 func TestNewMsgFactorySendFiats(t *testing.T) {
 	for _, testCase := range listSendTests {
@@ -431,10 +431,10 @@ func TestMsgFactorySendFiatsType(t *testing.T) {
 
 func TestMsgFactorySendFiatsValidateBasic(t *testing.T) {
 	var listSendTestsValidate = []TestCaseSend{
-		{relayer: addresses[0], from: addresses[1], to: addresses[2], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
-		{relayer: addresses[0], from: addresses[1], to: addresses[2], pegHash: sdk.PegHash([]byte("")), fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
-		{relayer: addresses[1], from: addresses[2], to: addresses[4], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: false},
-		{relayer: addresses[0], from: addresses[1], to: addresses[3], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: false},
+		{relayer: addresses[0], from: addresses[1], to: addresses[2], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
+		{relayer: addresses[0], from: addresses[1], to: addresses[2], pegHash: sdk.PegHash([]byte("")), fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
+		{relayer: addresses[1], from: addresses[2], to: addresses[4], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: false},
+		{relayer: addresses[0], from: addresses[1], to: addresses[3], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: false},
 	}
 	for _, testCase := range listSendTestsValidate {
 		oneSendFiat := genSendFiat(testCase)
@@ -489,7 +489,7 @@ func TestBuildSendFiatMsg(t *testing.T) {
 	}
 }
 
-// --------------------Msg Factory Execute Assets
+//--------------------Msg Factory Execute Assets
 
 func TestNewMsgFactoryExecuteFiats(t *testing.T) {
 	for _, testCase := range listSendTests {
@@ -521,10 +521,10 @@ func TestMsgFactoryExecuteFiatsType(t *testing.T) {
 
 func TestMsgFactoryExecuteFiatsValidateBasic(t *testing.T) {
 	var listSendTestsValidate = []TestCaseSend{
-		{relayer: addresses[0], from: addresses[1], to: addresses[2], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
-		{relayer: addresses[0], from: addresses[1], to: addresses[2], pegHash: sdk.PegHash([]byte("")), fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
-		{relayer: addresses[1], from: addresses[2], to: addresses[4], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: false},
-		{relayer: addresses[0], from: addresses[1], to: addresses[3], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: false},
+		{relayer: addresses[0], from: addresses[1], to: addresses[2], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
+		{relayer: addresses[0], from: addresses[1], to: addresses[2], pegHash: sdk.PegHash([]byte("")), fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: true},
+		{relayer: addresses[1], from: addresses[2], to: addresses[4], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: false},
+		{relayer: addresses[0], from: addresses[1], to: addresses[3], pegHash: sdk.PegHash([]byte("pegHash")), fiatPegWallet: []sdk.BaseFiatPeg{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("pegHash")), TransactionID: "ABCDEF12345", TransactionAmount: 100, RedeemedAmount: 10, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: addresses[1], Amount: 12}}}}, expectedResult: false},
 	}
 	for _, testCase := range listSendTestsValidate {
 		oneSendFiat := genSendFiat(testCase)

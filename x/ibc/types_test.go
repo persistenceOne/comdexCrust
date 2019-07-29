@@ -3,10 +3,10 @@ package ibc
 import (
 	"fmt"
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 	"github.com/tendermint/tendermint/libs/common"
 )
 
@@ -21,7 +21,7 @@ func TestIBCPacketValidation(t *testing.T) {
 		{true, constructIBCPacket(true)},
 		{false, constructIBCPacket(false)},
 	}
-	
+
 	for i, tc := range cases {
 		err := tc.packet.ValidateBasic()
 		if tc.valid {
@@ -38,14 +38,14 @@ func TestIBCPacketValidation(t *testing.T) {
 func TestIBCTransferMsg(t *testing.T) {
 	packet := constructIBCPacket(true)
 	msg := IBCTransferMsg{packet}
-	
+
 	require.Equal(t, msg.Type(), "ibc")
 }
 
 func TestIBCTransferMsgValidation(t *testing.T) {
 	validPacket := constructIBCPacket(true)
 	invalidPacket := constructIBCPacket(false)
-	
+
 	cases := []struct {
 		valid bool
 		msg   IBCTransferMsg
@@ -53,7 +53,7 @@ func TestIBCTransferMsgValidation(t *testing.T) {
 		{true, IBCTransferMsg{validPacket}},
 		{false, IBCTransferMsg{invalidPacket}},
 	}
-	
+
 	for i, tc := range cases {
 		err := tc.msg.ValidateBasic()
 		if tc.valid {
@@ -70,14 +70,14 @@ func TestIBCTransferMsgValidation(t *testing.T) {
 func TestIBCReceiveMsg(t *testing.T) {
 	packet := constructIBCPacket(true)
 	msg := IBCReceiveMsg{packet, sdk.AccAddress([]byte("relayer")), 0}
-	
+
 	require.Equal(t, msg.Type(), "ibc")
 }
 
 func TestIBCReceiveMsgValidation(t *testing.T) {
 	validPacket := constructIBCPacket(true)
 	invalidPacket := constructIBCPacket(false)
-	
+
 	cases := []struct {
 		valid bool
 		msg   IBCReceiveMsg
@@ -85,7 +85,7 @@ func TestIBCReceiveMsgValidation(t *testing.T) {
 		{true, IBCReceiveMsg{validPacket, sdk.AccAddress([]byte("relayer")), 0}},
 		{false, IBCReceiveMsg{invalidPacket, sdk.AccAddress([]byte("relayer")), 0}},
 	}
-	
+
 	for i, tc := range cases {
 		err := tc.msg.ValidateBasic()
 		if tc.valid {
@@ -105,7 +105,7 @@ func constructIBCPacket(valid bool) IBCPacket {
 	coins := sdk.Coins{sdk.NewInt64Coin("atom", 10)}
 	srcChain := "source-chain"
 	destChain := "dest-chain"
-	
+
 	if valid {
 		return NewIBCPacket(srcAddr, destAddr, coins, srcChain, destChain)
 	}
@@ -125,14 +125,14 @@ var amount int64 = 1234
 var pegHash common.HexBytes = sdk.PegHash([]byte("pegHash1"))
 var pegHash2 common.HexBytes = sdk.PegHash([]byte(""))
 
-var fiatPegWallet = sdk.FiatPegWallet{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("1")), TransactionID: "FB8AE3A02BBCD2", TransactionAmount: 1000, RedeemedAmount: 0, Owners: []sdk.Owner{{OwnerAddress: nil, Amount: 500}, {OwnerAddress: sdk.AccAddress([]byte("relayer")), Amount: 500}}}}
+var fiatPegWallet = sdk.FiatPegWallet{sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("1")), TransactionID: "FB8AE3A02BBCD2", TransactionAmount: 1000, RedeemedAmount: 0, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: nil, Amount: 500}, sdk.Owner{OwnerAddress: sdk.AccAddress([]byte("relayer")), Amount: 500}}}}
 var fiatPegWallet2 sdk.FiatPegWallet
 var assetPeg = &sdk.BaseAssetPeg{PegHash: sdk.PegHash([]byte("1")), DocumentHash: "ABCD123", AssetType: "FGHJK", AssetQuantity: 1234, AssetPrice: 1234, QuantityUnit: "MT", OwnerAddress: nil, Locked: false}
 var peg = &sdk.BaseAssetPeg{PegHash: sdk.PegHash([]byte("1")), DocumentHash: "ABCD123fghj", AssetType: "FGHJK", AssetQuantity: 1234, AssetPrice: 1234, QuantityUnit: "MT", OwnerAddress: nil, Locked: false}
-var fiatPeg = &sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("1")), TransactionID: "ASDFGHJKL", TransactionAmount: 12345, RedeemedAmount: 23456, Owners: []sdk.Owner{{OwnerAddress: nil, Amount: 12}}}
-var peg2 = &sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("1")), TransactionID: "dfghj", TransactionAmount: 0, RedeemedAmount: 23456, Owners: []sdk.Owner{{OwnerAddress: nil, Amount: 12}}}
+var fiatPeg = &sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("1")), TransactionID: "ASDFGHJKL", TransactionAmount: 12345, RedeemedAmount: 23456, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: nil, Amount: 12}}}
+var peg2 = &sdk.BaseFiatPeg{PegHash: sdk.PegHash([]byte("1")), TransactionID: "dfghj", TransactionAmount: 0, RedeemedAmount: 23456, Owners: []sdk.Owner{sdk.Owner{OwnerAddress: nil, Amount: 12}}}
 
-// *****MsgIssueAssets
+//*****MsgIssueAssets
 func TestIssueAssetType(t *testing.T) {
 	var msg = MsgIssueAssets{
 		IssueAssets: []IssueAsset{NewIssueAsset(issuerAddress, toAddress, assetPeg, srcChain, destAssetChain)},
@@ -165,7 +165,7 @@ func TestIssueAssetGetSignBytes(t *testing.T) {
 	var msg = MsgIssueAssets{
 		IssueAssets: []IssueAsset{NewIssueAsset(issuerAddress, toAddress, assetPeg, srcChain, destAssetChain)},
 	}
-	expected := `{"issueAssets":[{"issuerAddress":"cosmos1f9ehxat9wfqkgerjv4ehxy08szk","toAddress":"cosmos1w3h5zerywfjhxuc7mfk6f","assetPeg":{"type":"comdex-blockchain/AssetPeg","value":{"pegHash":"31","documentHash":"ABCD123","assetType":"FGHJK","assetQuantity":"1234","assetPrice":"1234","quantityUnit":"MT","ownerAddress":"cosmos1550dq7","locked":false}},"sourceChain":"comdex-main","destinationChain":"comdex-asset"}]}`
+	expected := `{"issueAssets":[{"issuerAddress":"cosmos1f9ehxat9wfqkgerjv4ehxy08szk","toAddress":"cosmos1w3h5zerywfjhxuc7mfk6f","assetPeg":{"type":"commit-blockchain/AssetPeg","value":{"pegHash":"31","documentHash":"ABCD123","assetType":"FGHJK","assetQuantity":"1234","assetPrice":"1234","quantityUnit":"MT","ownerAddress":"cosmos1550dq7","locked":false}},"sourceChain":"comdex-main","destinationChain":"comdex-asset"}]}`
 	require.Equal(t, expected, string(msg.GetSignBytes()))
 }
 
@@ -177,9 +177,9 @@ func TestIssueAssetGetSigners(t *testing.T) {
 	require.Equal(t, expected, fmt.Sprintf("%v", msg.GetSigners()))
 }
 
-// #####MsgIssueAssets
+//#####MsgIssueAssets
 
-// *****MsgRelayIssueAssets
+//*****MsgRelayIssueAssets
 func TestRelayIssueAssetType(t *testing.T) {
 	var msg = MsgRelayIssueAssets{
 		Relayer:     relayerAddress,
@@ -217,7 +217,7 @@ func TestRelayIssueAssetGetSignBytes(t *testing.T) {
 		Relayer:     relayerAddress,
 		Sequence:    0,
 	}
-	expected := `{"issueAssets":[{"issuerAddress":"cosmos1f9ehxat9wfqkgerjv4ehxy08szk","toAddress":"cosmos1w3h5zerywfjhxuc7mfk6f","assetPeg":{"type":"comdex-blockchain/AssetPeg","value":{"pegHash":"31","documentHash":"ABCD123","assetType":"FGHJK","assetQuantity":"1234","assetPrice":"1234","quantityUnit":"MT","ownerAddress":"cosmos1550dq7","locked":false}},"sourceChain":"comdex-main","destinationChain":"comdex-asset"}],"relayer":"cosmos12fjkcctev4eyzerywfjhxucryd09t","sequence":"0"}`
+	expected := `{"issueAssets":[{"issuerAddress":"cosmos1f9ehxat9wfqkgerjv4ehxy08szk","toAddress":"cosmos1w3h5zerywfjhxuc7mfk6f","assetPeg":{"type":"commit-blockchain/AssetPeg","value":{"pegHash":"31","documentHash":"ABCD123","assetType":"FGHJK","assetQuantity":"1234","assetPrice":"1234","quantityUnit":"MT","ownerAddress":"cosmos1550dq7","locked":false}},"sourceChain":"comdex-main","destinationChain":"comdex-asset"}],"relayer":"cosmos12fjkcctev4eyzerywfjhxucryd09t","sequence":"0"}`
 	require.Equal(t, expected, string(msg.GetSignBytes()))
 }
 
@@ -231,9 +231,9 @@ func TestRelayIssueAssetGetSigners(t *testing.T) {
 	require.Equal(t, expected, fmt.Sprintf("%v", msg.GetSigners()))
 }
 
-// #####MsgRelayIssueAssets
+//#####MsgRelayIssueAssets
 
-// *****MsgRedeemAssets
+//*****MsgRedeemAssets
 func TestRedeemAssetType(t *testing.T) {
 	var msg = MsgRedeemAssets{
 		RedeemAssets: []RedeemAsset{NewRedeemAsset(issuerAddress, redeemerAddress, pegHash, srcChain, destAssetChain)},
@@ -278,9 +278,9 @@ func TestRedeemAssetGetSigners(t *testing.T) {
 	require.Equal(t, expected, fmt.Sprintf("%v", msg.GetSigners()))
 }
 
-// #####MsgRedeemAssets
+//#####MsgRedeemAssets
 
-// *****MsgRelayRedeemAssets
+//*****MsgRelayRedeemAssets
 func TestRelayRedeemAssetType(t *testing.T) {
 	var msg = MsgRelayRedeemAssets{
 		Relayer:      relayerAddress,
@@ -332,9 +332,9 @@ func TestRelayRedeemAssetGetSigners(t *testing.T) {
 	require.Equal(t, expected, fmt.Sprintf("%v", msg.GetSigners()))
 }
 
-// #####MsgRelayRedeemAssets
+//#####MsgRelayRedeemAssets
 
-// *****MsgIssueFiats
+//*****MsgIssueFiats
 func TestIssueFiatType(t *testing.T) {
 	var msg = MsgIssueFiats{
 		IssueFiats: []IssueFiat{NewIssueFiat(issuerAddress, toAddress, fiatPeg, srcChain, destFiatChain)},
@@ -367,7 +367,7 @@ func TestIssueFiatGetSignBytes(t *testing.T) {
 	var msg = MsgIssueFiats{
 		IssueFiats: []IssueFiat{NewIssueFiat(issuerAddress, toAddress, fiatPeg, srcChain, destFiatChain)},
 	}
-	expected := `{"issueFiats":[{"issuerAddress":"cosmos1f9ehxat9wfqkgerjv4ehxy08szk","toAddress":"cosmos1w3h5zerywfjhxuc7mfk6f","fiatPeg":{"type":"comdex-blockchain/FiatPeg","value":{"pegHash":"31","transactionID":"ASDFGHJKL","transactionAmount":"12345","redeemedAmount":"23456","owners":[{"ownerAddress":"cosmos1550dq7","amount":"12"}]}},"sourceChain":"comdex-main","destinationChain":"comdex-fiat"}]}`
+	expected := `{"issueFiats":[{"issuerAddress":"cosmos1f9ehxat9wfqkgerjv4ehxy08szk","toAddress":"cosmos1w3h5zerywfjhxuc7mfk6f","fiatPeg":{"type":"commit-blockchain/FiatPeg","value":{"pegHash":"31","transactionID":"ASDFGHJKL","transactionAmount":"12345","redeemedAmount":"23456","owners":[{"ownerAddress":"cosmos1550dq7","amount":"12"}]}},"sourceChain":"comdex-main","destinationChain":"comdex-fiat"}]}`
 	require.Equal(t, expected, string(msg.GetSignBytes()))
 }
 
@@ -379,9 +379,9 @@ func TestIssueFiatGetSigners(t *testing.T) {
 	require.Equal(t, expected, fmt.Sprintf("%v", msg.GetSigners()))
 }
 
-// #####MsgIssueFiat
+//#####MsgIssueFiat
 
-// *****MsgRelayIssueFiats
+//*****MsgRelayIssueFiats
 func TestRelayIssueFiatType(t *testing.T) {
 	var msg = MsgRelayIssueFiats{
 		IssueFiats: []IssueFiat{NewIssueFiat(issuerAddress, toAddress, fiatPeg, srcChain, destFiatChain)},
@@ -419,7 +419,7 @@ func TestRelayIssueFiatGetSignBytes(t *testing.T) {
 		Relayer:    relayerAddress,
 		Sequence:   0,
 	}
-	expected := `{"issueFiats":[{"issuerAddress":"cosmos1f9ehxat9wfqkgerjv4ehxy08szk","toAddress":"cosmos1w3h5zerywfjhxuc7mfk6f","fiatPeg":{"type":"comdex-blockchain/FiatPeg","value":{"pegHash":"31","transactionID":"ASDFGHJKL","transactionAmount":"12345","redeemedAmount":"23456","owners":[{"ownerAddress":"cosmos1550dq7","amount":"12"}]}},"sourceChain":"comdex-main","destinationChain":"comdex-fiat"}],"relayer":"cosmos12fjkcctev4eyzerywfjhxucryd09t","sequence":"0"}`
+	expected := `{"issueFiats":[{"issuerAddress":"cosmos1f9ehxat9wfqkgerjv4ehxy08szk","toAddress":"cosmos1w3h5zerywfjhxuc7mfk6f","fiatPeg":{"type":"commit-blockchain/FiatPeg","value":{"pegHash":"31","transactionID":"ASDFGHJKL","transactionAmount":"12345","redeemedAmount":"23456","owners":[{"ownerAddress":"cosmos1550dq7","amount":"12"}]}},"sourceChain":"comdex-main","destinationChain":"comdex-fiat"}],"relayer":"cosmos12fjkcctev4eyzerywfjhxucryd09t","sequence":"0"}`
 	require.Equal(t, expected, string(msg.GetSignBytes()))
 }
 
@@ -433,9 +433,9 @@ func TestRelayIssueFiatGetSigners(t *testing.T) {
 	require.Equal(t, expected, fmt.Sprintf("%d", msg.GetSigners()))
 }
 
-// #####MsgRelayIssueFiats
+//#####MsgRelayIssueFiats
 
-// *****MsgRedeemFiats
+//*****MsgRedeemFiats
 func TestRedeemFiatType(t *testing.T) {
 	var msg = MsgRedeemFiats{
 		RedeemFiats: []RedeemFiat{NewRedeemFiat(redeemerAddress, issuerAddress, amount, fiatPegWallet, srcChain, destFiatChain)},
@@ -481,9 +481,9 @@ func TestRedeemFiatGetSigners(t *testing.T) {
 	require.Equal(t, expected, fmt.Sprintf("%v", msg.GetSigners()))
 }
 
-// #####MsgRedeemFiats
+//#####MsgRedeemFiats
 
-// *****MsgRelayRedeemFiats
+//*****MsgRelayRedeemFiats
 func TestRelayRedeemFiatType(t *testing.T) {
 	var msg = MsgRelayRedeemFiats{
 		Relayer:     relayerAddress,
@@ -536,9 +536,9 @@ func TestRelayRedeemFiatGetSigners(t *testing.T) {
 	require.Equal(t, expected, fmt.Sprintf("%v", msg.GetSigners()))
 }
 
-// #####MsgRelayRedeemFiats
+//#####MsgRelayRedeemFiats
 
-// *****MsgSendAssets
+//*****MsgSendAssets
 
 func TestSendAssetType(t *testing.T) {
 	var msg = MsgSendAssets{
@@ -582,9 +582,9 @@ func TestSendAssetGetSigners(t *testing.T) {
 	require.Equal(t, expected, fmt.Sprintf("%d", msg.GetSigners()))
 }
 
-// #####MsgSendAssets
+//#####MsgSendAssets
 
-// *****MsgRelaySendAssets
+//*****MsgRelaySendAssets
 func TestRelaySendAssetType(t *testing.T) {
 	var msg = MsgRelaySendAssets{
 		Relayer:    relayerAddress,
@@ -636,9 +636,9 @@ func TestRelaySendAssetGetSigners(t *testing.T) {
 	require.Equal(t, expected, fmt.Sprintf("%v", msg.GetSigners()))
 }
 
-// #####MsgRelaySendAssets
+//#####MsgRelaySendAssets
 
-// *****MsgSendFiats
+//*****MsgSendFiats
 func TestSendFiatType(t *testing.T) {
 	var msg = MsgSendFiats{
 		SendFiats: []SendFiat{NewSendFiat(fromAddress, toAddress, sdk.PegHash([]byte("1")), amount, fiatPegWallet, srcChain, destFiatChain)},
@@ -659,7 +659,7 @@ func TestSendFiatsValidateBasic(t *testing.T) {
 		{false, MsgSendFiats{[]SendFiat{NewSendFiat(fromAddress, toAddress, sdk.PegHash([]byte("1")), amount, nil, srcChain, destFiatChain)}}},
 		{false, MsgSendFiats{[]SendFiat{NewSendFiat(fromAddress, toAddress, sdk.PegHash([]byte("1")), amount, fiatPegWallet, srcChain, srcChain)}}},
 	}
-	
+
 	for i, tc := range cases {
 		err := tc.tx.ValidateBasic()
 		if tc.valid {
@@ -685,9 +685,9 @@ func TestSendFiatGetSigners(t *testing.T) {
 	require.Equal(t, expected, fmt.Sprintf("%d", msg.GetSigners()))
 }
 
-// #####MsgSendFiats
+//#####MsgSendFiats
 
-// *****MsgRelaySendFiats
+//*****MsgRelaySendFiats
 func TestRelaySendFiatType(t *testing.T) {
 	var msg = MsgRelaySendFiats{
 		SendFiats: []SendFiat{NewSendFiat(fromAddress, toAddress, pegHash, amount, fiatPegWallet, srcChain, destFiatChain)},
@@ -741,7 +741,7 @@ func TestRelaySendFiatGetSigners(t *testing.T) {
 	require.Equal(t, expected, fmt.Sprintf("%d", msg.GetSigners()))
 }
 
-// #####MsgRelaySendFiats
+//#####MsgRelaySendFiats
 
 /*
 func TestExecuteOrderType(t *testing.T) {

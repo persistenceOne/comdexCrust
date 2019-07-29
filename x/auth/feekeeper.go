@@ -1,8 +1,8 @@
 package auth
 
 import (
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	wire "github.com/commitHub/commitBlockchain/wire"
 )
 
 var (
@@ -12,9 +12,10 @@ var (
 // FeeCollectionKeeper handles collection of fees in the anteHandler
 // and setting of MinFees for different fee tokens
 type FeeCollectionKeeper struct {
+
 	// The (unexposed) key used to access the fee store from the Context.
 	key sdk.StoreKey
-	
+
 	// The wire codec for binary encoding/decoding of accounts.
 	cdc *wire.Codec
 }
@@ -34,7 +35,7 @@ func (fck FeeCollectionKeeper) GetCollectedFees(ctx sdk.Context) sdk.Coins {
 	if bz == nil {
 		return sdk.Coins{}
 	}
-	
+
 	feePool := &(sdk.Coins{})
 	fck.cdc.MustUnmarshalBinary(bz, feePool)
 	return *feePool
@@ -51,7 +52,7 @@ func (fck FeeCollectionKeeper) setCollectedFees(ctx sdk.Context, coins sdk.Coins
 func (fck FeeCollectionKeeper) addCollectedFees(ctx sdk.Context, coins sdk.Coins) sdk.Coins {
 	newCoins := fck.GetCollectedFees(ctx).Plus(coins)
 	fck.setCollectedFees(ctx, newCoins)
-	
+
 	return newCoins
 }
 

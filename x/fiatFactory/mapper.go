@@ -1,19 +1,19 @@
 package fiatFactory
 
 import (
-	"github.com/comdex-blockchain/types"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+	"github.com/commitHub/commitBlockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	wire "github.com/commitHub/commitBlockchain/wire"
 )
 
-// FiatPegMapper : encoder decoder for fiat type
+//FiatPegMapper : encoder decoder for fiat type
 type FiatPegMapper struct {
 	key   sdk.StoreKey
 	proto func() sdk.FiatPeg
 	cdc   *wire.Codec
 }
 
-// NewFiatPegMapper : returns fiat mapper
+//NewFiatPegMapper : returns fiat mapper
 func NewFiatPegMapper(cdc *wire.Codec, key sdk.StoreKey, proto func() sdk.FiatPeg) FiatPegMapper {
 	return FiatPegMapper{
 		key:   key,
@@ -22,7 +22,7 @@ func NewFiatPegMapper(cdc *wire.Codec, key sdk.StoreKey, proto func() sdk.FiatPe
 	}
 }
 
-// FiatPegHashStoreKey : converts peg hash to keystore key
+//FiatPegHashStoreKey : converts peg hash to keystore key
 func FiatPegHashStoreKey(fiatPegHash sdk.PegHash) []byte {
 	return append([]byte("PegHash:"), fiatPegHash.Bytes()...)
 }
@@ -43,7 +43,7 @@ func (fm FiatPegMapper) decodeFiatPeg(bz []byte) (fiat sdk.FiatPeg) {
 	return
 }
 
-// SetFiatPeg : set fiat peg
+//SetFiatPeg : set fiat peg
 func (fm FiatPegMapper) SetFiatPeg(ctx sdk.Context, fiat sdk.FiatPeg) {
 	pegHash := fiat.GetPegHash()
 	store := ctx.KVStore(fm.key)
@@ -51,7 +51,7 @@ func (fm FiatPegMapper) SetFiatPeg(ctx sdk.Context, fiat sdk.FiatPeg) {
 	store.Set(FiatPegHashStoreKey(pegHash), bz)
 }
 
-// GetFiatPeg : get fiat peg
+//GetFiatPeg : get fiat peg
 func (fm FiatPegMapper) GetFiatPeg(ctx sdk.Context, pegHash sdk.PegHash) types.FiatPeg {
 	store := ctx.KVStore(fm.key)
 	bz := store.Get(FiatPegHashStoreKey(pegHash))
@@ -62,7 +62,7 @@ func (fm FiatPegMapper) GetFiatPeg(ctx sdk.Context, pegHash sdk.PegHash) types.F
 	return acc
 }
 
-// IterateFiats : iterate over fiats in kv store and add fiats
+//IterateFiats : iterate over fiats in kv store and add fiats
 func (fm FiatPegMapper) IterateFiats(ctx sdk.Context, process func(sdk.FiatPeg) (stop bool)) {
 	store := ctx.KVStore(fm.key)
 	iter := sdk.KVStorePrefixIterator(store, []byte("PegHash:"))
@@ -70,7 +70,7 @@ func (fm FiatPegMapper) IterateFiats(ctx sdk.Context, process func(sdk.FiatPeg) 
 		if !iter.Valid() {
 			return
 		}
-		
+
 		val := iter.Value()
 		acc := fm.decodeFiatPeg(val)
 		if process(acc) {

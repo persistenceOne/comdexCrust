@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	
-	"github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/auth"
-	
+
+	"github.com/commitHub/commitBlockchain/client"
+	"github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/auth"
+
 	"github.com/spf13/viper"
-	
+
 	"github.com/tendermint/tendermint/libs/cli"
 	tmlite "github.com/tendermint/tendermint/lite"
 	tmliteProxy "github.com/tendermint/tendermint/lite/proxy"
@@ -45,12 +45,12 @@ type CLIContext struct {
 // command line using Viper.
 func NewCLIContext() CLIContext {
 	var rpc rpcclient.Client
-	
+
 	nodeURI := viper.GetString(client.FlagNode)
 	if nodeURI != "" {
 		rpc = rpcclient.NewHTTP(nodeURI, "/websocket")
 	}
-	
+
 	return CLIContext{
 		Client:          rpc,
 		NodeURI:         nodeURI,
@@ -77,7 +77,7 @@ func createCertifier() tmlite.Certifier {
 	chainID := viper.GetString(client.FlagChainID)
 	home := viper.GetString(cli.HomeFlag)
 	nodeURI := viper.GetString(client.FlagNode)
-	
+
 	var errMsg bytes.Buffer
 	if chainID == "" {
 		errMsg.WriteString("chain-id ")

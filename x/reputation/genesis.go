@@ -1,13 +1,13 @@
 package reputation
 
-import sdk "github.com/comdex-blockchain/types"
+import sdk "github.com/commitHub/commitBlockchain/types"
 
 // InitReputation will initialize the reputation store
 func InitReputation(ctx sdk.Context, keeper Keeper) (err error) {
-	
+
 	accountReputation := DefaultAccountReputation()
 	keeper.fm.SetAccountReputation(ctx, accountReputation)
-	
+
 	return
 }
 

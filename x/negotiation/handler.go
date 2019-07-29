@@ -2,12 +2,12 @@ package negotiation
 
 import (
 	"reflect"
-	
-	"github.com/comdex-blockchain/x/reputation"
-	
-	"github.com/comdex-blockchain/x/acl"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	"github.com/commitHub/commitBlockchain/x/reputation"
+
+	"github.com/commitHub/commitBlockchain/x/acl"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // NewHandler returns a handler for "negotiation" type messages.

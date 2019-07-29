@@ -4,7 +4,7 @@ import (
 	flag "github.com/spf13/pflag"
 )
 
-// noLint
+//noLint
 const (
 	FlagTo                 = "to"
 	FlagOrganizationID     = "organizationID"
@@ -25,7 +25,7 @@ const (
 	FlagReleaseAsset       = "releaseAsset"
 )
 
-// onlint
+//onlint
 var (
 	fsTo                 = flag.NewFlagSet("", flag.ContinueOnError)
 	fsOrganizationID     = flag.NewFlagSet("", flag.ContinueOnError)

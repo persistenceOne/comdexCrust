@@ -1,11 +1,11 @@
 package rest
 
 import (
-	"github.com/comdex-blockchain/client/context"
-	"github.com/comdex-blockchain/crypto/keys"
-	"github.com/comdex-blockchain/rest"
-	"github.com/comdex-blockchain/wire"
-	fiatcmd "github.com/comdex-blockchain/x/fiatFactory/client/cli"
+	"github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/crypto/keys"
+	"github.com/commitHub/commitBlockchain/rest"
+	"github.com/commitHub/commitBlockchain/wire"
+	fiatcmd "github.com/commitHub/commitBlockchain/x/fiatFactory/client/cli"
 	"github.com/gorilla/mux"
 )
 

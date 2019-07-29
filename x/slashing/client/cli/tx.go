@@ -2,15 +2,15 @@ package cli
 
 import (
 	"os"
-	
-	"github.com/comdex-blockchain/client/context"
-	"github.com/comdex-blockchain/client/utils"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	authcmd "github.com/comdex-blockchain/x/auth/client/cli"
-	authctx "github.com/comdex-blockchain/x/auth/client/context"
-	"github.com/comdex-blockchain/x/slashing"
-	
+
+	"github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/client/utils"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	authcmd "github.com/commitHub/commitBlockchain/x/auth/client/cli"
+	authctx "github.com/commitHub/commitBlockchain/x/auth/client/context"
+	"github.com/commitHub/commitBlockchain/x/slashing"
+
 	"github.com/spf13/cobra"
 )
 
@@ -26,17 +26,17 @@ func GetCmdUnjail(cdc *wire.Codec) *cobra.Command {
 				WithCodec(cdc).
 				WithLogger(os.Stdout).
 				WithAccountDecoder(authcmd.GetAccountDecoder(cdc))
-			
+
 			valAddr, err := cliCtx.GetFromAddress()
 			if err != nil {
 				return err
 			}
-			
+
 			msg := slashing.NewMsgUnjail(sdk.ValAddress(valAddr))
-			
+
 			return utils.SendTx(txCtx, cliCtx, []sdk.Msg{msg})
 		},
 	}
-	
+
 	return cmd
 }

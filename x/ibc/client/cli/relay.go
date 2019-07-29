@@ -3,19 +3,19 @@ package cli
 import (
 	"os"
 	"time"
-	
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	
+
 	"github.com/tendermint/tmlibs/log"
-	
-	"github.com/comdex-blockchain/client/context"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/auth"
-	authcmd "github.com/comdex-blockchain/x/auth/client/cli"
-	context2 "github.com/comdex-blockchain/x/auth/client/context"
-	"github.com/comdex-blockchain/x/ibc"
+
+	"github.com/commitHub/commitBlockchain/client/context"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	wire "github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/auth"
+	authcmd "github.com/commitHub/commitBlockchain/x/auth/client/cli"
+	context2 "github.com/commitHub/commitBlockchain/x/auth/client/context"
+	"github.com/commitHub/commitBlockchain/x/ibc"
 )
 
 // flags
@@ -33,7 +33,7 @@ type relayCommander struct {
 	mainStore string
 	ibcStore  string
 	accStore  string
-	
+
 	logger log.Logger
 }
 
@@ -45,30 +45,30 @@ func IBCRelayCmd(cdc *wire.Codec) *cobra.Command {
 		ibcStore:  "ibc",
 		mainStore: "main",
 		accStore:  "acc",
-		
+
 		logger: log.NewTMLogger(log.NewSyncWriter(os.Stdout)),
 	}
-	
+
 	cmd := &cobra.Command{
 		Use: "relay",
 		Run: cmdr.runIBCRelay,
 	}
-	
+
 	cmd.Flags().String(FlagFromChainID, "", "Chain ID for ibc node to check outgoing packets")
 	cmd.Flags().String(FlagFromChainNode, "tcp://localhost:46657", "<host>:<port> to tendermint rpc interface for this chain")
 	cmd.Flags().String(FlagToChainID, "", "Chain ID for ibc node to broadcast incoming packets")
 	cmd.Flags().String(FlagToChainNode, "tcp://localhost:36657", "<host>:<port> to tendermint rpc interface for this chain")
-	
+
 	cmd.MarkFlagRequired(FlagFromChainID)
 	cmd.MarkFlagRequired(FlagFromChainNode)
 	cmd.MarkFlagRequired(FlagToChainID)
 	cmd.MarkFlagRequired(FlagToChainNode)
-	
+
 	viper.BindPFlag(FlagFromChainID, cmd.Flags().Lookup(FlagFromChainID))
 	viper.BindPFlag(FlagFromChainNode, cmd.Flags().Lookup(FlagFromChainNode))
 	viper.BindPFlag(FlagToChainID, cmd.Flags().Lookup(FlagToChainID))
 	viper.BindPFlag(FlagToChainNode, cmd.Flags().Lookup(FlagToChainNode))
-	
+
 	return cmd
 }
 
@@ -82,33 +82,33 @@ func (c relayCommander) runIBCRelay(cmd *cobra.Command, args []string) {
 		panic(err)
 	}
 	c.address = address
-	
+
 	c.loop(fromChainID, fromChainNode, toChainID, toChainNode)
 }
 
 func (c relayCommander) loop(fromChainID, fromChainNode, toChainID,
-toChainNode string) {
-	
+	toChainNode string) {
+
 	passphrase := "1234567890"
-	
+
 	ingressKey := ibc.IngressSequenceKey(fromChainID)
 
 OUTER:
 	for {
 		time.Sleep(5 * time.Second)
-		
+
 		processedbz, err := query(toChainNode, ingressKey, c.ibcStore)
 		if err != nil {
 			panic(err)
 		}
-		
+
 		var processed int64
 		if processedbz == nil {
 			processed = 0
 		} else if err = c.cdc.UnmarshalBinary(processedbz, &processed); err != nil {
 			panic(err)
 		}
-		
+
 		lengthKey := ibc.EgressLengthKey(toChainID)
 		egressLengthbz, err := query(fromChainNode, lengthKey, c.ibcStore)
 		if err != nil {
@@ -124,9 +124,9 @@ OUTER:
 		if egressLength > processed {
 			c.logger.Info("Detected IBC packet", "number", egressLength-1)
 		}
-		
+
 		seq := c.getSequence(toChainNode)
-		
+
 		for i := processed; i < egressLength; i++ {
 			egressbz, err := query(fromChainNode, ibc.EgressKey(toChainID, i), c.ibcStore)
 			if err != nil {
@@ -139,7 +139,7 @@ OUTER:
 				c.logger.Error("Error broadcasting ingress packet", "err", err)
 				continue OUTER
 			}
-			
+
 			c.logger.Info("Relayed IBC packet", "number", i)
 		}
 	}
@@ -164,10 +164,10 @@ func (c relayCommander) getSequence(node string) int64 {
 		if err != nil {
 			panic(err)
 		}
-		
+
 		return account.GetSequence()
 	}
-	
+
 	return 0
 }
 
@@ -178,7 +178,7 @@ func (c relayCommander) refine(bz []byte, sequence int64, passphrase string) []b
 	}
 	switch msg := msg.(type) {
 	case ibc.MsgIssueAssets:
-		
+
 		relayMsg := ibc.NewMsgRelayIssueAssets(msg.IssueAssets, c.address, sequence)
 		txCtx := context2.NewTxContextFromCLI().WithSequence(sequence).WithCodec(c.cdc)
 		cliCtx := context.NewCLIContext()
@@ -187,21 +187,21 @@ func (c relayCommander) refine(bz []byte, sequence int64, passphrase string) []b
 			panic(err)
 		}
 		return res
-	
+
 	case ibc.MsgSendAssets:
-		
+
 		relayMsg := ibc.NewMsgRelaySendAssets(msg.SendAssets, c.address, sequence)
 		txCtx := context2.NewTxContextFromCLI().WithSequence(sequence).WithCodec(c.cdc)
 		cliCtx := context.NewCLIContext()
 		res, err := txCtx.BuildAndSign(cliCtx.FromAddressName, passphrase, []sdk.Msg{relayMsg})
-		
+
 		if err != nil {
 			panic(err)
 		}
 		return res
-	
+
 	case ibc.MsgRedeemAssets:
-		
+
 		relayMsg := ibc.NewMsgRelayRedeemAssets(msg.RedeemAssets, c.address, sequence)
 		txCtx := context2.NewTxContextFromCLI().WithSequence(sequence).WithCodec(c.cdc)
 		cliCtx := context.NewCLIContext()
@@ -210,7 +210,7 @@ func (c relayCommander) refine(bz []byte, sequence int64, passphrase string) []b
 			panic(err)
 		}
 		return res
-	
+
 	case ibc.MsgIssueFiats:
 		relayMsg := ibc.NewMsgRelayIssueFiats(msg.IssueFiats, c.address, sequence)
 		txCtx := context2.NewTxContextFromCLI().WithSequence(sequence).WithCodec(c.cdc)
@@ -220,26 +220,26 @@ func (c relayCommander) refine(bz []byte, sequence int64, passphrase string) []b
 			panic(err)
 		}
 		return res
-	
+
 	case ibc.MsgSendFiats:
-		
+
 		relayMsg := ibc.NewMsgRelaySendFiats(msg.SendFiats, c.address, sequence)
 		txCtx := context2.NewTxContextFromCLI().WithSequence(sequence).WithCodec(c.cdc)
 		cliCtx := context.NewCLIContext()
 		res, err := txCtx.BuildAndSign(cliCtx.FromAddressName, passphrase, []sdk.Msg{relayMsg})
-		
+
 		if err != nil {
 			panic(err)
 		}
 		return res
-	
+
 	case ibc.MsgRedeemFiats:
-		
+
 		relayMsg := ibc.NewMsgRelayRedeemFiats(msg.RedeemFiats, c.address, sequence)
 		txCtx := context2.NewTxContextFromCLI().WithSequence(sequence).WithCodec(c.cdc)
 		cliCtx := context.NewCLIContext()
 		res, err := txCtx.BuildAndSign(cliCtx.FromAddressName, passphrase, []sdk.Msg{relayMsg})
-		
+
 		if err != nil {
 			panic(err)
 		}
@@ -268,7 +268,7 @@ func (c relayCommander) refine(bz []byte, sequence int64, passphrase string) []b
 			Relayer:   c.address,
 			Sequence:  sequence,
 		}
-		
+
 		txCtx := context2.NewTxContextFromCLI().WithSequence(sequence).WithCodec(c.cdc)
 		cliCtx := context.NewCLIContext()
 		res, err := txCtx.BuildAndSign(cliCtx.FromAddressName, passphrase, []sdk.Msg{relayMsg})
@@ -278,5 +278,5 @@ func (c relayCommander) refine(bz []byte, sequence int64, passphrase string) []b
 		return res
 	}
 	return nil
-	
+
 }

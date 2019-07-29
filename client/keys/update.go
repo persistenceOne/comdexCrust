@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	
-	"github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/crypto/keys"
+
+	"github.com/commitHub/commitBlockchain/client"
+	keys "github.com/commitHub/commitBlockchain/crypto/keys"
 	"github.com/gorilla/mux"
-	
+
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +24,7 @@ func updateKeyCommand() *cobra.Command {
 
 func runUpdateCmd(cmd *cobra.Command, args []string) error {
 	name := args[0]
-	
+
 	buf := client.BufferStdin()
 	kb, err := GetKeyBase()
 	if err != nil {
@@ -35,13 +35,13 @@ func runUpdateCmd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	getNewpass := func() (string, error) {
 		return client.GetCheckPassword(
 			"Enter the new passphrase:",
 			"Repeat the new passphrase:", buf)
 	}
-	
+
 	err = kb.Update(name, oldpass, getNewpass)
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func runUpdateCmd(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// /////////////////////
+///////////////////////
 // REST
 
 // update key request REST body
@@ -65,7 +65,7 @@ func UpdateKeyRequestHandler(w http.ResponseWriter, r *http.Request) {
 	name := vars["name"]
 	var kb keys.Keybase
 	var m UpdateKeyBody
-	
+
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&m)
 	if err != nil {
@@ -73,16 +73,16 @@ func UpdateKeyRequestHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	
+
 	kb, err = GetKeyBase()
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write([]byte(err.Error()))
 		return
 	}
-	
+
 	getNewpass := func() (string, error) { return m.NewPassword, nil }
-	
+
 	// TODO check if account exists and if password is correct
 	err = kb.Update(name, m.OldPassword, getNewpass)
 	if err != nil {
@@ -90,6 +90,6 @@ func UpdateKeyRequestHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	
+
 	w.WriteHeader(200)
 }

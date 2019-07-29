@@ -2,7 +2,7 @@ package rest
 
 import (
 	"github.com/Shopify/sarama"
-	"github.com/comdex-blockchain/wire"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
 // NewProducer is a producer to send messages to kafka
@@ -14,9 +14,9 @@ func NewProducer(kafkaPorts []string) sarama.SyncProducer {
 	return producer
 }
 
-// KafkaProducerDeliverMessage : delivers messages to kafka
+//KafkaProducerDeliverMessage : delivers messages to kafka
 func KafkaProducerDeliverMessage(msg KafkaMsg, topic string, producer sarama.SyncProducer, cdc *wire.Codec) error {
-	
+
 	kafkaStoreBytes, err := cdc.MarshalJSON(msg)
 	if err != nil {
 		panic(err)
@@ -32,7 +32,7 @@ func KafkaProducerDeliverMessage(msg KafkaMsg, topic string, producer sarama.Syn
 	return nil
 }
 
-// SendToKafka : handles sending message to kafka
+//SendToKafka : handles sending message to kafka
 func SendToKafka(msg KafkaMsg, kafkaState KafkaState, cdc *wire.Codec) []byte {
 	err := KafkaProducerDeliverMessage(msg, "Topic", kafkaState.Producer, cdc)
 	if err != nil {

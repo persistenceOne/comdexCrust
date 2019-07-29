@@ -2,14 +2,14 @@ package gov
 
 import (
 	"fmt"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // name to idetify transaction types
 const MsgType = "gov"
 
-// -----------------------------------------------------------
+//-----------------------------------------------------------
 // MsgSubmitProposal
 type MsgSubmitProposal struct {
 	Title          string         //  Title of the proposal
@@ -78,7 +78,7 @@ func (msg MsgSubmitProposal) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Proposer}
 }
 
-// -----------------------------------------------------------
+//-----------------------------------------------------------
 // MsgDeposit
 type MsgDeposit struct {
 	ProposalID int64          `json:"proposalID"` // ID of the proposal
@@ -137,7 +137,7 @@ func (msg MsgDeposit) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Depositer}
 }
 
-// -----------------------------------------------------------
+//-----------------------------------------------------------
 // MsgVote
 type MsgVote struct {
 	ProposalID int64          //  proposalID of the proposal

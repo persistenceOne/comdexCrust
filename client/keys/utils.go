@@ -3,16 +3,16 @@ package keys
 import (
 	"fmt"
 	"path/filepath"
-	
+
 	"github.com/spf13/viper"
-	
-	"github.com/comdex-blockchain/crypto/keys"
+
+	"github.com/commitHub/commitBlockchain/crypto/keys"
 	"github.com/tendermint/tendermint/libs/cli"
 	dbm "github.com/tendermint/tendermint/libs/db"
-	
-	"github.com/comdex-blockchain/client"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	"github.com/commitHub/commitBlockchain/client"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // KeyDBName is the directory under root where we store the keys
@@ -38,7 +38,7 @@ func GetKeyInfo(name string) (keys.Info, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return keybase.Get(name)
 }
 
@@ -48,12 +48,12 @@ func GetKeyInfo(name string) (keys.Info, error) {
 // the key info cannot be fetched or reading from STDIN fails.
 func GetPassphrase(name string) (string, error) {
 	var passphrase string
-	
+
 	keyInfo, err := GetKeyInfo(name)
 	if err != nil {
 		return passphrase, err
 	}
-	
+
 	// we only need a passphrase for locally stored keys
 	// TODO: (ref: #864) address security concerns
 	if keyInfo.GetType() == keys.TypeLocal {
@@ -62,7 +62,7 @@ func GetPassphrase(name string) (string, error) {
 			return passphrase, err
 		}
 	}
-	
+
 	return passphrase, nil
 }
 
@@ -71,12 +71,12 @@ func GetPassphrase(name string) (string, error) {
 func ReadPassphraseFromStdin(name string) (string, error) {
 	buf := client.BufferStdin()
 	prompt := fmt.Sprintf("Password to sign with '%s':", name)
-	
+
 	passphrase, err := client.GetPassword(prompt, buf)
 	if err != nil {
 		return passphrase, fmt.Errorf("Error reading passphrase: %v", err)
 	}
-	
+
 	return passphrase, nil
 }
 
@@ -126,7 +126,7 @@ func Bech32KeyOutput(info keys.Info) (KeyOutput, error) {
 	if err != nil {
 		return KeyOutput{}, err
 	}
-	
+
 	return KeyOutput{
 		Name:    info.GetName(),
 		Type:    info.GetType().String(),
@@ -139,12 +139,12 @@ func Bech32KeyOutput(info keys.Info) (KeyOutput, error) {
 // information.
 func Bech32ConsKeyOutput(keyInfo keys.Info) (KeyOutput, error) {
 	consAddr := sdk.ConsAddress(keyInfo.GetPubKey().Address().Bytes())
-	
+
 	bechPubKey, err := sdk.Bech32ifyConsPub(keyInfo.GetPubKey())
 	if err != nil {
 		return KeyOutput{}, err
 	}
-	
+
 	return KeyOutput{
 		Name:    keyInfo.GetName(),
 		Type:    keyInfo.GetType().String(),
@@ -156,12 +156,12 @@ func Bech32ConsKeyOutput(keyInfo keys.Info) (KeyOutput, error) {
 // Bech32ValKeyOutput returns key output for a validator's key information.
 func Bech32ValKeyOutput(keyInfo keys.Info) (KeyOutput, error) {
 	valAddr := sdk.ValAddress(keyInfo.GetPubKey().Address().Bytes())
-	
+
 	bechPubKey, err := sdk.Bech32ifyValPub(keyInfo.GetPubKey())
 	if err != nil {
 		return KeyOutput{}, err
 	}
-	
+
 	return KeyOutput{
 		Name:    keyInfo.GetName(),
 		Type:    keyInfo.GetType().String(),
@@ -175,7 +175,7 @@ func printKeyInfo(keyInfo keys.Info, bechKeyOut bechKeyOutFn) {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	switch viper.Get(cli.OutputFlag) {
 	case "text":
 		fmt.Printf("NAME:\tTYPE:\tADDRESS:\t\t\t\t\t\tPUBKEY:\n")
@@ -185,7 +185,7 @@ func printKeyInfo(keyInfo keys.Info, bechKeyOut bechKeyOutFn) {
 		if err != nil {
 			panic(err)
 		}
-		
+
 		fmt.Println(string(out))
 	}
 }
@@ -219,7 +219,7 @@ func printKeyAddress(info keys.Info, bechKeyOut bechKeyOutFn) {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	fmt.Println(ko.Address)
 }
 
@@ -228,6 +228,6 @@ func printPubKey(info keys.Info, bechKeyOut bechKeyOutFn) {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	fmt.Println(ko.PubKey)
 }

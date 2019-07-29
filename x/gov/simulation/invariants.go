@@ -2,11 +2,11 @@ package simulation
 
 import (
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
-	
-	"github.com/comdex-blockchain/baseapp"
-	"github.com/comdex-blockchain/x/mock/simulation"
+
+	"github.com/commitHub/commitBlockchain/baseapp"
+	"github.com/commitHub/commitBlockchain/x/mock/simulation"
 )
 
 // AllInvariants tests all governance invariants

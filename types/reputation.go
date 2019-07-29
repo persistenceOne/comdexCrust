@@ -5,38 +5,38 @@ import (
 	"sort"
 )
 
-// TransactionFeedback : type
+//TransactionFeedback : type
 type TransactionFeedback struct {
 	SendAssetsPositiveTx int64 `json:"sendAssetsPositiveTx"`
 	SendAssetsNegativeTx int64 `json:"sendAssetsNegativeTx"`
-	
+
 	SendFiatsPositiveTx int64 `json:"sendFiatsPositiveTx"`
 	SendFiatsNegativeTx int64 `json:"sendFiatsNegativeTx"`
-	
+
 	IBCIssueAssetsPositiveTx int64 `json:"ibcIssueAssetsPositiveTx"`
 	IBCIssueAssetsNegativeTx int64 `json:"ibcIssueAssetsNegativeTx"`
-	
+
 	IBCIssueFiatsPositiveTx int64 `json:"ibcIssueFiatsPositiveTx"`
 	IBCIssueFiatsNegativeTx int64 `json:"ibcIssueFiatsNegativeTx"`
-	
+
 	BuyerExecuteOrderPositiveTx int64 `json:"buyerExecuteOrderPositiveTx"`
 	BuyerExecuteOrderNegativeTx int64 `json:"buyerExecuteOrderNegativeTx"`
-	
+
 	SellerExecuteOrderPositiveTx int64 `json:"sellerExecuteOrderPositiveTx"`
 	SellerExecuteOrderNegativeTx int64 `json:"sellerExecuteOrderNegativeTx"`
-	
+
 	ChangeBuyerBidPositiveTx int64 `json:"changeBuyerBidPositiveTx"`
 	ChangeBuyerBidNegativeTx int64 `json:"changeBuyerBidNegativeTx"`
-	
+
 	ChangeSellerBidPositiveTx int64 `json:"changeSellerBidPositiveTx"`
 	ChangeSellerBidNegativeTx int64 `json:"changeSellerBidNegativeTx"`
-	
+
 	ConfirmBuyerBidPositiveTx int64 `json:"confirmBuyerBidPositiveTx"`
 	ConfirmBuyerBidNegativeTx int64 `json:"confirmBuyerBidNegativeTx"`
-	
+
 	ConfirmSellerBidPositiveTx int64 `json:"confirmSellerBidPositiveTx"`
 	ConfirmSellerBidNegativeTx int64 `json:"confirmSellerBidNegativeTx"`
-	
+
 	NegotiationPositiveTx int64 `json:"negotiationPositiveTx"`
 	NegotiationNegativeTx int64 `json:"negotiationNegativeTx"`
 }
@@ -49,7 +49,7 @@ type TraderFeedback struct {
 	Rating        int64      `json:"rating"`
 }
 
-// NewTraderFeedback : create new Rating
+//NewTraderFeedback : create new Rating
 func NewTraderFeedback(buyerAddress AccAddress, sellerAddress AccAddress, pegHash PegHash, rating int64) TraderFeedback {
 	return TraderFeedback{BuyerAddress: buyerAddress,
 		SellerAddress: sellerAddress,
@@ -57,7 +57,7 @@ func NewTraderFeedback(buyerAddress AccAddress, sellerAddress AccAddress, pegHas
 		Rating:        rating}
 }
 
-// GenerateNegotiationID : generates negotiationID from  traderFeedback struct
+//GenerateNegotiationID : generates negotiationID from  traderFeedback struct
 func (traderFeedback TraderFeedback) GenerateNegotiationID() []byte {
 	return GenerateNegotiationIDBytes(traderFeedback.BuyerAddress, traderFeedback.SellerAddress, traderFeedback.PegHash)
 }
@@ -93,23 +93,23 @@ func (traderFeedbackHistory TraderFeedbackHistory) Search(incomingFeedback Trade
 	return index
 }
 
-// AccountReputation : implements basefeedback
+//AccountReputation : implements basefeedback
 type AccountReputation interface {
 	GetAddress() AccAddress
 	SetAddress(AccAddress) error
-	
+
 	GetTransactionFeedback() TransactionFeedback
 	SetTransactionFeedback(TransactionFeedback) error
-	
+
 	GetTraderFeedbackHistory() TraderFeedbackHistory
 	SetTraderFeedbackHistory(TraderFeedbackHistory) error
-	
+
 	AddTraderFeedback(TraderFeedback) Error
-	
+
 	GetRating() int64
 }
 
-// NewAccountReputation := creates new  traderFeedback
+//NewAccountReputation := creates new  traderFeedback
 func NewAccountReputation() AccountReputation {
 	baseAccountReputation := NewBaseAccountReputation()
 	return &baseAccountReputation
@@ -124,7 +124,7 @@ type BaseAccountReputation struct {
 	TraderFeedbackHistory TraderFeedbackHistory `json:"traderFeedbackHistory"`
 }
 
-// NewBaseAccountReputation : creates new
+//NewBaseAccountReputation : creates new
 func NewBaseAccountReputation() BaseAccountReputation {
 	return BaseAccountReputation{
 		TransactionFeedback:   TransactionFeedback{},
@@ -137,46 +137,46 @@ func ProtoBaseAccountReputation() AccountReputation {
 	return &BaseAccountReputation{}
 }
 
-// GetAddress : gets
+//GetAddress : gets
 func (baseAccountReputation BaseAccountReputation) GetAddress() AccAddress {
 	return baseAccountReputation.Address
 }
 
-// SetAddress : sets
+//SetAddress : sets
 func (baseAccountReputation *BaseAccountReputation) SetAddress(addr AccAddress) error {
 	baseAccountReputation.Address = addr
 	return nil
 }
 
-// GetTransactionFeedback : gets
+//GetTransactionFeedback : gets
 func (baseAccountReputation BaseAccountReputation) GetTransactionFeedback() TransactionFeedback {
 	return baseAccountReputation.TransactionFeedback
 }
 
-// SetTransactionFeedback : sets
+//SetTransactionFeedback : sets
 func (baseAccountReputation *BaseAccountReputation) SetTransactionFeedback(transactionFeedback TransactionFeedback) error {
 	baseAccountReputation.TransactionFeedback = transactionFeedback
 	return nil
 }
 
-// GetTraderFeedbackHistory : gets
+//GetTraderFeedbackHistory : gets
 func (baseAccountReputation BaseAccountReputation) GetTraderFeedbackHistory() TraderFeedbackHistory {
 	return baseAccountReputation.TraderFeedbackHistory
 }
 
-// SetTraderFeedbackHistory : sets
+//SetTraderFeedbackHistory : sets
 func (baseAccountReputation *BaseAccountReputation) SetTraderFeedbackHistory(traderFeedbacks TraderFeedbackHistory) error {
 	baseAccountReputation.TraderFeedbackHistory = traderFeedbacks
 	return nil
 }
 
-// hasTraderFeedback : gets rating
+//hasTraderFeedback : gets rating
 func (baseAccountReputation BaseAccountReputation) hasTraderFeedback(traderFeedback TraderFeedback) bool {
 	index := baseAccountReputation.TraderFeedbackHistory.Search(traderFeedback)
 	return index < baseAccountReputation.TraderFeedbackHistory.Len() && bytes.Compare(baseAccountReputation.TraderFeedbackHistory[index].GenerateNegotiationID(), traderFeedback.GenerateNegotiationID()) != 0
 }
 
-// AddTraderFeedback : sets rating
+//AddTraderFeedback : sets rating
 func (baseAccountReputation *BaseAccountReputation) AddTraderFeedback(traderFeedback TraderFeedback) Error {
 	ok := baseAccountReputation.hasTraderFeedback(traderFeedback)
 	if !ok {
@@ -187,8 +187,8 @@ func (baseAccountReputation *BaseAccountReputation) AddTraderFeedback(traderFeed
 	return ErrFeedbackCannotRegister("You have already given a  traderFeedback for this transaction")
 }
 
-// GetRating : gets a rating of that account
+//GetRating : gets a rating of that account
 func (baseAccountReputation BaseAccountReputation) GetRating() int64 { return 100 }
 
-// ReputationDecoder : decoder function for Reputation
+//ReputationDecoder : decoder function for Reputation
 type ReputationDecoder func(reputationBytes []byte) (AccountReputation, error)

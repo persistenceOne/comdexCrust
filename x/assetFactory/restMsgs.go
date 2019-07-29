@@ -1,6 +1,6 @@
 package assetFactory
 
-// IssueAssetBody : request for issue asset rest
+//IssueAssetBody : request for issue asset rest
 type IssueAssetBody struct {
 	From          string `json:"from" valid:"required~Enter the FromName"`
 	To            string `json:"to" valid:"required~Enter the ToAddress,matches(^cosmos[a-z0-9]{39}$)~ToAddress is Invalid"`
@@ -18,7 +18,7 @@ type IssueAssetBody struct {
 	Gas           int64  `json:"gas"`
 }
 
-// ExecuteAssetBody : request for execute asset rest
+//ExecuteAssetBody : request for execute asset rest
 type ExecuteAssetBody struct {
 	Owner         string `json:"owner" valid:"required~Enter the OwnerAddress,matches(^cosmos[a-z0-9]{39}$)~OwnerAddress is Invalid"`
 	From          string `json:"from" valid:"required~Enter the FromName"`
@@ -32,7 +32,7 @@ type ExecuteAssetBody struct {
 	Gas           int64  `json:"gas"`
 }
 
-// RedeemAssetBody : request for redeem asset rest
+//RedeemAssetBody : request for redeem asset rest
 type RedeemAssetBody struct {
 	Owner         string `json:"owner" valid:"required~Enter the OwnerAddress,matches(^cosmos[a-z0-9]{39}$)~OwnerAddress is Invalid"`
 	From          string `json:"from" valid:"required~Enter the FromName"`
@@ -46,7 +46,7 @@ type RedeemAssetBody struct {
 	Gas           int64  `json:"gas"`
 }
 
-// SendAssetBody : request for send asset rest
+//SendAssetBody : request for send asset rest
 type SendAssetBody struct {
 	Owner         string `json:"owner" valid:"required~Enter the OwnerAddress,matches(^cosmos[a-z0-9]{39}$)~OwnerAddress is Invalid"`
 	From          string `json:"from" valid:"required~Enter the FromName"`

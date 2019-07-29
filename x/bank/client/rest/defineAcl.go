@@ -1,31 +1,34 @@
 package rest
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"strconv"
-	
+
 	"github.com/asaskevich/govalidator"
-	
-	cliclient "github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/client/context"
-	"github.com/comdex-blockchain/client/utils"
-	"github.com/comdex-blockchain/rest"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/acl"
-	authcmd "github.com/comdex-blockchain/x/auth/client/cli"
-	authctx "github.com/comdex-blockchain/x/auth/client/context"
-	"github.com/comdex-blockchain/x/bank"
+
+	cliclient "github.com/commitHub/commitBlockchain/client"
+	"github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/client/utils"
+	"github.com/commitHub/commitBlockchain/rest"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/acl"
+	authcmd "github.com/commitHub/commitBlockchain/x/auth/client/cli"
+	authctx "github.com/commitHub/commitBlockchain/x/auth/client/context"
+	"github.com/commitHub/commitBlockchain/x/bank"
 )
 
 // DefineACLHandler : Rest hanler to define acl
-func DefineACLHandler(cdc *wire.Codec, cliCtx context.CLIContext, kafka bool, kafkaState rest.KafkaState) http.HandlerFunc {
+func DefineACLHandler(cdc *wire.Codec, cliContext context.CLIContext, kafka bool, kafkaState rest.KafkaState) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		var msg acl.DefineACLBody
+		cliCtx := cliContext
+
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -56,7 +59,7 @@ func DefineACLHandler(cdc *wire.Codec, cliCtx context.CLIContext, kafka bool, ka
 			sdk.ErrInvalidAddress("The given Address is Invalid")
 			return
 		}
-		
+
 		txCtx := authctx.TxContext{
 			Codec:         cdc,
 			AccountNumber: msg.AccountNumber,
@@ -83,30 +86,50 @@ func DefineACLHandler(cdc *wire.Codec, cliCtx context.CLIContext, kafka bool, ka
 			w.Write([]byte(err.Error()))
 			return
 		}
-		
+		Bytes, err := cliCtx.QueryStore(acl.OrganizationStoreKey(organizationID), "acl")
+		if Bytes == nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("organization is not defined"))
+			return
+		}
+
+		var rawMsg sdk.Organization
+		err = cdc.UnmarshalBinaryBare(Bytes, &rawMsg)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		if bytes.Compare(rawMsg.ZoneID, zoneID) != 0 {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("organization does not belongs to respected zone"))
+			return
+		}
+
 		aclAccount := &sdk.BaseACLAccount{
-			Address:        from,
+			Address:        to,
 			ZoneID:         zoneID,
 			OrganizationID: organizationID,
 			ACL:            ACLReq,
 		}
 		msgACL := bank.BuildMsgDefineACL(from, to, aclAccount)
-		
+
 		adjustment, ok := utils.ParseFloat64OrReturnBadRequest(w, msg.GasAdjustment, cliclient.DefaultGasAdjustment)
 		if !ok {
 			return
 		}
 		cliCtx = cliCtx.WithGasAdjustment(adjustment)
 		cliCtx.JSON = true
-		
+
 		if err := cliCtx.EnsureAccountExists(); err != nil {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		if kafka == true {
 			ticketID := rest.TicketIDGenerator("ACDA")
-			
+
 			jsonResponse := rest.SendToKafka(rest.NewKafkaMsgFromRest(msgACL, ticketID, txCtx, cliCtx, msg.Password), kafkaState, cdc)
 			w.WriteHeader(http.StatusAccepted)
 			w.Write(jsonResponse)
@@ -116,7 +139,7 @@ func DefineACLHandler(cdc *wire.Codec, cliCtx context.CLIContext, kafka bool, ka
 				utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}
-			
+
 			w.Write(utils.ResponseBytesToJSON(output))
 		}
 	}

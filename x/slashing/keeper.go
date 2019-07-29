@@ -3,12 +3,12 @@ package slashing
 import (
 	"fmt"
 	"time"
-	
+
 	tmtypes "github.com/tendermint/tendermint/types"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/params"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/params"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 )
@@ -45,29 +45,29 @@ func (k Keeper) handleDoubleSign(ctx sdk.Context, addr crypto.Address, infractio
 	if err != nil {
 		panic(fmt.Sprintf("Validator address %v not found", addr))
 	}
-	
+
 	// Double sign too old
 	maxEvidenceAge := k.MaxEvidenceAge(ctx)
 	if age > maxEvidenceAge {
 		logger.Info(fmt.Sprintf("Ignored double sign from %s at height %d, age of %d past max age of %d", pubkey.Address(), infractionHeight, age, maxEvidenceAge))
 		return
 	}
-	
+
 	// Double sign confirmed
 	logger.Info(fmt.Sprintf("Confirmed double sign from %s at height %d, age of %d less than max age of %d", pubkey.Address(), infractionHeight, age, maxEvidenceAge))
-	
+
 	// Cap the amount slashed to the penalty for the worst infraction
 	// within the slashing period when this infraction was committed
 	fraction := k.SlashFractionDoubleSign(ctx)
 	revisedFraction := k.capBySlashingPeriod(ctx, address, fraction, infractionHeight)
 	logger.Info(fmt.Sprintf("Fraction slashed capped by slashing period from %v to %v", fraction, revisedFraction))
-	
+
 	// Slash validator
 	k.validatorSet.Slash(ctx, pubkey, infractionHeight, power, revisedFraction)
-	
+
 	// Jail validator
 	k.validatorSet.Jail(ctx, pubkey)
-	
+
 	// Set validator jail duration
 	signInfo, found := k.getValidatorSigningInfo(ctx, address)
 	if !found {
@@ -96,7 +96,7 @@ func (k Keeper) handleValidatorSignature(ctx sdk.Context, addr crypto.Address, p
 	}
 	index := signInfo.IndexOffset % k.SignedBlocksWindow(ctx)
 	signInfo.IndexOffset++
-	
+
 	// Update signed block bit array & counter
 	// This counter just tracks the sum of the bit array
 	// That way we avoid needing to read/write the whole array each time
@@ -112,7 +112,7 @@ func (k Keeper) handleValidatorSignature(ctx sdk.Context, addr crypto.Address, p
 		k.setValidatorSigningBitArray(ctx, address, index, true)
 		signInfo.SignedBlocksCounter++
 	}
-	
+
 	if !signed {
 		logger.Info(fmt.Sprintf("Absent validator %s at height %d, %d signed, threshold %d", addr, height, signInfo.SignedBlocksCounter, k.MinSignedPerWindow(ctx)))
 	}
@@ -132,7 +132,7 @@ func (k Keeper) handleValidatorSignature(ctx sdk.Context, addr crypto.Address, p
 				pubkey.Address()))
 		}
 	}
-	
+
 	// Set the updated signing info
 	k.setValidatorSigningInfo(ctx, address, signInfo)
 }

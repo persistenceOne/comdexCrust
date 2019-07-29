@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"os"
 	"time"
-	
-	"github.com/comdex-blockchain/client/context"
-	"github.com/comdex-blockchain/rest"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/auth"
-	authctx "github.com/comdex-blockchain/x/auth/client/context"
-	"github.com/tendermint/go-amino"
+
+	"github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/rest"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/auth"
+	authctx "github.com/commitHub/commitBlockchain/x/auth/client/context"
+	amino "github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/common"
 )
 
@@ -36,12 +36,12 @@ func SendTx(txCtx authctx.TxContext, cliCtx context.CLIContext, msgs []sdk.Msg) 
 	if cliCtx.DryRun {
 		return nil
 	}
-	
+
 	// passphrase, err := keys.GetPassphrase(cliCtx.FromAddressName)
 	// if err != nil {
 	// 	return err
 	// }
-	
+
 	// build and sign the transaction
 	txBytes, err := txCtx.BuildAndSign(cliCtx.FromAddressName, "1234567890", msgs)
 	if err != nil {
@@ -51,7 +51,7 @@ func SendTx(txCtx authctx.TxContext, cliCtx context.CLIContext, msgs []sdk.Msg) 
 	return cliCtx.EnsureBroadcastTx(txBytes)
 }
 
-// SendTxWithResponse : send tx with response
+//SendTxWithResponse : send tx with response
 func SendTxWithResponse(txCtx authctx.TxContext, cliCtx context.CLIContext, msgs []sdk.Msg, passphrase string) ([]byte, error) {
 	txCtx, err := prepareTxContext(txCtx, cliCtx)
 	if err != nil {
@@ -75,8 +75,8 @@ func SendTxWithResponse(txCtx authctx.TxContext, cliCtx context.CLIContext, msgs
 	return cliCtx.EnsureBroadcastTxWithResponse(txBytes)
 }
 
-// -------------------------------------------------------------------------------------------//
-// SendTxSWithResponse : send tx with response
+//-------------------------------------------------------------------------------------------//
+//SendTxSWithResponse : send tx with response
 func SendTxSWithResponse(txSCtx []authctx.TxContext, cliCtx []context.CLIContext, msgs []sdk.Msg, passphrase []string) ([]byte, error) {
 	stdTxs := auth.StdTx{}
 	for i, txCtx := range txSCtx {
@@ -85,7 +85,7 @@ func SendTxSWithResponse(txSCtx []authctx.TxContext, cliCtx []context.CLIContext
 			return nil, err
 		}
 		txSCtx[i] = txCtx
-		
+
 		autogas := cliCtx[i].DryRun || (cliCtx[i].Gas == 0)
 		if autogas {
 			txCtx, err = EnrichCtxWithGas(txCtx, cliCtx[i], cliCtx[i].FromAddressName, []sdk.Msg{msgs[i]})
@@ -97,7 +97,7 @@ func SendTxSWithResponse(txSCtx []authctx.TxContext, cliCtx []context.CLIContext
 		if cliCtx[i].DryRun {
 			return nil, nil
 		}
-		
+
 		var count = int64(0)
 		for j := 0; j < i; j++ {
 			if txCtx.AccountNumber == txSCtx[j].AccountNumber {
@@ -105,7 +105,7 @@ func SendTxSWithResponse(txSCtx []authctx.TxContext, cliCtx []context.CLIContext
 			}
 		}
 		txCtx.Sequence = txCtx.Sequence + count
-		
+
 		txBytes, err := txCtx.BuildAndSign(cliCtx[i].FromAddressName, passphrase[i], msgs)
 		if err != nil {
 			return nil, err
@@ -131,11 +131,11 @@ func SendTxSWithResponse(txSCtx []authctx.TxContext, cliCtx []context.CLIContext
 	return cliCtx[0].EnsureBroadcastTxWithResponse(txBytes)
 }
 
-// KafkaConsumerMsgs : msgs to consume 5 second delay
+//KafkaConsumerMsgs : msgs to consume 5 second delay
 func KafkaConsumerMsgs(cliCtx context.CLIContext, cdc *wire.Codec, kafkaState rest.KafkaState) {
-	
+
 	quit := make(chan bool)
-	
+
 	txSCtx := []authctx.TxContext{}
 	passwords := []string{}
 	cliSCtx := []context.CLIContext{}
@@ -159,18 +159,18 @@ func KafkaConsumerMsgs(cliCtx context.CLIContext, cdc *wire.Codec, kafkaState re
 			}
 		}
 	}()
-	
+
 	time.Sleep(rest.SleepTimer)
 	quit <- true
 	if len(listMsgs) == 0 {
 		return
 	}
-	
+
 	HandleMultipleMsgOutput(txSCtx, cliSCtx, listMsgs, passwords, ticketIDs, kafkaState)
-	
+
 }
 
-// HandleMultipleMsgOutput : handles output type
+//HandleMultipleMsgOutput : handles output type
 func HandleMultipleMsgOutput(txSCtx []authctx.TxContext, cliCtx []context.CLIContext, msgs []sdk.Msg, passphrase []string, ticketIDs []rest.Ticket, kafkaState rest.KafkaState) {
 	output, err := SendTxSWithResponse(txSCtx, cliCtx, msgs, passphrase)
 	if err != nil {
@@ -179,7 +179,7 @@ func HandleMultipleMsgOutput(txSCtx []authctx.TxContext, cliCtx []context.CLICon
 		}
 		return
 	}
-	
+
 	for i, ticketID := range ticketIDs {
 		rest.AddResponseToDB(ticketID, ResponseBytesToJSON(output), kafkaState.KafkaDB, cliCtx[i].Codec)
 	}
@@ -239,12 +239,12 @@ func prepareTxContext(txCtx authctx.TxContext, cliCtx context.CLIContext) (authc
 	if err := cliCtx.EnsureAccountExists(); err != nil {
 		return txCtx, err
 	}
-	
+
 	from, err := cliCtx.GetFromAddress()
 	if err != nil {
 		return txCtx, err
 	}
-	
+
 	// TODO: (ref #1903) Allow for user supplied account number without
 	// automatically doing a manual lookup.
 	if txCtx.AccountNumber == 0 {
@@ -254,7 +254,7 @@ func prepareTxContext(txCtx authctx.TxContext, cliCtx context.CLIContext) (authc
 		}
 		txCtx = txCtx.WithAccountNumber(accNum)
 	}
-	
+
 	// TODO: (ref #1903) Allow for user supplied account sequence without
 	// automatically doing a manual lookup.
 	if txCtx.Sequence == 0 {

@@ -3,20 +3,20 @@ package slashing
 import (
 	"encoding/binary"
 	"fmt"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 // slashing begin block functionality
 func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, sk Keeper) (tags sdk.Tags) {
-	
+
 	// Tag the height
 	heightBytes := make([]byte, 8)
 	binary.LittleEndian.PutUint64(heightBytes, uint64(req.Header.Height))
 	tags = sdk.NewTags("height", heightBytes)
-	
+
 	// Iterate over all the validators  which *should* have signed this block
 	// Store whether or not they have actually signed it and slash/unbond any
 	// which have missed too many blocks in a row (downtime slashing)
@@ -24,7 +24,7 @@ func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, sk Keeper) (tags 
 		present := signingValidator.SignedLastBlock
 		sk.handleValidatorSignature(ctx, signingValidator.Validator.Address, signingValidator.Validator.Power, present)
 	}
-	
+
 	// Iterate through any newly discovered evidence of infraction
 	// Slash any validators (and since-unbonded stake within the unbonding period)
 	// who contributed to valid infractions
@@ -36,6 +36,6 @@ func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, sk Keeper) (tags 
 			ctx.Logger().With("module", "x/slashing").Error(fmt.Sprintf("ignored unknown evidence type: %s", evidence.Type))
 		}
 	}
-	
+
 	return
 }

@@ -4,23 +4,23 @@ import (
 	"encoding/json"
 	"math/rand"
 	"testing"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/bank"
-	"github.com/comdex-blockchain/x/gov"
-	"github.com/comdex-blockchain/x/mock"
-	"github.com/comdex-blockchain/x/mock/simulation"
-	"github.com/comdex-blockchain/x/params"
-	"github.com/comdex-blockchain/x/stake"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/bank"
+	"github.com/commitHub/commitBlockchain/x/gov"
+	"github.com/commitHub/commitBlockchain/x/mock"
+	"github.com/commitHub/commitBlockchain/x/mock/simulation"
+	"github.com/commitHub/commitBlockchain/x/params"
+	"github.com/commitHub/commitBlockchain/x/stake"
 )
 
 // TestGovWithRandomMessages
 func TestGovWithRandomMessages(t *testing.T) {
 	mapp := mock.NewApp()
-	
+
 	bank.RegisterWire(mapp.Cdc)
 	gov.RegisterWire(mapp.Cdc)
 	mapper := mapp.AccountMapper
@@ -36,23 +36,23 @@ func TestGovWithRandomMessages(t *testing.T) {
 		gov.EndBlocker(ctx, govKeeper)
 		return abci.ResponseEndBlock{}
 	})
-	
+
 	err := mapp.CompleteSetup([]*sdk.KVStoreKey{stakeKey, paramKey, govKey})
 	if err != nil {
 		panic(err)
 	}
-	
+
 	appStateFn := func(r *rand.Rand, keys []crypto.PrivKey, accs []sdk.AccAddress) json.RawMessage {
 		mock.RandomSetGenesis(r, mapp, accs, []string{"stake"})
 		return json.RawMessage("{}")
 	}
-	
+
 	setup := func(r *rand.Rand, privKeys []crypto.PrivKey) {
 		ctx := mapp.NewContext(false, abci.Header{})
 		stake.InitGenesis(ctx, stakeKeeper, stake.DefaultGenesisState())
 		gov.InitGenesis(ctx, govKeeper, gov.DefaultGenesisState())
 	}
-	
+
 	simulation.Simulate(
 		t, mapp.BaseApp, appStateFn,
 		[]simulation.Operation{

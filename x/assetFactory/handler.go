@@ -2,8 +2,8 @@ package assetFactory
 
 import (
 	"reflect"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // NewHandler returns a handler for "assetFactory" type messages.
@@ -25,7 +25,7 @@ func NewHandler(k Keeper) sdk.Handler {
 	}
 }
 
-// handleMsgFactoryIssueAsset
+//handleMsgFactoryIssueAsset
 func handleMsgFactoryIssueAsset(ctx sdk.Context, k Keeper, msg MsgFactoryIssueAssets) sdk.Result {
 	tags, err := k.IssueAssetsToWallets(ctx, msg.IssueAssets)
 	if err != nil {
@@ -36,7 +36,7 @@ func handleMsgFactoryIssueAsset(ctx sdk.Context, k Keeper, msg MsgFactoryIssueAs
 	}
 }
 
-// Handle MsgFactoryRedeemAsset
+//Handle MsgFactoryRedeemAsset
 func handleMsgFactoryRedeemAsset(ctx sdk.Context, k Keeper, msg MsgFactoryRedeemAssets) sdk.Result {
 	tags, err := k.RedeemAssetsToWallets(ctx, msg.RedeemAssets)
 	if err != nil {
@@ -47,7 +47,7 @@ func handleMsgFactoryRedeemAsset(ctx sdk.Context, k Keeper, msg MsgFactoryRedeem
 	}
 }
 
-// handle MsgFactorySendAssets
+//handle MsgFactorySendAssets
 func handleMsgFactorySendAssets(ctx sdk.Context, k Keeper, msg MsgFactorySendAssets) sdk.Result {
 	tags, err := k.SendAssetsToOrders(ctx, msg.SendAssets)
 	if err != nil {
@@ -58,7 +58,7 @@ func handleMsgFactorySendAssets(ctx sdk.Context, k Keeper, msg MsgFactorySendAss
 	}
 }
 
-// handle MsgFactoryExecuteAssets
+//handle MsgFactoryExecuteAssets
 func handleMsgFactoryExecuteAssets(ctx sdk.Context, k Keeper, msg MsgFactoryExecuteAssets) sdk.Result {
 	tags, err := k.ExecuteAssetOrders(ctx, msg.SendAssets)
 	if err != nil {

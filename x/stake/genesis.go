@@ -3,9 +3,9 @@ package stake
 import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmtypes "github.com/tendermint/tendermint/types"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/stake/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/stake/types"
 	"github.com/pkg/errors"
 )
 
@@ -19,33 +19,33 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data types.GenesisState) (res [
 	keeper.SetPool(ctx, data.Pool)
 	keeper.SetNewParams(ctx, data.Params)
 	keeper.InitIntraTxCounter(ctx)
-	
+
 	for i, validator := range data.Validators {
 		validator.BondIntraTxCounter = int16(i) // set the intra-tx counter to the order the validators are presented
 		keeper.SetValidator(ctx, validator)
-		
+
 		if validator.Tokens.IsZero() {
 			return res, errors.Errorf("genesis validator cannot have zero pool shares, validator: %v", validator)
 		}
 		if validator.DelegatorShares.IsZero() {
 			return res, errors.Errorf("genesis validator cannot have zero delegator shares, validator: %v", validator)
 		}
-		
+
 		// Manually set indexes for the first time
 		keeper.SetValidatorByPubKeyIndex(ctx, validator)
 		keeper.SetValidatorByPowerIndex(ctx, validator, data.Pool)
-		
+
 		if validator.Status == sdk.Bonded {
 			keeper.SetValidatorBondedIndex(ctx, validator)
 		}
 	}
-	
+
 	for _, bond := range data.Bonds {
 		keeper.SetDelegation(ctx, bond)
 	}
-	
+
 	keeper.UpdateBondedValidatorsFull(ctx)
-	
+
 	vals := keeper.GetValidatorsBonded(ctx)
 	res = make([]abci.Validator, len(vals))
 	for i, val := range vals {
@@ -62,7 +62,7 @@ func WriteGenesis(ctx sdk.Context, keeper Keeper) types.GenesisState {
 	params := keeper.GetParams(ctx)
 	validators := keeper.GetAllValidators(ctx)
 	bonds := keeper.GetAllDelegations(ctx)
-	
+
 	return types.GenesisState{
 		Pool:       pool,
 		Params:     params,
@@ -79,9 +79,9 @@ func WriteValidators(ctx sdk.Context, keeper Keeper) (vals []tmtypes.GenesisVali
 			Power:  validator.GetPower().RoundInt64(),
 			Name:   validator.GetMoniker(),
 		})
-		
+
 		return false
 	})
-	
+
 	return
 }

@@ -4,23 +4,27 @@ import (
 	flag "github.com/spf13/pflag"
 )
 
-// noLint
+//noLint
 const (
-	FlagTo            = "to"
-	FlagFrom          = "from"
-	FlagPegHash       = "pegHash"
-	FlagBid           = "bid"
-	FlagTime          = "time"
-	FlagNegotiationID = "negotiationID"
+	FlagTo                 = "to"
+	FlagFrom               = "from"
+	FlagPegHash            = "pegHash"
+	FlagBid                = "bid"
+	FlagTime               = "time"
+	FlagNegotiationID      = "negotiationID"
+	FlagBuyerContractHash  = "buyerContractHash"
+	FlagSellerContractHash = "sellerContractHash"
 )
 
 var (
-	fsTo            = flag.NewFlagSet("", flag.ContinueOnError)
-	fsPegHash       = flag.NewFlagSet("", flag.ContinueOnError)
-	fsBid           = flag.NewFlagSet("", flag.ContinueOnError)
-	fsTime          = flag.NewFlagSet("", flag.ContinueOnError)
-	fsFrom          = flag.NewFlagSet("", flag.ContinueOnError)
-	fsNegotiationID = flag.NewFlagSet("", flag.ContinueOnError)
+	fsTo                 = flag.NewFlagSet("", flag.ContinueOnError)
+	fsPegHash            = flag.NewFlagSet("", flag.ContinueOnError)
+	fsBid                = flag.NewFlagSet("", flag.ContinueOnError)
+	fsTime               = flag.NewFlagSet("", flag.ContinueOnError)
+	fsFrom               = flag.NewFlagSet("", flag.ContinueOnError)
+	fsNegotiationID      = flag.NewFlagSet("", flag.ContinueOnError)
+	fsBuyerContractHash  = flag.NewFlagSet("", flag.ContinueOnError)
+	fsSellerContractHash = flag.NewFlagSet("", flag.ContinueOnError)
 )
 
 func init() {
@@ -29,5 +33,7 @@ func init() {
 	fsBid.String(FlagBid, "", "Amount of fiat to bid against asset")
 	fsTime.String(FlagTime, "", "Time to be assumed for contract confirmation")
 	fsFrom.String(FlagFrom, "", "address of buyer account")
+	fsBuyerContractHash.String(FlagBuyerContractHash, "", "buyer contract hash")
+	fsSellerContractHash.String(FlagSellerContractHash, "", "seller contract hash")
 	fsNegotiationID.String(FlagNegotiationID, "", "NegotiationID")
 }

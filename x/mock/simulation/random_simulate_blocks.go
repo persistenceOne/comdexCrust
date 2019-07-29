@@ -8,14 +8,14 @@ import (
 	"sort"
 	"testing"
 	"time"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	tmtypes "github.com/tendermint/tendermint/types"
-	
-	"github.com/comdex-blockchain/baseapp"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/mock"
+
+	"github.com/commitHub/commitBlockchain/baseapp"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -36,60 +36,60 @@ func SimulateFromSeed(
 ) {
 	log := fmt.Sprintf("Starting SimulateFromSeed with randomness created with seed %d", int(seed))
 	r := rand.New(rand.NewSource(seed))
-	
+
 	unixTime := r.Int63n(int64(math.Pow(2, 40)))
-	
+
 	// Set the timestamp for simulation
 	timestamp := time.Unix(unixTime, 0)
 	log = fmt.Sprintf("%s\nStarting the simulation from time %v, unixtime %v", log, timestamp.UTC().Format(time.UnixDate), timestamp.Unix())
 	fmt.Printf("%s\n", log)
 	timeDiff := maxTimePerBlock - minTimePerBlock
-	
+
 	keys, accs := mock.GeneratePrivKeyAddressPairsFromRand(r, numKeys)
-	
+
 	// Setup event stats
 	events := make(map[string]uint)
 	event := func(what string) {
 		log += "\nevent - " + what
 		events[what]++
 	}
-	
+
 	res := app.InitChain(abci.RequestInitChain{AppStateBytes: appStateFn(r, keys, accs)})
 	validators := make(map[string]mockValidator)
 	for _, validator := range res.Validators {
 		validators[string(validator.Address)] = mockValidator{validator, GetMemberOfInitialState(r, initialLivenessWeightings)}
 	}
-	
+
 	for i := 0; i < len(setups); i++ {
 		setups[i](r, keys)
 	}
-	
+
 	header := abci.Header{Height: 0, Time: timestamp}
 	opCount := 0
-	
+
 	var pastTimes []time.Time
 	var pastSigningValidators [][]abci.SigningValidator
-	
+
 	request := RandomRequestBeginBlock(t, r, validators, livenessTransitionMatrix, evidenceFraction, pastTimes, pastSigningValidators, event, header, log)
 	// These are operations which have been queued by previous operations
 	operationQueue := make(map[int][]Operation)
-	
+
 	for i := 0; i < numBlocks; i++ {
-		
+
 		// Log the header time for future lookup
 		pastTimes = append(pastTimes, header.Time)
 		pastSigningValidators = append(pastSigningValidators, request.LastCommitInfo.Validators)
-		
+
 		// Run the BeginBlock handler
 		app.BeginBlock(request)
-		
+
 		log += "\nBeginBlock"
-		
+
 		// Make sure invariants hold at beginning of block
 		AssertAllInvariants(t, app, invariants, log)
-		
+
 		ctx := app.NewContext(false, header)
-		
+
 		var thisBlockSize int
 		load := r.Float64()
 		switch {
@@ -108,7 +108,7 @@ func SimulateFromSeed(
 			logUpdate, futureOps, err := ops[r.Intn(len(ops))](t, r, app, ctx, keys, log, event)
 			log += "\n" + logUpdate
 			queueOperations(operationQueue, futureOps)
-			
+
 			require.Nil(t, err, log)
 			if onOperation {
 				AssertAllInvariants(t, app, invariants, log)
@@ -118,27 +118,27 @@ func SimulateFromSeed(
 			}
 			opCount++
 		}
-		
+
 		res := app.EndBlock(abci.RequestEndBlock{})
 		header.Height++
 		header.Time = header.Time.Add(time.Duration(minTimePerBlock) * time.Second).Add(time.Duration(int64(r.Intn(int(timeDiff)))) * time.Second)
-		
+
 		log += "\nEndBlock"
-		
+
 		// Make sure invariants hold at end of block
 		AssertAllInvariants(t, app, invariants, log)
-		
+
 		if commit {
 			app.Commit()
 		}
-		
+
 		// Generate a random RequestBeginBlock with the current validator set for the next block
 		request = RandomRequestBeginBlock(t, r, validators, livenessTransitionMatrix, evidenceFraction, pastTimes, pastSigningValidators, event, header, log)
-		
+
 		// Update the validator set
 		validators = updateValidators(t, r, validators, res.ValidatorUpdates, event)
 	}
-	
+
 	fmt.Printf("\nSimulation complete. Final height (blocks): %d, final time (seconds): %v\n", header.Height, header.Time)
 	DisplayEvents(events)
 }
@@ -199,7 +199,7 @@ func RandomRequestBeginBlock(t *testing.T, r *rand.Rand, validators map[string]m
 		mVal := validators[key]
 		mVal.livenessState = livenessTransitions.NextState(r, mVal.livenessState)
 		signed := true
-		
+
 		if mVal.livenessState == 1 {
 			// spotty connection, 50% probability of success
 			// See https://github.com/golang/go/issues/23804#issuecomment-365370418

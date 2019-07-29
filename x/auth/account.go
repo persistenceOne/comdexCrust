@@ -2,10 +2,10 @@ package auth
 
 import (
 	"errors"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/tendermint/tendermint/crypto"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	crypto "github.com/tendermint/tendermint/crypto"
 )
 
 // Account is a standard account using a sequence number for replay protection
@@ -13,22 +13,22 @@ import (
 type Account interface {
 	GetAddress() sdk.AccAddress
 	SetAddress(sdk.AccAddress) error // errors if already set.
-	
+
 	GetPubKey() crypto.PubKey // can return nil.
 	SetPubKey(crypto.PubKey) error
-	
+
 	GetAccountNumber() int64
 	SetAccountNumber(int64) error
-	
+
 	GetSequence() int64
 	SetSequence(int64) error
-	
+
 	GetCoins() sdk.Coins
 	SetCoins(sdk.Coins) error
-	
+
 	GetAssetPegWallet() sdk.AssetPegWallet
 	SetAssetPegWallet(sdk.AssetPegWallet) error
-	
+
 	GetFiatPegWallet() sdk.FiatPegWallet
 	SetFiatPegWallet(sdk.FiatPegWallet) error
 }
@@ -36,7 +36,7 @@ type Account interface {
 // AccountDecoder unmarshals account bytes
 type AccountDecoder func(accountBytes []byte) (Account, error)
 
-// -----------------------------------------------------------
+//-----------------------------------------------------------
 // BaseAccount
 
 var _ Account = (*BaseAccount)(nil)
@@ -54,7 +54,7 @@ type BaseAccount struct {
 	Sequence       int64              `json:"sequence"`
 }
 
-// ProtoBaseAccount : Prototype function for BaseAccount
+//ProtoBaseAccount : Prototype function for BaseAccount
 func ProtoBaseAccount() Account {
 	return &BaseAccount{}
 }
@@ -102,23 +102,23 @@ func (acc *BaseAccount) SetCoins(coins sdk.Coins) error {
 	return nil
 }
 
-// GetAssetPegWallet : getter
+//GetAssetPegWallet : getter
 func (acc *BaseAccount) GetAssetPegWallet() sdk.AssetPegWallet {
 	return acc.AssetPegWallet
 }
 
-// SetAssetPegWallet : setter
+//SetAssetPegWallet : setter
 func (acc *BaseAccount) SetAssetPegWallet(assetPegWallet sdk.AssetPegWallet) error {
 	acc.AssetPegWallet = assetPegWallet
 	return nil
 }
 
-// GetFiatPegWallet : getter
+//GetFiatPegWallet : getter
 func (acc *BaseAccount) GetFiatPegWallet() sdk.FiatPegWallet {
 	return acc.FiatPegWallet
 }
 
-// SetFiatPegWallet : setter
+//SetFiatPegWallet : setter
 func (acc *BaseAccount) SetFiatPegWallet(fiatPegWallet sdk.FiatPegWallet) error {
 	acc.FiatPegWallet = fiatPegWallet
 	return nil
@@ -147,11 +147,11 @@ func (acc *BaseAccount) SetSequence(seq int64) error {
 }
 
 // RegisterBaseAccount : regester base account
-// ----------------------------------------
+//----------------------------------------
 // Wire
 // Most users shouldn't use this, but this comes handy for tests.
 func RegisterBaseAccount(cdc *wire.Codec) {
 	cdc.RegisterInterface((*Account)(nil), nil)
-	cdc.RegisterConcrete(&BaseAccount{}, "comdex-blockchain/BaseAccount", nil)
+	cdc.RegisterConcrete(&BaseAccount{}, "commit-blockchain/BaseAccount", nil)
 	wire.RegisterCrypto(cdc)
 }

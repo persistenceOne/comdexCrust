@@ -3,13 +3,13 @@ package rest
 import (
 	"fmt"
 	"net/http"
-	
-	"github.com/comdex-blockchain/client/context"
-	"github.com/comdex-blockchain/client/utils"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/gov"
-	
+
+	"github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/client/utils"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/gov"
+
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 )
@@ -30,13 +30,13 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *wire.Codec) {
 	r.HandleFunc("/gov/proposals", postProposalHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/gov/proposals/{%s}/deposits", RestProposalID), depositHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/gov/proposals/{%s}/votes", RestProposalID), voteHandlerFn(cdc, cliCtx)).Methods("POST")
-	
+
 	r.HandleFunc(fmt.Sprintf("/gov/proposals/{%s}", RestProposalID), queryProposalHandlerFn(cdc)).Methods("GET")
 	r.HandleFunc(fmt.Sprintf("/gov/proposals/{%s}/deposits/{%s}", RestProposalID, RestDepositer), queryDepositHandlerFn(cdc)).Methods("GET")
 	r.HandleFunc(fmt.Sprintf("/gov/proposals/{%s}/votes/{%s}", RestProposalID, RestVoter), queryVoteHandlerFn(cdc)).Methods("GET")
-	
+
 	r.HandleFunc(fmt.Sprintf("/gov/proposals/{%s}/votes", RestProposalID), queryVotesOnProposalHandlerFn(cdc)).Methods("GET")
-	
+
 	r.HandleFunc("/gov/proposals", queryProposalsWithParameterFn(cdc)).Methods("GET")
 }
 
@@ -69,11 +69,11 @@ func postProposalHandlerFn(cdc *wire.Codec, cliCtx context.CLIContext) http.Hand
 		if err != nil {
 			return
 		}
-		
+
 		if !req.BaseReq.baseReqValidate(w) {
 			return
 		}
-		
+
 		// create the message
 		msg := gov.NewMsgSubmitProposal(req.Title, req.Description, req.ProposalType, req.Proposer, req.InitialDeposit)
 		err = msg.ValidateBasic()
@@ -81,7 +81,7 @@ func postProposalHandlerFn(cdc *wire.Codec, cliCtx context.CLIContext) http.Hand
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		signAndBuild(w, r, cliCtx, req.BaseReq, msg, cdc)
 	}
 }
@@ -91,18 +91,18 @@ func depositHandlerFn(cdc *wire.Codec, cliCtx context.CLIContext) http.HandlerFu
 		w.Header().Set("Content-Type", "application/json")
 		vars := mux.Vars(r)
 		strProposalID := vars[RestProposalID]
-		
+
 		if len(strProposalID) == 0 {
 			err := errors.New("proposalId required but not specified")
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		proposalID, ok := parseInt64OrReturnBadRequest(strProposalID, w)
 		if !ok {
 			return
 		}
-		
+
 		var req depositReq
 		err := buildReq(w, r, cdc, &req)
 		if err != nil {
@@ -111,7 +111,7 @@ func depositHandlerFn(cdc *wire.Codec, cliCtx context.CLIContext) http.HandlerFu
 		if !req.BaseReq.baseReqValidate(w) {
 			return
 		}
-		
+
 		// create the message
 		msg := gov.NewMsgDeposit(req.Depositer, proposalID, req.Amount)
 		err = msg.ValidateBasic()
@@ -119,7 +119,7 @@ func depositHandlerFn(cdc *wire.Codec, cliCtx context.CLIContext) http.HandlerFu
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		signAndBuild(w, r, cliCtx, req.BaseReq, msg, cdc)
 	}
 }
@@ -129,18 +129,18 @@ func voteHandlerFn(cdc *wire.Codec, cliCtx context.CLIContext) http.HandlerFunc 
 		w.Header().Set("Content-Type", "application/json")
 		vars := mux.Vars(r)
 		strProposalID := vars[RestProposalID]
-		
+
 		if len(strProposalID) == 0 {
 			err := errors.New("proposalId required but not specified")
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		proposalID, ok := parseInt64OrReturnBadRequest(strProposalID, w)
 		if !ok {
 			return
 		}
-		
+
 		var req voteReq
 		err := buildReq(w, r, cdc, &req)
 		if err != nil {
@@ -149,7 +149,7 @@ func voteHandlerFn(cdc *wire.Codec, cliCtx context.CLIContext) http.HandlerFunc 
 		if !req.BaseReq.baseReqValidate(w) {
 			return
 		}
-		
+
 		// create the message
 		msg := gov.NewMsgVote(req.Voter, proposalID, req.Option)
 		err = msg.ValidateBasic()
@@ -157,7 +157,7 @@ func voteHandlerFn(cdc *wire.Codec, cliCtx context.CLIContext) http.HandlerFunc 
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		signAndBuild(w, r, cliCtx, req.BaseReq, msg, cdc)
 	}
 }
@@ -167,36 +167,36 @@ func queryProposalHandlerFn(cdc *wire.Codec) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		vars := mux.Vars(r)
 		strProposalID := vars[RestProposalID]
-		
+
 		if len(strProposalID) == 0 {
 			err := errors.New("proposalId required but not specified")
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		proposalID, ok := parseInt64OrReturnBadRequest(strProposalID, w)
 		if !ok {
 			return
 		}
-		
+
 		cliCtx := context.NewCLIContext().WithCodec(cdc)
-		
+
 		params := gov.QueryProposalParams{
 			ProposalID: proposalID,
 		}
-		
+
 		bz, err := cdc.MarshalJSON(params)
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		res, err := cliCtx.QueryWithData("custom/gov/proposal", bz)
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		w.Write(res)
 	}
 }
@@ -207,50 +207,50 @@ func queryDepositHandlerFn(cdc *wire.Codec) http.HandlerFunc {
 		vars := mux.Vars(r)
 		strProposalID := vars[RestProposalID]
 		bechDepositerAddr := vars[RestDepositer]
-		
+
 		if len(strProposalID) == 0 {
 			err := errors.New("proposalId required but not specified")
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		proposalID, ok := parseInt64OrReturnBadRequest(strProposalID, w)
 		if !ok {
 			return
 		}
-		
+
 		if len(bechDepositerAddr) == 0 {
 			err := errors.New("depositer address required but not specified")
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		depositerAddr, err := sdk.AccAddressFromBech32(bechDepositerAddr)
 		if err != nil {
 			err := errors.Errorf("'%s' needs to be bech32 encoded", RestDepositer)
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		cliCtx := context.NewCLIContext().WithCodec(cdc)
-		
+
 		params := gov.QueryDepositParams{
 			ProposalID: proposalID,
 			Depositer:  depositerAddr,
 		}
-		
+
 		bz, err := cdc.MarshalJSON(params)
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		res, err := cliCtx.QueryWithData("custom/gov/deposit", bz)
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		var deposit gov.Deposit
 		cdc.UnmarshalJSON(res, &deposit)
 		if deposit.Empty() {
@@ -264,7 +264,7 @@ func queryDepositHandlerFn(cdc *wire.Codec) http.HandlerFunc {
 			utils.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
-		
+
 		w.Write(res)
 	}
 }
@@ -275,33 +275,33 @@ func queryVoteHandlerFn(cdc *wire.Codec) http.HandlerFunc {
 		vars := mux.Vars(r)
 		strProposalID := vars[RestProposalID]
 		bechVoterAddr := vars[RestVoter]
-		
+
 		if len(strProposalID) == 0 {
 			err := errors.New("proposalId required but not specified")
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		proposalID, ok := parseInt64OrReturnBadRequest(strProposalID, w)
 		if !ok {
 			return
 		}
-		
+
 		if len(bechVoterAddr) == 0 {
 			err := errors.New("voter address required but not specified")
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		voterAddr, err := sdk.AccAddressFromBech32(bechVoterAddr)
 		if err != nil {
 			err := errors.Errorf("'%s' needs to be bech32 encoded", RestVoter)
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		cliCtx := context.NewCLIContext().WithCodec(cdc)
-		
+
 		params := gov.QueryVoteParams{
 			Voter:      voterAddr,
 			ProposalID: proposalID,
@@ -311,13 +311,13 @@ func queryVoteHandlerFn(cdc *wire.Codec) http.HandlerFunc {
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		res, err := cliCtx.QueryWithData("custom/gov/vote", bz)
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		var vote gov.Vote
 		cdc.UnmarshalJSON(res, &vote)
 		if vote.Empty() {
@@ -347,20 +347,20 @@ func queryVotesOnProposalHandlerFn(cdc *wire.Codec) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		vars := mux.Vars(r)
 		strProposalID := vars[RestProposalID]
-		
+
 		if len(strProposalID) == 0 {
 			err := errors.New("proposalId required but not specified")
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		proposalID, ok := parseInt64OrReturnBadRequest(strProposalID, w)
 		if !ok {
 			return
 		}
-		
+
 		cliCtx := context.NewCLIContext().WithCodec(cdc)
-		
+
 		params := gov.QueryVotesParams{
 			ProposalID: proposalID,
 		}
@@ -369,13 +369,13 @@ func queryVotesOnProposalHandlerFn(cdc *wire.Codec) http.HandlerFunc {
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		res, err := cliCtx.QueryWithData("custom/gov/votes", bz)
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		w.Write(res)
 	}
 }
@@ -388,9 +388,9 @@ func queryProposalsWithParameterFn(cdc *wire.Codec) http.HandlerFunc {
 		bechDepositerAddr := r.URL.Query().Get(RestDepositer)
 		strProposalStatus := r.URL.Query().Get(RestProposalStatus)
 		strNumLatest := r.URL.Query().Get(RestNumLatest)
-		
+
 		params := gov.QueryProposalsParams{}
-		
+
 		if len(bechVoterAddr) != 0 {
 			voterAddr, err := sdk.AccAddressFromBech32(bechVoterAddr)
 			if err != nil {
@@ -400,7 +400,7 @@ func queryProposalsWithParameterFn(cdc *wire.Codec) http.HandlerFunc {
 			}
 			params.Voter = voterAddr
 		}
-		
+
 		if len(bechDepositerAddr) != 0 {
 			depositerAddr, err := sdk.AccAddressFromBech32(bechDepositerAddr)
 			if err != nil {
@@ -410,7 +410,7 @@ func queryProposalsWithParameterFn(cdc *wire.Codec) http.HandlerFunc {
 			}
 			params.Depositer = depositerAddr
 		}
-		
+
 		if len(strProposalStatus) != 0 {
 			proposalStatus, err := gov.ProposalStatusFromString(strProposalStatus)
 			if err != nil {
@@ -427,21 +427,21 @@ func queryProposalsWithParameterFn(cdc *wire.Codec) http.HandlerFunc {
 			}
 			params.NumLatestProposals = numLatest
 		}
-		
+
 		bz, err := cdc.MarshalJSON(params)
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		cliCtx := context.NewCLIContext().WithCodec(cdc)
-		
+
 		res, err := cliCtx.QueryWithData("custom/gov/proposals", bz)
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		w.Write(res)
 	}
 }
@@ -453,22 +453,22 @@ func queryTallyOnProposalHandlerFn(cdc *wire.Codec) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		vars := mux.Vars(r)
 		strProposalID := vars[RestProposalID]
-		
+
 		if len(strProposalID) == 0 {
 			w.WriteHeader(http.StatusBadRequest)
 			err := errors.New("proposalId required but not specified")
 			w.Write([]byte(err.Error()))
-			
+
 			return
 		}
-		
+
 		proposalID, ok := parseInt64OrReturnBadRequest(strProposalID, w)
 		if !ok {
 			return
 		}
-		
+
 		cliCtx := context.NewCLIContext().WithCodec(cdc)
-		
+
 		params := gov.QueryTallyParams{
 			ProposalID: proposalID,
 		}
@@ -478,14 +478,14 @@ func queryTallyOnProposalHandlerFn(cdc *wire.Codec) http.HandlerFunc {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		
+
 		res, err := cliCtx.QueryWithData("custom/gov/tally", bz)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
 			return
 		}
-		
+
 		w.Write(res)
 	}
 }

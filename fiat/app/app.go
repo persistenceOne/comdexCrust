@@ -4,24 +4,24 @@ import (
 	"encoding/json"
 	"io"
 	"os"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
 	tmtypes "github.com/tendermint/tendermint/types"
-	
-	bam "github.com/comdex-blockchain/baseapp"
-	"github.com/comdex-blockchain/rest"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/auth"
-	"github.com/comdex-blockchain/x/bank"
-	"github.com/comdex-blockchain/x/fiatFactory"
-	"github.com/comdex-blockchain/x/ibc"
-	"github.com/comdex-blockchain/x/order"
-	"github.com/comdex-blockchain/x/slashing"
-	"github.com/comdex-blockchain/x/stake"
+
+	bam "github.com/commitHub/commitBlockchain/baseapp"
+	"github.com/commitHub/commitBlockchain/rest"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/auth"
+	"github.com/commitHub/commitBlockchain/x/bank"
+	"github.com/commitHub/commitBlockchain/x/fiatFactory"
+	"github.com/commitHub/commitBlockchain/x/ibc"
+	"github.com/commitHub/commitBlockchain/x/order"
+	"github.com/commitHub/commitBlockchain/x/slashing"
+	"github.com/commitHub/commitBlockchain/x/stake"
 )
 
 const (
@@ -34,11 +34,11 @@ var (
 	DefaultNodeHome = os.ExpandEnv("$HOME/.fiatd")
 )
 
-// FiatApp : Extended ABCI application
+//FiatApp : Extended ABCI application
 type FiatApp struct {
 	*bam.BaseApp
 	cdc *wire.Codec
-	
+
 	keyMain       *sdk.KVStoreKey
 	keyAccount    *sdk.KVStoreKey
 	keyIBC        *sdk.KVStoreKey
@@ -46,7 +46,7 @@ type FiatApp struct {
 	keySlashing   *sdk.KVStoreKey
 	keyFiatStore  *sdk.KVStoreKey
 	keyOrderStore *sdk.KVStoreKey
-	
+
 	accountMapper       auth.AccountMapper
 	feeCollectionKeeper auth.FeeCollectionKeeper
 	coinKeeper          bank.Keeper
@@ -62,10 +62,10 @@ type FiatApp struct {
 // NewFiatApp : returns new  fiat app
 func NewFiatApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppOptions ...func(*bam.BaseApp)) *FiatApp {
 	cdc := MakeCodec()
-	
+
 	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
-	
+
 	var app = &FiatApp{
 		BaseApp:       bApp,
 		cdc:           cdc,
@@ -76,7 +76,7 @@ func NewFiatApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppOptio
 		keyFiatStore:  sdk.NewKVStoreKey("fiat"),
 		keyOrderStore: sdk.NewKVStoreKey("order"),
 	}
-	
+
 	// define the accountMapper
 	app.accountMapper = auth.NewAccountMapper(
 		app.cdc,
@@ -93,21 +93,21 @@ func NewFiatApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppOptio
 		app.keyOrderStore,
 		sdk.ProtoBaseOrder,
 	)
-	
+
 	// add handlers
 	app.coinKeeper = bank.NewKeeper(app.accountMapper)
 	app.ibcMapper = ibc.NewMapper(app.cdc, app.keyIBC, app.RegisterCodespace(ibc.DefaultCodespace))
 	app.stakeKeeper = stake.NewKeeper(app.cdc, app.keyStake, app.coinKeeper, app.RegisterCodespace(stake.DefaultCodespace))
 	app.fiatKeeper = fiatFactory.NewKeeper(app.fiatMapper)
 	app.orderKeeer = order.NewKeeper(app.orderMapper)
-	
+
 	// register message routes
 	app.Router().
 		AddRoute("bank", bank.NewHandler(app.coinKeeper)).
 		AddRoute("ibc", ibc.NewFiatHandler(app.ibcMapper, app.coinKeeper, app.fiatKeeper)).
 		AddRoute("stake", stake.NewHandler(app.stakeKeeper)).
 		AddRoute("fiatFactory", fiatFactory.NewHandler(app.fiatKeeper))
-	
+
 	// initialize BaseApp
 	app.SetInitChainer(app.initChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
@@ -118,15 +118,15 @@ func NewFiatApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppOptio
 	if err != nil {
 		cmn.Exit(err.Error())
 	}
-	
+
 	return app
 }
 
 // MakeCodec : custom tx codec
 func MakeCodec() *wire.Codec {
-	
+
 	var cdc = wire.NewCodec()
-	
+
 	ibc.RegisterWire(cdc)
 	bank.RegisterWire(cdc)
 	stake.RegisterWire(cdc)
@@ -137,19 +137,19 @@ func MakeCodec() *wire.Codec {
 	fiatFactory.RegisterFiatPeg(cdc)
 	order.RegisterWire(cdc)
 	rest.RegisterWire(cdc)
-	
+
 	return cdc
 }
 
-// BeginBlocker : application updates every end block
+//BeginBlocker : application updates every end block
 func (app *FiatApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return abci.ResponseBeginBlock{}
 }
 
-// EndBlocker : application updates every end block
+//EndBlocker : application updates every end block
 func (app *FiatApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	validatorUpdates := stake.EndBlocker(ctx, app.stakeKeeper)
-	
+
 	return abci.ResponseEndBlock{
 		ValidatorUpdates: validatorUpdates,
 	}
@@ -158,35 +158,35 @@ func (app *FiatApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.R
 // custom logic for fiat initialization
 func (app *FiatApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	stateJSON := req.AppStateBytes
-	
+
 	var genesisState GenesisState
 	err := app.cdc.UnmarshalJSON(stateJSON, &genesisState)
 	if err != nil {
 		panic(err)
 	}
-	
+
 	// load the accounts
 	for _, gacc := range genesisState.Accounts {
 		acc := gacc.ToAccount()
 		acc.AccountNumber = app.accountMapper.GetNextAccountNumber(ctx)
 		app.accountMapper.SetAccount(ctx, acc)
 	}
-	
+
 	for _, gfiat := range genesisState.Fiats {
 		fiat := gfiat.ToFiatPeg()
 		app.fiatMapper.SetFiatPeg(ctx, fiat)
 	}
-	
+
 	// load the initial stake information
 	stake.InitGenesis(ctx, app.stakeKeeper, genesisState.StakeData)
-	
+
 	return abci.ResponseInitChain{}
 }
 
-// ExportAppStateAndValidators : export the state of fiats for a genesis file
+//ExportAppStateAndValidators : export the state of fiats for a genesis file
 func (app *FiatApp) ExportAppStateAndValidators() (appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
 	ctx := app.NewContext(true, abci.Header{})
-	
+
 	// iterate to get the accounts
 	accounts := []GenesisAccount{}
 	appendAccount := func(acc auth.Account) (stop bool) {
@@ -195,7 +195,7 @@ func (app *FiatApp) ExportAppStateAndValidators() (appState json.RawMessage, val
 		return false
 	}
 	app.accountMapper.IterateAccounts(ctx, appendAccount)
-	
+
 	// iterate to get fiats
 	fiats := []GenesisFiatPeg{}
 	appendFiatPeg := func(fiat sdk.FiatPeg) (stop bool) {
@@ -204,7 +204,7 @@ func (app *FiatApp) ExportAppStateAndValidators() (appState json.RawMessage, val
 		return false
 	}
 	app.fiatMapper.IterateFiats(ctx, appendFiatPeg)
-	
+
 	genState := GenesisState{
 		Accounts:  accounts,
 		Fiats:     fiats,

@@ -1,4 +1,4 @@
-cd %GOPATH%\src\github.com\comdex-blockchain
+cd %GOPATH%\src\github.com\commit-blockchain
 echo "to build and to update deps run makeAll file"
 
 echo "cleaning"

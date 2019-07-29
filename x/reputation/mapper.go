@@ -1,11 +1,11 @@
 package reputation
 
 import (
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
-// Mapper : for txns to msg mapping
+//Mapper : for txns to msg mapping
 type Mapper struct {
 	key   sdk.StoreKey
 	proto func() sdk.AccountReputation
@@ -42,7 +42,7 @@ func (fm Mapper) decodeAccountReputation(bz []byte) (accountReputation sdk.Accou
 	return
 }
 
-// GetAccountReputation : gets account from store
+//GetAccountReputation : gets account from store
 func (fm Mapper) GetAccountReputation(ctx sdk.Context, addr sdk.AccAddress) sdk.AccountReputation {
 	store := ctx.KVStore(fm.key)
 	bz := store.Get(AccountStoreKey(addr))
@@ -56,7 +56,7 @@ func (fm Mapper) GetAccountReputation(ctx sdk.Context, addr sdk.AccAddress) sdk.
 	return accountReputation
 }
 
-// SetAccountReputation : sets account to store
+//SetAccountReputation : sets account to store
 func (fm Mapper) SetAccountReputation(ctx sdk.Context, accountReputation sdk.AccountReputation) {
 	addr := accountReputation.GetAddress()
 	store := ctx.KVStore(fm.key)

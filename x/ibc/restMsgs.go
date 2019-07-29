@@ -1,6 +1,6 @@
 package ibc
 
-// IssueAssetBody : is a msg body for kafka msg
+//IssueAssetBody : is a msg body for kafka msg
 type IssueAssetBody struct {
 	// Fees             sdk.Coin  `json="fees"`
 	From               string `json:"from" valid:"required~Enter the FromName"`
@@ -21,7 +21,7 @@ type IssueAssetBody struct {
 	TakerAddress       string `json:"takerAddress" valid:"matches(^cosmos[a-z0-9]{39}$)~TakerAddress is Invalid"`
 }
 
-// IssueFiatBody : is a msg body for kafka msg
+//IssueFiatBody : is a msg body for kafka msg
 type IssueFiatBody struct {
 	From               string `json:"from" valid:"required~Enter the FromName"`
 	To                 string `json:"to" valid:"required~Enter the ToAddress,matches(^cosmos[a-z0-9]{39}$)~ToAddress is Invalid"`
@@ -37,7 +37,7 @@ type IssueFiatBody struct {
 	TransactionAmount  int64  `json:"transactionAmount" valid:"required~Enter the TransactionAmount,matches(^[1-9]{1}[0-9]*$)~Invalid TransactionAmount"`
 }
 
-// RedeemAssetBody : is a msg body for kafka msg
+//RedeemAssetBody : is a msg body for kafka msg
 type RedeemAssetBody struct {
 	From               string `json:"from" valid:"required~Enter the FromName"`
 	To                 string `json:"to" valid:"required~Enter the ToAddress,matches(^cosmos[a-z0-9]{39}$)~ToAddress is Invalid"`
@@ -51,7 +51,7 @@ type RedeemAssetBody struct {
 	PegHash            string `json:"pegHash" valid:"required~Enter the PegHash,matches(^[A-F0-9]+$)~Invalid PegHash,length(2|40)~PegHash length between 2-40"`
 }
 
-// RedeemFiatBody : is a msg body for kafka msg
+//RedeemFiatBody : is a msg body for kafka msg
 type RedeemFiatBody struct {
 	From               string `json:"from" valid:"required~Enter the FromName"`
 	Password           string `json:"password" valid:"required~Enter the Password"`
@@ -66,7 +66,7 @@ type RedeemFiatBody struct {
 	RedeemAmount       int64  `json:"redeemAmount" valid:"required~Enter the Valid Amount,matches(^[1-9]{1}[0-9]*$)~Invalid Amount"`
 }
 
-// SendAssetBody : body to sendasset request
+//SendAssetBody : body to sendasset request
 type SendAssetBody struct {
 	From               string `json:"from" valid:"required~Enter the FromName"`
 	Password           string `json:"password" valid:"required~Enter the Password"`
@@ -99,7 +99,7 @@ type SendFiatBody struct {
 type BuyerExecuteOrderBody struct {
 	From               string `json:"from" valid:"required~Enter the FromName"`
 	Password           string `json:"password" valid:"required~Enter the Password"`
-	BuyerAddress       string `json:"buyerAddress" valid:"required~Enter the BuyerAddress,matches(^cosmos[a-z0-9]{39}$)~BuyerAddress is Invalid"` // Check Match(BuyerAddr,SellerAddr)
+	BuyerAddress       string `json:"buyerAddress" valid:"required~Enter the BuyerAddress,matches(^cosmos[a-z0-9]{39}$)~BuyerAddress is Invalid"` //Check Match(BuyerAddr,SellerAddr)
 	SellerAddress      string `json:"sellerAddress" valid:"required~Enter the SellerAddress,matches(^cosmos[a-z0-9]{39}$)~SellerAddress is Invalid"`
 	PegHash            string `json:"pegHash" valid:"required~Enter the PegHash,matches(^[A-F0-9]+$)~Invalid PegHash,length(2|40)~PegHash length between 2-40"`
 	FiatProofHash      string `json:"fiatProofHash" valid:"required~Mandatory parameter FiatProofHash missing,matches(^[A-Za-z0-9]+$)~Invalid fiatProofHash,length(2|40)~fiatProofHash length must be between 2-40"`
@@ -115,7 +115,7 @@ type BuyerExecuteOrderBody struct {
 type SellerExecuteOrderBody struct {
 	From               string `json:"from" valid:"required~Enter the FromName"`
 	Password           string `json:"password" valid:"required~Enter the Password"`
-	BuyerAddress       string `json:"buyerAddress" valid:"required~Enter the BuyerAddress,matches(^cosmos[a-z0-9]{39}$)~BuyerAddress is Invalid"` // Check Match(BuyerAddr,SellerAddr)
+	BuyerAddress       string `json:"buyerAddress" valid:"required~Enter the BuyerAddress,matches(^cosmos[a-z0-9]{39}$)~BuyerAddress is Invalid"` //Check Match(BuyerAddr,SellerAddr)
 	SellerAddress      string `json:"sellerAddress" valid:"required~Enter the SellerAddress,matches(^cosmos[a-z0-9]{39}$)~SellerAddress is Invalid"`
 	AWBProofHash       string `json:"awbProofHash" valid:"required~Mandatory parameter awbProofHash missing,matches(^[A-Za-z0-9]+$)~Invalid awbProofHash,length(2|40)~awbProofHash length must be between 2-40"`
 	PegHash            string `json:"pegHash" valid:"required~Enter the PegHash,matches(^[A-F0-9]+$)~Invalid PegHash,length(2|40)~PegHash length between 2-40"`

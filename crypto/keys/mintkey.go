@@ -3,10 +3,10 @@ package keys
 import (
 	"encoding/hex"
 	"fmt"
-	
+
 	cmn "github.com/tendermint/tendermint/libs/common"
-	
-	"github.com/comdex-blockchain/crypto/keys/bcrypt"
+
+	"github.com/commitHub/commitBlockchain/crypto/keys/bcrypt"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/armor"
 	"github.com/tendermint/tendermint/crypto/encoding/amino"

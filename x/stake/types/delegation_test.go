@@ -3,8 +3,8 @@ package types
 import (
 	"testing"
 	"time"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -19,13 +19,13 @@ func TestDelegationEqual(t *testing.T) {
 		ValidatorAddr: addr2,
 		Shares:        sdk.NewDec(100),
 	}
-	
+
 	ok := d1.Equal(d2)
 	require.True(t, ok)
-	
+
 	d2.ValidatorAddr = sdk.ValAddress(addr3)
 	d2.Shares = sdk.NewDec(200)
-	
+
 	ok = d1.Equal(d2)
 	require.False(t, ok)
 }
@@ -36,7 +36,7 @@ func TestDelegationHumanReadableString(t *testing.T) {
 		ValidatorAddr: addr2,
 		Shares:        sdk.NewDec(100),
 	}
-	
+
 	// NOTE: Being that the validator's keypair is random, we cannot test the
 	// actual contents of the string.
 	valStr, err := d.HumanReadableString()
@@ -53,12 +53,12 @@ func TestUnbondingDelegationEqual(t *testing.T) {
 		DelegatorAddr: sdk.AccAddress(addr1),
 		ValidatorAddr: addr2,
 	}
-	
+
 	ok := ud1.Equal(ud2)
 	require.True(t, ok)
-	
+
 	ud2.ValidatorAddr = sdk.ValAddress(addr3)
-	
+
 	ud2.MinTime = time.Unix(20*20*2, 0)
 	ok = ud1.Equal(ud2)
 	require.False(t, ok)
@@ -69,7 +69,7 @@ func TestUnbondingDelegationHumanReadableString(t *testing.T) {
 		DelegatorAddr: sdk.AccAddress(addr1),
 		ValidatorAddr: addr2,
 	}
-	
+
 	// NOTE: Being that the validator's keypair is random, we cannot test the
 	// actual contents of the string.
 	valStr, err := ud.HumanReadableString()
@@ -88,14 +88,14 @@ func TestRedelegationEqual(t *testing.T) {
 		ValidatorSrcAddr: addr2,
 		ValidatorDstAddr: addr3,
 	}
-	
+
 	ok := r1.Equal(r2)
 	require.True(t, ok)
-	
+
 	r2.SharesDst = sdk.NewDec(10)
 	r2.SharesSrc = sdk.NewDec(20)
 	r2.MinTime = time.Unix(20*20*2, 0)
-	
+
 	ok = r1.Equal(r2)
 	require.False(t, ok)
 }
@@ -108,7 +108,7 @@ func TestRedelegationHumanReadableString(t *testing.T) {
 		SharesDst:        sdk.NewDec(10),
 		SharesSrc:        sdk.NewDec(20),
 	}
-	
+
 	// NOTE: Being that the validator's keypair is random, we cannot test the
 	// actual contents of the string.
 	valStr, err := r.HumanReadableString()

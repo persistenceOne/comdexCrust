@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"time"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
 // Delegation represents the bond with tokens held by an account.  It is
@@ -50,16 +50,16 @@ func UnmarshalDelegation(cdc *wire.Codec, key, value []byte) (delegation Delegat
 		err = fmt.Errorf("%v: %v", ErrNoDelegation(DefaultCodespace).Data(), err)
 		return
 	}
-	
+
 	addrs := key[1:] // remove prefix bytes
 	if len(addrs) != 2*sdk.AddrLen {
 		err = fmt.Errorf("%v", ErrBadDelegationAddr(DefaultCodespace).Data())
 		return
 	}
-	
+
 	delAddr := sdk.AccAddress(addrs[:sdk.AddrLen])
 	valAddr := sdk.ValAddress(addrs[sdk.AddrLen:])
-	
+
 	return Delegation{
 		DelegatorAddr: delAddr,
 		ValidatorAddr: valAddr,
@@ -93,7 +93,7 @@ func (d Delegation) HumanReadableString() (string, error) {
 	resp += fmt.Sprintf("Validator: %s\n", d.ValidatorAddr)
 	resp += fmt.Sprintf("Shares: %s", d.Shares.String())
 	resp += fmt.Sprintf("Height: %d", d.Height)
-	
+
 	return resp, nil
 }
 
@@ -141,7 +141,7 @@ func UnmarshalUBD(cdc *wire.Codec, key, value []byte) (ubd UnbondingDelegation, 
 	if err != nil {
 		return
 	}
-	
+
 	addrs := key[1:] // remove prefix bytes
 	if len(addrs) != 2*sdk.AddrLen {
 		err = fmt.Errorf("%v", ErrBadDelegationAddr(DefaultCodespace).Data())
@@ -149,7 +149,7 @@ func UnmarshalUBD(cdc *wire.Codec, key, value []byte) (ubd UnbondingDelegation, 
 	}
 	delAddr := sdk.AccAddress(addrs[:sdk.AddrLen])
 	valAddr := sdk.ValAddress(addrs[sdk.AddrLen:])
-	
+
 	return UnbondingDelegation{
 		DelegatorAddr:  delAddr,
 		ValidatorAddr:  valAddr,
@@ -177,9 +177,9 @@ func (d UnbondingDelegation) HumanReadableString() (string, error) {
 	resp += fmt.Sprintf("Creation height: %v\n", d.CreationHeight)
 	resp += fmt.Sprintf("Min time to unbond (unix): %v\n", d.MinTime)
 	resp += fmt.Sprintf("Expected balance: %s", d.Balance.String())
-	
+
 	return resp, nil
-	
+
 }
 
 // Redelegation reflects a delegation's passive re-delegation queue.
@@ -233,7 +233,7 @@ func UnmarshalRED(cdc *wire.Codec, key, value []byte) (red Redelegation, err err
 	if err != nil {
 		return
 	}
-	
+
 	addrs := key[1:] // remove prefix bytes
 	if len(addrs) != 3*sdk.AddrLen {
 		err = fmt.Errorf("%v", ErrBadRedelegationAddr(DefaultCodespace).Data())
@@ -242,7 +242,7 @@ func UnmarshalRED(cdc *wire.Codec, key, value []byte) (red Redelegation, err err
 	delAddr := sdk.AccAddress(addrs[:sdk.AddrLen])
 	valSrcAddr := sdk.ValAddress(addrs[sdk.AddrLen : 2*sdk.AddrLen])
 	valDstAddr := sdk.ValAddress(addrs[2*sdk.AddrLen:])
-	
+
 	return Redelegation{
 		DelegatorAddr:    delAddr,
 		ValidatorSrcAddr: valSrcAddr,
@@ -275,7 +275,7 @@ func (d Redelegation) HumanReadableString() (string, error) {
 	resp += fmt.Sprintf("Min time to unbond (unix): %v\n", d.MinTime)
 	resp += fmt.Sprintf("Source shares: %s", d.SharesSrc.String())
 	resp += fmt.Sprintf("Destination shares: %s", d.SharesDst.String())
-	
+
 	return resp, nil
-	
+
 }

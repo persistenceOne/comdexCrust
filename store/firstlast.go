@@ -2,7 +2,7 @@ package store
 
 import (
 	"bytes"
-	
+
 	cmn "github.com/tendermint/tendermint/libs/common"
 )
 
@@ -13,7 +13,7 @@ func First(st KVStore, start, end []byte) (kv cmn.KVPair, ok bool) {
 		return kv, false
 	}
 	defer iter.Close()
-	
+
 	return cmn.KVPair{iter.Key(), iter.Value()}, true
 }
 
@@ -27,7 +27,7 @@ func Last(st KVStore, start, end []byte) (kv cmn.KVPair, ok bool) {
 		return kv, false
 	}
 	defer iter.Close()
-	
+
 	if bytes.Equal(iter.Key(), end) {
 		// Skip this one, end is exclusive.
 		iter.Next()
@@ -35,6 +35,6 @@ func Last(st KVStore, start, end []byte) (kv cmn.KVPair, ok bool) {
 			return kv, false
 		}
 	}
-	
+
 	return cmn.KVPair{iter.Key(), iter.Value()}, true
 }

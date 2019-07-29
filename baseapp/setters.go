@@ -2,9 +2,9 @@ package baseapp
 
 import (
 	dbm "github.com/tendermint/tendermint/libs/db"
-	
-	"github.com/comdex-blockchain/store"
-	sdk "github.com/comdex-blockchain/types"
+
+	"github.com/commitHub/commitBlockchain/store"
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // nolint - Setter functions

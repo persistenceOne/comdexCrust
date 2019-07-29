@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	
-	"github.com/comdex-blockchain/crypto"
-	"github.com/comdex-blockchain/crypto/keys/bip39"
-	"github.com/comdex-blockchain/crypto/keys/hd"
+
+	"github.com/commitHub/commitBlockchain/crypto"
+	"github.com/commitHub/commitBlockchain/crypto/keys/bip39"
+	"github.com/commitHub/commitBlockchain/crypto/keys/hd"
 	"github.com/pkg/errors"
 	tmcrypto "github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/encoding/amino"
@@ -47,7 +47,7 @@ var (
 	// ErrUnsupportedSigningAlgo is raised when the caller tries to use a
 	// different signing scheme than secp256k1.
 	ErrUnsupportedSigningAlgo = errors.New("unsupported signing algo: only secp256k1 is supported")
-	
+
 	// ErrUnsupportedLanguage is raised when the caller tries to use a
 	// different language than english for creating a mnemonic sentence.
 	ErrUnsupportedLanguage = errors.New("unsupported language: only english is supported")
@@ -80,7 +80,7 @@ func (kb dbKeybase) CreateMnemonic(name string, language Language, passwd string
 		err = ErrUnsupportedSigningAlgo
 		return
 	}
-	
+
 	// default number of words (24):
 	mnemonicS, err := bip39.NewMnemonic(bip39.FreshKey)
 	if err != nil {
@@ -130,7 +130,7 @@ func (kb dbKeybase) Derive(name, mnemonic, passwd string, params hd.BIP44Params)
 		return
 	}
 	info, err = kb.persistDerivedKey(seed, passwd, name, params.String())
-	
+
 	return
 }
 
@@ -161,7 +161,7 @@ func (kb *dbKeybase) persistDerivedKey(seed []byte, passwd, name, fullHdPath str
 	if err != nil {
 		return
 	}
-	
+
 	// if we have a password, use it to encrypt the private key and store it
 	// else store the public key only
 	if passwd != "" {

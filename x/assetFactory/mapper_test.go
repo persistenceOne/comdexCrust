@@ -2,10 +2,10 @@ package assetFactory
 
 import (
 	"testing"
-	
-	"github.com/comdex-blockchain/store"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+
+	"github.com/commitHub/commitBlockchain/store"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	dbm "github.com/tendermint/tendermint/libs/db"
@@ -32,7 +32,7 @@ type testStruct = struct {
 var assetPegs = []sdk.BaseAssetPeg{
 	sdk.NewBaseAssetPegWithPegHash(sdk.PegHash([]byte("PegHash0"))),
 	sdk.NewBaseAssetPegWithPegHash(nil),
-	{},
+	sdk.BaseAssetPeg{},
 	sdk.NewBaseAssetPegWithPegHash(sdk.PegHash([]byte("PegHash1"))),
 	sdk.NewBaseAssetPegWithPegHash(sdk.PegHash([]byte("PegHash2"))),
 }
@@ -61,7 +61,7 @@ func TestNewAssetPegMapper(t *testing.T) {
 		if testCase.expectedResult {
 			require.Equal(t, oneAssetPegMapper.key, toTest.key)
 			require.Equal(t, oneAssetPegMapper.cdc, toTest.cdc)
-			
+
 		} else {
 			require.NotEqual(t, oneAssetPegMapper.key, toTest.key)
 			require.NotEqual(t, oneAssetPegMapper.cdc, toTest.cdc)
@@ -78,7 +78,7 @@ func TestAssetPegHashStoreKey(t *testing.T) {
 	require.Equal(t, onePegHashStoreKey, []byte("PegHash:pegHash"))
 	require.Equal(t, twoPegHashStoreKey, []byte("PegHash:"))
 	require.Equal(t, threePegHashStoreKey[8:], []byte(""))
-	
+
 }
 
 func TestAssetPegMapperencodeAssetPeg(t *testing.T) {
@@ -91,17 +91,17 @@ func TestAssetPegMapperencodeAssetPeg(t *testing.T) {
 		{sdk.NewKVStoreKey("name"), sdk.ProtoBaseAssetPeg, wire.NewCodec(), &assetPegs[1], true},
 		{sdk.NewKVStoreKey("name"), sdk.ProtoBaseAssetPeg, wire.NewCodec(), &assetPegs[2], true},
 	}
-	
+
 	for _, testCase := range listTestsMapperCustom {
 		if testCase.expectedResult {
 			oneAssetPegMapper := genAssetPegMapper(testCase)
 			RegisterAssetPeg(oneAssetPegMapper.cdc)
-			
+
 			toTest := oneAssetPegMapper.encodeAssetPeg(testCase.assetPeg)
 			testByte, _ := oneAssetPegMapper.cdc.MarshalBinaryBare(testCase.assetPeg)
-			
+
 			require.Equal(t, toTest, testByte)
-			
+
 		} else {
 			defer func() {
 				if r := recover(); r == nil {
@@ -110,13 +110,13 @@ func TestAssetPegMapperencodeAssetPeg(t *testing.T) {
 					t.Logf("There had been an error")
 				}
 			}()
-			
+
 			oneAssetPegMapper := genAssetPegMapper(testCase)
 			RegisterAssetPeg(oneAssetPegMapper.cdc)
-			
+
 			toTest := oneAssetPegMapper.encodeAssetPeg(testCase.assetPeg)
 			testByte, _ := oneAssetPegMapper.cdc.MarshalBinaryBare(testCase.assetPeg)
-			
+
 			require.NotEqual(t, toTest, testByte)
 		}
 	}
@@ -132,9 +132,9 @@ func TestAssetPegMapperdecodeAssetPeg(t *testing.T) {
 		{sdk.NewKVStoreKey("name"), sdk.ProtoBaseAssetPeg, wire.NewCodec(), &assetPegs[1], true},
 		{sdk.NewKVStoreKey("name"), sdk.ProtoBaseAssetPeg, wire.NewCodec(), &assetPegs[2], true},
 	}
-	
+
 	for _, testCase := range listTestsMapperCustom {
-		
+
 		if testCase.expectedResult {
 			oneAssetPegMapper := genAssetPegMapper(testCase)
 			RegisterAssetPeg(oneAssetPegMapper.cdc)
@@ -144,7 +144,7 @@ func TestAssetPegMapperdecodeAssetPeg(t *testing.T) {
 			}
 			toTest := oneAssetPegMapper.decodeAssetPeg(testBytes)
 			require.Equal(t, toTest, &assetPeg)
-			
+
 		} else {
 			defer func() {
 				if r := recover(); r == nil {
@@ -175,7 +175,7 @@ func TestAssetPegMapperSetGetAssetPeg(t *testing.T) {
 	for _, testCase := range listTestsMapperCustom {
 		ms, key := setupMultiStore()
 		RegisterAssetPeg(testCase.cdc)
-		
+
 		ctx := sdk.NewContext(ms, abci.Header{}, false, log.NewNopLogger())
 		oneAssetPegMapper := NewAssetPegMapper(testCase.cdc, key, testCase.proto)
 		oneAssetPegMapper.SetAssetPeg(ctx, testCase.assetPeg)
@@ -208,7 +208,7 @@ func TestAssetPegMapperIterateAssets(t *testing.T) {
 		{nil, sdk.ProtoBaseAssetPeg, wire.NewCodec(), &assetPegs[0], true},
 		{sdk.NewKVStoreKey("name"), nil, wire.NewCodec(), &assetPegs[0], true},
 	}
-	
+
 	for _, testCase := range listTestsMapperCustom {
 		ms, key := setupMultiStore()
 		RegisterAssetPeg(testCase.cdc)
@@ -227,5 +227,5 @@ func TestAssetPegMapperIterateAssets(t *testing.T) {
 		oneAssetPegMapper.IterateAssets(ctx, someProcess)
 		require.Equal(t, pegs, []string{"PegHash0", "PegHash1", "PegHash2"})
 	}
-	
+
 }

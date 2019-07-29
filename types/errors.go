@@ -3,10 +3,10 @@ package types
 import (
 	"fmt"
 	"strings"
-	
+
 	cmn "github.com/tendermint/tendermint/libs/common"
-	
-	"github.com/comdex-blockchain/wire"
+
+	"github.com/commitHub/commitBlockchain/wire"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -27,7 +27,7 @@ func (code ABCICodeType) IsOK() bool {
 	return false
 }
 
-// ToABCICode get the abci code from the local code and codespace
+//ToABCICode get the abci code from the local code and codespace
 func ToABCICode(space CodespaceType, code CodeType) ABCICodeType {
 	// TODO: Make Tendermint more aware of codespaces.
 	if space == CodespaceRoot && code == CodeOK {
@@ -40,7 +40,7 @@ func ToABCICode(space CodespaceType, code CodeType) ABCICodeType {
 const (
 	// ABCI error codes
 	ABCICodeOK ABCICodeType = 0
-	
+
 	// Base error codes
 	CodeOK                     CodeType = 0
 	CodeInternal               CodeType = 1
@@ -57,13 +57,13 @@ const (
 	CodeOutOfGas               CodeType = 12
 	CodeMemoTooLarge           CodeType = 13
 	CodeFeedbackCannotRegister CodeType = 14
-	
+
 	// CodespaceRoot is a codespace for error codes in this file only.
 	// Notice that 0 is an "unset" codespace, which can be overridden with
 	// Error.WithDefaultCodespace().
 	CodespaceUndefined CodespaceType = 0
 	CodespaceRoot      CodespaceType = 1
-	
+
 	// Maximum reservable codespace (2^16 - 1)
 	MaximumCodespace CodespaceType = 65535
 )
@@ -110,7 +110,7 @@ func CodeToDefaultMsg(code CodeType) string {
 	}
 }
 
-// --------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 // All errors are created via constructors so as to enable us to hijack them
 // and inject stack traces if we really want to.
 
@@ -140,22 +140,22 @@ func ErrInsufficientFunds(msg string) Error {
 	return newErrorWithRootCodespace(CodeInsufficientFunds, msg)
 }
 
-// ErrUnknownRequest :
+//ErrUnknownRequest :
 func ErrUnknownRequest(msg string) Error {
 	return newErrorWithRootCodespace(CodeUnknownRequest, msg)
 }
 
-// ErrInvalidAddress :
+//ErrInvalidAddress :
 func ErrInvalidAddress(msg string) Error {
 	return newErrorWithRootCodespace(CodeInvalidAddress, msg)
 }
 
-// ErrUnknownAddress :
+//ErrUnknownAddress :
 func ErrUnknownAddress(msg string) Error {
 	return newErrorWithRootCodespace(CodeUnknownAddress, msg)
 }
 
-// ErrInvalidPubKey :
+//ErrInvalidPubKey :
 func ErrInvalidPubKey(msg string) Error {
 	return newErrorWithRootCodespace(CodeInvalidPubKey, msg)
 }
@@ -165,7 +165,7 @@ func ErrInsufficientCoins(msg string) Error {
 	return newErrorWithRootCodespace(CodeInsufficientCoins, msg)
 }
 
-// ErrInvalidCoins :
+//ErrInvalidCoins :
 func ErrInvalidCoins(msg string) Error {
 	return newErrorWithRootCodespace(CodeInvalidCoins, msg)
 }
@@ -180,17 +180,17 @@ func ErrMemoTooLarge(msg string) Error {
 	return newErrorWithRootCodespace(CodeMemoTooLarge, msg)
 }
 
-// ErrFeedbackCannotRegister :
+//ErrFeedbackCannotRegister :
 func ErrFeedbackCannotRegister(msg string) Error {
 	return newErrorWithRootCodespace(CodeFeedbackCannotRegister, msg)
 }
 
-// ----------------------------------------
+//----------------------------------------
 // Error & sdkError
 
 type cmnError = cmn.Error
 
-// Error sdk Error type
+//Error sdk Error type
 type Error interface {
 	// Implements cmn.Error
 	// Error() string
@@ -198,13 +198,13 @@ type Error interface {
 	// Trace(offset int, format string, args ...interface{}) cmn.Error
 	// Data() interface{}
 	cmnError
-	
+
 	// convenience
 	TraceSDK(format string, args ...interface{}) Error
-	
+
 	// set codespace
 	WithDefaultCodespace(CodespaceType) Error
-	
+
 	Code() CodeType
 	Codespace() CodespaceType
 	ABCILog() string

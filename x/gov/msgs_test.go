@@ -2,11 +2,11 @@ package gov
 
 import (
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/mock"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/mock"
 )
 
 var (
@@ -38,7 +38,7 @@ func TestMsgSubmitProposal(t *testing.T) {
 		{"Test Proposal", "the purpose of this proposal is to test", ProposalTypeText, addrs[0], coinsNeg, false},
 		{"Test Proposal", "the purpose of this proposal is to test", ProposalTypeText, addrs[0], coinsMulti, true},
 	}
-	
+
 	for i, tc := range tests {
 		msg := NewMsgSubmitProposal(tc.title, tc.description, tc.proposalType, tc.proposerAddr, tc.initialDeposit)
 		if tc.expectPass {
@@ -65,7 +65,7 @@ func TestMsgDeposit(t *testing.T) {
 		{1, addrs[0], coinsNeg, false},
 		{1, addrs[0], coinsMulti, true},
 	}
-	
+
 	for i, tc := range tests {
 		msg := NewMsgDeposit(tc.depositerAddr, tc.proposalID, tc.depositAmount)
 		if tc.expectPass {
@@ -93,7 +93,7 @@ func TestMsgVote(t *testing.T) {
 		{0, addrs[0], OptionAbstain, true},
 		{0, addrs[0], VoteOption(0x13), false},
 	}
-	
+
 	for i, tc := range tests {
 		msg := NewMsgVote(tc.voterAddr, tc.proposalID, tc.option)
 		if tc.expectPass {

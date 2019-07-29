@@ -14,7 +14,7 @@ Note the binary will be mounted into the container so it can be updated without
 rebuilding the image.
 
 ```
-cd $GOPATH/src/github.com/comdex-blockchain
+cd $GOPATH/src/github.com/commit-blockchain
 
 # Build the linux binary in ./build
 make build-linux
@@ -52,7 +52,7 @@ The `./build` directory is mounted to the `/gaiad` mount point to attach the bin
 For instance, to create a single node testnet:
 
 ```
-cd $GOPATH/src/github.com/comdex-blockchain
+cd $GOPATH/src/github.com/commit-blockchain
 
 # Clear the build folder
 rm -rf ./build

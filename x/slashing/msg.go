@@ -1,8 +1,8 @@
 package slashing
 
 import (
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
 var cdc = wire.NewCodec()
@@ -24,7 +24,7 @@ func NewMsgUnjail(validatorAddr sdk.ValAddress) MsgUnjail {
 	}
 }
 
-// nolint
+//nolint
 func (msg MsgUnjail) Type() string { return MsgType }
 func (msg MsgUnjail) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.AccAddress(msg.ValidatorAddr)}

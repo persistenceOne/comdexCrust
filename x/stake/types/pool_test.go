@@ -2,8 +2,8 @@ package types
 
 import (
 	"testing"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -19,9 +19,9 @@ func TestAddBondedTokens(t *testing.T) {
 	pool := InitialPool()
 	pool.LooseTokens = sdk.NewDec(10)
 	pool.BondedTokens = sdk.NewDec(10)
-	
+
 	pool = pool.looseTokensToBonded(sdk.NewDec(10))
-	
+
 	require.True(sdk.DecEq(t, sdk.NewDec(20), pool.BondedTokens))
 	require.True(sdk.DecEq(t, sdk.NewDec(0), pool.LooseTokens))
 }
@@ -30,9 +30,9 @@ func TestRemoveBondedTokens(t *testing.T) {
 	pool := InitialPool()
 	pool.LooseTokens = sdk.NewDec(10)
 	pool.BondedTokens = sdk.NewDec(10)
-	
+
 	pool = pool.bondedTokensToLoose(sdk.NewDec(5))
-	
+
 	require.True(sdk.DecEq(t, sdk.NewDec(5), pool.BondedTokens))
 	require.True(sdk.DecEq(t, sdk.NewDec(15), pool.LooseTokens))
 }

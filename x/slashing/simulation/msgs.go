@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"math/rand"
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
-	
+
 	"github.com/tendermint/tendermint/crypto"
-	
-	"github.com/comdex-blockchain/baseapp"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/mock/simulation"
-	"github.com/comdex-blockchain/x/slashing"
+
+	"github.com/commitHub/commitBlockchain/baseapp"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/mock/simulation"
+	"github.com/commitHub/commitBlockchain/x/slashing"
 )
 
 // SimulateMsgUnjail

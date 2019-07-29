@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	
-	"github.com/comdex-blockchain/blockExplorer/constants"
-	"github.com/comdex-blockchain/blockExplorer/dataTypes"
-	
+
+	"github.com/commitHub/commitBlockchain/blockExplorer/constants"
+	"github.com/commitHub/commitBlockchain/blockExplorer/dataTypes"
+
 	"github.com/tendermint/tendermint/libs/pubsub/query"
 	"github.com/tendermint/tendermint/rpc/client"
 )

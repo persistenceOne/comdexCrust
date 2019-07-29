@@ -1,7 +1,7 @@
 package gov
 
 import (
-	sdk "github.com/comdex-blockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // Procedure around Deposits for governance

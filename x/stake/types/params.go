@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"fmt"
 	"time"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
-// defaultUnbondingTime reflects three weeks in seconds as the default
+// defaultUnbondingTime reflects two days in seconds as the default
 // unbonding time.
-const defaultUnbondingTime = 60 * 60 * 24 * 3 * time.Second
+const defaultUnbondingTime time.Duration = 60 * 60 * 24 * 2 * time.Second
 
 // Params defines the high level settings for staking
 type Params struct {
@@ -19,9 +19,9 @@ type Params struct {
 	InflationMax        sdk.Dec `json:"inflation_max"`         // maximum inflation rate
 	InflationMin        sdk.Dec `json:"inflation_min"`         // minimum inflation rate
 	GoalBonded          sdk.Dec `json:"goal_bonded"`           // Goal of percent bonded atoms
-	
+
 	UnbondingTime time.Duration `json:"unbonding_time"`
-	
+
 	MaxValidators uint16 `json:"max_validators"` // maximum number of validators
 	BondDenom     string `json:"bond_denom"`     // bondable coin denomination
 }
@@ -41,15 +41,15 @@ func DefaultParams() Params {
 		InflationMin:        sdk.NewDecWithPrec(7, 2),
 		GoalBonded:          sdk.NewDecWithPrec(67, 2),
 		UnbondingTime:       defaultUnbondingTime,
-		MaxValidators:       100,
-		BondDenom:           "steak",
+		MaxValidators:       4,
+		BondDenom:           "commit",
 	}
 }
 
 // HumanReadableString returns a human readable string representation of the
 // parameters.
 func (p Params) HumanReadableString() string {
-	
+
 	resp := "Pool \n"
 	resp += fmt.Sprintf("Maximum Annual Inflation Rate Change: %s\n", p.InflationRateChange)
 	resp += fmt.Sprintf("Max Inflation Rate: %s\n", p.InflationMax)

@@ -25,7 +25,7 @@ func base64Decode(src []byte) ([]byte, error) {
 	for i := 0; i < numOfEquals; i++ {
 		src = append(src, '=')
 	}
-	
+
 	dst := make([]byte, bcEncoding.DecodedLen(len(src)))
 	n, err := bcEncoding.Decode(dst, src)
 	if err != nil {

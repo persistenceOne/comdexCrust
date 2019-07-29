@@ -2,24 +2,24 @@ package ibc
 
 import (
 	"testing"
-	
-	"github.com/comdex-blockchain/x/acl"
-	"github.com/comdex-blockchain/x/negotiation"
-	"github.com/comdex-blockchain/x/order"
-	
+
+	"github.com/commitHub/commitBlockchain/x/acl"
+	"github.com/commitHub/commitBlockchain/x/negotiation"
+	"github.com/commitHub/commitBlockchain/x/order"
+
 	"github.com/stretchr/testify/require"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
-	
-	"github.com/comdex-blockchain/store"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	
-	"github.com/comdex-blockchain/x/auth"
-	"github.com/comdex-blockchain/x/bank"
+
+	"github.com/commitHub/commitBlockchain/store"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+
+	"github.com/commitHub/commitBlockchain/x/auth"
+	"github.com/commitHub/commitBlockchain/x/bank"
 )
 
 // AccountMapper(/Keeper) and IBCMapper should use different StoreKey later
@@ -44,7 +44,7 @@ func getCoins(ck bank.Keeper, ctx sdk.Context, addr sdk.AccAddress) (sdk.Coins, 
 
 func makeCodec() *wire.Codec {
 	var cdc = wire.NewCodec()
-	
+
 	// Register Msgs
 	cdc.RegisterInterface((*sdk.Msg)(nil), nil)
 	cdc.RegisterConcrete(bank.MsgSend{}, "test/ibc/Send", nil)
@@ -52,16 +52,16 @@ func makeCodec() *wire.Codec {
 	cdc.RegisterConcrete(IBCTransferMsg{}, "test/ibc/IBCTransferMsg", nil)
 	cdc.RegisterConcrete(IBCReceiveMsg{}, "test/ibc/IBCReceiveMsg", nil)
 	cdc.RegisterInterface((*sdk.AssetPeg)(nil), nil)
-	cdc.RegisterConcrete(&sdk.BaseAssetPeg{}, "comdex-blockchain/AssetPeg", nil)
+	cdc.RegisterConcrete(&sdk.BaseAssetPeg{}, "commit-blockchain/AssetPeg", nil)
 	cdc.RegisterInterface((*sdk.FiatPeg)(nil), nil)
-	cdc.RegisterConcrete(&sdk.BaseFiatPeg{}, "comdex-blockchain/FiatPeg", nil)
+	cdc.RegisterConcrete(&sdk.BaseFiatPeg{}, "commit-blockchain/FiatPeg", nil)
 	// Register AppAccount
 	cdc.RegisterInterface((*auth.Account)(nil), nil)
 	cdc.RegisterConcrete(&auth.BaseAccount{}, "test/ibc/Account", nil)
 	wire.RegisterCrypto(cdc)
-	
+
 	cdc.Seal()
-	
+
 	return cdc
 }
 
@@ -72,28 +72,28 @@ func TestIBC(t *testing.T) {
 	authKey := sdk.NewKVStoreKey("authKey")
 	orderKey := sdk.NewKVStoreKey("orderKey")
 	negoKey := sdk.NewKVStoreKey("negoKey")
-	
+
 	accountMapper := auth.NewAccountMapper(cdc, authKey, auth.ProtoBaseAccount)
 	am := auth.NewAccountMapper(cdc, key, auth.ProtoBaseAccount)
 	aclMapper := acl.NewACLMapper(cdc, key, sdk.ProtoBaseACLAccount)
 	orderMapper := order.NewMapper(cdc, orderKey, sdk.ProtoBaseOrder)
 	negoMapper := negotiation.NewMapper(cdc, negoKey, sdk.ProtoBaseNegotiation)
-	
+
 	ck := bank.NewKeeper(am)
 	aclKeeper := acl.NewKeeper(aclMapper)
 	orderKeeper := order.NewKeeper(orderMapper)
 	negoKeeper := negotiation.NewKeeper(negoMapper, accountMapper)
-	
+
 	src := newAddress()
 	dest := newAddress()
 	chainid := "ibcchain"
 	zero := sdk.Coins(nil)
 	mycoins := sdk.Coins{sdk.NewInt64Coin("mycoin", 10)}
-	
+
 	coins, _, err := ck.AddCoins(ctx, src, mycoins)
 	require.Nil(t, err)
 	require.Equal(t, mycoins, coins)
-	
+
 	ibcm := NewMapper(cdc, key, DefaultCodespace)
 	h := NewHandler(ibcm, ck, aclKeeper, negoKeeper, orderKeeper)
 	packet := IBCPacket{
@@ -103,33 +103,33 @@ func TestIBC(t *testing.T) {
 		SrcChain:  chainid,
 		DestChain: chainid,
 	}
-	
+
 	store := ctx.KVStore(key)
-	
+
 	var msg sdk.Msg
 	var res sdk.Result
 	var egl int64
 	var igs int64
-	
+
 	egl = ibcm.getEgressLength(store, chainid)
 	require.Equal(t, egl, int64(0))
-	
+
 	msg = IBCTransferMsg{
 		IBCPacket: packet,
 	}
 	res = h(ctx, msg)
 	require.True(t, res.IsOK())
-	
+
 	coins, err = getCoins(ck, ctx, src)
 	require.Nil(t, err)
 	require.Equal(t, zero, coins)
-	
+
 	egl = ibcm.getEgressLength(store, chainid)
 	require.Equal(t, egl, int64(1))
-	
+
 	igs = ibcm.GetIngressSequence(ctx, chainid)
 	require.Equal(t, igs, int64(0))
-	
+
 	msg = IBCReceiveMsg{
 		IBCPacket: packet,
 		Relayer:   src,
@@ -137,24 +137,24 @@ func TestIBC(t *testing.T) {
 	}
 	res = h(ctx, msg)
 	require.True(t, res.IsOK())
-	
+
 	coins, err = getCoins(ck, ctx, dest)
 	require.Nil(t, err)
 	require.Equal(t, mycoins, coins)
-	
+
 	igs = ibcm.GetIngressSequence(ctx, chainid)
 	require.Equal(t, igs, int64(1))
-	
+
 	res = h(ctx, msg)
 	require.False(t, res.IsOK())
-	
+
 	igs = ibcm.GetIngressSequence(ctx, chainid)
 	require.Equal(t, igs, int64(1))
-	
+
 	asset := MsgIssueAssets{[]IssueAsset{NewIssueAsset(issuerAddress, toAddress, assetPeg, srcChain, destAssetChain)}}
 	err = ibcm.PostIBCMsgIssueAssetsPacket(ctx, asset)
 	require.Nil(t, err)
-	
+
 	packet1 := IBCTransferMsg{
 		IBCPacket{
 			SrcAddr:   src,
@@ -166,7 +166,7 @@ func TestIBC(t *testing.T) {
 	}
 	err = ibcm.PostIBCTransferMsg(ctx, packet1)
 	require.Nil(t, err)
-	
+
 	fiatPeg := MsgIssueFiats{[]IssueFiat{NewIssueFiat(issuerAddress, toAddress, fiatPeg, srcChain, destFiatChain)}}
 	err = ibcm.PostIBCMsgIssueFiatsPacket(ctx, fiatPeg)
 	require.Nil(t, err)
@@ -179,48 +179,48 @@ func TestIBC(t *testing.T) {
 
 func TestIBCHandlerAssets(t *testing.T) {
 	ctx, ibcMapper, accountMapper, coinKeeper, _, orderKeeper, _, negoKeeper, aclMapper, aclKeeper, assetMapper, assetKeeper, _, _ := setup()
-	
+
 	var addr = []sdk.AccAddress{
 		sdk.AccAddress([]byte("addr0")),
 		sdk.AccAddress([]byte("addr1")),
 	}
 	zoneID, _ := sdk.GetZoneIDFromString("zoneID")
 	aclMapper.SetZone(ctx, addr[0], zoneID)
-	
+
 	var aclAccount = []sdk.BaseACLAccount{
-		{
+		sdk.BaseACLAccount{
 			Address: addr[0],
 			ZoneID:  zoneID,
 			ACL:     sdk.ACL{MainIssueAssets: true, MainRedeemAssets: true}},
-		{
+		sdk.BaseACLAccount{
 			Address: addr[1],
 			ACL:     sdk.ACL{MainIssueAssets: true, MainRedeemAssets: true}},
 	}
 	setcoins := []int64{0, 0}
-	
+
 	var baseAccount = []auth.Account{}
-	// var aclAccounts = []sdk.ACLAccount{}
-	
+	//var aclAccounts = []sdk.ACLAccount{}
+
 	for i, address := range addr {
 		setupSetCoins(ctx, coinKeeper, address, "atom", setcoins[i])
 		baseAccount = append(baseAccount, accountMapper.GetAccount(ctx, address))
 		accountMapper.SetAccount(ctx, baseAccount[i])
 		if i <= len(aclAccount)-1 {
 			aclMapper.SetAccount(ctx, address, &aclAccount[i])
-			// aclAccounts = append(aclAccounts, aclMapper.GetAccount(ctx, address))
+			//aclAccounts = append(aclAccounts, aclMapper.GetAccount(ctx, address))
 		}
 	}
-	
+
 	chainid := "ibcchain"
 	assets := []sdk.BaseAssetPeg{
-		{
+		sdk.BaseAssetPeg{
 			PegHash:       sdk.PegHash([]byte("test")),
 			DocumentHash:  "AA",
 			AssetType:     "sona",
 			AssetQuantity: 10,
 			OwnerAddress:  addr[0],
 		},
-		{
+		sdk.BaseAssetPeg{
 			PegHash:       sdk.PegHash([]byte("tip2")),
 			AssetType:     "silver",
 			AssetQuantity: 5,
@@ -233,14 +233,14 @@ func TestIBCHandlerAssets(t *testing.T) {
 		baseAccount[i].SetAssetPegWallet(assetPeg)
 		accountMapper.SetAccount(ctx, baseAccount[i])
 	}
-	
+
 	issueAsset := NewIssueAsset(addr[0], addr[1], &assets[0], chainid, chainid)
 	redeemAsset := NewRedeemAsset(addr[0], addr[1], assets[0].GetPegHash(), chainid, chainid)
 	sendAsset := NewSendAsset(addr[0], addr[1], assets[0].GetPegHash(), chainid, chainid)
-	// issueFiat := NewIssueFiat(addr[0], addr[1], &fiats[0], chainid, chainid)
-	
+	//issueFiat := NewIssueFiat(addr[0], addr[1], &fiats[0], chainid, chainid)
+
 	fun := NewHandler(ibcMapper, coinKeeper, aclKeeper, negoKeeper, orderKeeper)
-	
+
 	/*
 		var issueAssets = []IssueAsset{issueAsset}
 		msgIssueAssets := NewMsgIssueAssets(issueAssets)
@@ -251,7 +251,7 @@ func TestIBCHandlerAssets(t *testing.T) {
 		baseAccount[1] = accountMapper.GetAccount(ctx, addr[1])
 		require.Equal(t, addr[1].String(), string(res.Tags[0].Value))
 	*/
-	// RelayIssueAsset
+	//RelayIssueAsset
 	fun = NewAssetHandler(ibcMapper, coinKeeper, assetKeeper)
 	seq := ibcMapper.GetIngressSequence(ctx, chainid)
 	msgRelayIssueAssets := NewMsgRelayIssueAssets([]IssueAsset{issueAsset}, addr[0], seq)
@@ -263,14 +263,14 @@ func TestIBCHandlerAssets(t *testing.T) {
 		res = fun(ctx, msgRedeemAsset)
 		require.True(t, res.IsOK())
 	*/
-	// RelayRedeemAsset
+	//RelayRedeemAsset
 	fun = NewAssetHandler(ibcMapper, coinKeeper, assetKeeper)
 	seq = ibcMapper.GetIngressSequence(ctx, chainid)
 	msgRelayRedeemAssets := NewMsgRelayRedeemAssets([]RedeemAsset{redeemAsset}, addr[0], seq)
 	res = fun(ctx, msgRelayRedeemAssets)
 	require.True(t, res.IsOK())
-	
-	// RelaySendAsset
+
+	//RelaySendAsset
 	fun = NewAssetHandler(ibcMapper, coinKeeper, assetKeeper)
 	seq = ibcMapper.GetIngressSequence(ctx, chainid)
 	msgRelaySendAssets := NewMsgRelaySendAssets([]SendAsset{sendAsset}, addr[0], seq)
@@ -279,48 +279,48 @@ func TestIBCHandlerAssets(t *testing.T) {
 }
 func TestIBCHandlerFiats(t *testing.T) {
 	ctx, ibcMapper, accountMapper, coinKeeper, _, _, _, _, aclMapper, _, _, _, fiatMapper, fiatKeeper := setup()
-	
+
 	var addr = []sdk.AccAddress{
 		sdk.AccAddress([]byte("addr0")),
 		sdk.AccAddress([]byte("addr1")),
 	}
 	zoneID, _ := sdk.GetZoneIDFromString("zoneID")
 	aclMapper.SetZone(ctx, addr[0], zoneID)
-	
+
 	var aclAccount = []sdk.BaseACLAccount{
-		{
+		sdk.BaseACLAccount{
 			Address: addr[0],
 			ZoneID:  zoneID,
 			ACL:     sdk.ACL{MainIssueFiats: true, MainRedeemFiats: true}},
-		{
+		sdk.BaseACLAccount{
 			Address: addr[1],
 			ACL:     sdk.ACL{MainIssueFiats: true, MainRedeemFiats: true}},
 	}
 	setcoins := []int64{0, 0}
-	
+
 	var baseAccount = []auth.Account{}
-	// var aclAccounts = []sdk.ACLAccount{}
-	
+	//var aclAccounts = []sdk.ACLAccount{}
+
 	for i, address := range addr {
 		setupSetCoins(ctx, coinKeeper, address, "atom", setcoins[i])
 		baseAccount = append(baseAccount, accountMapper.GetAccount(ctx, address))
 		accountMapper.SetAccount(ctx, baseAccount[i])
 		if i <= len(aclAccount)-1 {
 			aclMapper.SetAccount(ctx, address, &aclAccount[i])
-			// aclAccounts = append(aclAccounts, aclMapper.GetAccount(ctx, address))
+			//aclAccounts = append(aclAccounts, aclMapper.GetAccount(ctx, address))
 		}
 	}
-	
+
 	chainid := "ibcchain"
 	var fiats = []sdk.BaseFiatPeg{
-		{
+		sdk.BaseFiatPeg{
 			PegHash:           sdk.PegHash([]byte("test")),
 			TransactionID:     "one",
 			TransactionAmount: 5,
 			RedeemedAmount:    0,
 			Owners:            []sdk.Owner{{OwnerAddress: addr[0], Amount: 5}},
 		},
-		{
+		sdk.BaseFiatPeg{
 			PegHash:           sdk.PegHash([]byte("tip")),
 			TransactionID:     "two",
 			TransactionAmount: 5,
@@ -335,8 +335,8 @@ func TestIBCHandlerFiats(t *testing.T) {
 		baseAccount[i].SetFiatPegWallet(fiatPeg)
 		accountMapper.SetAccount(ctx, baseAccount[i])
 	}
-	
-	var fiatPegWallet = sdk.FiatPegWallet{
+
+	var fiatPegWallet sdk.FiatPegWallet = sdk.FiatPegWallet{
 		sdk.BaseFiatPeg{
 			PegHash:           sdk.PegHash([]byte("test")),
 			TransactionID:     "one",
@@ -345,11 +345,11 @@ func TestIBCHandlerFiats(t *testing.T) {
 			Owners:            []sdk.Owner{{OwnerAddress: addr[0], Amount: 5}},
 		},
 	}
-	
+
 	issueFiat := NewIssueFiat(addr[0], addr[1], &fiats[0], chainid, chainid)
 	redeemFiat := NewRedeemFiat(addr[1], addr[0], 5, fiatPegWallet, chainid, chainid)
 	sendFiat := NewSendFiat(addr[0], addr[1], fiats[0].GetPegHash(), 5, fiatPegWallet, chainid, chainid)
-	
+
 	/*
 		var issueFiats = []IssueFiat{issueFiat}
 		msgIssueFiats := NewMsgIssueFiats(issueFiats)
@@ -360,20 +360,20 @@ func TestIBCHandlerFiats(t *testing.T) {
 		baseAccount[1] = accountMapper.GetAccount(ctx, addr[1])
 		require.Equal(t, addr[1].String(), string(res.Tags[0].Value))
 	*/
-	
-	// RelayIssueFiat
+
+	//RelayIssueFiat
 	fun := NewFiatHandler(ibcMapper, coinKeeper, fiatKeeper)
 	seq := ibcMapper.GetIngressSequence(ctx, chainid)
 	msgRelayIssueFiats := NewMsgRelayIssueFiats([]IssueFiat{issueFiat}, addr[0], seq)
 	res := fun(ctx, msgRelayIssueFiats)
 	require.True(t, res.IsOK())
-	// RelayRedeemFiat
+	//RelayRedeemFiat
 	fun = NewFiatHandler(ibcMapper, coinKeeper, fiatKeeper)
 	seq = ibcMapper.GetIngressSequence(ctx, chainid)
 	msgRelayRedeemFiats := NewMsgRelayRedeemFiats([]RedeemFiat{redeemFiat}, addr[0], seq)
 	res = fun(ctx, msgRelayRedeemFiats)
 	require.True(t, res.IsOK())
-	
+
 	/*
 
 		fun = NewHandler(ibcMapper, coinKeeper, aclKeeper, negoKeeper, orderKeeper)
@@ -381,8 +381,8 @@ func TestIBCHandlerFiats(t *testing.T) {
 		res = fun(ctx, msgRedeemFiat)
 		require.True(t, res.IsOK())
 	*/
-	
-	// RelaySendFiat
+
+	//RelaySendFiat
 	fun2 := NewFiatHandler(ibcMapper, coinKeeper, fiatKeeper)
 	seq = ibcMapper.GetIngressSequence(ctx, chainid)
 	msgRelaySendFiats := NewMsgRelaySendFiats([]SendFiat{sendFiat}, addr[0], seq)

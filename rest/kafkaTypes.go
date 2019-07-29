@@ -2,18 +2,18 @@ package rest
 
 import (
 	"strconv"
-	
+
 	"github.com/Shopify/sarama"
-	"github.com/comdex-blockchain/client/context"
-	sdk "github.com/comdex-blockchain/types"
-	context2 "github.com/comdex-blockchain/x/auth/client/context"
+	"github.com/commitHub/commitBlockchain/client/context"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	context2 "github.com/commitHub/commitBlockchain/x/auth/client/context"
 	dbm "github.com/tendermint/tendermint/libs/db"
 )
 
-// Ticket : is a type that implements string
+//Ticket : is a type that implements string
 type Ticket string
 
-// KafkaMsg : is a store that can be stored in kafka queues
+//KafkaMsg : is a store that can be stored in kafka queues
 type KafkaMsg struct {
 	Msg      sdk.Msg     `json:"msg"`
 	TicketID Ticket      `json:"ticketID"`
@@ -21,7 +21,7 @@ type KafkaMsg struct {
 	KafkaCli KafkaCliCtx `json:"kafkaCliCtx"`
 }
 
-// NewKafkaMsgFromRest : makes a msg to send to kafka queue
+//NewKafkaMsgFromRest : makes a msg to send to kafka queue
 func NewKafkaMsgFromRest(msg sdk.Msg, ticketID Ticket, txCtx context2.TxContext, cliCtx context.CLIContext, passPhrase string) KafkaMsg {
 	kafkaTx := KafkaTxCtx{
 		PassPhrase:    passPhrase,
@@ -46,19 +46,19 @@ func NewKafkaMsgFromRest(msg sdk.Msg, ticketID Ticket, txCtx context2.TxContext,
 		PrintResponse:   cliCtx.PrintResponse,
 		DryRun:          cliCtx.DryRun,
 	}
-	
+
 	return KafkaMsg{
 		Msg:      msg,
 		TicketID: ticketID,
 		KafkaTx:  kafkaTx,
 		KafkaCli: kafkaCli,
 	}
-	
+
 }
 
 // KafkaTxAndKafkaCliFromKafkaMsg : sets the txctx and clictx again to consume
 func KafkaTxAndKafkaCliFromKafkaMsg(msg KafkaMsg, cliCtx context.CLIContext) (context2.TxContext, context.CLIContext, string) {
-	
+
 	txCtx := context2.TxContext{
 		Codec:         cliCtx.Codec,
 		Gas:           msg.KafkaTx.Gas,
@@ -66,7 +66,7 @@ func KafkaTxAndKafkaCliFromKafkaMsg(msg KafkaMsg, cliCtx context.CLIContext) (co
 		AccountNumber: msg.KafkaTx.AccountNumber,
 		Sequence:      msg.KafkaTx.Sequence,
 	}
-	
+
 	cliCtx.Height = msg.KafkaCli.Height
 	cliCtx.Gas = msg.KafkaCli.Gas
 	gasAdjustment, err := strconv.ParseFloat(msg.KafkaCli.GasAdjustment, 64)
@@ -83,11 +83,11 @@ func KafkaTxAndKafkaCliFromKafkaMsg(msg KafkaMsg, cliCtx context.CLIContext) (co
 	cliCtx.JSON = msg.KafkaCli.JSON
 	cliCtx.PrintResponse = msg.KafkaCli.PrintResponse
 	cliCtx.DryRun = msg.KafkaCli.DryRun
-	
+
 	return txCtx, cliCtx, msg.KafkaTx.PassPhrase
 }
 
-// KafkaTxCtx : auth.tx without codec
+//KafkaTxCtx : auth.tx without codec
 type KafkaTxCtx struct {
 	PassPhrase    string
 	AccountNumber int64
@@ -98,7 +98,7 @@ type KafkaTxCtx struct {
 	Fee           string
 }
 
-// KafkaCliCtx : client tx without codec
+//KafkaCliCtx : client tx without codec
 type KafkaCliCtx struct {
 	Height          int64
 	Gas             int64
@@ -114,12 +114,12 @@ type KafkaCliCtx struct {
 	DryRun          bool
 }
 
-// TicketIDResponse : is a json structure to send TicketID to user
+//TicketIDResponse : is a json structure to send TicketID to user
 type TicketIDResponse struct {
 	TicketID Ticket `json:"TicketID" valid:"required~TicketID is mandatory,length(20)~RelayerAddress length should be 20" `
 }
 
-// KafkaState : is a struct showing the state of kafka
+//KafkaState : is a struct showing the state of kafka
 type KafkaState struct {
 	KafkaDB   *dbm.GoLevelDB
 	Admin     sarama.ClusterAdmin
@@ -129,19 +129,19 @@ type KafkaState struct {
 	Topics    []string
 }
 
-// NewKafkaState : returns a kafka state
+//NewKafkaState : returns a kafka state
 func NewKafkaState(kafkaPorts []string) KafkaState {
 	kafkaDB, _ := dbm.NewGoLevelDB("KafkaDB", DefaultCLIHome)
 	admin := KafkaAdmin(kafkaPorts)
 	producer := NewProducer(kafkaPorts)
 	consumer := NewConsumer(kafkaPorts)
 	var consumers = make(map[string]sarama.PartitionConsumer)
-	
+
 	for _, topic := range Topics {
 		partitionConsumer := PartitionConsumers(consumer, topic)
 		consumers[topic] = partitionConsumer
 	}
-	
+
 	return KafkaState{
 		KafkaDB:   kafkaDB,
 		Admin:     admin,

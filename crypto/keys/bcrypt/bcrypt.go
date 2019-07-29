@@ -14,7 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	
+
 	"golang.org/x/crypto/blowfish"
 )
 
@@ -109,17 +109,17 @@ func CompareHashAndPassword(hashedPassword, password []byte) error {
 	if err != nil {
 		return err
 	}
-	
+
 	otherHash, err := bcrypt(password, p.cost, p.salt)
 	if err != nil {
 		return err
 	}
-	
+
 	otherP := &hashed{otherHash, p.salt, p.cost, p.major, p.minor}
 	if subtle.ConstantTimeCompare(p.Hash(), otherP.Hash()) == 1 {
 		return nil
 	}
-	
+
 	return ErrMismatchedHashAndPassword
 }
 
@@ -142,13 +142,13 @@ func newFromPassword(salt []byte, password []byte, cost int) (*hashed, error) {
 	p := new(hashed)
 	p.major = majorVersion
 	p.minor = minorVersion
-	
+
 	err := checkCost(cost)
 	if err != nil {
 		return nil, err
 	}
 	p.cost = cost
-	
+
 	p.salt = base64Encode(salt)
 	hash, err := bcrypt(password, p.cost, p.salt)
 	if err != nil {
@@ -173,34 +173,34 @@ func newFromHash(hashedSecret []byte) (*hashed, error) {
 		return nil, err
 	}
 	hashedSecret = hashedSecret[n:]
-	
+
 	// The "+2" is here because we'll have to append at most 2 '=' to the salt
 	// when base64 decoding it in expensiveBlowfishSetup().
 	p.salt = make([]byte, encodedSaltSize, encodedSaltSize+2)
 	copy(p.salt, hashedSecret[:encodedSaltSize])
-	
+
 	hashedSecret = hashedSecret[encodedSaltSize:]
 	p.hash = make([]byte, len(hashedSecret))
 	copy(p.hash, hashedSecret)
-	
+
 	return p, nil
 }
 
 func bcrypt(password []byte, cost int, salt []byte) ([]byte, error) {
 	cipherData := make([]byte, len(magicCipherData))
 	copy(cipherData, magicCipherData)
-	
+
 	c, err := expensiveBlowfishSetup(password, uint32(cost), salt)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	for i := 0; i < 24; i += 8 {
 		for j := 0; j < 64; j++ {
 			c.Encrypt(cipherData[i:i+8], cipherData[i:i+8])
 		}
 	}
-	
+
 	// Bug compatibility with C bcrypt implementations. We only encode 23 of
 	// the 24 bytes encrypted.
 	hsh := base64Encode(cipherData[:maxCryptedHashSize])
@@ -208,28 +208,28 @@ func bcrypt(password []byte, cost int, salt []byte) ([]byte, error) {
 }
 
 func expensiveBlowfishSetup(key []byte, cost uint32, salt []byte) (*blowfish.Cipher, error) {
-	
+
 	csalt, err := base64Decode(salt)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Bug compatibility with C bcrypt implementations. They use the trailing
 	// NULL in the key string during expansion.
 	ckey := append(key, 0)
-	
+
 	c, err := blowfish.NewSaltedCipher(ckey, csalt)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	var i, rounds uint64
 	rounds = 1 << cost
 	for i = 0; i < rounds; i++ {
 		blowfish.ExpandKey(ckey, c)
 		blowfish.ExpandKey(csalt, c)
 	}
-	
+
 	return c, nil
 }
 

@@ -1,7 +1,7 @@
 package store
 
 import (
-	"github.com/comdex-blockchain/wire"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
 var cdc = wire.NewCodec()

@@ -3,15 +3,15 @@ package store
 import (
 	"fmt"
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
-	
+
 	"github.com/tendermint/iavl"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	dbm "github.com/tendermint/tendermint/libs/db"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 var (
@@ -48,23 +48,23 @@ func TestIAVLStoreGetSetHasDelete(t *testing.T) {
 	db := dbm.NewMemDB()
 	tree, _ := newTree(t, db)
 	iavlStore := newIAVLStore(tree, numRecent, storeEvery)
-	
+
 	key := "hello"
-	
+
 	exists := iavlStore.Has([]byte(key))
 	require.True(t, exists)
-	
+
 	value := iavlStore.Get([]byte(key))
 	require.EqualValues(t, value, treeData[key])
-	
+
 	value2 := "notgoodbye"
 	iavlStore.Set([]byte(key), []byte(value2))
-	
+
 	value = iavlStore.Get([]byte(key))
 	require.EqualValues(t, value, value2)
-	
+
 	iavlStore.Delete([]byte(key))
-	
+
 	exists = iavlStore.Has([]byte(key))
 	require.False(t, exists)
 }
@@ -76,7 +76,7 @@ func TestIAVLIterator(t *testing.T) {
 	iter := iavlStore.Iterator([]byte("aloha"), []byte("hellz"))
 	expected := []string{"aloha", "hello"}
 	var i int
-	
+
 	for i = 0; iter.Valid(); iter.Next() {
 		expectedKey := expected[i]
 		key, value := iter.Key(), iter.Value()
@@ -85,7 +85,7 @@ func TestIAVLIterator(t *testing.T) {
 		i++
 	}
 	require.Equal(t, len(expected), i)
-	
+
 	iter = iavlStore.Iterator([]byte("golang"), []byte("rocks"))
 	expected = []string{"hello"}
 	for i = 0; iter.Valid(); iter.Next() {
@@ -96,7 +96,7 @@ func TestIAVLIterator(t *testing.T) {
 		i++
 	}
 	require.Equal(t, len(expected), i)
-	
+
 	iter = iavlStore.Iterator(nil, []byte("golang"))
 	expected = []string{"aloha"}
 	for i = 0; iter.Valid(); iter.Next() {
@@ -107,7 +107,7 @@ func TestIAVLIterator(t *testing.T) {
 		i++
 	}
 	require.Equal(t, len(expected), i)
-	
+
 	iter = iavlStore.Iterator(nil, []byte("shalom"))
 	expected = []string{"aloha", "hello"}
 	for i = 0; iter.Valid(); iter.Next() {
@@ -118,7 +118,7 @@ func TestIAVLIterator(t *testing.T) {
 		i++
 	}
 	require.Equal(t, len(expected), i)
-	
+
 	iter = iavlStore.Iterator(nil, nil)
 	expected = []string{"aloha", "hello"}
 	for i = 0; iter.Valid(); iter.Next() {
@@ -129,7 +129,7 @@ func TestIAVLIterator(t *testing.T) {
 		i++
 	}
 	require.Equal(t, len(expected), i)
-	
+
 	iter = iavlStore.Iterator([]byte("golang"), nil)
 	expected = []string{"hello"}
 	for i = 0; iter.Valid(); iter.Next() {
@@ -146,7 +146,7 @@ func TestIAVLSubspaceIterator(t *testing.T) {
 	db := dbm.NewMemDB()
 	tree, _ := newTree(t, db)
 	iavlStore := newIAVLStore(tree, numRecent, storeEvery)
-	
+
 	iavlStore.Set([]byte("test1"), []byte("test1"))
 	iavlStore.Set([]byte("test2"), []byte("test2"))
 	iavlStore.Set([]byte("test3"), []byte("test3"))
@@ -156,9 +156,9 @@ func TestIAVLSubspaceIterator(t *testing.T) {
 	iavlStore.Set([]byte{byte(255), byte(255), byte(0)}, []byte("test4"))
 	iavlStore.Set([]byte{byte(255), byte(255), byte(1)}, []byte("test4"))
 	iavlStore.Set([]byte{byte(255), byte(255), byte(255)}, []byte("test4"))
-	
+
 	var i int
-	
+
 	iter := sdk.KVStorePrefixIterator(iavlStore, []byte("test"))
 	expected := []string{"test1", "test2", "test3"}
 	for i = 0; iter.Valid(); iter.Next() {
@@ -170,7 +170,7 @@ func TestIAVLSubspaceIterator(t *testing.T) {
 	}
 	iter.Close()
 	require.Equal(t, len(expected), i)
-	
+
 	iter = sdk.KVStorePrefixIterator(iavlStore, []byte{byte(55), byte(255), byte(255)})
 	expected2 := [][]byte{
 		{byte(55), byte(255), byte(255), byte(0)},
@@ -186,7 +186,7 @@ func TestIAVLSubspaceIterator(t *testing.T) {
 	}
 	iter.Close()
 	require.Equal(t, len(expected), i)
-	
+
 	iter = sdk.KVStorePrefixIterator(iavlStore, []byte{byte(255), byte(255)})
 	expected2 = [][]byte{
 		{byte(255), byte(255), byte(0)},
@@ -208,7 +208,7 @@ func TestIAVLReverseSubspaceIterator(t *testing.T) {
 	db := dbm.NewMemDB()
 	tree, _ := newTree(t, db)
 	iavlStore := newIAVLStore(tree, numRecent, storeEvery)
-	
+
 	iavlStore.Set([]byte("test1"), []byte("test1"))
 	iavlStore.Set([]byte("test2"), []byte("test2"))
 	iavlStore.Set([]byte("test3"), []byte("test3"))
@@ -218,9 +218,9 @@ func TestIAVLReverseSubspaceIterator(t *testing.T) {
 	iavlStore.Set([]byte{byte(255), byte(255), byte(0)}, []byte("test4"))
 	iavlStore.Set([]byte{byte(255), byte(255), byte(1)}, []byte("test4"))
 	iavlStore.Set([]byte{byte(255), byte(255), byte(255)}, []byte("test4"))
-	
+
 	var i int
-	
+
 	iter := sdk.KVStoreReversePrefixIterator(iavlStore, []byte("test"))
 	expected := []string{"test3", "test2", "test1"}
 	for i = 0; iter.Valid(); iter.Next() {
@@ -231,7 +231,7 @@ func TestIAVLReverseSubspaceIterator(t *testing.T) {
 		i++
 	}
 	require.Equal(t, len(expected), i)
-	
+
 	iter = sdk.KVStoreReversePrefixIterator(iavlStore, []byte{byte(55), byte(255), byte(255)})
 	expected2 := [][]byte{
 		{byte(55), byte(255), byte(255), byte(255)},
@@ -246,7 +246,7 @@ func TestIAVLReverseSubspaceIterator(t *testing.T) {
 		i++
 	}
 	require.Equal(t, len(expected), i)
-	
+
 	iter = sdk.KVStoreReversePrefixIterator(iavlStore, []byte{byte(255), byte(255)})
 	expected2 = [][]byte{
 		{byte(255), byte(255), byte(255)},
@@ -271,8 +271,8 @@ func nextVersion(iavl *iavlStore) {
 }
 
 func TestIAVLDefaultPruning(t *testing.T) {
-	// Expected stored / deleted version numbers for:
-	// numRecent = 5, storeEvery = 3
+	//Expected stored / deleted version numbers for:
+	//numRecent = 5, storeEvery = 3
 	var states = []pruneState{
 		{[]int64{}, []int64{}},
 		{[]int64{1}, []int64{}},
@@ -295,8 +295,8 @@ func TestIAVLDefaultPruning(t *testing.T) {
 }
 
 func TestIAVLAlternativePruning(t *testing.T) {
-	// Expected stored / deleted version numbers for:
-	// numRecent = 3, storeEvery = 5
+	//Expected stored / deleted version numbers for:
+	//numRecent = 3, storeEvery = 5
 	var states = []pruneState{
 		{[]int64{}, []int64{}},
 		{[]int64{1}, []int64{}},
@@ -379,11 +379,11 @@ func TestIAVLStoreQuery(t *testing.T) {
 	db := dbm.NewMemDB()
 	tree := iavl.NewVersionedTree(db, cacheSize)
 	iavlStore := newIAVLStore(tree, numRecent, storeEvery)
-	
+
 	k1, v1 := []byte("key1"), []byte("val1")
 	k2, v2 := []byte("key2"), []byte("val2")
 	v3 := []byte("val3")
-	
+
 	ksub := []byte("key")
 	KVs0 := []KVPair{}
 	KVs1 := []KVPair{
@@ -397,59 +397,59 @@ func TestIAVLStoreQuery(t *testing.T) {
 	valExpSubEmpty := cdc.MustMarshalBinary(KVs0)
 	valExpSub1 := cdc.MustMarshalBinary(KVs1)
 	valExpSub2 := cdc.MustMarshalBinary(KVs2)
-	
+
 	cid := iavlStore.Commit()
 	ver := cid.Version
 	query := abci.RequestQuery{Path: "/key", Data: k1, Height: ver}
 	querySub := abci.RequestQuery{Path: "/subspace", Data: ksub, Height: ver}
-	
+
 	// query subspace before anything set
 	qres := iavlStore.Query(querySub)
 	require.Equal(t, uint32(sdk.CodeOK), qres.Code)
 	require.Equal(t, valExpSubEmpty, qres.Value)
-	
+
 	// set data
 	iavlStore.Set(k1, v1)
 	iavlStore.Set(k2, v2)
-	
+
 	// set data without commit, doesn't show up
 	qres = iavlStore.Query(query)
 	require.Equal(t, uint32(sdk.CodeOK), qres.Code)
 	require.Nil(t, qres.Value)
-	
+
 	// commit it, but still don't see on old version
 	cid = iavlStore.Commit()
 	qres = iavlStore.Query(query)
 	require.Equal(t, uint32(sdk.CodeOK), qres.Code)
 	require.Nil(t, qres.Value)
-	
+
 	// but yes on the new version
 	query.Height = cid.Version
 	qres = iavlStore.Query(query)
 	require.Equal(t, uint32(sdk.CodeOK), qres.Code)
 	require.Equal(t, v1, qres.Value)
-	
+
 	// and for the subspace
 	qres = iavlStore.Query(querySub)
 	require.Equal(t, uint32(sdk.CodeOK), qres.Code)
 	require.Equal(t, valExpSub1, qres.Value)
-	
+
 	// modify
 	iavlStore.Set(k1, v3)
 	cid = iavlStore.Commit()
-	
+
 	// query will return old values, as height is fixed
 	qres = iavlStore.Query(query)
 	require.Equal(t, uint32(sdk.CodeOK), qres.Code)
 	require.Equal(t, v1, qres.Value)
-	
+
 	// update to latest in the query and we are happy
 	query.Height = cid.Version
 	qres = iavlStore.Query(query)
 	require.Equal(t, uint32(sdk.CodeOK), qres.Code)
 	require.Equal(t, v3, qres.Value)
 	query2 := abci.RequestQuery{Path: "/key", Data: k2, Height: cid.Version}
-	
+
 	qres = iavlStore.Query(query2)
 	require.Equal(t, uint32(sdk.CodeOK), qres.Code)
 	require.Equal(t, v2, qres.Value)
@@ -457,7 +457,7 @@ func TestIAVLStoreQuery(t *testing.T) {
 	qres = iavlStore.Query(querySub)
 	require.Equal(t, uint32(sdk.CodeOK), qres.Code)
 	require.Equal(t, valExpSub2, qres.Value)
-	
+
 	// default (height 0) will show latest -1
 	query0 := abci.RequestQuery{Path: "/store", Data: k1}
 	qres = iavlStore.Query(query0)

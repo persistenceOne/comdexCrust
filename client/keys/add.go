@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	
-	"github.com/comdex-blockchain/client"
+
+	"github.com/commitHub/commitBlockchain/client"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	
-	ccrypto "github.com/comdex-blockchain/crypto"
-	"github.com/comdex-blockchain/crypto/keys"
-	
+
+	ccrypto "github.com/commitHub/commitBlockchain/crypto"
+	"github.com/commitHub/commitBlockchain/crypto/keys"
+
 	"github.com/tendermint/tendermint/libs/cli"
 )
 
@@ -52,7 +52,7 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 	var kb keys.Keybase
 	var err error
 	var name, pass string
-	
+
 	buf := client.BufferStdin()
 	if viper.GetBool(flagDryRun) {
 		// we throw this away, so don't enforce args,
@@ -69,7 +69,7 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		
+
 		_, err := kb.Get(name)
 		if err == nil {
 			// account exists, ask for user confirmation
@@ -78,7 +78,7 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 				return err
 			}
 		}
-		
+
 		// ask for a password when generating a local key
 		if !viper.GetBool(client.FlagUseLedger) {
 			pass, err = client.GetCheckPassword(
@@ -89,7 +89,7 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 			}
 		}
 	}
-	
+
 	if viper.GetBool(client.FlagUseLedger) {
 		account := uint32(viper.GetInt(flagAccount))
 		index := uint32(viper.GetInt(flagIndex))
@@ -129,7 +129,7 @@ func printCreate(info keys.Info, seed string) {
 	switch output {
 	case "text":
 		printKeyInfo(info, Bech32KeyOutput)
-		
+
 		// print seed unless requested not to.
 		if !viper.GetBool(client.FlagUseLedger) && !viper.GetBool(flagNoBackup) {
 			fmt.Println("**Important** write this seed phrase in a safe place.")
@@ -155,7 +155,7 @@ func printCreate(info keys.Info, seed string) {
 	}
 }
 
-// ///////////////////////////
+/////////////////////////////
 // REST
 
 // new key request REST body
@@ -169,17 +169,17 @@ type NewKeyBody struct {
 func AddNewKeyRequestHandler(w http.ResponseWriter, r *http.Request) {
 	var kb keys.Keybase
 	var m NewKeyBody
-	
+
 	kb, err := GetKeyBase()
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write([]byte(err.Error()))
 		return
 	}
-	
+
 	body, err := ioutil.ReadAll(r.Body)
 	err = json.Unmarshal(body, &m)
-	
+
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
@@ -195,7 +195,7 @@ func AddNewKeyRequestHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("You have to specify a password for the locally stored account."))
 		return
 	}
-	
+
 	// check if already exists
 	infos, err := kb.List()
 	for _, i := range infos {
@@ -205,7 +205,7 @@ func AddNewKeyRequestHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	
+
 	// create account
 	seed := m.Seed
 	if seed == "" {
@@ -217,23 +217,23 @@ func AddNewKeyRequestHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	
+
 	keyOutput, err := Bech32KeyOutput(info)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
 	}
-	
+
 	keyOutput.Seed = seed
-	
+
 	bz, err := json.Marshal(keyOutput)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
 	}
-	
+
 	w.Write(bz)
 }
 
@@ -255,7 +255,7 @@ func SeedRequestHandler(w http.ResponseWriter, r *http.Request) {
 		algoType = "secp256k1"
 	}
 	algo := keys.SigningAlgo(algoType)
-	
+
 	seed := getSeed(algo)
 	w.Write([]byte(seed))
 }

@@ -20,7 +20,7 @@ import (
 	"math/big"
 	"strconv"
 	"strings"
-	
+
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
 )
@@ -82,7 +82,7 @@ func (p BIP44Params) String() string {
 func ComputeMastersFromSeed(seed []byte) (secret [32]byte, chainCode [32]byte) {
 	masterSecret := []byte("Bitcoin seed")
 	secret, chainCode = i64(masterSecret, seed)
-	
+
 	return
 }
 
@@ -112,7 +112,7 @@ func DerivePrivateKeyForPath(privKeyBytes [32]byte, chainCode [32]byte, path str
 	if n != 32 || len(data) != 32 {
 		return [32]byte{}, fmt.Errorf("expected a (secp256k1) key of length 32, got length: %v", len(data))
 	}
-	
+
 	return derivedKey, nil
 }
 
@@ -129,7 +129,7 @@ func derivePrivateKey(privKeyBytes [32]byte, chainCode [32]byte, index uint32, h
 	} else {
 		// this can't return an error:
 		pubkey := secp256k1.PrivKeySecp256k1(privKeyBytes).PubKey()
-		
+
 		public := pubkey.(secp256k1.PubKeySecp256k1)
 		data = public[:]
 	}

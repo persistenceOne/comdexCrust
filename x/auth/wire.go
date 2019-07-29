@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"github.com/comdex-blockchain/wire"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
 // RegisterWire : Register concrete types on wire codec for default AppAccount

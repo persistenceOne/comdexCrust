@@ -19,7 +19,7 @@ type Dec struct {
 // number of decimal places
 const (
 	Precision = 10
-	
+
 	// bytes required to represent the above precision
 	// ceil(log2(9999999999))
 	DecimalPrecisionBits = 34
@@ -50,7 +50,7 @@ func precisionInt() *big.Int {
 // nolint - common values
 func ZeroDec() Dec { return Dec{new(big.Int).Set(zeroInt)} }
 
-// OneDec :
+//OneDec :
 func OneDec() Dec { return Dec{precisionInt()} }
 
 // calculate the precision multiplier
@@ -71,7 +71,7 @@ func precisionMultiplier(prec int64) *big.Int {
 	return precisionMultipliers[prec]
 }
 
-// ______________________________________________________________________________________________
+//______________________________________________________________________________________________
 
 // NewDec : create a new Dec from integer assuming whole number
 func NewDec(i int64) Dec {
@@ -131,18 +131,18 @@ func NewDecFromStr(str string) (d Dec, err Error) {
 	if len(str) == 0 {
 		return d, ErrUnknownRequest("decimal string is empty")
 	}
-	
+
 	// first extract any negative symbol
 	neg := false
 	if str[0] == '-' {
 		neg = true
 		str = str[1:]
 	}
-	
+
 	if len(str) == 0 {
 		return d, ErrUnknownRequest("decimal string is empty")
 	}
-	
+
 	strs := strings.Split(str, ".")
 	lenDecs := 0
 	combinedStr := strs[0]
@@ -155,17 +155,17 @@ func NewDecFromStr(str string) (d Dec, err Error) {
 	} else if len(strs) > 2 {
 		return d, ErrUnknownRequest("too many periods to be a decimal string")
 	}
-	
+
 	if lenDecs > Precision {
 		return d, ErrUnknownRequest(
 			fmt.Sprintf("too much precision, maximum %v, len decimal %v", Precision, lenDecs))
 	}
-	
+
 	// add some extra zero's to correct to the Precision factor
 	zerosToAdd := Precision - lenDecs
 	zeros := fmt.Sprintf(`%0`+strconv.Itoa(zerosToAdd)+`s`, "")
 	combinedStr = combinedStr + zeros
-	
+
 	combined, ok := new(big.Int).SetString(combinedStr, 10)
 	if !ok {
 		return d, ErrUnknownRequest(fmt.Sprintf("bad string to integer conversion, combinedStr: %v", combinedStr))
@@ -177,8 +177,8 @@ func NewDecFromStr(str string) (d Dec, err Error) {
 }
 
 // IsZero :
-// ______________________________________________________________________________________________
-// nolint
+//______________________________________________________________________________________________
+//nolint
 func (d Dec) IsZero() bool { return (d.Int).Sign() == 0 } // Is equal to zero
 
 // Equal :
@@ -199,10 +199,10 @@ func (d Dec) LTE(d2 Dec) bool { return (d.Int).Cmp(d2.Int) <= 0 }
 // Neg : reverse the decimal sign
 func (d Dec) Neg() Dec { return Dec{new(big.Int).Neg(d.Int)} }
 
-// Add : addition
+//Add : addition
 func (d Dec) Add(d2 Dec) Dec {
 	res := new(big.Int).Add(d.Int, d2.Int)
-	
+
 	if res.BitLen() > 255+DecimalPrecisionBits {
 		panic("Int overflow")
 	}
@@ -212,34 +212,34 @@ func (d Dec) Add(d2 Dec) Dec {
 // Sub : subtraction
 func (d Dec) Sub(d2 Dec) Dec {
 	res := new(big.Int).Sub(d.Int, d2.Int)
-	
+
 	if res.BitLen() > 255+DecimalPrecisionBits {
 		panic("Int overflow")
 	}
 	return Dec{res}
 }
 
-// Mul : multiplication
+//Mul : multiplication
 func (d Dec) Mul(d2 Dec) Dec {
 	mul := new(big.Int).Mul(d.Int, d2.Int)
 	chopped := chopPrecisionAndRound(mul)
-	
+
 	if chopped.BitLen() > 255+DecimalPrecisionBits {
 		panic("Int overflow")
 	}
 	return Dec{chopped}
 }
 
-// Quo : quotient
+//Quo : quotient
 func (d Dec) Quo(d2 Dec) Dec {
-	
+
 	// multiply precision twice
 	mul := new(big.Int).Mul(d.Int, precisionReuse)
 	mul.Mul(mul, precisionReuse)
-	
+
 	quo := new(big.Int).Quo(mul, d2.Int)
 	chopped := chopPrecisionAndRound(quo)
-	
+
 	if chopped.BitLen() > 255+DecimalPrecisionBits {
 		panic("Int overflow")
 	}
@@ -255,7 +255,7 @@ func (d Dec) String() string {
 	return str[:placement] + "." + str[placement:]
 }
 
-// ToLeftPaddedWithDecimals  :
+//ToLeftPaddedWithDecimals  :
 // TODO panic if negative or if totalDigits < len(initStr)???
 // evaluate as an integer and return left padded string
 func (d Dec) ToLeftPaddedWithDecimals(totalDigits int8) string {
@@ -289,7 +289,7 @@ func (d Dec) ToLeftPadded(totalDigits int8) string {
 //
 // Mutates the input. Use the non-mutative version if that is undesired
 func chopPrecisionAndRound(d *big.Int) *big.Int {
-	
+
 	// remove the negative and add it back when returning
 	if d.Sign() == -1 {
 		// make d positive, compute chopped value, and then un-mutate d
@@ -298,15 +298,15 @@ func chopPrecisionAndRound(d *big.Int) *big.Int {
 		d = d.Neg(d)
 		return d
 	}
-	
+
 	// get the trucated quotient and remainder
 	quo, rem := d, big.NewInt(0)
 	quo, rem = quo.QuoRem(d, precisionReuse, rem)
-	
+
 	if rem.Sign() == 0 { // remainder is zero
 		return quo
 	}
-	
+
 	switch rem.Cmp(fivePrecision) {
 	case -1:
 		return quo
@@ -340,7 +340,7 @@ func (d Dec) RoundInt() Int {
 	return NewIntFromBigInt(chopPrecisionAndRoundNonMutative(d.Int))
 }
 
-// ___________________________________________________________________________________
+//___________________________________________________________________________________
 
 // reuse nil values
 var (
@@ -355,7 +355,7 @@ func init() {
 		panic("bad nil amino init")
 	}
 	nilAmino = string(bz)
-	
+
 	nilJSON, err = json.Marshal(string(bz))
 	if err != nil {
 		panic("bad nil json init")
@@ -387,7 +387,7 @@ func (d Dec) MarshalJSON() ([]byte, error) {
 	if d.Int == nil {
 		return nilJSON, nil
 	}
-	
+
 	bz, err := d.Int.MarshalText()
 	if err != nil {
 		return nil, err
@@ -400,7 +400,7 @@ func (d *Dec) UnmarshalJSON(bz []byte) error {
 	if d.Int == nil {
 		d.Int = new(big.Int)
 	}
-	
+
 	var text string
 	err := json.Unmarshal(bz, &text)
 	if err != nil {
@@ -409,7 +409,7 @@ func (d *Dec) UnmarshalJSON(bz []byte) error {
 	return d.Int.UnmarshalText([]byte(text))
 }
 
-// ___________________________________________________________________________________
+//___________________________________________________________________________________
 // helpers
 
 // DecsEqual : test if two decimal arrays are equal
@@ -417,7 +417,7 @@ func DecsEqual(d1s, d2s []Dec) bool {
 	if len(d1s) != len(d2s) {
 		return false
 	}
-	
+
 	for i, d1 := range d1s {
 		if !d1.Equal(d2s[i]) {
 			return false
@@ -442,7 +442,7 @@ func MaxDec(d1, d2 Dec) Dec {
 	return d1
 }
 
-// DecEq : intended to be used with require/assert:  require.True(DecEq(...))
+//DecEq : intended to be used with require/assert:  require.True(DecEq(...))
 func DecEq(t *testing.T, exp, got Dec) (*testing.T, bool, string, Dec, Dec) {
 	return t, exp.Equal(got), "expected:\t%v\ngot:\t\t%v", exp, got
 }

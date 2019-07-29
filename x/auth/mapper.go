@@ -1,8 +1,8 @@
 package auth
 
 import (
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	wire "github.com/commitHub/commitBlockchain/wire"
 	"github.com/tendermint/tendermint/crypto"
 )
 
@@ -15,12 +15,13 @@ var (
 // AccountMapper encodes/decodes accounts using the
 // go-amino (binary) encoding/decoding library.
 type AccountMapper struct {
+
 	// The (unexposed) key used to access the store from the Context.
 	key sdk.StoreKey
-	
+
 	// The prototypical Account constructor.
 	proto func() Account
-	
+
 	// The wire codec for binary encoding/decoding of accounts.
 	cdc *wire.Codec
 }
@@ -149,14 +150,14 @@ func (am AccountMapper) GetNextAccountNumber(ctx sdk.Context) int64 {
 			panic(err)
 		}
 	}
-	
+
 	bz = am.cdc.MustMarshalBinary(accNumber + 1)
 	store.Set(globalAccountNumberKey, bz)
-	
+
 	return accNumber
 }
 
-// ----------------------------------------
+//----------------------------------------
 // misc.
 
 func (am AccountMapper) encodeAccount(acc Account) []byte {
@@ -188,10 +189,10 @@ func (am AccountMapper) GetNextAssetPegHash(ctx sdk.Context) int {
 			panic(err)
 		}
 	}
-	
+
 	bz = am.cdc.MustMarshalBinary(assetNumber + 1)
 	store.Set(assetPegHashKey, bz)
-	
+
 	return assetNumber
 }
 
@@ -208,9 +209,9 @@ func (am AccountMapper) GetNextFiatPegHash(ctx sdk.Context) int {
 			panic(err)
 		}
 	}
-	
+
 	bz = am.cdc.MustMarshalBinary(fiatNumber + 1)
 	store.Set(fiatPegHashKey, bz)
-	
+
 	return fiatNumber
 }

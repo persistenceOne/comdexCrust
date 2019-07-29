@@ -4,17 +4,17 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	
-	cliclient "github.com/comdex-blockchain/client"
-	"github.com/comdex-blockchain/client/context"
-	"github.com/comdex-blockchain/client/utils"
-	"github.com/comdex-blockchain/crypto/keys"
-	"github.com/comdex-blockchain/rest"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	context2 "github.com/comdex-blockchain/x/auth/client/context"
-	"github.com/comdex-blockchain/x/bank"
-	"github.com/comdex-blockchain/x/bank/client"
+
+	cliclient "github.com/commitHub/commitBlockchain/client"
+	"github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/client/utils"
+	"github.com/commitHub/commitBlockchain/crypto/keys"
+	"github.com/commitHub/commitBlockchain/rest"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	context2 "github.com/commitHub/commitBlockchain/x/auth/client/context"
+	"github.com/commitHub/commitBlockchain/x/bank"
+	"github.com/commitHub/commitBlockchain/x/bank/client"
 )
 
 var msgCdc = wire.NewCodec()
@@ -39,17 +39,17 @@ func SendRequestHandlerFn(cdc *wire.Codec, kb keys.Keybase, cliCtx context.CLICo
 			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		adjustment, ok := utils.ParseFloat64OrReturnBadRequest(w, msg.GasAdjustment, cliclient.DefaultGasAdjustment)
 		if !ok {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		cliCtx = cliCtx.WithGasAdjustment(adjustment)
 		cliCtx = cliCtx.WithFromAddressName(msg.From)
 		cliCtx.JSON = true
-		
+
 		txCtx := context2.TxContext{
 			Codec:         cdc,
 			ChainID:       msg.ChainID,
@@ -57,7 +57,7 @@ func SendRequestHandlerFn(cdc *wire.Codec, kb keys.Keybase, cliCtx context.CLICo
 			Sequence:      msg.Sequence,
 			Gas:           msg.Gas,
 		}
-		
+
 		if err := cliCtx.EnsureAccountExists(); err != nil {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -67,19 +67,19 @@ func SendRequestHandlerFn(cdc *wire.Codec, kb keys.Keybase, cliCtx context.CLICo
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		toStr := msg.To
 		to, err := sdk.AccAddressFromBech32(toStr)
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		sendMsg := client.BuildMsg(from, to, msg.Amount)
-		
+
 		if kafka == true {
 			ticketID := rest.TicketIDGenerator("BKST")
-			
+
 			jsonResponse := rest.SendToKafka(rest.NewKafkaMsgFromRest(sendMsg, ticketID, txCtx, cliCtx, msg.Password), kafkaState, cdc)
 			w.WriteHeader(http.StatusAccepted)
 			w.Write(jsonResponse)
@@ -89,7 +89,7 @@ func SendRequestHandlerFn(cdc *wire.Codec, kb keys.Keybase, cliCtx context.CLICo
 				utils.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}
-			
+
 			w.Write(utils.ResponseBytesToJSON(output))
 		}
 	}

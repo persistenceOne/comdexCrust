@@ -8,7 +8,7 @@
   notify: restart gaiad
 
 - name: Copy new genesis.json file, if available
-  when: "GENESISFILE is defined and GENESISFILE != ''"
+  when: "GENESISFILE is defined and GENESISFILE != ''" 
   copy:
     src: "{{GENESISFILE}}"
     dest: /home/gaiad/.gaiad/config/genesis.json

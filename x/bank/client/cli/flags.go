@@ -4,7 +4,7 @@ import (
 	flag "github.com/spf13/pflag"
 )
 
-// noLint
+//noLint
 const (
 	FlagTo                 = "to"
 	FlagAmount             = "amount"
@@ -104,5 +104,5 @@ func init() {
 	fsRedeemAsset.String(FlagRedeemAsset, "", "Redeem assets")
 	fsRedeemFiat.String(FlagRedeemFiat, "", "Redeem fiats")
 	fsReleaseAsset.String(FlagReleaseAsset, "", "Release assets")
-	fsModerated.Bool(FlagModerated, false, "private")
+	fsModerated.Bool(FlagModerated, false, "moderated")
 }

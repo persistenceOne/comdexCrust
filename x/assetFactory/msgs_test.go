@@ -2,9 +2,9 @@ package assetFactory
 
 import (
 	"testing"
-	
-	sdk "github.com/comdex-blockchain/types"
-	
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -70,7 +70,7 @@ func genIssueAsset(testCase TestCase) (sdk.BaseAssetPeg, IssueAsset) {
 	return oneAssetPeg, oneIssueAsset
 }
 
-// --------------------Issye Asset
+//--------------------Issye Asset
 func TestNewIssueAsset(t *testing.T) {
 	for _, testCase := range listTests {
 		oneAssetPeg, oneIssueAsset := genIssueAsset(testCase)
@@ -91,7 +91,7 @@ func TestIssueAssetGetSignBytes(t *testing.T) {
 			require.Nil(t, oneIssueAsset.GetSignBytes())
 		}
 	}
-	
+
 }
 
 func TestIssueAssetValidateBasics(t *testing.T) {
@@ -118,7 +118,7 @@ func TestIssueAssetValidateBasics(t *testing.T) {
 	}
 }
 
-// -------------------Msg Factory Issue Assets
+//-------------------Msg Factory Issue Assets
 
 func TestNewMsgFactoryIssueAssets(t *testing.T) {
 	for _, testCase := range listTests {
@@ -132,7 +132,7 @@ func TestNewMsgFactoryIssueAssets(t *testing.T) {
 			require.NotEqual(t, newMsgFactoryIssueAssets, msgFactoryIssueAssets)
 		}
 	}
-	
+
 }
 
 func TestMsgFactoryIssueAssetsType(t *testing.T) {
@@ -192,7 +192,7 @@ func TestMsgFactoryIssueAssetsGetSigners(t *testing.T) {
 		var issueAssets = []IssueAsset{issueAsset, oneIssueAsset}
 		var msgFactoryIssueAssets = MsgFactoryIssueAssets{issueAssets}
 		var issuers = []sdk.AccAddress{issuerAddr, oneIssueAsset.IssuerAddress}
-		
+
 		if testCase.expectedResult {
 			require.Equal(t, msgFactoryIssueAssets.GetSigners(), issuers)
 		} else {
@@ -214,7 +214,7 @@ func TestBuildIssueAssetMsg(t *testing.T) {
 	}
 }
 
-// ------------------Send Asset
+//------------------Send Asset
 type TestCaseSend struct {
 	relayer        sdk.AccAddress
 	from           sdk.AccAddress
@@ -261,7 +261,7 @@ func TestSendAssetGetSignBytes(t *testing.T) {
 	}
 }
 
-// ---------------Msg Factory Send Assets
+//---------------Msg Factory Send Assets
 
 func TestNewMsgFactorySendAssets(t *testing.T) {
 	for _, testCase := range listSendTests {
@@ -347,7 +347,7 @@ func TestBuildSendAssetMsg(t *testing.T) {
 	}
 }
 
-// --------------------Msg Factory Execute Assets
+//--------------------Msg Factory Execute Assets
 
 func TestNewMsgFactoryExecuteAssets(t *testing.T) {
 	for _, testCase := range listSendTests {

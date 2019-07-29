@@ -3,11 +3,11 @@ package main
 import (
 	"encoding/json"
 	"io"
-	
-	"github.com/comdex-blockchain/baseapp"
-	
-	"github.com/comdex-blockchain/main/app"
-	"github.com/comdex-blockchain/server"
+
+	"github.com/commitHub/commitBlockchain/baseapp"
+
+	"github.com/commitHub/commitBlockchain/main/app"
+	"github.com/commitHub/commitBlockchain/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -20,20 +20,20 @@ import (
 func main() {
 	cdc := app.MakeCodec()
 	ctx := server.NewDefaultContext()
-	
+
 	rootCmd := &cobra.Command{
 		Use:               "maind",
 		Short:             "Main Daemon (server)",
 		PersistentPreRunE: server.PersistentPreRunEFn(ctx),
 	}
-	
+
 	server.AddCommands(ctx, cdc, rootCmd, app.MainAppInit(),
 		server.ConstructAppCreator(newApp, "main"),
 		server.ConstructAppExporter(exportAppStateAndTMValidators, "main"))
-	
+
 	// prepare and add flags
 	executor := cli.PrepareBaseCmd(rootCmd, "CM", app.DefaultNodeHome)
-	
+
 	err := executor.Execute()
 	if err != nil {
 		// Note: Handle with #870

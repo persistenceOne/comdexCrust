@@ -1,8 +1,53 @@
 Commit-Blockchain
 ===
 
+## Installation
+
+
+**Note:** Requires [Go 1.12+](https://golang.org/dl/)
+
+Golang : installation in  ubuntu
+
+### Download the go 
+
+Add the Golang PPA repository to get the latest version of Golang.
+
+`sudo add-apt-repository ppa:longsleep/golang-backports`
+
+After adding the PPA, update packages list using the below command.   
+
+`sudo apt-get update`
+
+Install the latest version of Golang and other required packages
+
+`sudo apt-get install -y git golang-go make`
+
+Setup Environment Variables
+
+`export GOROOT=/usr/lib/go`
+
+`export GOPATH=$HOME/go`
+
+`export GOBIN=$GOPATH/bin`
+
+`export PATH=$PATH:$GOROOT/bin:$GOBIN`
+
+You can also append the above lines to $HOME/.bashrc file and run the following command to reflect in current Terminal session
+
+`source $HOME/.bashrc`
+
+`go env`
+
+```
+git clone https://github.com/commitHub/commitBlockchain
+cd commitBlockchain
+```
+```
+make all
+```
+
 ## Validator Setup 
- ### Setup a New Node
+### Setup a New Node
 
 **Note** : You need to install **commit-blockchain** before you go further
 
@@ -18,8 +63,6 @@ You can edit this ```moniker``` later, in the ```~/.maind/config/config.toml``` 
 moniker = "<your_custom_moniker>"
 ```
 
-### Copy the genesis file
-[Link of genesis file]() //TODO
 
 
 ### Adding seeds
@@ -34,7 +77,7 @@ ab940fb60d51ad8aa2b06c03f9e21a0fe5e47f40@192.168.2.98:26656
 ### Gas and Fees
 
 > WARNING
-On commit-blockchain mainnet, the accepted denom is steak
+On commit-blockchain mainnet, the accepted denom is `commit`
 
 ```
 fees = ceil(gas * gasPrices)
@@ -62,7 +105,7 @@ To add Validator
 
 ```
 maincli stake create-validator \
-    --amount=1steak  \
+    --amount=1commit  \
     --from="<key_name>" \ 
     --pubkey=$(maind tendermint show-validator) \
     --moniker="choose a moniker" \
@@ -73,7 +116,11 @@ maincli stake create-validator \
     --gas-adjuestment=1.0
 
 ```
-> Minimun amount is 1steak
+Minimun amount is 1commit
+
+
+>To avoid the ddos attack on the validator, it recommanded to follow youre own implementation of securing validator or use [Sentry node architecture](https://forum.cosmos.network/t/sentry-node-architecture-overview/454)
+
 
 
 ### Delegator : Delegate tokens to Validator
@@ -90,7 +137,7 @@ Delegate Tokens
 ```
 ./maincli stake delegate \
     --validator=<validator_address> \
-    --amount=1steak \
+    --amount=1commit \
     --chain-id=test-chain-fkp8YY \
     --gas-adjustment=1.0 \
     --from=<key_name> 

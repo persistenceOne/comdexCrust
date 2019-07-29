@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
-	
-	"github.com/comdex-blockchain/x/reputation"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/acl"
-	"github.com/comdex-blockchain/x/auth"
-	"github.com/comdex-blockchain/x/negotiation"
-	"github.com/comdex-blockchain/x/order"
+
+	"github.com/commitHub/commitBlockchain/x/reputation"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/acl"
+	"github.com/commitHub/commitBlockchain/x/auth"
+	"github.com/commitHub/commitBlockchain/x/negotiation"
+	"github.com/commitHub/commitBlockchain/x/order"
 )
 
 const (
@@ -32,7 +32,7 @@ func NewKeeper(am auth.AccountMapper) Keeper {
 	return Keeper{am: am}
 }
 
-// CheckGenesisAccount : check if the address belongs to the genesis account
+//CheckGenesisAccount : check if the address belongs to the genesis account
 func (keeper Keeper) CheckGenesisAccount(ctx sdk.Context, accAddress sdk.AccAddress) bool {
 	account := keeper.am.GetAccount(ctx, accAddress)
 	if account.GetAccountNumber() == 0 {
@@ -76,7 +76,7 @@ func (keeper Keeper) InputOutputCoins(ctx sdk.Context, inputs []Input, outputs [
 	return inputOutputCoins(ctx, keeper.am, inputs, outputs)
 }
 
-// ______________________________________________________________________________________________
+//______________________________________________________________________________________________
 
 // SendKeeper only allows transfers between accounts, without the possibility of creating coins
 type SendKeeper struct {
@@ -108,7 +108,7 @@ func (keeper SendKeeper) InputOutputCoins(ctx sdk.Context, inputs []Input, outpu
 	return inputOutputCoins(ctx, keeper.am, inputs, outputs)
 }
 
-// ______________________________________________________________________________________________
+//______________________________________________________________________________________________
 
 // ViewKeeper only allows reading of balances
 type ViewKeeper struct {
@@ -130,7 +130,7 @@ func (keeper ViewKeeper) HasCoins(ctx sdk.Context, addr sdk.AccAddress, amt sdk.
 	return hasCoins(ctx, keeper.am, addr, amt)
 }
 
-// ______________________________________________________________________________________________
+//______________________________________________________________________________________________
 
 func getCoins(ctx sdk.Context, am auth.AccountMapper, addr sdk.AccAddress) sdk.Coins {
 	ctx.GasMeter().ConsumeGas(costGetCoins, "getCoins")
@@ -195,12 +195,12 @@ func sendCoins(ctx sdk.Context, am auth.AccountMapper, fromAddr sdk.AccAddress, 
 	if err != nil {
 		return nil, err
 	}
-	
+
 	_, addTags, err := addCoins(ctx, am, toAddr, amt)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return subTags.AppendTags(addTags), nil
 }
 
@@ -208,7 +208,7 @@ func sendCoins(ctx sdk.Context, am auth.AccountMapper, fromAddr sdk.AccAddress, 
 // NOTE: Make sure to revert state changes from tx on error
 func inputOutputCoins(ctx sdk.Context, am auth.AccountMapper, inputs []Input, outputs []Output) (sdk.Tags, sdk.Error) {
 	allTags := sdk.EmptyTags()
-	
+
 	for _, in := range inputs {
 		_, tags, err := subtractCoins(ctx, am, in.Address, in.Coins)
 		if err != nil {
@@ -216,7 +216,7 @@ func inputOutputCoins(ctx sdk.Context, am auth.AccountMapper, inputs []Input, ou
 		}
 		allTags = allTags.AppendTags(tags)
 	}
-	
+
 	for _, out := range outputs {
 		_, tags, err := addCoins(ctx, am, out.Address, out.Coins)
 		if err != nil {
@@ -224,11 +224,11 @@ func inputOutputCoins(ctx sdk.Context, am auth.AccountMapper, inputs []Input, ou
 		}
 		allTags = allTags.AppendTags(tags)
 	}
-	
+
 	return allTags, nil
 }
 
-// *****comdex
+//*****comdex
 func getAssetWallet(ctx sdk.Context, am auth.AccountMapper, addr sdk.AccAddress) sdk.AssetPegWallet {
 	acc := am.GetAccount(ctx, addr)
 	if acc == nil {
@@ -248,10 +248,10 @@ func setAssetWallet(ctx sdk.Context, am auth.AccountMapper, addr sdk.AccAddress,
 }
 
 func instantiateAndAssignAsset(ctx sdk.Context, am auth.AccountMapper, issuerAddress sdk.AccAddress, toAddress sdk.AccAddress, assetPeg sdk.AssetPeg) (sdk.AssetPeg, sdk.Tags, sdk.Error) {
-	
+
 	pegHash, _ := sdk.GetAssetPegHashHex(fmt.Sprintf("%x", strconv.Itoa(am.GetNextAssetPegHash(ctx))))
 	assetPeg.SetPegHash(pegHash)
-	assetPeg.SetLocked(!assetPeg.GetModerated())
+	assetPeg.SetLocked(assetPeg.GetModerated())
 	receiverAssetPegWallet := getAssetWallet(ctx, am, toAddress)
 	receiverAssetPegWallet = sdk.AddAssetPegToWallet(assetPeg, receiverAssetPegWallet)
 	err := setAssetWallet(ctx, am, toAddress, receiverAssetPegWallet)
@@ -268,7 +268,7 @@ func issueAssetsToWallets(ctx sdk.Context, am auth.AccountMapper, issueAsset []I
 	var err sdk.Error
 	for _, req := range issueAsset {
 		moderated := req.AssetPeg.GetModerated()
-		if !moderated {
+		if moderated {
 			acl, err = ak.CheckZoneAndGetACL(ctx, req.IssuerAddress, req.ToAddress)
 			if err != nil {
 				return nil, err, issuedAssetPegs
@@ -280,11 +280,11 @@ func issueAssetsToWallets(ctx sdk.Context, am auth.AccountMapper, issueAsset []I
 			}
 			acl = aclAccount.GetACL()
 		}
-		
+
 		if !acl.IssueAsset {
 			return nil, sdk.ErrInternal(fmt.Sprintf("Assets cant be issued to account %v.", req.ToAddress.String())), issuedAssetPegs
 		}
-		
+
 		issuedAsset, tags, err := instantiateAndAssignAsset(ctx, am, req.IssuerAddress, req.ToAddress, req.AssetPeg)
 		if err != nil {
 			return nil, err, issuedAssetPegs
@@ -295,7 +295,7 @@ func issueAssetsToWallets(ctx sdk.Context, am auth.AccountMapper, issueAsset []I
 	return allTags, nil, issuedAssetPegs
 }
 
-// IssueAssetsToWallets handles a list of IssueAsset messages
+//IssueAssetsToWallets handles a list of IssueAsset messages
 func (keeper Keeper) IssueAssetsToWallets(ctx sdk.Context, issueAssets []IssueAsset, ak acl.Keeper) (sdk.Tags, sdk.Error, []sdk.AssetPeg) {
 	return issueAssetsToWallets(ctx, keeper.am, issueAssets, ak)
 }
@@ -322,7 +322,7 @@ func instantiateAndRedeemAsset(ctx sdk.Context, am auth.AccountMapper, issuerAdd
 	tags := sdk.NewTags("redeemer", []byte(redeemerAddress.String()))
 	tags = tags.AppendTag("issuer", []byte(issuerAddress.String()))
 	tags = tags.AppendTag("asset", []byte(assetPeg.GetPegHash().String()))
-	
+
 	return assetPeg.GetPegHash(), tags, nil
 }
 
@@ -347,12 +347,12 @@ func redeemAssetsFromWallets(ctx sdk.Context, am auth.AccountMapper, redeemAsset
 	return allTags, nil, redeemedPegHashs
 }
 
-// RedeemAssetsFromWallets handles a list of RedeemAsset messages
+//RedeemAssetsFromWallets handles a list of RedeemAsset messages
 func (keeper Keeper) RedeemAssetsFromWallets(ctx sdk.Context, redeemAssets []RedeemAsset, ak acl.Keeper) (sdk.Tags, sdk.Error, []sdk.PegHash) {
 	return redeemAssetsFromWallets(ctx, keeper.am, redeemAssets, ak)
 }
 
-// ***** Issue Fiat
+//***** Issue Fiat
 func getFiatWallet(ctx sdk.Context, am auth.AccountMapper, addr sdk.AccAddress) sdk.FiatPegWallet {
 	acc := am.GetAccount(ctx, addr)
 	if acc == nil {
@@ -372,14 +372,14 @@ func setFiatWallet(ctx sdk.Context, am auth.AccountMapper, addr sdk.AccAddress, 
 }
 
 func instantiateAndAssignFiat(ctx sdk.Context, am auth.AccountMapper, issuerAddress sdk.AccAddress, toAddress sdk.AccAddress, fiatPeg sdk.FiatPeg) (sdk.FiatPeg, sdk.Tags, sdk.Error) {
-	
+
 	pegHash, _ := sdk.GetFiatPegHashHex(fmt.Sprintf("%x", strconv.Itoa(am.GetNextFiatPegHash(ctx))))
 	fiatPeg.SetPegHash(pegHash)
 	receiverFiatPegWallet := getFiatWallet(ctx, am, toAddress)
 	receiverFiatPegWallet = sdk.AddFiatPegToWallet(receiverFiatPegWallet, []sdk.BaseFiatPeg{sdk.ToBaseFiatPeg(fiatPeg)})
-	
+
 	err := setFiatWallet(ctx, am, toAddress, receiverFiatPegWallet)
-	
+
 	tags := sdk.NewTags("recepient", []byte(toAddress.String()))
 	tags = tags.AppendTag("issuer", []byte(issuerAddress.String()))
 	tags = tags.AppendTag("fiat", []byte(fiatPeg.GetPegHash().String()))
@@ -390,7 +390,7 @@ func issueFiatsToWallets(ctx sdk.Context, am auth.AccountMapper, issueFiat []Iss
 	allTags := sdk.EmptyTags()
 	var issuedFiatPegs []sdk.FiatPeg
 	for _, req := range issueFiat {
-		
+
 		acl, err := ak.CheckZoneAndGetACL(ctx, req.IssuerAddress, req.ToAddress)
 		if err != nil {
 			return nil, err, issuedFiatPegs
@@ -398,7 +398,7 @@ func issueFiatsToWallets(ctx sdk.Context, am auth.AccountMapper, issueFiat []Iss
 		if !acl.IssueFiat {
 			return nil, sdk.ErrInternal(fmt.Sprintf("Fiats can't be issued to account %v.", req.ToAddress.String())), issuedFiatPegs
 		}
-		
+
 		issuedFiat, tags, err := instantiateAndAssignFiat(ctx, am, req.IssuerAddress, req.ToAddress, req.FiatPeg)
 		if err != nil {
 			return nil, err, issuedFiatPegs
@@ -409,30 +409,30 @@ func issueFiatsToWallets(ctx sdk.Context, am auth.AccountMapper, issueFiat []Iss
 	return allTags, nil, issuedFiatPegs
 }
 
-// IssueFiatsToWallets handles a list of IssueFiat messages
+//IssueFiatsToWallets handles a list of IssueFiat messages
 func (keeper Keeper) IssueFiatsToWallets(ctx sdk.Context, issueFiats []IssueFiat, ak acl.Keeper) (sdk.Tags, sdk.Error, []sdk.FiatPeg) {
 	return issueFiatsToWallets(ctx, keeper.am, issueFiats, ak)
 }
 
-// ##### Issue Fiat
+//##### Issue Fiat
 
-// ##### Redeem Fiat
+//##### Redeem Fiat
 
 func instantiateAndRedeemFiat(ctx sdk.Context, am auth.AccountMapper, issuerAddress sdk.AccAddress, redeemerAddress sdk.AccAddress, amount int64) (sdk.FiatPegWallet, sdk.Tags, sdk.Error) {
 	var redeemerFiatPegWallet sdk.FiatPegWallet
-	
+
 	fromOldFiatWallet := getFiatWallet(ctx, am, redeemerAddress)
-	
+
 	emptiedFiatPegWallet, redeemerFiatPegWallet := sdk.RedeemAmountFromWallet(amount, fromOldFiatWallet)
 	if len(redeemerFiatPegWallet) == 0 && len(emptiedFiatPegWallet) == 0 {
 		return fromOldFiatWallet, nil, sdk.ErrInsufficientCoins(fmt.Sprintf("Redeemed amount higher than the account balance"))
 	}
-	
+
 	err := setFiatWallet(ctx, am, redeemerAddress, redeemerFiatPegWallet)
 	if err != nil {
 		return nil, nil, err
 	}
-	
+
 	tags := sdk.NewTags("redeemer", []byte(redeemerAddress.String()))
 	return redeemerFiatPegWallet, tags, err
 }
@@ -440,7 +440,7 @@ func instantiateAndRedeemFiat(ctx sdk.Context, am auth.AccountMapper, issuerAddr
 func redeemFiatsFromWallets(ctx sdk.Context, am auth.AccountMapper, redeemFiats []RedeemFiat, ak acl.Keeper) (sdk.Tags, sdk.Error, []sdk.FiatPegWallet) {
 	allTags := sdk.EmptyTags()
 	var redeemerFiatPegWallets []sdk.FiatPegWallet
-	
+
 	for _, req := range redeemFiats {
 		acl, err := ak.CheckZoneAndGetACL(ctx, req.IssuerAddress, req.RedeemerAddress)
 		if err != nil {
@@ -459,12 +459,12 @@ func redeemFiatsFromWallets(ctx sdk.Context, am auth.AccountMapper, redeemFiats 
 	return allTags, nil, redeemerFiatPegWallets
 }
 
-// RedeemFiatsFromWallets handles a list of Redeem Fiat messages
+//RedeemFiatsFromWallets handles a list of Redeem Fiat messages
 func (keeper Keeper) RedeemFiatsFromWallets(ctx sdk.Context, redeemFiats []RedeemFiat, ak acl.Keeper) (sdk.Tags, sdk.Error, []sdk.FiatPegWallet) {
 	return redeemFiatsFromWallets(ctx, keeper.am, redeemFiats, ak)
 }
 
-// ##### Send Asset
+//##### Send Asset
 
 func sendAssetToOrder(ctx sdk.Context, am auth.AccountMapper, orderKeeper order.Keeper, negotiationKeeper negotiation.Keeper, fromAddress sdk.AccAddress, toAddress sdk.AccAddress, pegHash sdk.PegHash) (sdk.AssetPeg, sdk.Tags, sdk.Error) {
 	err, negotiation := negotiationKeeper.GetNegotiation(ctx, toAddress, fromAddress, pegHash)
@@ -478,7 +478,7 @@ func sendAssetToOrder(ctx sdk.Context, am auth.AccountMapper, orderKeeper order.
 	if negotiation.GetSellerSignature() == nil || negotiation.GetBuyerSignature() == nil {
 		return nil, nil, sdk.ErrInternal("Signatures are not present")
 	}
-	
+
 	fromOldAssetWallet := getAssetWallet(ctx, am, fromAddress)
 	sentAsset, fromNewAssetPegWallet := sdk.SubtractAssetPegFromWallet(pegHash, fromOldAssetWallet)
 	if sentAsset == nil {
@@ -500,7 +500,7 @@ func sendAssetToOrder(ctx sdk.Context, am auth.AccountMapper, orderKeeper order.
 func sendAssetsToWallets(ctx sdk.Context, am auth.AccountMapper, orderKeeper order.Keeper, negotiationKeeper negotiation.Keeper, sendAsset []SendAsset, ak acl.Keeper, reputationKeeper reputation.Keeper) (sdk.Tags, sdk.Error, []sdk.AssetPeg) {
 	allTags := sdk.EmptyTags()
 	var sentAssetPegs []sdk.AssetPeg
-	
+
 	for _, req := range sendAsset {
 		aclStore, err := ak.GetAccountACLDetails(ctx, req.FromAddress)
 		if err != nil {
@@ -521,14 +521,14 @@ func sendAssetsToWallets(ctx sdk.Context, am auth.AccountMapper, orderKeeper ord
 	return allTags, nil, sentAssetPegs
 }
 
-// SendAssetsToWallets handles a list of SendAsset messages
+//SendAssetsToWallets handles a list of SendAsset messages
 func (keeper Keeper) SendAssetsToWallets(ctx sdk.Context, orderKeeper order.Keeper, negotiationKeeper negotiation.Keeper, sendAssets []SendAsset, ak acl.Keeper, reputationKeeper reputation.Keeper) (sdk.Tags, sdk.Error, []sdk.AssetPeg) {
 	return sendAssetsToWallets(ctx, keeper.am, orderKeeper, negotiationKeeper, sendAssets, ak, reputationKeeper)
 }
 
-// ***** Send Asset
+//***** Send Asset
 
-// ##### Send Fiat
+//##### Send Fiat
 
 func sendFiatToOrder(ctx sdk.Context, am auth.AccountMapper, orderKeeper order.Keeper, negotiationKeeper negotiation.Keeper, fromAddress sdk.AccAddress, toAddress sdk.AccAddress, pegHash sdk.PegHash, amount int64) (sdk.FiatPegWallet, sdk.Tags, sdk.Error) {
 	var sentFiatPegWallet, oldFiatPegWallet sdk.FiatPegWallet
@@ -543,13 +543,13 @@ func sendFiatToOrder(ctx sdk.Context, am auth.AccountMapper, orderKeeper order.K
 	if negotiation.GetSellerSignature() == nil || negotiation.GetBuyerSignature() == nil {
 		return nil, nil, sdk.ErrInternal("Signatures are not present")
 	}
-	
+
 	fromOldFiatWallet := getFiatWallet(ctx, am, fromAddress)
 	sentFiatPegWallet, oldFiatPegWallet = sdk.SubtractAmountFromWallet(amount, fromOldFiatWallet)
 	if len(sentFiatPegWallet) == 0 && len(oldFiatPegWallet) == 0 {
 		return fromOldFiatWallet, nil, sdk.ErrInsufficientCoins(fmt.Sprintf("Insufficient funds"))
 	}
-	
+
 	err = orderKeeper.SendFiatsToOrder(ctx, fromAddress, toAddress, pegHash, sentFiatPegWallet)
 	if err == nil {
 		err = setFiatWallet(ctx, am, fromAddress, oldFiatPegWallet)
@@ -562,7 +562,7 @@ func sendFiatToOrder(ctx sdk.Context, am auth.AccountMapper, orderKeeper order.K
 func sendFiatsToWallets(ctx sdk.Context, am auth.AccountMapper, orderKeeper order.Keeper, negotiationKeeper negotiation.Keeper, sendFiat []SendFiat, ak acl.Keeper, reputationKeeper reputation.Keeper) (sdk.Tags, sdk.Error, []sdk.FiatPegWallet) {
 	allTags := sdk.EmptyTags()
 	var sentFiatPegWallets []sdk.FiatPegWallet
-	
+
 	for _, req := range sendFiat {
 		store, err := ak.GetAccountACLDetails(ctx, req.FromAddress)
 		if err != nil {
@@ -583,14 +583,14 @@ func sendFiatsToWallets(ctx sdk.Context, am auth.AccountMapper, orderKeeper orde
 	return allTags, nil, sentFiatPegWallets
 }
 
-// SendFiatsToWallets handles a list of SendFiat messages
+//SendFiatsToWallets handles a list of SendFiat messages
 func (keeper Keeper) SendFiatsToWallets(ctx sdk.Context, orderKeeper order.Keeper, negotiationKeeper negotiation.Keeper, sendFiats []SendFiat, ak acl.Keeper, reputationKeeper reputation.Keeper) (sdk.Tags, sdk.Error, []sdk.FiatPegWallet) {
 	return sendFiatsToWallets(ctx, keeper.am, orderKeeper, negotiationKeeper, sendFiats, ak, reputationKeeper)
 }
 
-// ***** Send Fiat
+//***** Send Fiat
 
-// ##### Execute Trade Order
+//##### Execute Trade Order
 
 func exchangeOrderTokens(ctx sdk.Context, am auth.AccountMapper, negotiationKeeper negotiation.Keeper, orderKeeper order.Keeper, mediatorAddress sdk.AccAddress, buyerAddress sdk.AccAddress, sellerAddress sdk.AccAddress, pegHash sdk.PegHash, fiatProofHash string, awbProofHash string, reputationKeeper reputation.Keeper) (sdk.Tags, sdk.Error, sdk.FiatPegWallet, sdk.AssetPegWallet) {
 	err, assetPegWallet, fiatPegWallet, orderFiatProofHash, orderAWBProofHash := orderKeeper.GetOrderDetails(ctx, buyerAddress, sellerAddress, pegHash)
@@ -601,7 +601,7 @@ func exchangeOrderTokens(ctx sdk.Context, am auth.AccountMapper, negotiationKeep
 	if err != nil {
 		return nil, err, fiatPegWallet, assetPegWallet
 	}
-	
+
 	var reverseOrder bool
 	var oldFiatPegWallet sdk.FiatPegWallet
 	if len(fiatPegWallet) == 0 || negotiation.GetBid() > sdk.GetFiatPegWalletBalance(fiatPegWallet) {
@@ -617,7 +617,7 @@ func exchangeOrderTokens(ctx sdk.Context, am auth.AccountMapper, negotiationKeep
 		}
 		reverseOrder = true
 		reputationKeeper.SetSellerExecuteOrderNegativeTx(ctx, sellerAddress)
-		
+
 	}
 	buyerTime := negotiation.GetTime() + negotiation.GetBuyerBlockHeight()
 	sellerTime := negotiation.GetTime() + negotiation.GetSellerBlockHeight()
@@ -625,7 +625,7 @@ func exchangeOrderTokens(ctx sdk.Context, am auth.AccountMapper, negotiationKeep
 	if time > buyerTime || time > sellerTime {
 		reverseOrder = true
 	}
-	
+
 	if negotiation.GetBid() < sdk.GetFiatPegWalletBalance(fiatPegWallet) {
 		fiatPegWallet, oldFiatPegWallet = sdk.SubtractAmountFromWallet(negotiation.GetBid(), fiatPegWallet)
 	}
@@ -633,7 +633,7 @@ func exchangeOrderTokens(ctx sdk.Context, am auth.AccountMapper, negotiationKeep
 	if !reverseOrder {
 		sellerFiatWallet := getFiatWallet(ctx, am, sellerAddress)
 		buyerAssetWallet := getAssetWallet(ctx, am, buyerAddress)
-		
+
 		if orderFiatProofHash == "" && fiatProofHash != "" {
 			orderKeeper.SetOrderFiatProofHash(ctx, buyerAddress, sellerAddress, pegHash, fiatProofHash)
 		}
@@ -648,26 +648,26 @@ func exchangeOrderTokens(ctx sdk.Context, am auth.AccountMapper, negotiationKeep
 			executed = true
 			reputationKeeper.SetSellerExecuteOrderPositiveTx(ctx, sellerAddress)
 			reputationKeeper.SetBuyerExecuteOrderPositiveTx(ctx, buyerAddress)
-			
+
 			buyerAssetWallet = sdk.AddAssetPegToWallet(&assetPegWallet[0], buyerAssetWallet)
 			sellerFiatWallet = sdk.AddFiatPegToWallet(sellerFiatWallet, fiatPegWallet)
-			
+
 			fiatPegWallet = orderKeeper.SendFiatsFromOrder(ctx, buyerAddress, sellerAddress, pegHash, fiatPegWallet)
 			assetPegWallet = orderKeeper.SendAssetFromOrder(ctx, buyerAddress, sellerAddress, &assetPegWallet[0])
 		}
-		
+
 		setFiatWallet(ctx, am, sellerAddress, sellerFiatWallet)
 		setAssetWallet(ctx, am, buyerAddress, buyerAssetWallet)
-		
+
 	}
-	
+
 	if executed == true || reverseOrder == true {
 		buyerFiatWallet := getFiatWallet(ctx, am, buyerAddress)
 		sellerAssetWallet := getAssetWallet(ctx, am, sellerAddress)
 		if len(oldFiatPegWallet) != 0 {
 			buyerFiatWallet = sdk.AddFiatPegToWallet(buyerFiatWallet, oldFiatPegWallet)
 		}
-		
+
 		if len(fiatPegWallet) != 0 {
 			buyerFiatWallet = sdk.AddFiatPegToWallet(buyerFiatWallet, fiatPegWallet)
 			orderKeeper.SendFiatsFromOrder(ctx, buyerAddress, sellerAddress, pegHash, fiatPegWallet)
@@ -676,7 +676,7 @@ func exchangeOrderTokens(ctx sdk.Context, am auth.AccountMapper, negotiationKeep
 			sellerAssetWallet = sdk.AddAssetPegToWallet(&assetPegWallet[0], sellerAssetWallet)
 			orderKeeper.SendAssetFromOrder(ctx, buyerAddress, sellerAddress, &assetPegWallet[0])
 		}
-		
+
 		setFiatWallet(ctx, am, buyerAddress, buyerFiatWallet)
 		setAssetWallet(ctx, am, sellerAddress, sellerAssetWallet)
 	}
@@ -689,7 +689,7 @@ func exchangeOrderTokens(ctx sdk.Context, am auth.AccountMapper, negotiationKeep
 	return tags, nil, fiatPegWallet, assetPegWallet
 }
 
-// ##### Buyer Execute Trade Order
+//##### Buyer Execute Trade Order
 func buyerExecuteTradeOrders(ctx sdk.Context, am auth.AccountMapper, negotiationKeeper negotiation.Keeper, orderKeeper order.Keeper, buyerExecuteOrders []BuyerExecuteOrder, ak acl.Keeper, reputationKeeper reputation.Keeper) (sdk.Tags, sdk.Error, []sdk.FiatPegWallet) {
 	allTags := sdk.EmptyTags()
 	var fiatPegWallets []sdk.FiatPegWallet
@@ -706,7 +706,7 @@ func buyerExecuteTradeOrders(ctx sdk.Context, am auth.AccountMapper, negotiation
 		if i < len(assetWallet) && assetWallet[i].GetPegHash().String() == req.PegHash.String() {
 			assetPeg := assetWallet[i]
 			moderated := assetPeg.GetModerated()
-			if moderated {
+			if !moderated {
 				aclAccount, err := ak.GetAccountACLDetails(ctx, req.BuyerAddress)
 				if err != nil {
 					return nil, err, fiatPegWallets
@@ -732,7 +732,7 @@ func buyerExecuteTradeOrders(ctx sdk.Context, am auth.AccountMapper, negotiation
 			acl, err = ak.CheckZoneAndGetACL(ctx, req.MediatorAddress, req.BuyerAddress)
 			if err != nil {
 				return nil, err, fiatPegWallets
-				
+
 			}
 		}
 		if !acl.BuyerExecuteOrder {
@@ -748,17 +748,17 @@ func buyerExecuteTradeOrders(ctx sdk.Context, am auth.AccountMapper, negotiation
 		}
 		allTags = allTags.AppendTags(tags)
 	}
-	
+
 	return allTags, nil, fiatPegWallets
 }
 
-// BuyerExecuteTradeOrders :  haddles a list of Buyer Execute Order messages
+//BuyerExecuteTradeOrders :  haddles a list of Buyer Execute Order messages
 func (keeper Keeper) BuyerExecuteTradeOrders(ctx sdk.Context, negotiationKeeper negotiation.Keeper, orderKeeper order.Keeper, buyerExecuteOrders []BuyerExecuteOrder, ak acl.Keeper, reputationKeeper reputation.Keeper) (sdk.Tags, sdk.Error, []sdk.FiatPegWallet) {
 	return buyerExecuteTradeOrders(ctx, keeper.am, negotiationKeeper, orderKeeper, buyerExecuteOrders, ak, reputationKeeper)
 }
 
-// ##### Buyer Execute Trade Order
-// ##### Seller Execute Trade Order
+//##### Buyer Execute Trade Order
+//##### Seller Execute Trade Order
 func sellerExecuteTradeOrders(ctx sdk.Context, am auth.AccountMapper, negotiationKeeper negotiation.Keeper, orderKeeper order.Keeper, sellerExecuteOrders []SellerExecuteOrder, ak acl.Keeper, reputationKeeper reputation.Keeper) (sdk.Tags, sdk.Error, []sdk.AssetPegWallet) {
 	allTags := sdk.EmptyTags()
 	var assetPegWallets []sdk.AssetPegWallet
@@ -767,7 +767,7 @@ func sellerExecuteTradeOrders(ctx sdk.Context, am auth.AccountMapper, negotiatio
 	var tags sdk.Tags
 	var assetPegWallet sdk.AssetPegWallet
 	for _, req := range sellerExecuteOrders {
-		
+
 		_, assetWallet, _, _, _ := orderKeeper.GetOrderDetails(ctx, req.BuyerAddress, req.SellerAddress, req.PegHash)
 		if len(assetWallet) == 0 {
 			return nil, sdk.ErrInsufficientCoins("Asset token not found!"), assetPegWallets
@@ -776,7 +776,7 @@ func sellerExecuteTradeOrders(ctx sdk.Context, am auth.AccountMapper, negotiatio
 		if i < len(assetWallet) && assetWallet[i].GetPegHash().String() == req.PegHash.String() {
 			assetPeg := assetWallet[i]
 			moderated := assetPeg.GetModerated()
-			if moderated {
+			if !moderated {
 				aclAccount, err := ak.GetAccountACLDetails(ctx, req.SellerAddress)
 				if err != nil {
 					return nil, err, assetPegWallets
@@ -802,14 +802,14 @@ func sellerExecuteTradeOrders(ctx sdk.Context, am auth.AccountMapper, negotiatio
 			acl, err = ak.CheckZoneAndGetACL(ctx, req.MediatorAddress, req.SellerAddress)
 			if err != nil {
 				return nil, err, assetPegWallets
-				
+
 			}
 		}
-		
+
 		if !acl.SellerExecuteOrder {
 			return nil, sdk.ErrInternal(fmt.Sprintf("Trade cannot be executed for account %v. Access Denied.", req.SellerAddress.String())), assetPegWallets
 		}
-		
+
 		tags, err, _, assetPegWallet = exchangeOrderTokens(ctx, am, negotiationKeeper, orderKeeper, req.MediatorAddress, req.BuyerAddress, req.SellerAddress, req.PegHash, "", req.AWBProofHash, reputationKeeper)
 		if err != nil {
 			return nil, err, assetPegWallets
@@ -819,19 +819,19 @@ func sellerExecuteTradeOrders(ctx sdk.Context, am auth.AccountMapper, negotiatio
 			return nil, err, assetPegWallets
 		}
 		allTags = allTags.AppendTags(tags)
-		
+
 	}
-	
+
 	return allTags, nil, assetPegWallets
 }
 
-// SellerExecuteTradeOrders :  haddles a list of Seller Execute Order messages
+//SellerExecuteTradeOrders :  haddles a list of Seller Execute Order messages
 func (keeper Keeper) SellerExecuteTradeOrders(ctx sdk.Context, negotiationKeeper negotiation.Keeper, orderKeeper order.Keeper, sellerExecuteOrders []SellerExecuteOrder, ak acl.Keeper, reputationKeeper reputation.Keeper) (sdk.Tags, sdk.Error, []sdk.AssetPegWallet) {
 	return sellerExecuteTradeOrders(ctx, keeper.am, negotiationKeeper, orderKeeper, sellerExecuteOrders, ak, reputationKeeper)
 }
 
-// ##### Seller Execute Trade Order
-// ***** Release Assets
+//##### Seller Execute Trade Order
+//***** Release Assets
 
 func releaseAsset(ctx sdk.Context, am auth.AccountMapper, zoneAddress sdk.AccAddress, ownerAddress sdk.AccAddress, pegHash sdk.PegHash) (sdk.Tags, sdk.Error) {
 	ownerAssetWallet := getAssetWallet(ctx, am, ownerAddress)
@@ -848,7 +848,7 @@ func releaseAsset(ctx sdk.Context, am auth.AccountMapper, zoneAddress sdk.AccAdd
 func releaseLockedAssets(ctx sdk.Context, am auth.AccountMapper, releaseAssets []ReleaseAsset, ak acl.Keeper) (sdk.Tags, sdk.Error) {
 	allTags := sdk.EmptyTags()
 	for _, req := range releaseAssets {
-		
+
 		acl, err := ak.CheckZoneAndGetACL(ctx, req.ZoneAddress, req.OwnerAddress)
 		if err != nil {
 			return nil, err
@@ -856,7 +856,7 @@ func releaseLockedAssets(ctx sdk.Context, am auth.AccountMapper, releaseAssets [
 		if !acl.ReleaseAsset {
 			return nil, sdk.ErrInternal(fmt.Sprintf("Assets cannot be released for account %v. Access Denied.", req.OwnerAddress.String()))
 		}
-		
+
 		tags, err := releaseAsset(ctx, am, req.ZoneAddress, req.OwnerAddress, req.PegHash)
 		if err != nil {
 			return nil, err
@@ -866,16 +866,16 @@ func releaseLockedAssets(ctx sdk.Context, am auth.AccountMapper, releaseAssets [
 	return allTags, nil
 }
 
-// ReleaseLockedAssets :  haddles a list of release asset messages
+//ReleaseLockedAssets :  haddles a list of release asset messages
 func (keeper Keeper) ReleaseLockedAssets(ctx sdk.Context, releaseAssets []ReleaseAsset, ak acl.Keeper) (sdk.Tags, sdk.Error) {
 	return releaseLockedAssets(ctx, keeper.am, releaseAssets, ak)
 }
 
-// ##### Release Assets
+//##### Release Assets
 
-// *****ACL
+//*****ACL
 
-// DefineZones : handles a list of Define Zone messages
+//DefineZones : handles a list of Define Zone messages
 func (keeper Keeper) DefineZones(ctx sdk.Context, aclKeeper acl.Keeper, defineZone []DefineZone) (sdk.Tags, sdk.Error) {
 	return defineZones(ctx, keeper, aclKeeper, defineZone)
 }
@@ -883,11 +883,11 @@ func (keeper Keeper) DefineZones(ctx sdk.Context, aclKeeper acl.Keeper, defineZo
 func defineZones(ctx sdk.Context, keeper Keeper, aclKeeper acl.Keeper, defineZone []DefineZone) (sdk.Tags, sdk.Error) {
 	allTags := sdk.EmptyTags()
 	for _, in := range defineZone {
-		
+
 		if !keeper.CheckGenesisAccount(ctx, in.From) {
 			return nil, sdk.ErrInternal(fmt.Sprintf("Account %v is not the genesis account. Zones can only be defined by the genesis account.", in.From.String()))
 		}
-		
+
 		tags, err := aclKeeper.DefineZoneAddress(ctx, in.To, in.ZoneID)
 		if err != nil {
 			return nil, err
@@ -897,7 +897,7 @@ func defineZones(ctx sdk.Context, keeper Keeper, aclKeeper acl.Keeper, defineZon
 	return allTags, nil
 }
 
-// DefineOrganizations : handles a list of Define Organization messages
+//DefineOrganizations : handles a list of Define Organization messages
 func (keeper Keeper) DefineOrganizations(ctx sdk.Context, aclKeeper acl.Keeper, defineOrganization []DefineOrganization) (sdk.Tags, sdk.Error) {
 	return defineOrganizations(ctx, keeper, aclKeeper, defineOrganization)
 }
@@ -917,7 +917,7 @@ func defineOrganizations(ctx sdk.Context, keeper Keeper, aclKeeper acl.Keeper, d
 	return allTags, nil
 }
 
-// DefineACLs : handles a list of Define ACL messages
+//DefineACLs : handles a list of Define ACL messages
 func (keeper Keeper) DefineACLs(ctx sdk.Context, aclKeeper acl.Keeper, defineACL []DefineACL) (sdk.Tags, sdk.Error) {
 	return defineACLs(ctx, keeper, aclKeeper, defineACL)
 }
@@ -925,7 +925,7 @@ func (keeper Keeper) DefineACLs(ctx sdk.Context, aclKeeper acl.Keeper, defineACL
 func defineACLs(ctx sdk.Context, keeper Keeper, aclKeeper acl.Keeper, defineACL []DefineACL) (sdk.Tags, sdk.Error) {
 	allTags := sdk.EmptyTags()
 	for _, in := range defineACL {
-		
+
 		if !keeper.CheckGenesisAccount(ctx, in.From) {
 			if !aclKeeper.CheckIfZoneAccount(ctx, in.ACLAccount.GetZoneID(), in.From) {
 				if !aclKeeper.CheckIfOrganizationAccount(ctx, in.ACLAccount.GetOrganizationID(), in.From) {
@@ -933,12 +933,12 @@ func defineACLs(ctx sdk.Context, keeper Keeper, aclKeeper acl.Keeper, defineACL 
 				}
 			}
 		}
-		
+
 		tags, err := aclKeeper.DefineACLAccount(ctx, in.To, in.ACLAccount)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		allTags = allTags.AppendTags(tags)
 	}
 	return allTags, nil
@@ -953,13 +953,13 @@ func privateExchangeOrderTokens(ctx sdk.Context, am auth.AccountMapper, negotiat
 	if err != nil {
 		return nil, err, fiatPegWallet, assetPegWallet
 	}
-	
+
 	var reverseOrder bool
 	var executed bool
-	
+
 	sellerFiatWallet := getFiatWallet(ctx, am, sellerAddress)
 	buyerAssetWallet := getAssetWallet(ctx, am, buyerAddress)
-	
+
 	if orderFiatProofHash == "" && fiatProofHash != "" {
 		orderKeeper.SetOrderFiatProofHash(ctx, buyerAddress, sellerAddress, pegHash, fiatProofHash)
 	}
@@ -974,13 +974,13 @@ func privateExchangeOrderTokens(ctx sdk.Context, am auth.AccountMapper, negotiat
 		executed = true
 		reputationKeeper.SetSellerExecuteOrderPositiveTx(ctx, sellerAddress)
 		reputationKeeper.SetBuyerExecuteOrderPositiveTx(ctx, buyerAddress)
-		
+
 		buyerAssetWallet = sdk.AddAssetPegToWallet(&assetPegWallet[0], buyerAssetWallet)
 		sellerFiatWallet = sdk.AddFiatPegToWallet(sellerFiatWallet, fiatPegWallet)
-		
+
 		fiatPegWallet = orderKeeper.SendFiatsFromOrder(ctx, buyerAddress, sellerAddress, pegHash, fiatPegWallet)
 		assetPegWallet = orderKeeper.SendAssetFromOrder(ctx, buyerAddress, sellerAddress, &assetPegWallet[0])
-		
+
 		setFiatWallet(ctx, am, sellerAddress, sellerFiatWallet)
 		setAssetWallet(ctx, am, buyerAddress, buyerAssetWallet)
 	}
@@ -990,7 +990,7 @@ func privateExchangeOrderTokens(ctx sdk.Context, am auth.AccountMapper, negotiat
 	if executed == true || reverseOrder == true {
 		buyerFiatWallet := getFiatWallet(ctx, am, buyerAddress)
 		sellerAssetWallet := getAssetWallet(ctx, am, sellerAddress)
-		
+
 		if len(fiatPegWallet) != 0 {
 			buyerFiatWallet = sdk.AddFiatPegToWallet(buyerFiatWallet, fiatPegWallet)
 			orderKeeper.SendFiatsFromOrder(ctx, buyerAddress, sellerAddress, pegHash, fiatPegWallet)
@@ -999,7 +999,7 @@ func privateExchangeOrderTokens(ctx sdk.Context, am auth.AccountMapper, negotiat
 			sellerAssetWallet = sdk.AddAssetPegToWallet(&assetPegWallet[0], sellerAssetWallet)
 			orderKeeper.SendAssetFromOrder(ctx, buyerAddress, sellerAddress, &assetPegWallet[0])
 		}
-		
+
 		setFiatWallet(ctx, am, buyerAddress, buyerFiatWallet)
 		setAssetWallet(ctx, am, sellerAddress, sellerAssetWallet)
 	}
@@ -1010,7 +1010,7 @@ func privateExchangeOrderTokens(ctx sdk.Context, am auth.AccountMapper, negotiat
 	tags = tags.AppendTag("assetPrice", []byte(strconv.FormatInt(negotiation.GetBid(), 10)))
 	tags = tags.AppendTag("reversed", []byte(strconv.FormatBool(reverseOrder)))
 	return tags, nil, fiatPegWallet, assetPegWallet
-	
+
 }
 
-// #####ACL
+//#####ACL

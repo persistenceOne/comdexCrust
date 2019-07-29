@@ -2,13 +2,13 @@ package cli
 
 import (
 	"fmt"
-	
+
 	"github.com/spf13/cobra"
-	
-	"github.com/comdex-blockchain/client/context"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
-	"github.com/comdex-blockchain/x/auth"
+
+	"github.com/commitHub/commitBlockchain/client/context"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
+	"github.com/commitHub/commitBlockchain/x/auth"
 )
 
 // GetAccountCmdDefault invokes the GetAccountCmd for the auth.BaseAccount type.
@@ -23,7 +23,7 @@ func GetAccountDecoder(cdc *wire.Codec) auth.AccountDecoder {
 		if err != nil {
 			panic(err)
 		}
-		
+
 		return acct, err
 	}
 }
@@ -38,30 +38,30 @@ func GetAccountCmd(storeName string, cdc *wire.Codec, decoder auth.AccountDecode
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// find the key to look up the account
 			addr := args[0]
-			
+
 			key, err := sdk.AccAddressFromBech32(addr)
 			if err != nil {
 				return err
 			}
-			
+
 			cliCtx := context.NewCLIContext().
 				WithCodec(cdc).
 				WithAccountDecoder(decoder)
-			
+
 			if err := cliCtx.EnsureAccountExistsFromAddr(key); err != nil {
 				return err
 			}
-			
+
 			acc, err := cliCtx.GetAccount(key)
 			if err != nil {
 				return err
 			}
-			
+
 			output, err := wire.MarshalJSONIndent(cdc, acc)
 			if err != nil {
 				return err
 			}
-			
+
 			fmt.Println(string(output))
 			return nil
 		},

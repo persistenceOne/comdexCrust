@@ -1,7 +1,7 @@
 package slashing
 
 import (
-	sdk "github.com/comdex-blockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // Create a new slashing period when a validator is bonded

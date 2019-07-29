@@ -2,9 +2,9 @@ package bank
 
 import (
 	"encoding/json"
-	
+
 	"github.com/asaskevich/govalidator"
-	sdk "github.com/comdex-blockchain/types"
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // MsgSend - high level transaction of the coin module
@@ -20,10 +20,10 @@ func NewMsgSend(in []Input, out []Output) MsgSend {
 	return MsgSend{Inputs: in, Outputs: out}
 }
 
-// Type Implements Msg.
+//Type Implements Msg.
 func (msg MsgSend) Type() string { return "bank" } // TODO: "bank/send"
 
-// ValidateBasic Implements Msg.
+//ValidateBasic Implements Msg.
 func (msg MsgSend) ValidateBasic() sdk.Error {
 	if len(msg.Inputs) == 0 {
 		return ErrNoInputs(DefaultCodespace).TraceSDK("")
@@ -51,7 +51,7 @@ func (msg MsgSend) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes Implements Msg.
+//GetSignBytes Implements Msg.
 func (msg MsgSend) GetSignBytes() []byte {
 	var inputs, outputs []json.RawMessage
 	for _, input := range msg.Inputs {
@@ -73,7 +73,7 @@ func (msg MsgSend) GetSignBytes() []byte {
 	return sdk.MustSortJSON(b)
 }
 
-// GetSigners Implements Msg.
+//GetSigners Implements Msg.
 func (msg MsgSend) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.Inputs))
 	for i, in := range msg.Inputs {
@@ -82,7 +82,7 @@ func (msg MsgSend) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// ----------------------------------------
+//----------------------------------------
 // MsgIssue
 
 // MsgIssue - high level transaction of the coin module
@@ -98,10 +98,10 @@ func NewMsgIssue(banker sdk.AccAddress, out []Output) MsgIssue {
 	return MsgIssue{Banker: banker, Outputs: out}
 }
 
-// Type Implements Msg.
+//Type Implements Msg.
 func (msg MsgIssue) Type() string { return "bank" } // TODO: "bank/issue"
 
-// ValidateBasic Implements Msg.
+//ValidateBasic Implements Msg.
 func (msg MsgIssue) ValidateBasic() sdk.Error {
 	// XXX
 	if len(msg.Outputs) == 0 {
@@ -119,7 +119,7 @@ func (msg MsgIssue) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes Implements Msg.
+//GetSignBytes Implements Msg.
 func (msg MsgIssue) GetSignBytes() []byte {
 	var outputs []json.RawMessage
 	for _, output := range msg.Outputs {
@@ -138,15 +138,15 @@ func (msg MsgIssue) GetSignBytes() []byte {
 	return sdk.MustSortJSON(b)
 }
 
-// GetSigners Implements Msg.
+//GetSigners Implements Msg.
 func (msg MsgIssue) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Banker}
 }
 
-// ----------------------------------------
+//----------------------------------------
 // Input
 
-// Input Transaction Input
+//Input Transaction Input
 type Input struct {
 	Address sdk.AccAddress `json:"address"`
 	Coins   sdk.Coins      `json:"coins"`
@@ -166,7 +166,7 @@ func (in Input) ValidateBasic() sdk.Error {
 	if len(in.Address) == 0 {
 		return sdk.ErrInvalidAddress(in.Address.String())
 	}
-	
+
 	if !in.Coins.IsValid() {
 		return sdk.ErrInvalidCoins(in.Coins.String())
 	}
@@ -185,10 +185,10 @@ func NewInput(addr sdk.AccAddress, coins sdk.Coins) Input {
 	return input
 }
 
-// ----------------------------------------
+//----------------------------------------
 // Output
 
-// Output Transaction Output
+//Output Transaction Output
 type Output struct {
 	Address sdk.AccAddress `json:"address"`
 	Coins   sdk.Coins      `json:"coins"`
@@ -226,23 +226,23 @@ func NewOutput(addr sdk.AccAddress, coins sdk.Coins) Output {
 	return output
 }
 
-// *****Comdex
+//*****Comdex
 
-// *****IssueAsset
+//*****IssueAsset
 
-// IssueAsset - transaction input
+//IssueAsset - transaction input
 type IssueAsset struct {
 	IssuerAddress sdk.AccAddress `json:"issuerAddress"`
 	ToAddress     sdk.AccAddress `json:"toAddress"`
 	AssetPeg      sdk.AssetPeg   `json:"assetPeg"`
 }
 
-// NewIssueAsset : initializer
+//NewIssueAsset : initializer
 func NewIssueAsset(issuerAddress sdk.AccAddress, toAddress sdk.AccAddress, assetPeg sdk.AssetPeg) IssueAsset {
 	return IssueAsset{issuerAddress, toAddress, assetPeg}
 }
 
-// GetSignBytes : get bytes to sign
+//GetSignBytes : get bytes to sign
 func (in IssueAsset) GetSignBytes() []byte {
 	bin, err := msgCdc.MarshalJSON(struct {
 		IssuerAddress string       `json:"issuerAddress"`
@@ -259,28 +259,28 @@ func (in IssueAsset) GetSignBytes() []byte {
 	return bin
 }
 
-// #####IssueAsset
+//#####IssueAsset
 
-// *****MsgBankIssueAssets
+//*****MsgBankIssueAssets
 
-// MsgBankIssueAssets : high level issuance of assets module
+//MsgBankIssueAssets : high level issuance of assets module
 type MsgBankIssueAssets struct {
 	IssueAssets []IssueAsset `json:"issueAssets"`
 }
 
-// NewMsgBankIssueAssets : initilizer
+//NewMsgBankIssueAssets : initilizer
 func NewMsgBankIssueAssets(issueAssets []IssueAsset) MsgBankIssueAssets {
 	return MsgBankIssueAssets{issueAssets}
 }
 
-// ***** Implementing sdk.Msg
+//***** Implementing sdk.Msg
 
 var _ sdk.Msg = MsgBankIssueAssets{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgBankIssueAssets) Type() string { return "bank" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgBankIssueAssets) ValidateBasic() sdk.Error {
 	if len(msg.IssueAssets) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
@@ -299,13 +299,13 @@ func (msg MsgBankIssueAssets) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgBankIssueAssets) GetSignBytes() []byte {
 	var issueAssets []json.RawMessage
 	for _, issueAsset := range msg.IssueAssets {
 		issueAssets = append(issueAssets, issueAsset.GetSignBytes())
 	}
-	
+
 	b, err := msgCdc.MarshalJSON(struct {
 		IssueAssets []json.RawMessage `json:"issueAssets"`
 	}{
@@ -317,7 +317,7 @@ func (msg MsgBankIssueAssets) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgBankIssueAssets) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.IssueAssets))
 	for i, in := range msg.IssueAssets {
@@ -326,25 +326,25 @@ func (msg MsgBankIssueAssets) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+//##### Implement sdk.Msg
 
-// #####MsgBankIssueAssets
+//#####MsgBankIssueAssets
 
-// ****RedeemAsset
+//****RedeemAsset
 
-// RedeemAsset : transsction input
+//RedeemAsset : transsction input
 type RedeemAsset struct {
 	IssuerAddress   sdk.AccAddress `json:"issuerAddress"`
 	RedeemerAddress sdk.AccAddress `json:"redeemerAddress"`
 	PegHash         sdk.PegHash    `json:"pegHash"`
 }
 
-// NewRedeemAsset : initializer
+//NewRedeemAsset : initializer
 func NewRedeemAsset(issuerAddress sdk.AccAddress, redeemerAddress sdk.AccAddress, pegHash sdk.PegHash) RedeemAsset {
 	return RedeemAsset{issuerAddress, redeemerAddress, pegHash}
 }
 
-// GetSignBytes : get bytes to sign
+//GetSignBytes : get bytes to sign
 func (in RedeemAsset) GetSignBytes() []byte {
 	bin, err := msgCdc.MarshalJSON(struct {
 		IssuerAddress   string      `json:"issuerAddress"`
@@ -361,28 +361,28 @@ func (in RedeemAsset) GetSignBytes() []byte {
 	return bin
 }
 
-// #####RedeemAsset
+//#####RedeemAsset
 
-// *****MsgBankRedeemAssets
+//*****MsgBankRedeemAssets
 
-// MsgBankRedeemAssets : Message to redeem issued assets
+//MsgBankRedeemAssets : Message to redeem issued assets
 type MsgBankRedeemAssets struct {
 	RedeemAssets []RedeemAsset `json:"redeemAssets"`
 }
 
-// NewMsgBankRedeemAssets : initializer
+//NewMsgBankRedeemAssets : initializer
 func NewMsgBankRedeemAssets(redeemAssets []RedeemAsset) MsgBankRedeemAssets {
 	return MsgBankRedeemAssets{redeemAssets}
 }
 
-// *****Implementing sdk.Msg
+//*****Implementing sdk.Msg
 
 var _ sdk.Msg = MsgBankRedeemAssets{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgBankRedeemAssets) Type() string { return "bank" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgBankRedeemAssets) ValidateBasic() sdk.Error {
 	if len(msg.RedeemAssets) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
@@ -399,13 +399,13 @@ func (msg MsgBankRedeemAssets) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgBankRedeemAssets) GetSignBytes() []byte {
 	var redeemAssets []json.RawMessage
 	for _, redeemAsset := range msg.RedeemAssets {
 		redeemAssets = append(redeemAssets, redeemAsset.GetSignBytes())
 	}
-	
+
 	bz, err := msgCdc.MarshalJSON(struct {
 		RedeemAssets []json.RawMessage `json:"redeemAssets"`
 	}{
@@ -417,7 +417,7 @@ func (msg MsgBankRedeemAssets) GetSignBytes() []byte {
 	return bz
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgBankRedeemAssets) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.RedeemAssets))
 	for i, in := range msg.RedeemAssets {
@@ -426,13 +426,13 @@ func (msg MsgBankRedeemAssets) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+//##### Implement sdk.Msg
 
-// ######MsgBankRedeemAssets
+//######MsgBankRedeemAssets
 
-// *****IssueFiat
+//*****IssueFiat
 
-// IssueFiat - transaction input
+//IssueFiat - transaction input
 type IssueFiat struct {
 	IssuerAddress sdk.AccAddress `json:"issuerAddress"`
 	ToAddress     sdk.AccAddress `json:"toAddress"`
@@ -461,9 +461,9 @@ func (in IssueFiat) GetSignBytes() []byte {
 	return bin
 }
 
-// #####IssueFiat
+//#####IssueFiat
 
-// *****MsgBankIssueFiats
+//*****MsgBankIssueFiats
 
 // MsgBankIssueFiats : high level issuance of fiats module
 type MsgBankIssueFiats struct {
@@ -475,7 +475,7 @@ func NewMsgBankIssueFiats(issueFiats []IssueFiat) MsgBankIssueFiats {
 	return MsgBankIssueFiats{issueFiats}
 }
 
-// ***** Implementing sdk.Msg
+//***** Implementing sdk.Msg
 
 var _ sdk.Msg = MsgBankIssueFiats{}
 
@@ -507,7 +507,7 @@ func (msg MsgBankIssueFiats) GetSignBytes() []byte {
 	for _, issueFiat := range msg.IssueFiats {
 		issueFiats = append(issueFiats, issueFiat.GetSignBytes())
 	}
-	
+
 	b, err := msgCdc.MarshalJSON(struct {
 		IssueFiats []json.RawMessage `json:"issueFiats"`
 	}{
@@ -528,25 +528,25 @@ func (msg MsgBankIssueFiats) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+//##### Implement sdk.Msg
 
-// #####MsgBankIssueFiats
+//#####MsgBankIssueFiats
 
-// ****RedeemFiat
+//****RedeemFiat
 
-// RedeemFiat : transaction input
+//RedeemFiat : transaction input
 type RedeemFiat struct {
 	RedeemerAddress sdk.AccAddress `json:"redeemerAddress"`
 	IssuerAddress   sdk.AccAddress `json:"issuerAddress"`
 	Amount          int64          `json:"amount"`
 }
 
-// NewRedeemFiat : initializer
+//NewRedeemFiat : initializer
 func NewRedeemFiat(redeemerAddress sdk.AccAddress, issuerAddress sdk.AccAddress, amount int64) RedeemFiat {
 	return RedeemFiat{redeemerAddress, issuerAddress, amount}
 }
 
-// GetSignBytes : get bytes to sign
+//GetSignBytes : get bytes to sign
 func (in RedeemFiat) GetSignBytes() []byte {
 	bin, err := msgCdc.MarshalJSON(struct {
 		RedeemerAddress string `json:"redeemerAddress"`
@@ -563,28 +563,28 @@ func (in RedeemFiat) GetSignBytes() []byte {
 	return bin
 }
 
-// #####RedeemFiat
+//#####RedeemFiat
 
-// *****MsgBankRedeemFiats
+//*****MsgBankRedeemFiats
 
-// MsgBankRedeemFiats : Message to redeem issued fiats
+//MsgBankRedeemFiats : Message to redeem issued fiats
 type MsgBankRedeemFiats struct {
 	RedeemFiats []RedeemFiat `json:"redeemFiats"`
 }
 
-// NewMsgBankRedeemFiats : initializer
+//NewMsgBankRedeemFiats : initializer
 func NewMsgBankRedeemFiats(redeemFiats []RedeemFiat) MsgBankRedeemFiats {
 	return MsgBankRedeemFiats{redeemFiats}
 }
 
-// *****Implementing sdk.Msg
+//*****Implementing sdk.Msg
 
 var _ sdk.Msg = MsgBankRedeemFiats{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgBankRedeemFiats) Type() string { return "bank" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgBankRedeemFiats) ValidateBasic() sdk.Error {
 	if len(msg.RedeemFiats) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
@@ -601,13 +601,13 @@ func (msg MsgBankRedeemFiats) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgBankRedeemFiats) GetSignBytes() []byte {
 	var redeemFiats []json.RawMessage
 	for _, redeemFiat := range msg.RedeemFiats {
 		redeemFiats = append(redeemFiats, redeemFiat.GetSignBytes())
 	}
-	
+
 	bz, err := msgCdc.MarshalJSON(struct {
 		RedeemFiats []json.RawMessage `json:"redeemFiats"`
 	}{
@@ -619,7 +619,7 @@ func (msg MsgBankRedeemFiats) GetSignBytes() []byte {
 	return bz
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgBankRedeemFiats) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.RedeemFiats))
 	for i, in := range msg.RedeemFiats {
@@ -628,11 +628,11 @@ func (msg MsgBankRedeemFiats) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+//##### Implement sdk.Msg
 
-// ######MsgBankRedeemFiats
+//######MsgBankRedeemFiats
 
-// *****SendAsset
+//*****SendAsset
 
 // SendAsset - transaction input
 type SendAsset struct {
@@ -663,28 +663,28 @@ func (in SendAsset) GetSignBytes() []byte {
 	return bin
 }
 
-// #####SendAsset
+//#####SendAsset
 
-// *****MsgBankSendAssets
+//*****MsgBankSendAssets
 
-// MsgBankSendAssets : high level issuance of assets module
+//MsgBankSendAssets : high level issuance of assets module
 type MsgBankSendAssets struct {
 	SendAssets []SendAsset `json:"sendAssets"`
 }
 
-// NewMsgBankSendAssets : initilizer
+//NewMsgBankSendAssets : initilizer
 func NewMsgBankSendAssets(sendAssets []SendAsset) MsgBankSendAssets {
 	return MsgBankSendAssets{sendAssets}
 }
 
-// ***** Implementing sdk.Msg
+//***** Implementing sdk.Msg
 
 var _ sdk.Msg = MsgBankSendAssets{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgBankSendAssets) Type() string { return "bank" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgBankSendAssets) ValidateBasic() sdk.Error {
 	if len(msg.SendAssets) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
@@ -701,13 +701,13 @@ func (msg MsgBankSendAssets) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgBankSendAssets) GetSignBytes() []byte {
 	var sendAssets []json.RawMessage
 	for _, sendAsset := range msg.SendAssets {
 		sendAssets = append(sendAssets, sendAsset.GetSignBytes())
 	}
-	
+
 	b, err := msgCdc.MarshalJSON(struct {
 		SendAssets []json.RawMessage `json:"sendAssets"`
 	}{
@@ -719,7 +719,7 @@ func (msg MsgBankSendAssets) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgBankSendAssets) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.SendAssets))
 	for i, in := range msg.SendAssets {
@@ -728,13 +728,13 @@ func (msg MsgBankSendAssets) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+//##### Implement sdk.Msg
 
-// #####MsgBankSendAssets
+//#####MsgBankSendAssets
 
-// *****SendFiat
+//*****SendFiat
 
-// SendFiat - transaction input
+//SendFiat - transaction input
 type SendFiat struct {
 	FromAddress sdk.AccAddress `json:"fromAddress"`
 	ToAddress   sdk.AccAddress `json:"toAddress"`
@@ -742,12 +742,12 @@ type SendFiat struct {
 	Amount      int64          `json:"amount"`
 }
 
-// NewSendFiat : initializer
+//NewSendFiat : initializer
 func NewSendFiat(fromAddress sdk.AccAddress, toAddress sdk.AccAddress, pegHash sdk.PegHash, amount int64) SendFiat {
 	return SendFiat{fromAddress, toAddress, pegHash, amount}
 }
 
-// GetSignBytes : get bytes to sign
+//GetSignBytes : get bytes to sign
 func (in SendFiat) GetSignBytes() []byte {
 	bin, err := msgCdc.MarshalJSON(struct {
 		FromAddress string `json:"fromAddress"`
@@ -766,28 +766,28 @@ func (in SendFiat) GetSignBytes() []byte {
 	return bin
 }
 
-// #####SendFiat
+//#####SendFiat
 
-// *****MsgBankSendFiats
+//*****MsgBankSendFiats
 
-// MsgBankSendFiats : high level issuance of fiats module
+//MsgBankSendFiats : high level issuance of fiats module
 type MsgBankSendFiats struct {
 	SendFiats []SendFiat `json:"sendFiats"`
 }
 
-// NewMsgBankSendFiats : initilizer
+//NewMsgBankSendFiats : initilizer
 func NewMsgBankSendFiats(sendFiats []SendFiat) MsgBankSendFiats {
 	return MsgBankSendFiats{sendFiats}
 }
 
-// ***** Implementing sdk.Msg
+//***** Implementing sdk.Msg
 
 var _ sdk.Msg = MsgBankSendFiats{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgBankSendFiats) Type() string { return "bank" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgBankSendFiats) ValidateBasic() sdk.Error {
 	if len(msg.SendFiats) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
@@ -812,7 +812,7 @@ func (msg MsgBankSendFiats) GetSignBytes() []byte {
 	for _, sendFiat := range msg.SendFiats {
 		sendFiats = append(sendFiats, sendFiat.GetSignBytes())
 	}
-	
+
 	b, err := msgCdc.MarshalJSON(struct {
 		SendFiats []json.RawMessage `json:"sendFiats"`
 	}{
@@ -824,7 +824,7 @@ func (msg MsgBankSendFiats) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgBankSendFiats) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.SendFiats))
 	for i, in := range msg.SendFiats {
@@ -833,13 +833,13 @@ func (msg MsgBankSendFiats) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+//##### Implement sdk.Msg
 
-// #####MsgBankSendFiats
+//#####MsgBankSendFiats
 
-// *****BuyerExecuteOrder
+//*****BuyerExecuteOrder
 
-// BuyerExecuteOrder - transaction input
+//BuyerExecuteOrder - transaction input
 type BuyerExecuteOrder struct {
 	MediatorAddress sdk.AccAddress `json:"mediatorAddress"`
 	BuyerAddress    sdk.AccAddress `json:"buyerAddress"`
@@ -848,12 +848,12 @@ type BuyerExecuteOrder struct {
 	FiatProofHash   string         `json:"fiatProofHash"`
 }
 
-// NewBuyerExecuteOrder : initializer
+//NewBuyerExecuteOrder : initializer
 func NewBuyerExecuteOrder(mediatorAddress sdk.AccAddress, buyerAddress sdk.AccAddress, sellerAddress sdk.AccAddress, pegHash sdk.PegHash, fiatProofHash string) BuyerExecuteOrder {
 	return BuyerExecuteOrder{mediatorAddress, buyerAddress, sellerAddress, pegHash, fiatProofHash}
 }
 
-// GetSignBytes : get bytes to sign
+//GetSignBytes : get bytes to sign
 func (in BuyerExecuteOrder) GetSignBytes() []byte {
 	bin, err := msgCdc.MarshalJSON(struct {
 		MediatorAddress string `json:"mediatorAddress"`
@@ -874,28 +874,28 @@ func (in BuyerExecuteOrder) GetSignBytes() []byte {
 	return bin
 }
 
-// #####BuyerExecuteOrder
+//#####BuyerExecuteOrder
 
-// *****MsgBankBuyerExecuteOrders
+//*****MsgBankBuyerExecuteOrders
 
-// MsgBankBuyerExecuteOrders : high level issuance of fiats module
+//MsgBankBuyerExecuteOrders : high level issuance of fiats module
 type MsgBankBuyerExecuteOrders struct {
 	BuyerExecuteOrders []BuyerExecuteOrder `json:"buyerExecuteOrders"`
 }
 
-// NewMsgBankBuyerExecuteOrders : initilizer
+//NewMsgBankBuyerExecuteOrders : initilizer
 func NewMsgBankBuyerExecuteOrders(buyerExecuteOrders []BuyerExecuteOrder) MsgBankBuyerExecuteOrders {
 	return MsgBankBuyerExecuteOrders{buyerExecuteOrders}
 }
 
-// ***** Implementing sdk.Msg
+//***** Implementing sdk.Msg
 
 var _ sdk.Msg = MsgBankBuyerExecuteOrders{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgBankBuyerExecuteOrders) Type() string { return "bank" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgBankBuyerExecuteOrders) ValidateBasic() sdk.Error {
 	if len(msg.BuyerExecuteOrders) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
@@ -916,7 +916,7 @@ func (msg MsgBankBuyerExecuteOrders) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgBankBuyerExecuteOrders) GetSignBytes() []byte {
 	var buyerExecuteOrders []json.RawMessage
 	for _, buyerExecuteOrder := range msg.BuyerExecuteOrders {
@@ -933,7 +933,7 @@ func (msg MsgBankBuyerExecuteOrders) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgBankBuyerExecuteOrders) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.BuyerExecuteOrders))
 	for i, in := range msg.BuyerExecuteOrders {
@@ -942,13 +942,13 @@ func (msg MsgBankBuyerExecuteOrders) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+//##### Implement sdk.Msg
 
-// #####MsgBankBuyerExecuteOrders
+//#####MsgBankBuyerExecuteOrders
 
-// *****SellerExecuteOrder
+//*****SellerExecuteOrder
 
-// SellerExecuteOrder - transaction input
+//SellerExecuteOrder - transaction input
 type SellerExecuteOrder struct {
 	MediatorAddress sdk.AccAddress `json:"mediatorAddress"`
 	BuyerAddress    sdk.AccAddress `json:"buyerAddress"`
@@ -957,12 +957,12 @@ type SellerExecuteOrder struct {
 	AWBProofHash    string         `json:"awbProofHash"`
 }
 
-// NewSellerExecuteOrder : initializer
+//NewSellerExecuteOrder : initializer
 func NewSellerExecuteOrder(mediatorAddress sdk.AccAddress, buyerAddress sdk.AccAddress, sellerAddress sdk.AccAddress, pegHash sdk.PegHash, awbProofHash string) SellerExecuteOrder {
 	return SellerExecuteOrder{mediatorAddress, buyerAddress, sellerAddress, pegHash, awbProofHash}
 }
 
-// GetSignBytes : get bytes to sign
+//GetSignBytes : get bytes to sign
 func (in SellerExecuteOrder) GetSignBytes() []byte {
 	bin, err := msgCdc.MarshalJSON(struct {
 		MediatorAddress string `json:"mediatorAddress"`
@@ -983,28 +983,28 @@ func (in SellerExecuteOrder) GetSignBytes() []byte {
 	return bin
 }
 
-// #####SellerExecuteOrder
+//#####SellerExecuteOrder
 
-// *****MsgBankSellerExecuteOrders
+//*****MsgBankSellerExecuteOrders
 
-// MsgBankSellerExecuteOrders : high level issuance of fiats module
+//MsgBankSellerExecuteOrders : high level issuance of fiats module
 type MsgBankSellerExecuteOrders struct {
 	SellerExecuteOrders []SellerExecuteOrder `json:"sellerExecuteOrders"`
 }
 
-// NewMsgBankSellerExecuteOrders : initilizer
+//NewMsgBankSellerExecuteOrders : initilizer
 func NewMsgBankSellerExecuteOrders(sellerExecuteOrders []SellerExecuteOrder) MsgBankSellerExecuteOrders {
 	return MsgBankSellerExecuteOrders{sellerExecuteOrders}
 }
 
-// ***** Implementing sdk.Msg
+//***** Implementing sdk.Msg
 
 var _ sdk.Msg = MsgBankSellerExecuteOrders{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgBankSellerExecuteOrders) Type() string { return "bank" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgBankSellerExecuteOrders) ValidateBasic() sdk.Error {
 	if len(msg.SellerExecuteOrders) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
@@ -1025,7 +1025,7 @@ func (msg MsgBankSellerExecuteOrders) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgBankSellerExecuteOrders) GetSignBytes() []byte {
 	var sellerExecuteOrders []json.RawMessage
 	for _, sellerExecuteOrder := range msg.SellerExecuteOrders {
@@ -1042,7 +1042,7 @@ func (msg MsgBankSellerExecuteOrders) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgBankSellerExecuteOrders) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.SellerExecuteOrders))
 	for i, in := range msg.SellerExecuteOrders {
@@ -1051,25 +1051,25 @@ func (msg MsgBankSellerExecuteOrders) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+//##### Implement sdk.Msg
 
-// #####MsgBankSellerExecuteOrders
+//#####MsgBankSellerExecuteOrders
 
-// *****ReleaseAsset
+//*****ReleaseAsset
 
-// ReleaseAsset - transaction input
+//ReleaseAsset - transaction input
 type ReleaseAsset struct {
 	ZoneAddress  sdk.AccAddress `json:"zoneAddress"`
 	OwnerAddress sdk.AccAddress `json:"ownerAddress"`
 	PegHash      sdk.PegHash    `json:"pegHash"`
 }
 
-// NewReleaseAsset : initializer
+//NewReleaseAsset : initializer
 func NewReleaseAsset(zoneAddress sdk.AccAddress, ownerAddress sdk.AccAddress, pegHash sdk.PegHash) ReleaseAsset {
 	return ReleaseAsset{zoneAddress, ownerAddress, pegHash}
 }
 
-// GetSignBytes : get bytes to sign
+//GetSignBytes : get bytes to sign
 func (in ReleaseAsset) GetSignBytes() []byte {
 	bin, err := msgCdc.MarshalJSON(struct {
 		ZoneAddress  string `json:"zoneAddress"`
@@ -1086,28 +1086,28 @@ func (in ReleaseAsset) GetSignBytes() []byte {
 	return bin
 }
 
-// #####ReleaseAsset
+//#####ReleaseAsset
 
-// *****MsgBankReleaseAssets
+//*****MsgBankReleaseAssets
 
-// MsgBankReleaseAssets : high level release of asset module
+//MsgBankReleaseAssets : high level release of asset module
 type MsgBankReleaseAssets struct {
 	ReleaseAssets []ReleaseAsset `json:"releseAssets"`
 }
 
-// NewMsgBankReleaseAssets : initilizer
+//NewMsgBankReleaseAssets : initilizer
 func NewMsgBankReleaseAssets(releseAsset []ReleaseAsset) MsgBankReleaseAssets {
 	return MsgBankReleaseAssets{releseAsset}
 }
 
-// ***** Implementing sdk.Msg
+//***** Implementing sdk.Msg
 
 var _ sdk.Msg = MsgBankReleaseAssets{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgBankReleaseAssets) Type() string { return "bank" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgBankReleaseAssets) ValidateBasic() sdk.Error {
 	if len(msg.ReleaseAssets) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
@@ -1124,13 +1124,13 @@ func (msg MsgBankReleaseAssets) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgBankReleaseAssets) GetSignBytes() []byte {
 	var releaseAssets []json.RawMessage
 	for _, releaseAsset := range msg.ReleaseAssets {
 		releaseAssets = append(releaseAssets, releaseAsset.GetSignBytes())
 	}
-	
+
 	b, err := msgCdc.MarshalJSON(struct {
 		ReleaseAssets []json.RawMessage `json:"releaseAssets"`
 	}{
@@ -1142,7 +1142,7 @@ func (msg MsgBankReleaseAssets) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgBankReleaseAssets) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.ReleaseAssets))
 	for i, in := range msg.ReleaseAssets {
@@ -1151,24 +1151,24 @@ func (msg MsgBankReleaseAssets) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+//##### Implement sdk.Msg
 
-// #####MsgBankReleaseAssets
+//#####MsgBankReleaseAssets
 
-// DefineZone : singular define zone message
-// *****ACL
+//DefineZone : singular define zone message
+//*****ACL
 type DefineZone struct {
 	From   sdk.AccAddress `json:"from"`
 	To     sdk.AccAddress `json:"to"`
 	ZoneID sdk.ZoneID     `json:"zoneID"`
 }
 
-// NewDefineZone : new define zone struct
+//NewDefineZone : new define zone struct
 func NewDefineZone(from sdk.AccAddress, to sdk.AccAddress, zoneID sdk.ZoneID) DefineZone {
 	return DefineZone{from, to, zoneID}
 }
 
-// GetSignBytes : get bytes to sign
+//GetSignBytes : get bytes to sign
 func (in DefineZone) GetSignBytes() []byte {
 	bin, err := msgCdc.MarshalJSON(struct {
 		From   string `json:"from"`
@@ -1185,7 +1185,7 @@ func (in DefineZone) GetSignBytes() []byte {
 	return bin
 }
 
-// ValidateBasic : Validate Basic
+//ValidateBasic : Validate Basic
 func (in DefineZone) ValidateBasic() sdk.Error {
 	if len(in.From) == 0 {
 		return sdk.ErrInvalidAddress(in.From.String())
@@ -1197,22 +1197,22 @@ func (in DefineZone) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// MsgDefineZones : message define zones
+//MsgDefineZones : message define zones
 type MsgDefineZones struct {
 	DefineZones []DefineZone `json:"defineZones"`
 }
 
-// NewMsgDefineZones : new message define zones
+//NewMsgDefineZones : new message define zones
 func NewMsgDefineZones(defineZones []DefineZone) MsgDefineZones {
 	return MsgDefineZones{defineZones}
 }
 
 var _ sdk.Msg = MsgDefineZones{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgDefineZones) Type() string { return "bank" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgDefineZones) ValidateBasic() sdk.Error {
 	if len(msg.DefineZones) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
@@ -1225,13 +1225,13 @@ func (msg MsgDefineZones) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgDefineZones) GetSignBytes() []byte {
 	var defineZones []json.RawMessage
 	for _, defineZone := range msg.DefineZones {
 		defineZones = append(defineZones, defineZone.GetSignBytes())
 	}
-	
+
 	b, err := msgCdc.MarshalJSON(struct {
 		DefineZones []json.RawMessage `json:"defineZones"`
 	}{
@@ -1243,7 +1243,7 @@ func (msg MsgDefineZones) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgDefineZones) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.DefineZones))
 	for i, in := range msg.DefineZones {
@@ -1252,25 +1252,25 @@ func (msg MsgDefineZones) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// BuildMsgDefineZones : build define zones message
+//BuildMsgDefineZones : build define zones message
 func BuildMsgDefineZones(from sdk.AccAddress, to sdk.AccAddress, zoneID sdk.ZoneID, msgs []DefineZone) []DefineZone {
 	defineZone := NewDefineZone(from, to, zoneID)
 	msgs = append(msgs, defineZone)
 	return msgs
 }
 
-// BuildMsgDefineZoneWithDefineZones : build define zones message
+//BuildMsgDefineZoneWithDefineZones : build define zones message
 func BuildMsgDefineZoneWithDefineZones(msgs []DefineZone) sdk.Msg {
 	return NewMsgDefineZones(msgs)
 }
 
-// BuildMsgDefineZone : build define zones message
+//BuildMsgDefineZone : build define zones message
 func BuildMsgDefineZone(from sdk.AccAddress, to sdk.AccAddress, zoneID sdk.ZoneID) sdk.Msg {
 	defineZone := NewDefineZone(from, to, zoneID)
 	return NewMsgDefineZones([]DefineZone{defineZone})
 }
 
-// DefineOrganization : singular define organization message
+//DefineOrganization : singular define organization message
 type DefineOrganization struct {
 	From           sdk.AccAddress     `json:"from"`
 	To             sdk.AccAddress     `json:"to"`
@@ -1278,12 +1278,12 @@ type DefineOrganization struct {
 	ZoneID         sdk.ZoneID         `json:"zoneID"`
 }
 
-// NewDefineOrganization : new define organization struct
+//NewDefineOrganization : new define organization struct
 func NewDefineOrganization(from sdk.AccAddress, to sdk.AccAddress, organizationID sdk.OrganizationID, zoneID sdk.ZoneID) DefineOrganization {
 	return DefineOrganization{from, to, organizationID, zoneID}
 }
 
-// GetSignBytes : get bytes to sign
+//GetSignBytes : get bytes to sign
 func (in DefineOrganization) GetSignBytes() []byte {
 	bin, err := msgCdc.MarshalJSON(struct {
 		From           string `json:"from"`
@@ -1302,7 +1302,7 @@ func (in DefineOrganization) GetSignBytes() []byte {
 	return bin
 }
 
-// ValidateBasic : Validate Basic
+//ValidateBasic : Validate Basic
 func (in DefineOrganization) ValidateBasic() sdk.Error {
 	if len(in.From) == 0 {
 		return sdk.ErrInvalidAddress(in.From.String())
@@ -1316,22 +1316,22 @@ func (in DefineOrganization) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// MsgDefineOrganizations : message define organizations
+//MsgDefineOrganizations : message define organizations
 type MsgDefineOrganizations struct {
 	DefineOrganizations []DefineOrganization `json:"defineOrganizations"`
 }
 
-// NewMsgDefineOrganizations : new message define organizations
+//NewMsgDefineOrganizations : new message define organizations
 func NewMsgDefineOrganizations(defineOrganizations []DefineOrganization) MsgDefineOrganizations {
 	return MsgDefineOrganizations{defineOrganizations}
 }
 
 var _ sdk.Msg = MsgDefineOrganizations{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgDefineOrganizations) Type() string { return "bank" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgDefineOrganizations) ValidateBasic() sdk.Error {
 	if len(msg.DefineOrganizations) == 0 {
 		return ErrNoInputs(DefaultCodespace).TraceSDK("")
@@ -1344,13 +1344,13 @@ func (msg MsgDefineOrganizations) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgDefineOrganizations) GetSignBytes() []byte {
 	var defineOrganizations []json.RawMessage
 	for _, defineOrganization := range msg.DefineOrganizations {
 		defineOrganizations = append(defineOrganizations, defineOrganization.GetSignBytes())
 	}
-	
+
 	b, err := msgCdc.MarshalJSON(struct {
 		DefineOrganizations []json.RawMessage `json:"defineOrganizations"`
 	}{
@@ -1362,7 +1362,7 @@ func (msg MsgDefineOrganizations) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgDefineOrganizations) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.DefineOrganizations))
 	for i, in := range msg.DefineOrganizations {
@@ -1371,37 +1371,37 @@ func (msg MsgDefineOrganizations) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// BuildMsgDefineOrganizations : build define organization message
+//BuildMsgDefineOrganizations : build define organization message
 func BuildMsgDefineOrganizations(from sdk.AccAddress, to sdk.AccAddress, organizationID sdk.OrganizationID, zoneID sdk.ZoneID, msgs []DefineOrganization) []DefineOrganization {
 	defineOrganization := NewDefineOrganization(from, to, organizationID, zoneID)
 	msgs = append(msgs, defineOrganization)
 	return msgs
 }
 
-// BuildMsgDefineOrganizationWithMsgs : build define organization message
+//BuildMsgDefineOrganizationWithMsgs : build define organization message
 func BuildMsgDefineOrganizationWithMsgs(msgs []DefineOrganization) sdk.Msg {
 	return NewMsgDefineOrganizations(msgs)
 }
 
-// BuildMsgDefineOrganization : build define organization message
+//BuildMsgDefineOrganization : build define organization message
 func BuildMsgDefineOrganization(from sdk.AccAddress, to sdk.AccAddress, organizationID sdk.OrganizationID, zoneID sdk.ZoneID) sdk.Msg {
 	defineOrganization := NewDefineOrganization(from, to, organizationID, zoneID)
 	return NewMsgDefineOrganizations([]DefineOrganization{defineOrganization})
 }
 
-// DefineACL : indular define acl message
+//DefineACL : indular define acl message
 type DefineACL struct {
 	From       sdk.AccAddress `json:"from"`
 	To         sdk.AccAddress `json:"to"`
 	ACLAccount sdk.ACLAccount `json:"aclAccount"`
 }
 
-// NewDefineACL : new define acl struct
+//NewDefineACL : new define acl struct
 func NewDefineACL(from sdk.AccAddress, to sdk.AccAddress, aclAccount sdk.ACLAccount) DefineACL {
 	return DefineACL{from, to, aclAccount}
 }
 
-// GetSignBytes : get bytes to sign
+//GetSignBytes : get bytes to sign
 func (in DefineACL) GetSignBytes() []byte {
 	bin, err := msgCdc.MarshalJSON(struct {
 		From       string         `json:"from"`
@@ -1418,7 +1418,7 @@ func (in DefineACL) GetSignBytes() []byte {
 	return bin
 }
 
-// ValidateBasic : Validate Basic
+//ValidateBasic : Validate Basic
 func (in DefineACL) ValidateBasic() sdk.Error {
 	if len(in.From) == 0 {
 		return sdk.ErrInvalidAddress(in.From.String())
@@ -1428,22 +1428,22 @@ func (in DefineACL) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// MsgDefineACLs : message define acls
+//MsgDefineACLs : message define acls
 type MsgDefineACLs struct {
 	DefineACLs []DefineACL `json:"defineACLs"`
 }
 
-// NewMsgDefineACLs : new message define acls
+//NewMsgDefineACLs : new message define acls
 func NewMsgDefineACLs(defineACLs []DefineACL) MsgDefineACLs {
 	return MsgDefineACLs{defineACLs}
 }
 
 var _ sdk.Msg = MsgDefineACLs{}
 
-// Type : implements msg
+//Type : implements msg
 func (msg MsgDefineACLs) Type() string { return "bank" }
 
-// ValidateBasic : implements msg
+//ValidateBasic : implements msg
 func (msg MsgDefineACLs) ValidateBasic() sdk.Error {
 	if len(msg.DefineACLs) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
@@ -1456,13 +1456,13 @@ func (msg MsgDefineACLs) ValidateBasic() sdk.Error {
 	return nil
 }
 
-// GetSignBytes : implements msg
+//GetSignBytes : implements msg
 func (msg MsgDefineACLs) GetSignBytes() []byte {
 	var defineACLs []json.RawMessage
 	for _, defineACL := range msg.DefineACLs {
 		defineACLs = append(defineACLs, defineACL.GetSignBytes())
 	}
-	
+
 	b, err := msgCdc.MarshalJSON(struct {
 		DefineACLs []json.RawMessage `json:"defineACLs"`
 	}{
@@ -1474,7 +1474,7 @@ func (msg MsgDefineACLs) GetSignBytes() []byte {
 	return b
 }
 
-// GetSigners : implements msg
+//GetSigners : implements msg
 func (msg MsgDefineACLs) GetSigners() []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, len(msg.DefineACLs))
 	for i, in := range msg.DefineACLs {
@@ -1483,24 +1483,24 @@ func (msg MsgDefineACLs) GetSigners() []sdk.AccAddress {
 	return addrs
 }
 
-// BuildMsgDefineACLs : build define acls message
+//BuildMsgDefineACLs : build define acls message
 func BuildMsgDefineACLs(from sdk.AccAddress, to sdk.AccAddress, aclAccount sdk.ACLAccount, msgs []DefineACL) []DefineACL {
 	defineACL := NewDefineACL(from, to, aclAccount)
 	msgs = append(msgs, defineACL)
 	return msgs
 }
 
-// BuildMsgDefineACLWithACLs : build define acls message
+//BuildMsgDefineACLWithACLs : build define acls message
 func BuildMsgDefineACLWithACLs(msgs []DefineACL) sdk.Msg {
 	return NewMsgDefineACLs(msgs)
 }
 
-// BuildMsgDefineACL : build define acls message
+//BuildMsgDefineACL : build define acls message
 func BuildMsgDefineACL(from sdk.AccAddress, to sdk.AccAddress, aclAccount sdk.ACLAccount) sdk.Msg {
 	defineACL := NewDefineACL(from, to, aclAccount)
 	return NewMsgDefineACLs([]DefineACL{defineACL})
 }
 
-// #####ACL
+//#####ACL
 
-// #####Comdex
+//#####Comdex

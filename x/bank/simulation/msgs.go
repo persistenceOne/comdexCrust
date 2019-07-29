@@ -6,15 +6,15 @@ import (
 	"math/big"
 	"math/rand"
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
-	
-	"github.com/comdex-blockchain/baseapp"
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/auth"
-	"github.com/comdex-blockchain/x/bank"
-	"github.com/comdex-blockchain/x/mock"
-	"github.com/comdex-blockchain/x/mock/simulation"
+
+	"github.com/commitHub/commitBlockchain/baseapp"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/auth"
+	"github.com/commitHub/commitBlockchain/x/bank"
+	"github.com/commitHub/commitBlockchain/x/mock"
+	"github.com/commitHub/commitBlockchain/x/mock/simulation"
 	"github.com/tendermint/tendermint/crypto"
 )
 
@@ -34,17 +34,17 @@ func SimulateSingleInputMsgSend(mapper auth.AccountMapper) simulation.Operation 
 		}
 		toAddr := sdk.AccAddress(toKey.PubKey().Address())
 		initFromCoins := mapper.GetAccount(ctx, fromAddr).GetCoins()
-		
+
 		if len(initFromCoins) == 0 {
 			return "skipping, no coins at all", nil, nil
 		}
-		
+
 		denomIndex := r.Intn(len(initFromCoins))
 		amt, goErr := randPositiveInt(r, initFromCoins[denomIndex].Amount)
 		if goErr != nil {
 			return "skipping bank send due to account having no coins of denomination " + initFromCoins[denomIndex].Denom, nil, nil
 		}
-		
+
 		action = fmt.Sprintf("%s is sending %s %s to %s",
 			fromAddr.String(),
 			amt.String(),
@@ -52,7 +52,7 @@ func SimulateSingleInputMsgSend(mapper auth.AccountMapper) simulation.Operation 
 			toAddr.String(),
 		)
 		log = fmt.Sprintf("%s\n%s", log, action)
-		
+
 		coins := sdk.Coins{{Denom: initFromCoins[denomIndex].Denom, Amount: amt}}
 		var msg = bank.MsgSend{
 			Inputs:  []bank.Input{bank.NewInput(fromAddr, coins)},
@@ -60,7 +60,7 @@ func SimulateSingleInputMsgSend(mapper auth.AccountMapper) simulation.Operation 
 		}
 		sendAndVerifyMsgSend(t, app, mapper, msg, ctx, log, []crypto.PrivKey{fromKey})
 		event("bank/sendAndVerifyMsgSend/ok")
-		
+
 		return action, nil, nil
 	}
 }
@@ -71,7 +71,7 @@ func sendAndVerifyMsgSend(t *testing.T, app *baseapp.BaseApp, mapper auth.Accoun
 	initialOutputAddrCoins := make([]sdk.Coins, len(msg.Outputs))
 	AccountNumbers := make([]int64, len(msg.Inputs))
 	SequenceNumbers := make([]int64, len(msg.Inputs))
-	
+
 	for i := 0; i < len(msg.Inputs); i++ {
 		acc := mapper.GetAccount(ctx, msg.Inputs[i].Address)
 		AccountNumbers[i] = acc.GetAccountNumber()
@@ -93,7 +93,7 @@ func sendAndVerifyMsgSend(t *testing.T, app *baseapp.BaseApp, mapper auth.Accoun
 		fmt.Println(log)
 		t.FailNow()
 	}
-	
+
 	for i := 0; i < len(msg.Inputs); i++ {
 		terminalInputCoins := mapper.GetAccount(ctx, msg.Inputs[i].Address).GetCoins()
 		require.Equal(t,

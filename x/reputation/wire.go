@@ -1,23 +1,23 @@
 package reputation
 
 import (
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
 )
 
-// RegisterWire : Register concrete types on wire codec for order
+//RegisterWire : Register concrete types on wire codec for order
 func RegisterWire(cdc *wire.Codec) {
-	cdc.RegisterConcrete(MsgBuyerFeedbacks{}, "comdex-blockchain/MsgBuyerFeedbacks", nil)
-	cdc.RegisterConcrete(MsgSellerFeedbacks{}, "comdex-blockchain/MsgSellerFeedbacks", nil)
-	cdc.RegisterConcrete(SubmitBuyerFeedbackBody{}, "comdex-blockchain/SubmitBuyerFeedbackBody", nil)
-	cdc.RegisterConcrete(SubmitSellerFeedbackBody{}, "comdex-blockchain/SubmitSellerFeedbackBody", nil)
-	
+	cdc.RegisterConcrete(MsgBuyerFeedbacks{}, "commit-blockchain/MsgBuyerFeedbacks", nil)
+	cdc.RegisterConcrete(MsgSellerFeedbacks{}, "commit-blockchain/MsgSellerFeedbacks", nil)
+	cdc.RegisterConcrete(SubmitBuyerFeedbackBody{}, "commit-blockchain/SubmitBuyerFeedbackBody", nil)
+	cdc.RegisterConcrete(SubmitSellerFeedbackBody{}, "commit-blockchain/SubmitSellerFeedbackBody", nil)
+
 }
 
-// RegisterReputation :
+//RegisterReputation :
 func RegisterReputation(cdc *wire.Codec) {
 	cdc.RegisterInterface((*sdk.AccountReputation)(nil), nil)
-	cdc.RegisterConcrete(&sdk.BaseAccountReputation{}, "comdex-blockchain/AccountReputation", nil)
+	cdc.RegisterConcrete(&sdk.BaseAccountReputation{}, "commit-blockchain/AccountReputation", nil)
 }
 
 var msgCdc = wire.NewCodec()

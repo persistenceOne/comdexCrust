@@ -3,9 +3,9 @@ package utils
 import (
 	"errors"
 	"testing"
-	
-	"github.com/comdex-blockchain/main/app"
-	sdk "github.com/comdex-blockchain/types"
+
+	"github.com/commitHub/commitBlockchain/main/app"
+	sdk "github.com/commitHub/commitBlockchain/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/tendermint/tendermint/libs/common"
 )

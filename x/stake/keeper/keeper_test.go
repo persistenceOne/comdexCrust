@@ -2,22 +2,22 @@ package keeper
 
 import (
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/stake/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/stake/types"
 )
 
 func TestParams(t *testing.T) {
 	ctx, _, keeper := CreateTestInput(t, false, 0)
 	expParams := types.DefaultParams()
-	
-	// check that the empty keeper loads the default
+
+	//check that the empty keeper loads the default
 	resParams := keeper.GetParams(ctx)
 	require.True(t, expParams.Equal(resParams))
-	
-	// modify a params, save, and retrieve
+
+	//modify a params, save, and retrieve
 	expParams.MaxValidators = 777
 	keeper.SetParams(ctx, expParams)
 	resParams = keeper.GetParams(ctx)
@@ -27,12 +27,12 @@ func TestParams(t *testing.T) {
 func TestPool(t *testing.T) {
 	ctx, _, keeper := CreateTestInput(t, false, 0)
 	expPool := types.InitialPool()
-	
-	// check that the empty keeper loads the default
+
+	//check that the empty keeper loads the default
 	resPool := keeper.GetPool(ctx)
 	require.True(t, expPool.Equal(resPool))
-	
-	// modify a params, save, and retrieve
+
+	//modify a params, save, and retrieve
 	expPool.BondedTokens = sdk.NewDec(777)
 	keeper.SetPool(ctx, expPool)
 	resPool = keeper.GetPool(ctx)

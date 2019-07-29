@@ -3,7 +3,7 @@ package keys
 import (
 	"encoding/json"
 	"net/http"
-	
+
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +23,7 @@ func runListCmd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	infos, err := kb.List()
 	if err == nil {
 		printInfos(infos)
@@ -31,7 +31,7 @@ func runListCmd(cmd *cobra.Command, args []string) error {
 	return err
 }
 
-// ///////////////////////
+/////////////////////////
 // REST
 
 // query key list REST handler

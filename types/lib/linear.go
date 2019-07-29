@@ -3,9 +3,9 @@ package lib
 import (
 	"fmt"
 	"strconv"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	wire "github.com/commitHub/commitBlockchain/wire"
 )
 
 // Linear defines a primitive mapper type
@@ -53,34 +53,35 @@ func NewLinear(cdc *wire.Codec, store sdk.KVStore, keys *LinearKeys) Linear {
 // List is a Linear interface that provides list-like functions
 // It panics when the element type cannot be (un/)marshalled by the codec
 type List interface {
+
 	// Len() returns the length of the list
 	// The length is only increased by Push() and not decreased
 	// List dosen't check if an index is in bounds
 	// The user should check Len() before doing any actions
 	Len() uint64
-	
+
 	// Get() returns the element by its index
 	Get(uint64, interface{}) error
-	
+
 	// Set() stores the element to the given position
 	// Setting element out of range will break length counting
 	// Use Push() instead of Set() to append a new element
 	Set(uint64, interface{})
-	
+
 	// Delete() deletes the element in the given position
 	// Other elements' indices are preserved after deletion
 	// Panics when the index is out of range
 	Delete(uint64)
-	
+
 	// Push() inserts the element to the end of the list
 	// It will increase the length when it is called
 	Push(interface{})
-	
+
 	// Iterate*() is used to iterate over all existing elements in the list
 	// Return true in the continuation to break
 	// The second element of the continuation will indicate the position of the element
 	// Using it with Get() will return the same one with the provided element
-	
+
 	// CONTRACT: No writes may happen within a domain while iterating over it.
 	Iterate(interface{}, func(uint64) bool)
 }
@@ -150,7 +151,7 @@ func (m Linear) Iterate(ptr interface{}, fn func(uint64) bool) {
 			break
 		}
 	}
-	
+
 	iter.Close()
 }
 
@@ -159,19 +160,19 @@ func (m Linear) Iterate(ptr interface{}, fn func(uint64) bool) {
 type Queue interface {
 	// Push() inserts the elements to the rear of the queue
 	Push(interface{})
-	
+
 	// Popping/Peeking on an empty queue will cause panic
 	// The user should check IsEmpty() before doing any actions
-	
+
 	// Peek() returns the element at the front of the queue without removing it
 	Peek(interface{}) error
-	
+
 	// Pop() returns the element at the front of the queue and removes it
 	Pop()
-	
+
 	// IsEmpty() checks if the queue is empty
 	IsEmpty() bool
-	
+
 	// Flush() removes elements it processed
 	// Return true in the continuation to break
 	// The interface{} is unmarshalled before the continuation is called
@@ -195,7 +196,7 @@ func (m Linear) getTop() (res uint64) {
 	if bz == nil {
 		return 0
 	}
-	
+
 	m.cdc.MustUnmarshalBinary(bz, &res)
 	return
 }
@@ -229,7 +230,7 @@ func (m Linear) IsEmpty() bool {
 func (m Linear) Flush(ptr interface{}, fn func() bool) {
 	top := m.getTop()
 	length := m.Len()
-	
+
 	var i uint64
 	for i = top; i < length; i++ {
 		err := m.Get(i, ptr)

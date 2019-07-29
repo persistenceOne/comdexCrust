@@ -2,7 +2,7 @@ package types
 
 import (
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -19,7 +19,7 @@ func TestPrefixEndBytes(t *testing.T) {
 		{[]byte{byte(255)}, nil},
 		{nil, nil},
 	}
-	
+
 	for _, test := range testCases {
 		end := PrefixEndBytes(test.prefix)
 		require.Equal(t, test.expected, end)
@@ -29,7 +29,7 @@ func TestPrefixEndBytes(t *testing.T) {
 func TestCommitID(t *testing.T) {
 	var empty CommitID
 	require.True(t, empty.IsZero())
-	
+
 	var nonempty CommitID
 	nonempty = CommitID{
 		Version: 1,

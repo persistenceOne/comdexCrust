@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-PKGS=$(go list ./... | grep -v /vendor/ | grep -v github.com/comdex-blockchain/cmd/gaia/cli_test | grep -v '/simulation')
+PKGS=$(go list ./... | grep -v /vendor/ | grep -v github.com/commitHub/commitBlockchain/cmd/gaia/cli_test | grep -v '/simulation')
 
 set -e
 echo "mode: atomic" > coverage.txt

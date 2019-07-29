@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"io"
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
-	
+
 	dbm "github.com/tendermint/tendermint/libs/db"
 )
 
@@ -18,18 +18,18 @@ var kvPairs = []KVPair{
 
 func newTraceKVStore(w io.Writer) *TraceKVStore {
 	store := newEmptyTraceKVStore(w)
-	
+
 	for _, kvPair := range kvPairs {
 		store.Set(kvPair.Key, kvPair.Value)
 	}
-	
+
 	return store
 }
 
 func newEmptyTraceKVStore(w io.Writer) *TraceKVStore {
 	memDB := dbStoreAdapter{dbm.NewMemDB()}
 	tc := TraceContext(map[string]interface{}{"blockHeight": 64})
-	
+
 	return NewTraceKVStore(memDB, w, tc)
 }
 
@@ -55,14 +55,14 @@ func TestTraceKVStoreGet(t *testing.T) {
 			expectedOut:   "{\"operation\":\"read\",\"key\":\"ZG9lcy1ub3QtZXhpc3Q=\",\"value\":\"\",\"metadata\":{\"blockHeight\":64}}\n",
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		var buf bytes.Buffer
-		
+
 		store := newTraceKVStore(&buf)
 		buf.Reset()
 		value := store.Get(tc.key)
-		
+
 		require.Equal(t, tc.expectedValue, value)
 		require.Equal(t, tc.expectedOut, buf.String())
 	}
@@ -85,14 +85,14 @@ func TestTraceKVStoreSet(t *testing.T) {
 			expectedOut: "{\"operation\":\"write\",\"key\":\"a2V5MDAwMDAwMDE=\",\"value\":\"dmFsdWUwMDAwMDAwMQ==\",\"metadata\":{\"blockHeight\":64}}\n",
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		var buf bytes.Buffer
-		
+
 		store := newEmptyTraceKVStore(&buf)
 		buf.Reset()
 		store.Set(tc.key, tc.value)
-		
+
 		require.Equal(t, tc.expectedOut, buf.String())
 	}
 }
@@ -111,14 +111,14 @@ func TestTraceKVStoreDelete(t *testing.T) {
 			expectedOut: "{\"operation\":\"delete\",\"key\":\"a2V5MDAwMDAwMDE=\",\"value\":\"\",\"metadata\":{\"blockHeight\":64}}\n",
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		var buf bytes.Buffer
-		
+
 		store := newTraceKVStore(&buf)
 		buf.Reset()
 		store.Delete(tc.key)
-		
+
 		require.Equal(t, tc.expectedOut, buf.String())
 	}
 }
@@ -137,28 +137,28 @@ func TestTraceKVStoreHas(t *testing.T) {
 			expected: true,
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		var buf bytes.Buffer
-		
+
 		store := newTraceKVStore(&buf)
 		buf.Reset()
 		ok := store.Has(tc.key)
-		
+
 		require.Equal(t, tc.expected, ok)
 	}
 }
 
 func TestTestTraceKVStoreIterator(t *testing.T) {
 	var buf bytes.Buffer
-	
+
 	store := newTraceKVStore(&buf)
 	iterator := store.Iterator(nil, nil)
-	
+
 	s, e := iterator.Domain()
 	require.Equal(t, []uint8([]byte(nil)), s)
 	require.Equal(t, []uint8([]byte(nil)), e)
-	
+
 	testCases := []struct {
 		expectedKey      []byte
 		expectedValue    []byte
@@ -184,22 +184,22 @@ func TestTestTraceKVStoreIterator(t *testing.T) {
 			expectedvalueOut: "{\"operation\":\"iterValue\",\"key\":\"\",\"value\":\"dmFsdWUwMDAwMDAwMw==\",\"metadata\":{\"blockHeight\":64}}\n",
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		buf.Reset()
 		ka := iterator.Key()
 		require.Equal(t, tc.expectedKeyOut, buf.String())
-		
+
 		buf.Reset()
 		va := iterator.Value()
 		require.Equal(t, tc.expectedvalueOut, buf.String())
-		
+
 		require.Equal(t, tc.expectedKey, ka)
 		require.Equal(t, tc.expectedValue, va)
-		
+
 		iterator.Next()
 	}
-	
+
 	require.False(t, iterator.Valid())
 	require.Panics(t, iterator.Next)
 	require.NotPanics(t, iterator.Close)
@@ -207,14 +207,14 @@ func TestTestTraceKVStoreIterator(t *testing.T) {
 
 func TestTestTraceKVStoreReverseIterator(t *testing.T) {
 	var buf bytes.Buffer
-	
+
 	store := newTraceKVStore(&buf)
 	iterator := store.ReverseIterator(nil, nil)
-	
+
 	s, e := iterator.Domain()
 	require.Equal(t, []uint8([]byte(nil)), s)
 	require.Equal(t, []uint8([]byte(nil)), e)
-	
+
 	testCases := []struct {
 		expectedKey      []byte
 		expectedValue    []byte
@@ -240,22 +240,22 @@ func TestTestTraceKVStoreReverseIterator(t *testing.T) {
 			expectedvalueOut: "{\"operation\":\"iterValue\",\"key\":\"\",\"value\":\"dmFsdWUwMDAwMDAwMQ==\",\"metadata\":{\"blockHeight\":64}}\n",
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		buf.Reset()
 		ka := iterator.Key()
 		require.Equal(t, tc.expectedKeyOut, buf.String())
-		
+
 		buf.Reset()
 		va := iterator.Value()
 		require.Equal(t, tc.expectedvalueOut, buf.String())
-		
+
 		require.Equal(t, tc.expectedKey, ka)
 		require.Equal(t, tc.expectedValue, va)
-		
+
 		iterator.Next()
 	}
-	
+
 	require.False(t, iterator.Valid())
 	require.Panics(t, iterator.Next)
 	require.NotPanics(t, iterator.Close)

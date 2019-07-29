@@ -35,7 +35,7 @@ func StartProcess(dir string, name string, args []string) (*Process, error) {
 		return nil, err
 	}
 	proc.Pid = proc.Cmd.Process.Pid
-	
+
 	return proc, nil
 }
 
@@ -57,17 +57,17 @@ func CreateProcess(dir string, name string, args []string) (*Process, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return nil, err
 	}
-	
+
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
 		return nil, err
 	}
-	
+
 	proc := &Process{
 		ExecPath:   name,
 		Args:       args,

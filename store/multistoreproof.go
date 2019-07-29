@@ -18,13 +18,13 @@ type MultiStoreProof struct {
 func buildMultiStoreProof(iavlProof []byte, storeName string, storeInfos []storeInfo) []byte {
 	var rangeProof iavl.RangeProof
 	cdc.MustUnmarshalBinary(iavlProof, &rangeProof)
-	
+
 	msp := MultiStoreProof{
 		StoreInfos: storeInfos,
 		StoreName:  storeName,
 		RangeProof: rangeProof,
 	}
-	
+
 	proof := cdc.MustMarshalBinary(msp)
 	return proof
 }
@@ -42,12 +42,12 @@ func VerifyMultiStoreCommitInfo(storeName string, storeInfos []storeInfo, appHas
 	if len(substoreCommitHash) == 0 {
 		return nil, cmn.NewError("failed to get substore root commit hash by store name")
 	}
-	
+
 	ci := commitInfo{
 		Version:    height,
 		StoreInfos: storeInfos,
 	}
-	
+
 	if !bytes.Equal(appHash, ci.Hash()) {
 		return nil, cmn.NewError("the merkle root of multiStoreCommitInfo doesn't equal to appHash")
 	}
@@ -56,13 +56,13 @@ func VerifyMultiStoreCommitInfo(storeName string, storeInfos []storeInfo, appHas
 
 // VerifyRangeProof verify iavl RangeProof
 func VerifyRangeProof(key, value []byte, substoreCommitHash []byte, rangeProof *iavl.RangeProof) error {
-	
+
 	// verify the proof to ensure data integrity.
 	err := rangeProof.Verify(substoreCommitHash)
 	if err != nil {
 		return errors.Wrap(err, "proof root hash doesn't equal to substore commit root hash")
 	}
-	
+
 	if len(value) != 0 {
 		// verify existence proof
 		err = rangeProof.VerifyItem(key, value)
@@ -76,7 +76,7 @@ func VerifyRangeProof(key, value []byte, substoreCommitHash []byte, rangeProof *
 			return errors.Wrap(err, "failed in absence verification")
 		}
 	}
-	
+
 	return nil
 }
 

@@ -2,9 +2,9 @@ package auth
 
 import (
 	"encoding/json"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/wire"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/wire"
 	"github.com/tendermint/tendermint/crypto"
 )
 
@@ -30,7 +30,7 @@ func NewStdTx(msgs []sdk.Msg, fee StdFee, sigs []StdSignature, memo string) StdT
 }
 
 // GetMsgs Implements msg type
-// nolint
+//nolint
 func (tx StdTx) GetMsgs() []sdk.Msg { return tx.Msgs }
 
 // GetSigners returns the addresses that must sign the transaction.
@@ -39,21 +39,21 @@ func (tx StdTx) GetMsgs() []sdk.Msg { return tx.Msgs }
 // in the order they appear in tx.GetMsgs().
 // Duplicate addresses will be omitted.
 func (tx StdTx) GetSigners() []sdk.AccAddress {
-	// 	seen := map[string]bool{}
+	//	seen := map[string]bool{}
 	var signers []sdk.AccAddress
 	for _, msg := range tx.GetMsgs() {
 		for _, addr := range msg.GetSigners() {
-			// 			if !seen[addr.String()] {
+			//			if !seen[addr.String()] {
 			signers = append(signers, addr)
-			// 				seen[addr.String()] = true
-			// 			}
+			//				seen[addr.String()] = true
+			//			}
 		}
 	}
 	return signers
 }
 
 // GetMemo :
-// nolint
+//nolint
 func (tx StdTx) GetMemo() string { return tx.Memo }
 
 // GetSignatures returns the signature of signers who signed the Msg.
@@ -72,7 +72,7 @@ func FeePayer(tx sdk.Tx) sdk.AccAddress {
 	return tx.GetMsgs()[0].GetSigners()[0]
 }
 
-// __________________________________________________________
+//__________________________________________________________
 
 // StdFee includes the amount of coins paid in fees and the maximum
 // gas to be used by the transaction. The ratio yields an effective "gasprice",
@@ -106,7 +106,7 @@ func (fee StdFee) Bytes() []byte {
 	return bz
 }
 
-// __________________________________________________________
+//__________________________________________________________
 
 // StdSignDoc is replay-prevention structure.
 // It includes the result of msg.GetSignBytes(),
@@ -162,20 +162,20 @@ func (msg StdSignMsg) Bytes() []byte {
 // StdSignature : Standard Signature
 type StdSignature struct {
 	crypto.PubKey `json:"pub_key"` // optional
-	Signature     []byte `json:"signature"`
-	AccountNumber int64  `json:"account_number"`
-	Sequence      int64  `json:"sequence"`
+	Signature     []byte           `json:"signature"`
+	AccountNumber int64            `json:"account_number"`
+	Sequence      int64            `json:"sequence"`
 }
 
 // DefaultTxDecoder : logic for standard transaction decoding
 func DefaultTxDecoder(cdc *wire.Codec) sdk.TxDecoder {
 	return func(txBytes []byte) (sdk.Tx, sdk.Error) {
 		var tx = StdTx{}
-		
+
 		if len(txBytes) == 0 {
 			return nil, sdk.ErrTxDecode("txBytes are empty")
 		}
-		
+
 		// StdTx.Msg is an interface. The concrete types
 		// are registered by MakeTxCodec
 		err := cdc.UnmarshalBinary(txBytes, &tx)

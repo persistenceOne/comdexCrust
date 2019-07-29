@@ -3,11 +3,11 @@ package auth
 import (
 	"fmt"
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/crypto/ed25519"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 func TestStdTx(t *testing.T) {
@@ -16,11 +16,11 @@ func TestStdTx(t *testing.T) {
 	msgs := []sdk.Msg{sdk.NewTestMsg(addr)}
 	fee := newStdFee()
 	sigs := []StdSignature{}
-	
+
 	tx := NewStdTx(msgs, fee, sigs, "")
 	require.Equal(t, msgs, tx.GetMsgs())
 	require.Equal(t, sigs, tx.GetSignatures())
-	
+
 	feePayer := FeePayer(tx)
 	require.Equal(t, addr, feePayer)
 }

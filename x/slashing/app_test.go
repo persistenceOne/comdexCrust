@@ -2,13 +2,13 @@ package slashing
 
 import (
 	"testing"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/auth"
-	"github.com/comdex-blockchain/x/bank"
-	"github.com/comdex-blockchain/x/mock"
-	"github.com/comdex-blockchain/x/params"
-	"github.com/comdex-blockchain/x/stake"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/auth"
+	"github.com/commitHub/commitBlockchain/x/bank"
+	"github.com/commitHub/commitBlockchain/x/mock"
+	"github.com/commitHub/commitBlockchain/x/params"
+	"github.com/commitHub/commitBlockchain/x/stake"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/ed25519"
@@ -23,7 +23,7 @@ var (
 // initialize the mock application for this module
 func getMockApp(t *testing.T) (*mock.App, stake.Keeper, Keeper) {
 	mapp := mock.NewApp()
-	
+
 	RegisterWire(mapp.Cdc)
 	keyStake := sdk.NewKVStoreKey("stake")
 	keySlashing := sdk.NewKVStoreKey("slashing")
@@ -31,15 +31,15 @@ func getMockApp(t *testing.T) (*mock.App, stake.Keeper, Keeper) {
 	coinKeeper := bank.NewKeeper(mapp.AccountMapper)
 	paramsKeeper := params.NewKeeper(mapp.Cdc, keyParams)
 	stakeKeeper := stake.NewKeeper(mapp.Cdc, keyStake, coinKeeper, mapp.RegisterCodespace(stake.DefaultCodespace))
-	
+
 	keeper := NewKeeper(mapp.Cdc, keySlashing, stakeKeeper, paramsKeeper.Getter(), mapp.RegisterCodespace(DefaultCodespace))
 	mapp.Router().AddRoute("stake", stake.NewHandler(stakeKeeper))
 	mapp.Router().AddRoute("slashing", NewHandler(keeper))
-	
+
 	mapp.SetEndBlocker(getEndBlocker(stakeKeeper))
 	mapp.SetInitChainer(getInitChainer(mapp, stakeKeeper))
 	require.NoError(t, mapp.CompleteSetup([]*sdk.KVStoreKey{keyStake, keySlashing, keyParams}))
-	
+
 	return mapp, stakeKeeper, keeper
 }
 
@@ -63,7 +63,7 @@ func getInitChainer(mapp *mock.App, keeper stake.Keeper) sdk.InitChainer {
 		if err != nil {
 			panic(err)
 		}
-		
+
 		return abci.ResponseInitChain{
 			Validators: validators,
 		}
@@ -88,10 +88,10 @@ func checkValidatorSigningInfo(t *testing.T, mapp *mock.App, keeper Keeper,
 
 func TestSlashingMsgs(t *testing.T) {
 	mapp, stakeKeeper, keeper := getMockApp(t)
-	
+
 	genCoin := sdk.NewInt64Coin("steak", 42)
 	bondCoin := sdk.NewInt64Coin("steak", 10)
-	
+
 	acc1 := &auth.BaseAccount{
 		Address: addr1,
 		Coins:   sdk.Coins{genCoin},
@@ -105,16 +105,16 @@ func TestSlashingMsgs(t *testing.T) {
 	mock.SignCheckDeliver(t, mapp.BaseApp, []sdk.Msg{createValidatorMsg}, []int64{0}, []int64{0}, true, true, priv1)
 	mock.CheckBalance(t, mapp, addr1, sdk.Coins{genCoin.Minus(bondCoin)})
 	mapp.BeginBlock(abci.RequestBeginBlock{})
-	
+
 	validator := checkValidator(t, mapp, stakeKeeper, addr1, true)
 	require.Equal(t, sdk.ValAddress(addr1), validator.Operator)
 	require.Equal(t, sdk.Bonded, validator.Status)
 	require.True(sdk.DecEq(t, sdk.NewDec(10), validator.BondedTokens()))
 	unjailMsg := MsgUnjail{ValidatorAddr: sdk.ValAddress(validator.PubKey.Address())}
-	
+
 	// no signing info yet
 	checkValidatorSigningInfo(t, mapp, keeper, sdk.ConsAddress(addr1), false)
-	
+
 	// unjail should fail with unknown validator
 	res := mock.SignCheckDeliver(t, mapp.BaseApp, []sdk.Msg{unjailMsg}, []int64{0}, []int64{1}, false, false, priv1)
 	require.Equal(t, sdk.ToABCICode(DefaultCodespace, CodeValidatorNotJailed), res.Code)

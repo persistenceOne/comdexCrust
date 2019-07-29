@@ -2,8 +2,8 @@ package cli
 
 import (
 	flag "github.com/spf13/pflag"
-	
-	"github.com/comdex-blockchain/x/stake/types"
+
+	"github.com/commitHub/commitBlockchain/x/stake/types"
 )
 
 // nolint
@@ -16,7 +16,7 @@ const (
 	FlagAmount              = "amount"
 	FlagSharesAmount        = "shares-amount"
 	FlagSharesPercent       = "shares-percent"
-	
+
 	FlagMoniker  = "moniker"
 	FlagIdentity = "identity"
 	FlagWebsite  = "website"

@@ -55,36 +55,36 @@ func ParseFloat64OrReturnBadRequest(w http.ResponseWriter, s string, defaultIfEm
 
 // ResponseBytesToJSON converts the response message to JSON format
 func ResponseBytesToJSON(bytea []byte) []byte {
-	
+
 	var response map[string]string
 	if err := json.Unmarshal(bytea, &response); err != nil {
 		panic(err)
 	}
 	responseStr := response["Response"]
 	delete(response, "Response")
-	
+
 	tagsStart := strings.Index(responseStr, "Tags:[{")
 	tagsEnd := strings.Index(responseStr, "}]")
 	tagsStr := responseStr[tagsStart+5 : tagsEnd+2]
 	responseStr = responseStr[1:tagsStart] + responseStr[tagsEnd+2:len(responseStr)-1]
-	
+
 	tagsStr = strings.Replace(tagsStr, "Key", "\"key\"", -1)
 	tagsStr = strings.Replace(tagsStr, "Value", "\"value\"", -1)
 	tagsStr = strings.Replace(tagsStr, "} {", "},{", -1)
 	tagsStr = strings.Replace(tagsStr, " ", ",", -1)
 	tagsStr = ",\"Tags\":" + tagsStr
-	
+
 	for _, pair := range strings.Split(responseStr, " ") {
 		keyVal := strings.Split(pair, ":")
 		if len(keyVal) > 1 {
 			response[keyVal[0]] = keyVal[1]
 		}
 	}
-	
+
 	newResponse, _ := json.Marshal(response)
 	newResponseStr := string(newResponse)
 	newResponseStr = newResponseStr[:len(newResponseStr)-1] + tagsStr + "}"
-	
+
 	var responseInterface map[string]interface{}
 	if err := json.Unmarshal([]byte(newResponseStr), &responseInterface); err != nil {
 		panic(err)
@@ -93,18 +93,18 @@ func ResponseBytesToJSON(bytea []byte) []byte {
 		Key   string
 		Value string
 	}
-	
+
 	var tagList []TagString
-	
+
 	for i := range responseInterface["Tags"].([]interface{}) {
-		
+
 		tagString := &TagString{}
 		tagPair := responseInterface["Tags"].([]interface{})[i]
 		tagInterface := tagPair.(map[string]interface{})
 		tag := tagString
 		keyString := ""
 		valueString := ""
-		
+
 		switch tagKeyByte := tagInterface["key"].(type) {
 		case []interface{}:
 			for k := range tagKeyByte {
@@ -114,7 +114,7 @@ func ResponseBytesToJSON(bytea []byte) []byte {
 			}
 			tag.Key = keyString
 		}
-		
+
 		switch tagValueByte := tagInterface["value"].(type) {
 		case []interface{}:
 			for k := range tagValueByte {
@@ -124,9 +124,9 @@ func ResponseBytesToJSON(bytea []byte) []byte {
 			}
 			tag.Value = valueString
 		}
-		
+
 		tagList = append(tagList, *tag)
-		
+
 	}
 	tagFinalValue := tagList
 	s := make([]interface{}, len(tagFinalValue))
@@ -138,5 +138,5 @@ func ResponseBytesToJSON(bytea []byte) []byte {
 	if err != nil {
 		panic(err)
 	}
-	return data
+	return (data)
 }

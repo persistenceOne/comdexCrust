@@ -3,8 +3,8 @@ package slashing
 import (
 	"fmt"
 	"time"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 // Stored by *validator* address (not owner address)

@@ -4,26 +4,26 @@ package types
 import (
 	"fmt"
 	"time"
-	
-	sdk "github.com/comdex-blockchain/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
 )
 
 type CodeType = sdk.CodeType
 
 const (
 	DefaultCodespace sdk.CodespaceType = 4
-	
+
 	CodeInvalidValidator  CodeType = 101
 	CodeInvalidDelegation CodeType = 102
 	CodeInvalidInput      CodeType = 103
 	CodeValidatorJailed   CodeType = 104
-	CodeInvalidAddress             = sdk.CodeInvalidAddress
-	CodeUnauthorized               = sdk.CodeUnauthorized
-	CodeInternal                   = sdk.CodeInternal
-	CodeUnknownRequest             = sdk.CodeUnknownRequest
+	CodeInvalidAddress    CodeType = sdk.CodeInvalidAddress
+	CodeUnauthorized      CodeType = sdk.CodeUnauthorized
+	CodeInternal          CodeType = sdk.CodeInternal
+	CodeUnknownRequest    CodeType = sdk.CodeUnknownRequest
 )
 
-// validator
+//validator
 func ErrNilValidatorAddr(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeInvalidInput, "validator address is nil")
 }

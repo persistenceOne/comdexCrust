@@ -2,16 +2,16 @@ package keeper
 
 import (
 	"encoding/binary"
-	
+
 	"github.com/tendermint/tendermint/crypto"
-	
-	sdk "github.com/comdex-blockchain/types"
-	"github.com/comdex-blockchain/x/stake/types"
+
+	sdk "github.com/commitHub/commitBlockchain/types"
+	"github.com/commitHub/commitBlockchain/x/stake/types"
 )
 
 // TODO remove some of these prefixes once have working multistore
 
-// nolint
+//nolint
 var (
 	// Keys for store prefixes
 	ParamKey                         = []byte{0x00} // key for parameters relating to staking
@@ -69,23 +69,23 @@ func GetValidatorsByPowerIndexKey(validator types.Validator, pool types.Pool) []
 // get the power ranking of a validator
 // NOTE the larger values are of higher value
 func getValidatorPowerRank(validator types.Validator, pool types.Pool) []byte {
-	
+
 	potentialPower := validator.Tokens
 	powerBytes := []byte(potentialPower.ToLeftPadded(maxDigitsForAccount)) // power big-endian (more powerful validators first)
-	
+
 	jailedBytes := make([]byte, 1)
 	if validator.Jailed {
 		jailedBytes[0] = byte(0x00)
 	} else {
 		jailedBytes[0] = byte(0x01)
 	}
-	
+
 	// heightBytes and counterBytes represent strings like powerBytes does
 	heightBytes := make([]byte, binary.MaxVarintLen64)
 	binary.BigEndian.PutUint64(heightBytes, ^uint64(validator.BondHeight)) // invert height (older validators first)
 	counterBytes := make([]byte, 2)
 	binary.BigEndian.PutUint16(counterBytes, ^uint16(validator.BondIntraTxCounter)) // invert counter (first txns have priority)
-	
+
 	return append(append(append(append(
 		ValidatorsByPowerIndexKey,
 		jailedBytes...),
@@ -101,7 +101,7 @@ func GetTendermintUpdatesKey(operatorAddr sdk.ValAddress) []byte {
 	return append(TendermintUpdatesKey, operatorAddr.Bytes()...)
 }
 
-// ______________________________________________________________________________
+//______________________________________________________________________________
 
 // gets the key for delegator bond with validator
 // VALUE: stake/types.Delegation
@@ -114,7 +114,7 @@ func GetDelegationsKey(delAddr sdk.AccAddress) []byte {
 	return append(DelegationKey, delAddr.Bytes()...)
 }
 
-// ______________________________________________________________________________
+//______________________________________________________________________________
 
 // gets the key for an unbonding delegation by delegator and validator addr
 // VALUE: stake/types.UnbondingDelegation
@@ -141,7 +141,7 @@ func GetUBDKeyFromValIndexKey(IndexKey []byte) []byte {
 	return GetUBDKey(delAddr, valAddr)
 }
 
-// ______________
+//______________
 
 // gets the prefix for all unbonding delegations from a delegator
 func GetUBDsKey(delAddr sdk.AccAddress) []byte {
@@ -153,7 +153,7 @@ func GetUBDsByValIndexKey(valAddr sdk.ValAddress) []byte {
 	return append(UnbondingDelegationByValIndexKey, valAddr.Bytes()...)
 }
 
-// ________________________________________________________________________________
+//________________________________________________________________________________
 
 // gets the key for a redelegation
 // VALUE: stake/types.RedelegationKey
@@ -191,7 +191,7 @@ func GetREDKeyFromValSrcIndexKey(IndexKey []byte) []byte {
 	valSrcAddr := addrs[:sdk.AddrLen]
 	delAddr := addrs[sdk.AddrLen : 2*sdk.AddrLen]
 	valDstAddr := addrs[2*sdk.AddrLen:]
-	
+
 	return GetREDKey(delAddr, valSrcAddr, valDstAddr)
 }
 
@@ -207,7 +207,7 @@ func GetREDKeyFromValDstIndexKey(IndexKey []byte) []byte {
 	return GetREDKey(delAddr, valSrcAddr, valDstAddr)
 }
 
-// ______________
+//______________
 
 // gets the prefix keyspace for redelegations from a delegator
 func GetREDsKey(delAddr sdk.AccAddress) []byte {

@@ -4,9 +4,9 @@ import (
 	"math/big"
 	"math/rand"
 	"testing"
-	
-	"github.com/comdex-blockchain/baseapp"
-	sdk "github.com/comdex-blockchain/types"
+
+	"github.com/commitHub/commitBlockchain/baseapp"
+	sdk "github.com/commitHub/commitBlockchain/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
@@ -25,16 +25,16 @@ func RandFromBigInterval(r *rand.Rand, intervals []BigInterval) sdk.Int {
 	if len(intervals) == 0 {
 		return sdk.ZeroInt()
 	}
-	
+
 	interval := intervals[r.Intn(len(intervals))]
-	
+
 	lo := interval.lo
 	hi := interval.hi
-	
+
 	diff := hi.Sub(lo)
 	result := sdk.NewIntFromBigInt(new(big.Int).Rand(r, diff.BigInt()))
 	result = result.Add(lo)
-	
+
 	return result
 }
 
@@ -42,7 +42,7 @@ func RandFromBigInterval(r *rand.Rand, intervals []BigInterval) sdk.Int {
 func CheckBalance(t *testing.T, app *App, addr sdk.AccAddress, exp sdk.Coins) {
 	ctxCheck := app.BaseApp.NewContext(true, abci.Header{})
 	res := app.AccountMapper.GetAccount(ctxCheck, addr)
-	
+
 	require.Equal(t, exp, res.GetCoins())
 }
 
@@ -55,13 +55,13 @@ func CheckGenTx(
 ) sdk.Result {
 	tx := GenTx(msgs, accNums, seq, priv...)
 	res := app.Check(tx)
-	
+
 	if expPass {
 		require.Equal(t, sdk.ABCICodeOK, res.Code, res.Log)
 	} else {
 		require.NotEqual(t, sdk.ABCICodeOK, res.Code, res.Log)
 	}
-	
+
 	return res
 }
 
@@ -76,25 +76,25 @@ func SignCheckDeliver(
 	tx := GenTx(msgs, accNums, seq, priv...)
 	// Must simulate now as CheckTx doesn't run Msgs anymore
 	res := app.Simulate(tx)
-	
+
 	if expSimPass {
 		require.Equal(t, sdk.ABCICodeOK, res.Code, res.Log)
 	} else {
 		require.NotEqual(t, sdk.ABCICodeOK, res.Code, res.Log)
 	}
-	
+
 	// Simulate a sending a transaction and committing a block
 	app.BeginBlock(abci.RequestBeginBlock{})
 	res = app.Deliver(tx)
-	
+
 	if expPass {
 		require.Equal(t, sdk.ABCICodeOK, res.Code, res.Log)
 	} else {
 		require.NotEqual(t, sdk.ABCICodeOK, res.Code, res.Log)
 	}
-	
+
 	app.EndBlock(abci.RequestEndBlock{})
 	app.Commit()
-	
+
 	return res
 }
