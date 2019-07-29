@@ -39,7 +39,7 @@ type ConfirmBuyerBidBody struct {
 	Time              int64  `json:"time" valid:"required~Enter the Time,matches(^[1-9]{1}[0-9]*$)~Enter valid Time"`
 	PegHash           string `json:"pegHash" valid:"required~Enter the PegHash,matches(^[A-F0-9]+$)~Invalid PegHash,length(2|40)~PegHash length between 2-40"`
 	ChainID           string `json:"chainID" valid:"required~Enter the ChainID, matches(^[a-zA-Z]+(-[A-Za-z]+)*$)~Invalid ChainID"`
-	BuyerContractHash string `json:"buyerContractHash" valid:"required~Enter the BuyerContractHash, matches(^[a-fA-F0-9]{40}$)~Invalid BuyerContractHash"`
+	BuyerContractHash string `json:"buyerContractHash" valid:"required~Enter the BuyerContractHash, matches(^[A-Za-z0-9]+$)~Invalid buyerContractHash,length(2|40)~buyerContractHash length must be between 2-40"`
 	AccountNumber     int64  `json:"accountNumber"`
 	Sequence          int64  `json:"sequence"`
 	Gas               int64  `json:"gas"`
@@ -55,7 +55,7 @@ type ConfirmSellerBidBody struct {
 	Time               int64  `json:"time" valid:"required~Enter the Time,matches(^[1-9]{1}[0-9]*$)~Enter valid Time"`
 	PegHash            string `json:"pegHash" valid:"required~Enter the PegHash,matches(^[A-F0-9]+$)~Invalid PegHash,length(2|40)~PegHash length between 2-40"`
 	ChainID            string `json:"chainID" valid:"required~Enter the ChainID, matches(^[a-zA-Z]+(-[A-Za-z]+)*$)~Invalid ChainID"`
-	SellerContractHash string `json:"sellerContractHash" valid:"required~Enter the SellerContractHash, matches(^[a-fA-F0-9]{40}$)~Invalid SellerContractHash"`
+	SellerContractHash string `json:"sellerContractHash" valid:"required~Enter the SellerContractHash, matches(^[A-Za-z0-9]+$)~Invalid sellerContractHash,length(2|40)~sellerContractHash length must be between 2-40"`
 	AccountNumber      int64  `json:"accountNumber"`
 	Sequence           int64  `json:"sequence"`
 	Gas                int64  `json:"gas"`
