@@ -13,6 +13,8 @@ import (
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
 
+	"github.com/tendermint/go-amino"
+
 	"github.com/commitHub/commitBlockchain/main/app"
 	authcmd "github.com/commitHub/commitBlockchain/modules/auth/client/cli"
 	bankcmd "github.com/commitHub/commitBlockchain/modules/bank/client/cli"
