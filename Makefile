@@ -1,11 +1,32 @@
-export GO111MODULE = on
+PACKAGES := $(shell go list ./... | grep -v '/simulation')
+VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
+COMMIT := $(shell git log -1 --format='%H')
+GOSUM := $(shell which gosum)
+
+export GO111MODULE=on
+
+BUILD_TAGS := netgo
+BUILD_TAGS := $(strip ${BUILD_TAGS})
+
+BUILD_FLAGS := -tags "${BUILD_TAGS}"
+
+all: install
 
 build: go.sum
-	go build -o ${GOBIN}/hubClient commands/hub/hubClient/main.go
-	go build -o ${GOBIN}/hubNode commands/hub/hubNode/main.go
+ifeq (${OS},Windows_NT)
+	go build -mod=readonly ${BUILD_FLAGS} -o bin/maind.exe main/cmd/maind/
+	go build -mod=readonly ${BUILD_FLAGS} -o bin/maincli.exe main/cmd/maincli/
+else
+	go build -mod=readonly ${BUILD_FLAGS} -o bin/maind main/cmd/maind/
+	go build -mod=readonly ${BUILD_FLAGS} -o bin/maincli main/cmd/maincli/
+endif
 
-go.sum: go.mod
-	@echo "--> Verify Dependency Modification"
+install: go.sum
+	go install -mod=readonly ${BUILD_FLAGS} ./main/cmd/maind
+	go install -mod=readonly ${BUILD_FLAGS} ./main/cmd/maincli
+
+go.sum:
+	@echo "--> Ensure dependencies have not been modified"
 	@go mod verify
 
-.PHONY: all build test benchmark
+.PHONY: all build install  go.sum
