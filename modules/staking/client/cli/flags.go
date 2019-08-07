@@ -2,7 +2,7 @@ package cli
 
 import (
 	flag "github.com/spf13/pflag"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/staking/types"
 )
 
@@ -15,18 +15,18 @@ const (
 	FlagAmount              = "amount"
 	FlagSharesAmount        = "shares-amount"
 	FlagSharesFraction      = "shares-fraction"
-
+	
 	FlagMoniker  = "moniker"
 	FlagIdentity = "identity"
 	FlagWebsite  = "website"
 	FlagDetails  = "details"
-
+	
 	FlagCommissionRate          = "commission-rate"
 	FlagCommissionMaxRate       = "commission-max-rate"
 	FlagCommissionMaxChangeRate = "commission-max-change-rate"
-
+	
 	FlagMinSelfDelegation = "min-self-delegation"
-
+	
 	FlagGenesisFormat = "genesis-format"
 	FlagNodeID        = "node-id"
 	FlagIP            = "ip"

@@ -2,13 +2,13 @@ package keeper
 
 import (
 	"fmt"
-
+	
 	abci "github.com/tendermint/tendermint/abci/types"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/bank/internal/types"
 )
 
@@ -23,7 +23,7 @@ func NewQuerier(k Keeper) sdk.Querier {
 		switch path[0] {
 		case QueryBalance:
 			return queryBalance(ctx, req, k)
-
+		
 		default:
 			return nil, sdk.ErrUnknownRequest("unknown bank query endpoint")
 		}
@@ -34,15 +34,15 @@ func NewQuerier(k Keeper) sdk.Querier {
 // Height and account address are passed as first and second path components respectively.
 func queryBalance(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, sdk.Error) {
 	var params types.QueryBalanceParams
-
+	
 	if err := types.ModuleCdc.UnmarshalJSON(req.Data, &params); err != nil {
 		return nil, sdk.ErrInternal(fmt.Sprintf("failed to parse params: %s", err))
 	}
-
+	
 	bz, err := codec.MarshalJSONIndent(types.ModuleCdc, k.GetCoins(ctx, params.Address))
 	if err != nil {
 		return nil, sdk.ErrInternal(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
 	}
-
+	
 	return bz, nil
 }

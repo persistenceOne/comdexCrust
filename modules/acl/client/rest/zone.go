@@ -3,11 +3,11 @@ package rest
 import (
 	"fmt"
 	"net/http"
-
+	
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/acl/internal/types"
 )
 
@@ -17,7 +17,7 @@ func GetZoneRequestHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		vars := mux.Vars(r)
 		strZoneID := vars["zoneID"]
 		cliCtx := cliCtx
-
+		
 		zoneID, err := types.GetZoneIDFromString(strZoneID)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)

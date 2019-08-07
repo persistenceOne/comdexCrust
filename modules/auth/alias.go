@@ -52,7 +52,7 @@ var (
 	NewTxBuilderFromCLI            = types.NewTxBuilderFromCLI
 	MakeSignature                  = types.MakeSignature
 	NewAccountRetriever            = types.NewAccountRetriever
-
+	
 	// variable aliases
 	ModuleCdc                 = types.ModuleCdc
 	AddressStoreKeyPrefix     = types.AddressStoreKeyPrefix
@@ -65,19 +65,19 @@ var (
 )
 
 type (
-	Account                  = exported.Account
-	VestingAccount           = exported.VestingAccount
-	BaseAccount              = types.BaseAccount
-	BaseVestingAccount       = types.BaseVestingAccount
+	Account = exported.Account
+	VestingAccount = exported.VestingAccount
+	BaseAccount = types.BaseAccount
+	BaseVestingAccount = types.BaseVestingAccount
 	ContinuousVestingAccount = types.ContinuousVestingAccount
-	DelayedVestingAccount    = types.DelayedVestingAccount
-	GenesisState             = types.GenesisState
-	Params                   = types.Params
-	QueryAccountParams       = types.QueryAccountParams
-	StdSignMsg               = types.StdSignMsg
-	StdTx                    = types.StdTx
-	StdFee                   = types.StdFee
-	StdSignDoc               = types.StdSignDoc
-	StdSignature             = types.StdSignature
-	TxBuilder                = types.TxBuilder
+	DelayedVestingAccount = types.DelayedVestingAccount
+	GenesisState = types.GenesisState
+	Params = types.Params
+	QueryAccountParams = types.QueryAccountParams
+	StdSignMsg = types.StdSignMsg
+	StdTx = types.StdTx
+	StdFee = types.StdFee
+	StdSignDoc = types.StdSignDoc
+	StdSignature = types.StdSignature
+	TxBuilder = types.TxBuilder
 )

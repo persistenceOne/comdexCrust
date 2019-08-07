@@ -32,7 +32,7 @@ var (
 	NewParams            = types.NewParams
 	DefaultParams        = types.DefaultParams
 	ValidateParams       = types.ValidateParams
-
+	
 	// variable aliases
 	ModuleCdc              = types.ModuleCdc
 	MinterKey              = types.MinterKey

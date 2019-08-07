@@ -3,10 +3,10 @@ package types
 import (
 	"encoding/hex"
 	"fmt"
-
+	
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/libs/common"
-
+	
 	"github.com/commitHub/commitBlockchain/types"
 )
 
@@ -17,37 +17,37 @@ type Signature []byte
 type Negotiation interface {
 	GetNegotiationID() NegotiationID
 	SetNegotiationID(NegotiationID) error
-
+	
 	GetBuyerAddress() cTypes.AccAddress
 	SetBuyerAddress(cTypes.AccAddress) error
-
+	
 	GetSellerAddress() cTypes.AccAddress
 	SetSellerAddress(cTypes.AccAddress) error
-
+	
 	GetPegHash() types.PegHash
 	SetPegHash(types.PegHash) error
-
+	
 	GetBid() int64
 	SetBid(int64) error
-
+	
 	GetTime() int64
 	SetTime(int64) error
-
+	
 	GetBuyerSignature() Signature
 	SetBuyerSignature(Signature) error
-
+	
 	GetSellerSignature() Signature
 	SetSellerSignature(Signature) error
-
+	
 	GetBuyerBlockHeight() int64
 	SetBuyerBlockHeight(int64) error
-
+	
 	GetSellerBlockHeight() int64
 	SetSellerBlockHeight(int64) error
-
+	
 	GetBuyerContractHash() string
 	SetBuyerContractHash(string) error
-
+	
 	GetSellerContractHash() string
 	SetSellerContractHash(string) error
 }

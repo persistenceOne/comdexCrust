@@ -2,13 +2,13 @@ package cli
 
 import (
 	"github.com/spf13/cobra"
-
+	
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
 	"github.com/commitHub/commitBlockchain/modules/slashing/types"
@@ -23,11 +23,11 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-
+	
 	slashingTxCmd.AddCommand(client.PostCommands(
 		GetCmdUnjail(cdc),
 	)...)
-
+	
 	return slashingTxCmd
 }
 
@@ -44,9 +44,9 @@ $ <appcli> tx slashing unjail --from mykey
 		RunE: func(cmd *cobra.Command, args []string) error {
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-
+			
 			valAddr := cliCtx.GetFromAddress()
-
+			
 			msg := types.NewMsgUnjail(sdk.ValAddress(valAddr))
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
 		},

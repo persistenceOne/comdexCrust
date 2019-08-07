@@ -5,10 +5,10 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
-
+	
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
 )
 
@@ -45,6 +45,6 @@ func testComponents() (*codec.Codec, sdk.Context, sdk.StoreKey, sdk.StoreKey, Ke
 	tkey := sdk.NewTransientStoreKey("transient_test")
 	ctx := defaultContext(mkey, tkey)
 	keeper := NewKeeper(cdc, mkey, tkey, DefaultCodespace)
-
+	
 	return cdc, ctx, mkey, tkey, keeper
 }

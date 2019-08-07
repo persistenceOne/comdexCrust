@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"fmt"
 	"time"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
-
-	"github.com/commitHub/commitBlockchain/modules/params"
+	
 	"github.com/commitHub/commitBlockchain/types"
+	
+	"github.com/commitHub/commitBlockchain/modules/params"
 )
 
 const (
@@ -16,10 +17,10 @@ const (
 	// unbonding time.
 	// TODO: Justify our choice of default here.
 	DefaultUnbondingTime = time.Second * 60 * 2 // 2 Minutes
-
+	
 	// Default maximum number of bonded validators
 	DefaultMaxValidators uint16 = 100
-
+	
 	// Default maximum entries in a UBD/RED pair
 	DefaultMaxEntries uint16 = 7
 )
@@ -45,7 +46,7 @@ type Params struct {
 
 func NewParams(unbondingTime time.Duration, maxValidators, maxEntries uint16,
 	bondDenom string) Params {
-
+	
 	return Params{
 		UnbondingTime: unbondingTime,
 		MaxValidators: maxValidators,

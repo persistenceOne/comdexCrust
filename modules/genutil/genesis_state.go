@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-
+	
 	"github.com/tendermint/tendermint/libs/common"
 	tmtypes "github.com/tendermint/tendermint/types"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/staking"
 )
@@ -50,7 +50,7 @@ func GetGenesisStateFromAppState(cdc *codec.Codec, appState map[string]json.RawM
 // set the genutil genesis state within the expected app state
 func SetGenesisStateInAppState(cdc *codec.Codec,
 	appState map[string]json.RawMessage, genesisState GenesisState) map[string]json.RawMessage {
-
+	
 	genesisStateBz := cdc.MustMarshalJSON(genesisState)
 	appState[ModuleName] = genesisStateBz
 	return appState
@@ -61,7 +61,7 @@ func SetGenesisStateInAppState(cdc *codec.Codec,
 // NOTE: The pubkey input is this machines pubkey.
 func GenesisStateFromGenDoc(cdc *codec.Codec, genDoc tmtypes.GenesisDoc,
 ) (genesisState map[string]json.RawMessage, err error) {
-
+	
 	if err = cdc.UnmarshalJSON(genDoc.AppState, &genesisState); err != nil {
 		return genesisState, err
 	}
@@ -73,7 +73,7 @@ func GenesisStateFromGenDoc(cdc *codec.Codec, genDoc tmtypes.GenesisDoc,
 // NOTE: The pubkey input is this machines pubkey.
 func GenesisStateFromGenFile(cdc *codec.Codec, genFile string,
 ) (genesisState map[string]json.RawMessage, genDoc *tmtypes.GenesisDoc, err error) {
-
+	
 	if !common.FileExists(genFile) {
 		return genesisState, genDoc,
 			fmt.Errorf("%s does not exist, run `init` first", genFile)
@@ -82,7 +82,7 @@ func GenesisStateFromGenFile(cdc *codec.Codec, genFile string,
 	if err != nil {
 		return genesisState, genDoc, err
 	}
-
+	
 	genesisState, err = GenesisStateFromGenDoc(cdc, *genDoc)
 	return genesisState, genDoc, err
 }
@@ -94,13 +94,13 @@ func ValidateGenesis(genesisState GenesisState) error {
 		if err := moduleCdc.UnmarshalJSON(genTx, &tx); err != nil {
 			return err
 		}
-
+		
 		msgs := tx.GetMsgs()
 		if len(msgs) != 1 {
 			return errors.New(
 				"must provide genesis StdTx with exactly 1 CreateValidator message")
 		}
-
+		
 		// TODO abstract back to staking
 		if _, ok := msgs[0].(staking.MsgCreateValidator); !ok {
 			return fmt.Errorf(

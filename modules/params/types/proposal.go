@@ -3,9 +3,9 @@ package types
 import (
 	"fmt"
 	"strings"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	govtypes "github.com/commitHub/commitBlockchain/modules/gov/types"
 )
 
@@ -52,20 +52,20 @@ func (pcp ParameterChangeProposal) ValidateBasic() sdk.Error {
 	if err != nil {
 		return err
 	}
-
+	
 	return ValidateChanges(pcp.Changes)
 }
 
 // String implements the Stringer interface.
 func (pcp ParameterChangeProposal) String() string {
 	var b strings.Builder
-
+	
 	b.WriteString(fmt.Sprintf(`Parameter Change Proposal:
   Title:       %s
   Description: %s
   Changes:
 `, pcp.Title, pcp.Description))
-
+	
 	for _, pc := range pcp.Changes {
 		b.WriteString(fmt.Sprintf(`    Param Change:
       Subspace: %s
@@ -74,7 +74,7 @@ func (pcp ParameterChangeProposal) String() string {
       Value:    %X
 `, pc.Subspace, pc.Key, pc.Subkey, pc.Value))
 	}
-
+	
 	return b.String()
 }
 
@@ -110,7 +110,7 @@ func ValidateChanges(changes []ParamChange) sdk.Error {
 	if len(changes) == 0 {
 		return ErrEmptyChanges(DefaultCodespace)
 	}
-
+	
 	for _, pc := range changes {
 		if len(pc.Subspace) == 0 {
 			return ErrEmptySubspace(DefaultCodespace)
@@ -122,6 +122,6 @@ func ValidateChanges(changes []ParamChange) sdk.Error {
 			return ErrEmptyValue(DefaultCodespace)
 		}
 	}
-
+	
 	return nil
 }

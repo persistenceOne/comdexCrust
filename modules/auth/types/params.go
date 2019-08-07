@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/params/subspace"
 )
 
@@ -43,7 +43,7 @@ type Params struct {
 // NewParams creates a new Params object
 func NewParams(maxMemoCharacters, txSigLimit, txSizeCostPerByte,
 	sigVerifyCostED25519, sigVerifyCostSecp256k1 uint64) Params {
-
+	
 	return Params{
 		MaxMemoCharacters:      maxMemoCharacters,
 		TxSigLimit:             txSigLimit,

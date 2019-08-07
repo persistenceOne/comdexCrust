@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 	"strings"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -40,7 +40,7 @@ func ValidateAbstract(codespace sdk.CodespaceType, c Content) sdk.Error {
 	if len(title) > MaxTitleLength {
 		return ErrInvalidProposalContent(codespace, fmt.Sprintf("proposal title is longer than max length of %d", MaxTitleLength))
 	}
-
+	
 	description := c.GetDescription()
 	if len(description) == 0 {
 		return ErrInvalidProposalContent(codespace, "proposal description cannot be blank")
@@ -48,6 +48,6 @@ func ValidateAbstract(codespace sdk.CodespaceType, c Content) sdk.Error {
 	if len(description) > MaxDescriptionLength {
 		return ErrInvalidProposalContent(codespace, fmt.Sprintf("proposal description is longer than max length of %d", MaxDescriptionLength))
 	}
-
+	
 	return nil
 }

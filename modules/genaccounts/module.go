@@ -2,18 +2,18 @@ package genaccounts
 
 import (
 	"encoding/json"
-
+	
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-
+	
 	abci "github.com/tendermint/tendermint/abci/types"
-
+	
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/types/module"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/auth"
 )
 
@@ -65,7 +65,7 @@ func (AppModuleBasic) GetQueryCmd(_ *codec.Codec) *cobra.Command { return nil }
 // - to used by other modules
 func (AppModuleBasic) IterateGenesisAccounts(cdc *codec.Codec, appGenesis map[string]json.RawMessage,
 	iterateFn func(auth.Account) (stop bool)) {
-
+	
 	genesisState := GetGenesisStateFromAppState(cdc, appGenesis)
 	for _, genAcc := range genesisState {
 		acc := genAcc.ToAccount()
@@ -84,7 +84,7 @@ type AppModule struct {
 
 // NewAppModule creates a new AppModule object
 func NewAppModule(accountKeeper AccountKeeper) module.AppModule {
-
+	
 	return module.NewGenesisOnlyAppModule(AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		accountKeeper:  accountKeeper,

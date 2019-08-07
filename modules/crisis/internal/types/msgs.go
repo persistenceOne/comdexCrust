@@ -17,7 +17,7 @@ var _ sdk.Msg = &MsgVerifyInvariant{}
 // NewMsgVerifyInvariant creates a new MsgVerifyInvariant object
 func NewMsgVerifyInvariant(sender sdk.AccAddress, invariantModuleName,
 	invariantRoute string) MsgVerifyInvariant {
-
+	
 	return MsgVerifyInvariant{
 		Sender:              sender,
 		InvariantModuleName: invariantModuleName,

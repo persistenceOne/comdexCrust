@@ -9,7 +9,7 @@ var (
 	EventTypeDelegate             = "delegate"
 	EventTypeUnbond               = "unbond"
 	EventTypeRedelegate           = "redelegate"
-
+	
 	AttributeKeyValidator         = "validator"
 	AttributeKeyCommissionRate    = "commission_rate"
 	AttributeKeyMinSelfDelegation = "min_self_delegation"

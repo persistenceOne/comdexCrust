@@ -12,7 +12,7 @@ type (
 	Supply struct {
 		Total sdk.Coins `json:"total"`
 	}
-
+	
 	GenesisState struct {
 		Supply Supply `json:"supply"`
 	}

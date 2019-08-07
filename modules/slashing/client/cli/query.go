@@ -3,15 +3,15 @@ package cli
 import (
 	"fmt"
 	"strings"
-
+	
 	"github.com/spf13/cobra"
-
+	
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/slashing/types"
 )
 
@@ -25,16 +25,16 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-
+	
 	slashingQueryCmd.AddCommand(
 		client.GetCommands(
 			GetCmdQuerySigningInfo(queryRoute, cdc),
 			GetCmdQueryParams(cdc),
 		)...,
 	)
-
+	
 	return slashingQueryCmd
-
+	
 }
 
 // GetCmdQuerySigningInfo implements the command to query signing info.
@@ -49,24 +49,24 @@ $ <appcli> query slashing signing-info cosmosvalconspub1zcjduepqfhvwcmt7p06fvdge
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-
+			
 			pk, err := sdk.GetConsPubKeyBech32(args[0])
 			if err != nil {
 				return err
 			}
-
+			
 			consAddr := sdk.ConsAddress(pk.Address())
 			key := types.GetValidatorSigningInfoKey(consAddr)
-
+			
 			res, _, err := cliCtx.QueryStore(key, storeName)
 			if err != nil {
 				return err
 			}
-
+			
 			if len(res) == 0 {
 				return fmt.Errorf("Validator %s not found in slashing store", consAddr)
 			}
-
+			
 			var signingInfo types.ValidatorSigningInfo
 			cdc.MustUnmarshalBinaryLengthPrefixed(res, &signingInfo)
 			return cliCtx.PrintOutput(signingInfo)
@@ -86,13 +86,13 @@ $ <appcli> query slashing params
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-
+			
 			route := fmt.Sprintf("custom/%s/parameters", types.QuerierRoute)
 			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
 				return err
 			}
-
+			
 			var params types.Params
 			cdc.MustUnmarshalJSON(res, &params)
 			return cliCtx.PrintOutput(params)

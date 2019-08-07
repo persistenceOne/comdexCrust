@@ -2,17 +2,17 @@ package bank
 
 import (
 	"encoding/json"
-
+	
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/bank/client/cli"
 	"github.com/commitHub/commitBlockchain/types/module"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/modules/bank/client/rest"
 	"github.com/commitHub/commitBlockchain/modules/bank/internal/keeper"
@@ -62,7 +62,7 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-
+	
 	bankTxCmd.AddCommand(client.PostCommands(
 		cli.BuyerExecuteOrderCmd(cdc),
 		cli.DefineACLCmd(cdc),
@@ -77,7 +77,7 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		cli.SendAssetCmd(cdc),
 		cli.SendFiatCmd(cdc),
 	)...)
-
+	
 	return bankTxCmd
 }
 
@@ -90,12 +90,12 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-
+	
 	bankQueryCmd.AddCommand(client.GetCommands(
 		cli.GetAssetCmd(cdc),
 		cli.GetFiatCmd(cdc),
 	)...)
-
+	
 	return bankQueryCmd
 }
 

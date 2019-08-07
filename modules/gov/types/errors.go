@@ -3,13 +3,13 @@ package types
 
 import (
 	"fmt"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (
 	DefaultCodespace sdk.CodespaceType = "gov"
-
+	
 	CodeUnknownProposal          sdk.CodeType = 1
 	CodeInactiveProposal         sdk.CodeType = 2
 	CodeAlreadyActiveProposal    sdk.CodeType = 3

@@ -2,12 +2,12 @@ package cli
 
 import (
 	"strconv"
-
+	
 	"github.com/cosmos/cosmos-sdk/client/context"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/modules/acl"
 	"github.com/commitHub/commitBlockchain/modules/auth"
@@ -20,23 +20,23 @@ func DefineACLCmd(cdc *codec.Codec) *cobra.Command {
 		Use:   "defineACL",
 		Short: "Assign Acl properties to address",
 		RunE: func(cmd *cobra.Command, args []string) error {
-
+			
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-
+			
 			toStr := viper.GetString(FlagTo)
-
+			
 			to, err := cTypes.AccAddressFromBech32(toStr)
 			if err != nil {
 				return nil
 			}
-
+			
 			strOrganizationID := viper.GetString(FlagOrganizationID)
 			organizationID, err := acl.GetOrganizationIDFromString(strOrganizationID)
 			if err != nil {
 				return nil
 			}
-
+			
 			strZoneID := viper.GetString(FlagZoneID)
 			zoneID, err := acl.GetZoneIDFromString(strZoneID)
 			if err != nil {
@@ -49,9 +49,9 @@ func DefineACLCmd(cdc *codec.Codec) *cobra.Command {
 				OrganizationID: organizationID,
 				ACL:            aclRequest,
 			}
-
+			
 			msg := types2.BuildMsgDefineACL(cliCtx.GetFromAddress(), to, aclAccount)
-
+			
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []cTypes.Msg{msg})
 		},
 	}

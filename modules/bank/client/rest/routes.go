@@ -9,7 +9,7 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc("/bank/balances/{address}", QueryBalancesRequestHandlerFn(cliCtx)).Methods("GET")
 	r.HandleFunc("/asset/{peghash}", QueryAssetHandlerFn(cliCtx)).Methods("GET")
 	r.HandleFunc("/fiat/{peghash}", QueryFiatHandlerFn(cliCtx)).Methods("GET")
-
+	
 	r.HandleFunc("/bank/accounts/{address}/transfers", SendRequestHandlerFn(cliCtx)).Methods("POST")
 	r.HandleFunc("/defineZone", DefineZoneHandler(cliCtx)).Methods("POST")
 	r.HandleFunc("/defineOrganization", DefineOrganizationHandler(cliCtx)).Methods("POST")

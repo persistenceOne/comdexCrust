@@ -4,14 +4,14 @@ package v0_36
 
 import (
 	"fmt"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	v034distr "github.com/commitHub/commitBlockchain/modules/distribution/legacy/v0_34"
 	v034accounts "github.com/commitHub/commitBlockchain/modules/genaccounts/legacy/v0_34"
 	v034gov "github.com/commitHub/commitBlockchain/modules/gov/legacy/v0_34"
 	v034staking "github.com/commitHub/commitBlockchain/modules/staking/legacy/v0_34"
-
+	
 	"github.com/tendermint/tendermint/crypto"
 )
 
@@ -20,7 +20,7 @@ const (
 	bondedPoolName    = "bonded_tokens_pool"
 	feeCollectorName  = "fee_collector"
 	mintModuleName    = "mint"
-
+	
 	basic   = "basic"
 	minter  = "minter"
 	burner  = "burner"
@@ -35,13 +35,13 @@ func Migrate(
 	deposits []v034gov.DepositWithMetadata, vals v034staking.Validators, ubds []v034staking.UnbondingDelegation,
 	valOutRewards []v034distr.ValidatorOutstandingRewardsRecord, bondDenom, distrModuleName, govModuleName string,
 ) GenesisState {
-
+	
 	depositedCoinsAccAddr := sdk.AccAddress(crypto.AddressHash([]byte("govDepositedCoins")))
 	burnedDepositCoinsAccAddr := sdk.AccAddress(crypto.AddressHash([]byte("govBurnedDepositCoins")))
-
+	
 	bondedAmt := sdk.ZeroInt()
 	notBondedAmt := sdk.ZeroInt()
-
+	
 	// remove the two previous governance base accounts for deposits and burned
 	// coins from rejected proposals add six new module accounts:
 	// distribution, gov, mint, fee collector, bonded and not bonded pool
@@ -50,18 +50,18 @@ func Migrate(
 		govCoins      sdk.Coins
 		extraAccounts = 6
 	)
-
+	
 	for _, acc := range oldGenState {
 		switch {
 		case acc.Address.Equals(depositedCoinsAccAddr):
 			// remove gov deposits base account
 			govCoins = acc.Coins
 			extraAccounts -= 1
-
+		
 		case acc.Address.Equals(burnedDepositCoinsAccAddr):
 			// remove gov burned deposits base account
 			extraAccounts -= 1
-
+		
 		default:
 			newGenState = append(
 				newGenState,
@@ -73,12 +73,12 @@ func Migrate(
 			)
 		}
 	}
-
+	
 	var expDeposits sdk.Coins
 	for _, deposit := range deposits {
 		expDeposits = expDeposits.Add(deposit.Deposit.Amount)
 	}
-
+	
 	if !expDeposits.IsEqual(govCoins) {
 		panic(
 			fmt.Sprintf(
@@ -87,38 +87,38 @@ func Migrate(
 			),
 		)
 	}
-
+	
 	// get staking module accounts coins
 	for _, validator := range vals {
 		switch validator.Status {
 		case sdk.Bonded:
 			bondedAmt = bondedAmt.Add(validator.Tokens)
-
+		
 		case sdk.Unbonding, sdk.Unbonded:
 			notBondedAmt = notBondedAmt.Add(validator.Tokens)
-
+		
 		default:
 			panic("invalid validator status")
 		}
 	}
-
+	
 	for _, ubd := range ubds {
 		for _, entry := range ubd.Entries {
 			notBondedAmt = notBondedAmt.Add(entry.Balance)
 		}
 	}
-
+	
 	bondedCoins := sdk.NewCoins(sdk.NewCoin(bondDenom, bondedAmt))
 	notBondedCoins := sdk.NewCoins(sdk.NewCoin(bondDenom, notBondedAmt))
-
+	
 	// get distr module account coins
 	var distrDecCoins sdk.DecCoins
 	for _, reward := range valOutRewards {
 		distrDecCoins = distrDecCoins.Add(reward.OutstandingRewards)
 	}
-
+	
 	distrCoins, _ := distrDecCoins.Add(communityPool).TruncateDecimal()
-
+	
 	// get module account addresses
 	feeCollectorAddr := sdk.AccAddress(crypto.AddressHash([]byte(feeCollectorName)))
 	govAddr := sdk.AccAddress(crypto.AddressHash([]byte(govModuleName)))
@@ -126,7 +126,7 @@ func Migrate(
 	notBondedAddr := sdk.AccAddress(crypto.AddressHash([]byte(notBondedPoolName)))
 	distrAddr := sdk.AccAddress(crypto.AddressHash([]byte(distrModuleName)))
 	mintAddr := sdk.AccAddress(crypto.AddressHash([]byte(mintModuleName)))
-
+	
 	// create module genesis accounts
 	feeCollectorModuleAcc := NewGenesisAccount(
 		feeCollectorAddr, fees, 0,
@@ -158,7 +158,7 @@ func Migrate(
 		sdk.Coins{}, sdk.Coins{}, sdk.Coins{},
 		0, 0, mintModuleName, []string{minter},
 	)
-
+	
 	newGenState = append(
 		newGenState,
 		[]GenesisAccount{
@@ -166,7 +166,7 @@ func Migrate(
 			bondedModuleAcc, notBondedModuleAcc, mintModuleAcc,
 		}...,
 	)
-
+	
 	// verify the total number of accounts is correct
 	if len(newGenState) != len(oldGenState)+extraAccounts {
 		panic(
@@ -175,6 +175,6 @@ func Migrate(
 				len(newGenState), len(oldGenState)+extraAccounts),
 		)
 	}
-
+	
 	return newGenState
 }

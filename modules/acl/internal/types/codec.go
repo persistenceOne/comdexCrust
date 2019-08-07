@@ -5,7 +5,7 @@ import (
 )
 
 func RegisterCodec(cdc *codec.Codec) {
-
+	
 }
 
 var ModuleCdc *codec.Codec

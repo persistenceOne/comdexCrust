@@ -30,5 +30,5 @@ func (pp PrettyParams) String() string {
   Bonus Proposer Reward:  %s
   Withdraw Addr Enabled:  %s`, pp.CommunityTax,
 		pp.BaseProposerReward, pp.BonusProposerReward, pp.WithdrawAddrEnabled)
-
+	
 }

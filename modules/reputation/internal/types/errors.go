@@ -6,7 +6,7 @@ import (
 
 const (
 	DefaultCodeSpace cTypes.CodespaceType = ModuleName
-
+	
 	CodeFeedbackCannotRegister cTypes.CodeType = 800
 	CodeInvalidInputsOutputs   cTypes.CodeType = 801
 )

@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	authexported "github.com/commitHub/commitBlockchain/modules/auth/exported"
 	"github.com/commitHub/commitBlockchain/modules/supply"
@@ -19,14 +19,14 @@ type GenesisAccount struct {
 	Coins         sdk.Coins      `json:"coins" yaml:"coins"`
 	Sequence      uint64         `json:"sequence_number" yaml:"sequence_number"`
 	AccountNumber uint64         `json:"account_number" yaml:"account_number"`
-
+	
 	// vesting account fields
 	OriginalVesting  sdk.Coins `json:"original_vesting" yaml:"original_vesting"`   // total vesting coins upon initialization
 	DelegatedFree    sdk.Coins `json:"delegated_free" yaml:"delegated_free"`       // delegated vested coins at time of delegation
 	DelegatedVesting sdk.Coins `json:"delegated_vesting" yaml:"delegated_vesting"` // delegated vesting coins at time of delegation
 	StartTime        int64     `json:"start_time" yaml:"start_time"`               // vesting start time (UNIX Epoch time)
 	EndTime          int64     `json:"end_time" yaml:"end_time"`                   // vesting end time (UNIX Epoch time)
-
+	
 	// module account fields
 	ModuleName        string   `json:"module_name" yaml:"module_name"`               // name of the module account
 	ModulePermissions []string `json:"module_permissions" yaml:"module_permissions"` // permissions of module account
@@ -42,12 +42,12 @@ func (ga GenesisAccount) Validate() error {
 			return errors.New("vesting start-time cannot be before end-time")
 		}
 	}
-
+	
 	// don't allow blank (i.e just whitespaces) on the module name
 	if ga.ModuleName != "" && strings.TrimSpace(ga.ModuleName) == "" {
 		return errors.New("module account name cannot be blank")
 	}
-
+	
 	return nil
 }
 
@@ -55,7 +55,7 @@ func (ga GenesisAccount) Validate() error {
 func NewGenesisAccountRaw(address sdk.AccAddress, coins,
 	vestingAmount sdk.Coins, vestingStartTime, vestingEndTime int64,
 	module string, permissions ...string) GenesisAccount {
-
+	
 	return GenesisAccount{
 		Address:           address,
 		Coins:             coins,
@@ -89,11 +89,11 @@ func NewGenesisAccountI(acc authexported.Account) (GenesisAccount, error) {
 		AccountNumber: acc.GetAccountNumber(),
 		Sequence:      acc.GetSequence(),
 	}
-
+	
 	if err := gacc.Validate(); err != nil {
 		return gacc, err
 	}
-
+	
 	switch acc := acc.(type) {
 	case authexported.VestingAccount:
 		gacc.OriginalVesting = acc.GetOriginalVesting()
@@ -105,21 +105,21 @@ func NewGenesisAccountI(acc authexported.Account) (GenesisAccount, error) {
 		gacc.ModuleName = acc.GetName()
 		gacc.ModulePermissions = acc.GetPermissions()
 	}
-
+	
 	return gacc, nil
 }
 
 // ToAccount converts a GenesisAccount to an Account interface
 func (ga *GenesisAccount) ToAccount() auth.Account {
 	bacc := auth.NewBaseAccount(ga.Address, ga.Coins.Sort(), nil, ga.AccountNumber, ga.Sequence)
-
+	
 	// vesting accounts
 	if !ga.OriginalVesting.IsZero() {
 		baseVestingAcc := auth.NewBaseVestingAccount(
 			bacc, ga.OriginalVesting, ga.DelegatedFree,
 			ga.DelegatedVesting, ga.EndTime,
 		)
-
+		
 		switch {
 		case ga.StartTime != 0 && ga.EndTime != 0:
 			return auth.NewContinuousVestingAccountRaw(baseVestingAcc, ga.StartTime)
@@ -129,12 +129,12 @@ func (ga *GenesisAccount) ToAccount() auth.Account {
 			panic(fmt.Sprintf("invalid genesis vesting account: %+v", ga))
 		}
 	}
-
+	
 	// module accounts
 	if ga.ModuleName != "" {
 		return supply.NewModuleAccount(bacc, ga.ModuleName, ga.ModulePermissions...)
 	}
-
+	
 	return bacc
 }
 

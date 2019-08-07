@@ -2,9 +2,9 @@ package gov
 
 import (
 	"fmt"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/gov/types"
 )
 
@@ -25,15 +25,15 @@ func AllInvariants(keeper Keeper) sdk.Invariant {
 func ModuleAccountInvariant(keeper Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		var expectedDeposits sdk.Coins
-
+		
 		keeper.IterateAllDeposits(ctx, func(deposit types.Deposit) bool {
 			expectedDeposits = expectedDeposits.Add(deposit.Amount)
 			return false
 		})
-
+		
 		macc := keeper.GetGovernanceAccount(ctx)
 		broken := !macc.GetCoins().IsEqual(expectedDeposits)
-
+		
 		return sdk.FormatInvariant(types.ModuleName, "deposits",
 			fmt.Sprintf("\tgov ModuleAccount coins: %s\n\tsum of deposit amounts:  %s\n",
 				macc.GetCoins(), expectedDeposits), broken)

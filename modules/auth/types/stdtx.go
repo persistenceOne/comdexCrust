@@ -3,19 +3,19 @@ package types
 import (
 	"encoding/json"
 	"fmt"
-
+	
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/multisig"
 	"gopkg.in/yaml.v2"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
 )
 
 var (
 	_ sdk.Tx = (*StdTx)(nil)
-
+	
 	maxGasWanted = uint64((1 << 63) - 1)
 )
 
@@ -44,7 +44,7 @@ func (tx StdTx) GetMsgs() []sdk.Msg { return tx.Msgs }
 // require access to any other information.
 func (tx StdTx) ValidateBasic() sdk.Error {
 	stdSigs := tx.GetSignatures()
-
+	
 	if tx.Fee.Gas > maxGasWanted {
 		return sdk.ErrGasOverflow(fmt.Sprintf("invalid gas supplied; %d > %d", tx.Fee.Gas, maxGasWanted))
 	}
@@ -57,7 +57,7 @@ func (tx StdTx) ValidateBasic() sdk.Error {
 	if len(stdSigs) != len(tx.GetSigners()) {
 		return sdk.ErrUnauthorized("wrong number of signers")
 	}
-
+	
 	return nil
 }
 
@@ -67,12 +67,12 @@ func CountSubKeys(pub crypto.PubKey) int {
 	if !ok {
 		return 1
 	}
-
+	
 	numKeys := 0
 	for _, subkey := range v.PubKeys {
 		numKeys += CountSubKeys(subkey)
 	}
-
+	
 	return numKeys
 }
 
@@ -190,25 +190,25 @@ func StdSignBytes(chainID string, accnum uint64, sequence uint64, fee StdFee, ms
 // StdSignature represents a sig
 type StdSignature struct {
 	crypto.PubKey `json:"pub_key" yaml:"pub_key"` // optional
-	Signature     []byte                          `json:"signature" yaml:"signature"`
+	Signature     []byte `json:"signature" yaml:"signature"`
 }
 
 // DefaultTxDecoder logic for standard transaction decoding
 func DefaultTxDecoder(cdc *codec.Codec) sdk.TxDecoder {
 	return func(txBytes []byte) (sdk.Tx, sdk.Error) {
 		var tx = StdTx{}
-
+		
 		if len(txBytes) == 0 {
 			return nil, sdk.ErrTxDecode("txBytes are empty")
 		}
-
+		
 		// StdTx.Msg is an interface. The concrete types
 		// are registered by MakeTxCodec
 		err := cdc.UnmarshalBinaryLengthPrefixed(txBytes, &tx)
 		if err != nil {
 			return nil, sdk.ErrTxDecode("error decoding transaction").TraceSDK(err.Error())
 		}
-
+		
 		return tx, nil
 	}
 }
@@ -227,14 +227,14 @@ func (ss StdSignature) MarshalYAML() (interface{}, error) {
 		pubkey string
 		err    error
 	)
-
+	
 	if ss.PubKey != nil {
 		pubkey, err = sdk.Bech32ifyAccPub(ss.PubKey)
 		if err != nil {
 			return nil, err
 		}
 	}
-
+	
 	bz, err = yaml.Marshal(struct {
 		PubKey    string
 		Signature string
@@ -245,6 +245,6 @@ func (ss StdSignature) MarshalYAML() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	
 	return string(bz), err
 }

@@ -2,18 +2,18 @@ package reputation
 
 import (
 	"encoding/json"
-
+	
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/types/module"
-
+	
 	abci "github.com/tendermint/tendermint/abci/types"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/reputation/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/reputation/client/rest"
 )
@@ -47,7 +47,7 @@ func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router
 }
 
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
-
+	
 	reputationTxCmd := &cobra.Command{
 		Use:                        ModuleName,
 		Short:                      "reputation transaction sub commands",
@@ -55,12 +55,12 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-
+	
 	reputationTxCmd.AddCommand(client.PostCommands(
 		cli.SubmitBuyerFeedbackCmd(cdc),
 		cli.SubmitSellerFeedbackCmd(cdc),
 	)...)
-
+	
 	return reputationTxCmd
 }
 
@@ -72,11 +72,11 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-
+	
 	reputationQueryCmd.AddCommand(client.GetCommands(
 		cli.GetReputationCmd(cdc),
 	)...)
-
+	
 	return reputationQueryCmd
 }
 

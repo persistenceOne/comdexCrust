@@ -18,15 +18,15 @@ func NewKeyTable(keytypes ...interface{}) (res KeyTable) {
 	if len(keytypes)%2 != 0 {
 		panic("odd number arguments in NewTypeKeyTable")
 	}
-
+	
 	res = KeyTable{
 		m: make(map[string]attribute),
 	}
-
+	
 	for i := 0; i < len(keytypes); i += 2 {
 		res = res.RegisterType(keytypes[i].([]byte), keytypes[i+1])
 	}
-
+	
 	return
 }
 
@@ -53,18 +53,18 @@ func (t KeyTable) RegisterType(key []byte, ty interface{}) KeyTable {
 	if _, ok := t.m[keystr]; ok {
 		panic("duplicate parameter key")
 	}
-
+	
 	rty := reflect.TypeOf(ty)
-
+	
 	// Indirect rty if it is ptr
 	if rty.Kind() == reflect.Ptr {
 		rty = rty.Elem()
 	}
-
+	
 	t.m[keystr] = attribute{
 		ty: rty,
 	}
-
+	
 	return t
 }
 

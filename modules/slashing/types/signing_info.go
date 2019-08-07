@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 	"time"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -22,7 +22,7 @@ func NewValidatorSigningInfo(
 	condAddr sdk.ConsAddress, startHeight, indexOffset int64,
 	jailedUntil time.Time, tombstoned bool, missedBlocksCounter int64,
 ) ValidatorSigningInfo {
-
+	
 	return ValidatorSigningInfo{
 		Address:             condAddr,
 		StartHeight:         startHeight,

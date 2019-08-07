@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"math/big"
 	"math/rand"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/simulation"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/auth/types"
 )
@@ -19,29 +19,29 @@ func SimulateDeductFee(ak auth.AccountKeeper, supplyKeeper types.SupplyKeeper) s
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context,
 		accs []simulation.Account) (
 		opMsg simulation.OperationMsg, fOps []simulation.FutureOperation, err error) {
-
+		
 		account := simulation.RandomAcc(r, accs)
 		stored := ak.GetAccount(ctx, account.Address)
 		initCoins := stored.GetCoins()
 		opMsg = simulation.NewOperationMsgBasic(types.ModuleName, "deduct_fee", "", false, nil)
-
+		
 		feeCollector := ak.GetAccount(ctx, supplyKeeper.GetModuleAddress(types.FeeCollectorName))
 		if feeCollector == nil {
 			panic(fmt.Errorf("fee collector account hasn't been set"))
 		}
-
+		
 		if len(initCoins) == 0 {
 			return opMsg, nil, nil
 		}
-
+		
 		denomIndex := r.Intn(len(initCoins))
 		randCoin := initCoins[denomIndex]
-
+		
 		amt, err := randPositiveInt(r, randCoin.Amount)
 		if err != nil {
 			return opMsg, nil, nil
 		}
-
+		
 		// Create a random fee and verify the fees are within the account's spendable
 		// balance.
 		fees := sdk.NewCoins(sdk.NewCoin(randCoin.Denom, amt))
@@ -49,18 +49,18 @@ func SimulateDeductFee(ak auth.AccountKeeper, supplyKeeper types.SupplyKeeper) s
 		if _, hasNeg := spendableCoins.SafeSub(fees); hasNeg {
 			return opMsg, nil, nil
 		}
-
+		
 		// get the new account balance
 		_, hasNeg := initCoins.SafeSub(fees)
 		if hasNeg {
 			return opMsg, nil, nil
 		}
-
+		
 		err = supplyKeeper.SendCoinsFromAccountToModule(ctx, stored.GetAddress(), types.FeeCollectorName, fees)
 		if err != nil {
 			panic(err)
 		}
-
+		
 		opMsg.OK = true
 		return opMsg, nil, nil
 	}

@@ -3,7 +3,7 @@ package types
 import (
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/ed25519"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -18,7 +18,7 @@ var (
 	valAddr1 = sdk.ValAddress(addr1)
 	valAddr2 = sdk.ValAddress(addr2)
 	valAddr3 = sdk.ValAddress(addr3)
-
+	
 	emptyAddr   sdk.ValAddress
 	emptyPubkey crypto.PubKey
 )

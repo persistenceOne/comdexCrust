@@ -2,15 +2,15 @@ package genutil
 
 import (
 	"encoding/json"
-
+	
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-
+	
 	abci "github.com/tendermint/tendermint/abci/types"
-
+	
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/types/module"
 )
@@ -70,7 +70,7 @@ type AppModule struct {
 // NewAppModule creates a new AppModule object
 func NewAppModule(accountKeeper AccountKeeper,
 	stakingKeeper StakingKeeper, deliverTx deliverTxfn) module.AppModule {
-
+	
 	return module.NewGenesisOnlyAppModule(AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		accountKeeper:  accountKeeper,

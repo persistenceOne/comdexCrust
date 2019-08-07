@@ -42,12 +42,12 @@ var (
 )
 
 type (
-	ParamSetPair            = subspace.ParamSetPair
-	ParamSetPairs           = subspace.ParamSetPairs
-	ParamSet                = subspace.ParamSet
-	Subspace                = subspace.Subspace
-	ReadOnlySubspace        = subspace.ReadOnlySubspace
-	KeyTable                = subspace.KeyTable
+	ParamSetPair = subspace.ParamSetPair
+	ParamSetPairs = subspace.ParamSetPairs
+	ParamSet = subspace.ParamSet
+	Subspace = subspace.Subspace
+	ReadOnlySubspace = subspace.ReadOnlySubspace
+	KeyTable = subspace.KeyTable
 	ParameterChangeProposal = types.ParameterChangeProposal
-	ParamChange             = types.ParamChange
+	ParamChange = types.ParamChange
 )

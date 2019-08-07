@@ -2,13 +2,13 @@ package assetFactory
 
 import (
 	"fmt"
-
+	
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 )
 
 func NewHandler(k Keeper) cTypes.Handler {
 	return func(ctx cTypes.Context, msg cTypes.Msg) cTypes.Result {
-
+		
 		ctx = ctx.WithEventManager(cTypes.NewEventManager())
 		switch msg := msg.(type) {
 		case MsgFactoryIssueAssets:
@@ -38,16 +38,16 @@ func handleMsgFactoryIssueAssets(ctx cTypes.Context, keeper Keeper, msg MsgFacto
 	}
 }
 func handleMsgFactoryRedeemAssets(ctx cTypes.Context, keeper Keeper, msg MsgFactoryRedeemAssets) cTypes.Result {
-
+	
 	for _, redeemAsset := range msg.RedeemAssets {
 		err := instantiateAndRedeemAsset(ctx, keeper, redeemAsset.OwnerAddress,
 			redeemAsset.ToAddress, redeemAsset.PegHash)
-
+		
 		if err != nil {
 			return err.Result()
 		}
 	}
-
+	
 	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
@@ -60,7 +60,7 @@ func handleMsgFactorySendAssets(ctx cTypes.Context, keeper Keeper, msg MsgFactor
 			return err.Result()
 		}
 	}
-
+	
 	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
@@ -73,7 +73,7 @@ func handleMsgFactoryExecuteAsses(ctx cTypes.Context, keeper Keeper, msg MsgFact
 			return err.Result()
 		}
 	}
-
+	
 	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}

@@ -3,15 +3,15 @@ package cli
 import (
 	"fmt"
 	"strings"
-
+	
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/supply/internal/types"
 )
 
@@ -25,11 +25,11 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-
+	
 	supplyQueryCmd.AddCommand(client.GetCommands(
 		GetCmdQueryTotalSupply(cdc),
 	)...)
-
+	
 	return supplyQueryCmd
 }
 
@@ -54,7 +54,7 @@ $ %s query %s total stake
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-
+			
 			if len(args) == 0 {
 				return queryTotalSupply(cliCtx, cdc)
 			}
@@ -69,18 +69,18 @@ func queryTotalSupply(cliCtx context.CLIContext, cdc *codec.Codec) error {
 	if err != nil {
 		return err
 	}
-
+	
 	res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryTotalSupply), bz)
 	if err != nil {
 		return err
 	}
-
+	
 	var totalSupply sdk.Coins
 	err = cdc.UnmarshalJSON(res, &totalSupply)
 	if err != nil {
 		return err
 	}
-
+	
 	return cliCtx.PrintOutput(totalSupply)
 }
 
@@ -90,17 +90,17 @@ func querySupplyOf(cliCtx context.CLIContext, cdc *codec.Codec, denom string) er
 	if err != nil {
 		return err
 	}
-
+	
 	res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QuerySupplyOf), bz)
 	if err != nil {
 		return err
 	}
-
+	
 	var supply sdk.Int
 	err = cdc.UnmarshalJSON(res, &supply)
 	if err != nil {
 		return err
 	}
-
+	
 	return cliCtx.PrintOutput(supply)
 }

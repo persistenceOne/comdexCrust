@@ -2,18 +2,18 @@ package orders
 
 import (
 	"encoding/json"
-
+	
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/types/module"
-
+	
 	abciTypes "github.com/tendermint/tendermint/abci/types"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/negotiation"
 	"github.com/commitHub/commitBlockchain/modules/orders/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/orders/client/rest"
@@ -59,11 +59,11 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-
+	
 	orderQueryCmd.AddCommand(client.GetCommands(
 		cli.GetOrderCmd(cdc),
 	)...)
-
+	
 	return orderQueryCmd
 }
 
@@ -99,10 +99,10 @@ func (am AppModule) NewQuerierHandler() cTypes.Querier { return NewQuerier(am.ke
 
 func (am AppModule) InitGenesis(ctx cTypes.Context, data json.RawMessage) []abciTypes.ValidatorUpdate {
 	var gs GenesisState
-
+	
 	_ = ModuleCdc.UnmarshalJSON(data, gs)
 	InitGenesis(ctx, am.keeper, gs)
-
+	
 	return []abciTypes.ValidatorUpdate{}
 }
 

@@ -10,7 +10,7 @@ const (
 	QuerierRoute = types.QuerierRoute
 	RouterKey    = types.RouterKey
 	StoreKey     = types.StoreKey
-
+	
 	DefaultCodeSpace = types.DefaultCodeSpace
 )
 
@@ -19,22 +19,22 @@ var (
 	ModuleCdc           = types.ModuleCdc
 	DefaultGenesisState = types.DefaultGenesisState
 	ValidateGenesis     = types.ValidateGensis
-
+	
 	NewQuerier = keeper.NewQuerier
-
+	
 	GetNegotiationKey = types.GetOrderKey
 	OrdersKey         = types.OrdersKey
 	NewKeeper         = keeper.NewKeeper
-
+	
 	ErrUnauthorized = types.ErrUnauthorized
 )
 
 type (
 	GenesisState = types.GenesisState
-	Keeper       = keeper.Keeper
-	Order        = types.Order
-	BaseOrder    = types.BaseOrder
-
-	ACLKeeper     = types.ACLKeeper
+	Keeper = keeper.Keeper
+	Order = types.Order
+	BaseOrder = types.BaseOrder
+	
+	ACLKeeper = types.ACLKeeper
 	AccountKeeper = types.AccountKeeper
 )

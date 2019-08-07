@@ -2,7 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/staking/types"
 	"github.com/commitHub/commitBlockchain/modules/supply/exported"
 )
@@ -69,7 +69,7 @@ func (k Keeper) StakingTokenSupply(ctx sdk.Context) sdk.Int {
 // BondedRatio the fraction of the staking tokens which are currently bonded
 func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 	bondedPool := k.GetBondedPool(ctx)
-
+	
 	stakeSupply := k.StakingTokenSupply(ctx)
 	if stakeSupply.IsPositive() {
 		return bondedPool.GetCoins().AmountOf(k.BondDenom(ctx)).ToDec().QuoInt(stakeSupply)

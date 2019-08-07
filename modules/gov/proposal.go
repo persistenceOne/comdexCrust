@@ -2,9 +2,9 @@ package gov
 
 import (
 	"fmt"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/gov/types"
 )
 
@@ -13,7 +13,7 @@ func (keeper Keeper) SubmitProposal(ctx sdk.Context, content Content) (Proposal,
 	if !keeper.router.HasRoute(content.ProposalRoute()) {
 		return Proposal{}, ErrNoProposalHandlerExists(keeper.codespace, content)
 	}
-
+	
 	// Execute the proposal content in a cache-wrapped context to validate the
 	// actual parameter changes before the proposal proceeds through the
 	// governance process. State is not persisted.
@@ -22,28 +22,28 @@ func (keeper Keeper) SubmitProposal(ctx sdk.Context, content Content) (Proposal,
 	if err := handler(cacheCtx, content); err != nil {
 		return Proposal{}, ErrInvalidProposalContent(keeper.codespace, err.Result().Log)
 	}
-
+	
 	proposalID, err := keeper.GetProposalID(ctx)
 	if err != nil {
 		return Proposal{}, err
 	}
-
+	
 	submitTime := ctx.BlockHeader().Time
 	depositPeriod := keeper.GetDepositParams(ctx).MaxDepositPeriod
-
+	
 	proposal := NewProposal(content, proposalID, submitTime, submitTime.Add(depositPeriod))
-
+	
 	keeper.SetProposal(ctx, proposal)
 	keeper.InsertInactiveProposalQueue(ctx, proposalID, proposal.DepositEndTime)
 	keeper.setProposalID(ctx, proposalID+1)
-
+	
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeSubmitProposal,
 			sdk.NewAttribute(types.AttributeKeyProposalID, fmt.Sprintf("%d", proposalID)),
 		),
 	)
-
+	
 	return proposal, nil
 }
 
@@ -92,18 +92,18 @@ func (keeper Keeper) GetProposals(ctx sdk.Context) (proposals Proposals) {
 // status will filter proposals by status
 // numLatest will fetch a specified number of the most recent proposals, or 0 for all proposals
 func (keeper Keeper) GetProposalsFiltered(ctx sdk.Context, voterAddr sdk.AccAddress, depositorAddr sdk.AccAddress, status ProposalStatus, numLatest uint64) []Proposal {
-
+	
 	maxProposalID, err := keeper.GetProposalID(ctx)
 	if err != nil {
 		return []Proposal{}
 	}
-
+	
 	matchingProposals := []Proposal{}
-
+	
 	if numLatest == 0 {
 		numLatest = maxProposalID
 	}
-
+	
 	for proposalID := maxProposalID - numLatest; proposalID < maxProposalID; proposalID++ {
 		if voterAddr != nil && len(voterAddr) != 0 {
 			_, found := keeper.GetVote(ctx, proposalID, voterAddr)
@@ -111,23 +111,23 @@ func (keeper Keeper) GetProposalsFiltered(ctx sdk.Context, voterAddr sdk.AccAddr
 				continue
 			}
 		}
-
+		
 		if depositorAddr != nil && len(depositorAddr) != 0 {
 			_, found := keeper.GetDeposit(ctx, proposalID, depositorAddr)
 			if !found {
 				continue
 			}
 		}
-
+		
 		proposal, ok := keeper.GetProposal(ctx, proposalID)
 		if !ok {
 			continue
 		}
-
+		
 		if ValidProposalStatus(status) && proposal.Status != status {
 			continue
 		}
-
+		
 		matchingProposals = append(matchingProposals, proposal)
 	}
 	return matchingProposals
@@ -157,7 +157,7 @@ func (keeper Keeper) activateVotingPeriod(ctx sdk.Context, proposal Proposal) {
 	proposal.VotingEndTime = proposal.VotingStartTime.Add(votingPeriod)
 	proposal.Status = StatusVotingPeriod
 	keeper.SetProposal(ctx, proposal)
-
+	
 	keeper.RemoveFromInactiveProposalQueue(ctx, proposal.ProposalID, proposal.DepositEndTime)
 	keeper.InsertActiveProposalQueue(ctx, proposal.ProposalID, proposal.VotingEndTime)
 }

@@ -18,7 +18,7 @@ type (
 		SigVerifyCostED25519   uint64 `json:"sig_verify_cost_ed25519"`
 		SigVerifyCostSecp256k1 uint64 `json:"sig_verify_cost_secp256k1"`
 	}
-
+	
 	GenesisState struct {
 		CollectedFees sdk.Coins `json:"collected_fees"`
 		Params        Params    `json:"params"`

@@ -2,7 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/distribution/types"
 )
 
@@ -10,7 +10,7 @@ import (
 // a receiver address while updating the community pool
 func (k Keeper) DistributeFromFeePool(ctx sdk.Context, amount sdk.Coins, receiveAddr sdk.AccAddress) sdk.Error {
 	feePool := k.GetFeePool(ctx)
-
+	
 	// NOTE the community pool isn't a module account, however its coins
 	// are held in the distribution module account. Thus the community pool
 	// must be reduced separately from the SendCoinsFromModuleToAccount call
@@ -19,12 +19,12 @@ func (k Keeper) DistributeFromFeePool(ctx sdk.Context, amount sdk.Coins, receive
 		return types.ErrBadDistribution(k.codespace)
 	}
 	feePool.CommunityPool = newPool
-
+	
 	err := k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, receiveAddr, amount)
 	if err != nil {
 		return err
 	}
-
+	
 	k.SetFeePool(ctx, feePool)
 	return nil
 }

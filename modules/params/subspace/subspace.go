@@ -3,18 +3,18 @@ package subspace
 import (
 	"errors"
 	"reflect"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
-
+	
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 )
 
 const (
 	// StoreKey is the string store key for the param store
 	StoreKey = "params"
-
+	
 	// TStoreKey is the string store key for the param transient store
 	TStoreKey = "transient_params"
 )
@@ -26,9 +26,9 @@ type Subspace struct {
 	cdc  *codec.Codec
 	key  sdk.StoreKey // []byte -> []byte, stores parameter
 	tkey sdk.StoreKey // []byte -> bool, stores parameter change
-
+	
 	name []byte
-
+	
 	table KeyTable
 }
 
@@ -43,7 +43,7 @@ func NewSubspace(cdc *codec.Codec, key sdk.StoreKey, tkey sdk.StoreKey, name str
 			m: make(map[string]attribute),
 		},
 	}
-
+	
 	return
 }
 
@@ -55,17 +55,17 @@ func (s Subspace) WithKeyTable(table KeyTable) Subspace {
 	if len(s.table.m) != 0 {
 		panic("SetKeyTable() called on already initialized Subspace")
 	}
-
+	
 	for k, v := range table.m {
 		s.table.m[k] = v
 	}
-
+	
 	// Allocate additional capicity for Subspace.name
 	// So we don't have to allocate extra space each time appending to the key
 	name := s.name
 	s.name = make([]byte, len(name), len(name)+table.maxKeyLength())
 	copy(s.name, name)
-
+	
 	return s
 }
 
@@ -148,13 +148,13 @@ func (s Subspace) checkType(store sdk.KVStore, key []byte, param interface{}) {
 	if !ok {
 		panic("Parameter not registered")
 	}
-
+	
 	ty := attr.ty
 	pty := reflect.TypeOf(param)
 	if pty.Kind() == reflect.Ptr {
 		pty = pty.Elem()
 	}
-
+	
 	if pty != ty {
 		panic("Type mismatch with registered table")
 	}
@@ -164,18 +164,18 @@ func (s Subspace) checkType(store sdk.KVStore, key []byte, param interface{}) {
 // It also set to the transient store to record change.
 func (s Subspace) Set(ctx sdk.Context, key []byte, param interface{}) {
 	store := s.kvStore(ctx)
-
+	
 	s.checkType(store, key, param)
-
+	
 	bz, err := s.cdc.MarshalJSON(param)
 	if err != nil {
 		panic(err)
 	}
 	store.Set(key, bz)
-
+	
 	tstore := s.transientStore(ctx)
 	tstore.Set(key, []byte{})
-
+	
 }
 
 // Update stores raw parameter bytes. It returns error if the stored parameter
@@ -186,7 +186,7 @@ func (s Subspace) Update(ctx sdk.Context, key []byte, param []byte) error {
 	if !ok {
 		panic("Parameter not registered")
 	}
-
+	
 	ty := attr.ty
 	dest := reflect.New(ty).Interface()
 	s.GetIfExists(ctx, key, dest)
@@ -194,11 +194,11 @@ func (s Subspace) Update(ctx sdk.Context, key []byte, param []byte) error {
 	if err != nil {
 		return err
 	}
-
+	
 	s.Set(ctx, key, dest)
 	tStore := s.transientStore(ctx)
 	tStore.Set(key, []byte{})
-
+	
 	return nil
 }
 
@@ -206,17 +206,17 @@ func (s Subspace) Update(ctx sdk.Context, key []byte, param []byte) error {
 // Checks parameter type only over the key
 func (s Subspace) SetWithSubkey(ctx sdk.Context, key []byte, subkey []byte, param interface{}) {
 	store := s.kvStore(ctx)
-
+	
 	s.checkType(store, key, param)
-
+	
 	newkey := concatKeys(key, subkey)
-
+	
 	bz, err := s.cdc.MarshalJSON(param)
 	if err != nil {
 		panic(err)
 	}
 	store.Set(newkey, bz)
-
+	
 	tstore := s.transientStore(ctx)
 	tstore.Set(newkey, []byte{})
 }
@@ -225,12 +225,12 @@ func (s Subspace) SetWithSubkey(ctx sdk.Context, key []byte, subkey []byte, para
 // the parameter type only over the key.
 func (s Subspace) UpdateWithSubkey(ctx sdk.Context, key []byte, subkey []byte, param []byte) error {
 	concatkey := concatKeys(key, subkey)
-
+	
 	attr, ok := s.table.m[string(concatkey)]
 	if !ok {
 		return errors.New("parameter not registered")
 	}
-
+	
 	ty := attr.ty
 	dest := reflect.New(ty).Interface()
 	s.GetWithSubkeyIfExists(ctx, key, subkey, dest)
@@ -238,11 +238,11 @@ func (s Subspace) UpdateWithSubkey(ctx sdk.Context, key []byte, subkey []byte, p
 	if err != nil {
 		return err
 	}
-
+	
 	s.SetWithSubkey(ctx, key, subkey, dest)
 	tStore := s.transientStore(ctx)
 	tStore.Set(concatkey, []byte{})
-
+	
 	return nil
 }
 

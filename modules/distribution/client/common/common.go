@@ -2,40 +2,40 @@ package common
 
 import (
 	"fmt"
-
+	
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/distribution/types"
 )
 
 // QueryParams actually queries distribution params.
 func QueryParams(cliCtx context.CLIContext, queryRoute string) (PrettyParams, error) {
 	route := fmt.Sprintf("custom/%s/params/%s", queryRoute, types.ParamCommunityTax)
-
+	
 	retCommunityTax, _, err := cliCtx.QueryWithData(route, []byte{})
 	if err != nil {
 		return PrettyParams{}, err
 	}
-
+	
 	route = fmt.Sprintf("custom/%s/params/%s", queryRoute, types.ParamBaseProposerReward)
 	retBaseProposerReward, _, err := cliCtx.QueryWithData(route, []byte{})
 	if err != nil {
 		return PrettyParams{}, err
 	}
-
+	
 	route = fmt.Sprintf("custom/%s/params/%s", queryRoute, types.ParamBonusProposerReward)
 	retBonusProposerReward, _, err := cliCtx.QueryWithData(route, []byte{})
 	if err != nil {
 		return PrettyParams{}, err
 	}
-
+	
 	route = fmt.Sprintf("custom/%s/params/%s", queryRoute, types.ParamWithdrawAddrEnabled)
 	retWithdrawAddrEnabled, _, err := cliCtx.QueryWithData(route, []byte{})
 	if err != nil {
 		return PrettyParams{}, err
 	}
-
+	
 	return NewPrettyParams(
 		retCommunityTax, retBaseProposerReward, retBonusProposerReward, retWithdrawAddrEnabled,
 	), nil
@@ -47,7 +47,7 @@ func QueryDelegatorTotalRewards(cliCtx context.CLIContext, queryRoute, delAddr s
 	if err != nil {
 		return nil, err
 	}
-
+	
 	res, _, err := cliCtx.QueryWithData(
 		fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryDelegatorTotalRewards),
 		cliCtx.Codec.MustMarshalJSON(types.NewQueryDelegatorParams(delegatorAddr)),
@@ -61,12 +61,12 @@ func QueryDelegationRewards(cliCtx context.CLIContext, queryRoute, delAddr, valA
 	if err != nil {
 		return nil, err
 	}
-
+	
 	validatorAddr, err := sdk.ValAddressFromBech32(valAddr)
 	if err != nil {
 		return nil, err
 	}
-
+	
 	res, _, err := cliCtx.QueryWithData(
 		fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryDelegationRewards),
 		cliCtx.Codec.MustMarshalJSON(types.NewQueryDelegationRewardsParams(delegatorAddr, validatorAddr)),
@@ -102,12 +102,12 @@ func WithdrawAllDelegatorRewards(cliCtx context.CLIContext, queryRoute string, d
 	if err != nil {
 		return nil, err
 	}
-
+	
 	var validators []sdk.ValAddress
 	if err := cliCtx.Codec.UnmarshalJSON(bz, &validators); err != nil {
 		return nil, err
 	}
-
+	
 	// build multi-message transaction
 	var msgs []sdk.Msg
 	for _, valAddr := range validators {
@@ -117,7 +117,7 @@ func WithdrawAllDelegatorRewards(cliCtx context.CLIContext, queryRoute string, d
 		}
 		msgs = append(msgs, msg)
 	}
-
+	
 	return msgs, nil
 }
 
@@ -128,12 +128,12 @@ func WithdrawValidatorRewardsAndCommission(validatorAddr sdk.ValAddress) ([]sdk.
 	if err := commissionMsg.ValidateBasic(); err != nil {
 		return nil, err
 	}
-
+	
 	// build and validate MsgWithdrawDelegatorReward
 	rewardMsg := types.NewMsgWithdrawDelegatorReward(sdk.AccAddress(validatorAddr.Bytes()), validatorAddr)
 	if err := rewardMsg.ValidateBasic(); err != nil {
 		return nil, err
 	}
-
+	
 	return []sdk.Msg{commissionMsg, rewardMsg}, nil
 }

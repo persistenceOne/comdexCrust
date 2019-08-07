@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-
+	
 	"github.com/spf13/cobra"
-
+	
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
 	govutils "github.com/commitHub/commitBlockchain/modules/gov/client/utils"
@@ -63,18 +63,18 @@ func GetTxCmd(storeKey string, cdc *codec.Codec, pcmds []*cobra.Command) *cobra.
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-
+	
 	cmdSubmitProp := GetCmdSubmitProposal(cdc)
 	for _, pcmd := range pcmds {
 		cmdSubmitProp.AddCommand(client.PostCommands(pcmd)[0])
 	}
-
+	
 	govTxCmd.AddCommand(client.PostCommands(
 		GetCmdDeposit(cdc),
 		GetCmdVote(cdc),
 		cmdSubmitProp,
 	)...)
-
+	
 	return govTxCmd
 }
 
@@ -109,34 +109,34 @@ $ %s tx gov submit-proposal --title="Test Proposal" --description="My awesome pr
 		RunE: func(cmd *cobra.Command, args []string) error {
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-
+			
 			proposal, err := parseSubmitProposalFlags()
 			if err != nil {
 				return err
 			}
-
+			
 			amount, err := sdk.ParseCoins(proposal.Deposit)
 			if err != nil {
 				return err
 			}
-
+			
 			content := types.ContentFromProposalType(proposal.Title, proposal.Description, proposal.Type)
-
+			
 			msg := types.NewMsgSubmitProposal(content, amount, cliCtx.GetFromAddress())
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
-
+			
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
 		},
 	}
-
+	
 	cmd.Flags().String(FlagTitle, "", "title of proposal")
 	cmd.Flags().String(FlagDescription, "", "description of proposal")
 	cmd.Flags().String(flagProposalType, "", "proposalType of proposal, types: text/parameter_change/software_upgrade")
 	cmd.Flags().String(FlagDeposit, "", "deposit of proposal")
 	cmd.Flags().String(FlagProposal, "", "proposal file path (if this path is given, other proposal flags are ignored)")
-
+	
 	return cmd
 }
 
@@ -159,28 +159,28 @@ $ %s tx gov deposit 1 10stake --from mykey
 		RunE: func(cmd *cobra.Command, args []string) error {
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-
+			
 			// validate that the proposal id is a uint
 			proposalID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("proposal-id %s not a valid uint, please input a valid proposal-id", args[0])
 			}
-
+			
 			// Get depositor address
 			from := cliCtx.GetFromAddress()
-
+			
 			// Get amount of coins
 			amount, err := sdk.ParseCoins(args[1])
 			if err != nil {
 				return err
 			}
-
+			
 			msg := types.NewMsgDeposit(from, proposalID, amount)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
 			}
-
+			
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
 		},
 	}
@@ -206,29 +206,29 @@ $ %s tx gov vote 1 yes --from mykey
 		RunE: func(cmd *cobra.Command, args []string) error {
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-
+			
 			// Get voting address
 			from := cliCtx.GetFromAddress()
-
+			
 			// validate that the proposal id is a uint
 			proposalID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("proposal-id %s not a valid int, please input a valid proposal-id", args[0])
 			}
-
+			
 			// Find out which vote option user chose
 			byteVoteOption, err := types.VoteOptionFromString(govutils.NormalizeVoteOption(args[1]))
 			if err != nil {
 				return err
 			}
-
+			
 			// Build vote message and run basic validation
 			msg := types.NewMsgVote(from, proposalID, byteVoteOption)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
 			}
-
+			
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
 		},
 	}

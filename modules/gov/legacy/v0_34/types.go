@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
 )
 
@@ -19,20 +19,20 @@ var (
 
 const (
 	ModuleName = "gov"
-
+	
 	StatusNil           ProposalStatus = 0x00
 	StatusDepositPeriod ProposalStatus = 0x01
 	StatusVotingPeriod  ProposalStatus = 0x02
 	StatusPassed        ProposalStatus = 0x03
 	StatusRejected      ProposalStatus = 0x04
 	StatusFailed        ProposalStatus = 0x05
-
+	
 	OptionEmpty      VoteOption = 0x00
 	OptionYes        VoteOption = 0x01
 	OptionAbstain    VoteOption = 0x02
 	OptionNo         VoteOption = 0x03
 	OptionNoWithVeto VoteOption = 0x04
-
+	
 	ProposalTypeNil             ProposalKind = 0x00
 	ProposalTypeText            ProposalKind = 0x01
 	ProposalTypeParameterChange ProposalKind = 0x02
@@ -43,91 +43,91 @@ type (
 	SoftwareUpgradeProposal struct {
 		TextProposal
 	}
-
+	
 	ProposalQueue []uint64
-
+	
 	ProposalKind byte
-
-	VoteOption     byte
+	
+	VoteOption byte
 	ProposalStatus byte
-
+	
 	ProposalContent interface {
 		GetTitle() string
 		GetDescription() string
 		ProposalType() ProposalKind
 	}
-
+	
 	Proposals []Proposal
-
+	
 	TextProposal struct {
 		Title       string `json:"title"`
 		Description string `json:"description"`
 	}
-
+	
 	Proposal struct {
 		ProposalContent `json:"proposal_content"`
-
+		
 		ProposalID uint64 `json:"proposal_id"`
-
+		
 		Status           ProposalStatus `json:"proposal_status"`
 		FinalTallyResult TallyResult    `json:"final_tally_result"`
-
+		
 		SubmitTime     time.Time `json:"submit_time"`
 		DepositEndTime time.Time `json:"deposit_end_time"`
 		TotalDeposit   sdk.Coins `json:"total_deposit"`
-
+		
 		VotingStartTime time.Time `json:"voting_start_time"`
 		VotingEndTime   time.Time `json:"voting_end_time"`
 	}
-
+	
 	TallyParams struct {
 		Quorum    sdk.Dec `json:"quorum,omitempty"`
 		Threshold sdk.Dec `json:"threshold,omitempty"`
 		Veto      sdk.Dec `json:"veto,omitempty"`
 	}
-
+	
 	VotingParams struct {
 		VotingPeriod time.Duration `json:"voting_period,omitempty"`
 	}
-
+	
 	TallyResult struct {
 		Yes        sdk.Int `json:"yes"`
 		Abstain    sdk.Int `json:"abstain"`
 		No         sdk.Int `json:"no"`
 		NoWithVeto sdk.Int `json:"no_with_veto"`
 	}
-
+	
 	Deposits []Deposit
-
+	
 	Vote struct {
 		ProposalID uint64         `json:"proposal_id"`
 		Voter      sdk.AccAddress `json:"voter"`
 		Option     VoteOption     `json:"option"`
 	}
-
+	
 	Votes []Vote
-
+	
 	DepositParams struct {
 		MinDeposit       sdk.Coins     `json:"min_deposit,omitempty"`
 		MaxDepositPeriod time.Duration `json:"max_deposit_period,omitempty"`
 	}
-
+	
 	Deposit struct {
 		ProposalID uint64         `json:"proposal_id"`
 		Depositor  sdk.AccAddress `json:"depositor"`
 		Amount     sdk.Coins      `json:"amount"`
 	}
-
+	
 	DepositWithMetadata struct {
 		ProposalID uint64  `json:"proposal_id"`
 		Deposit    Deposit `json:"deposit"`
 	}
-
+	
 	VoteWithMetadata struct {
 		ProposalID uint64 `json:"proposal_id"`
 		Vote       Vote   `json:"vote"`
 	}
-
+	
 	GenesisState struct {
 		StartingProposalID uint64                `json:"starting_proposal_id"`
 		Deposits           []DepositWithMetadata `json:"deposits"`
@@ -150,22 +150,22 @@ func ProposalStatusFromString(str string) (ProposalStatus, error) {
 	switch str {
 	case "DepositPeriod":
 		return StatusDepositPeriod, nil
-
+	
 	case "VotingPeriod":
 		return StatusVotingPeriod, nil
-
+	
 	case "Passed":
 		return StatusPassed, nil
-
+	
 	case "Rejected":
 		return StatusRejected, nil
-
+	
 	case "Failed":
 		return StatusFailed, nil
-
+	
 	case "":
 		return StatusNil, nil
-
+	
 	default:
 		return ProposalStatus(0xff), fmt.Errorf("'%s' is not a valid proposal status", str)
 	}
@@ -190,12 +190,12 @@ func (status *ProposalStatus) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return err
 	}
-
+	
 	bz2, err := ProposalStatusFromString(s)
 	if err != nil {
 		return err
 	}
-
+	
 	*status = bz2
 	return nil
 }
@@ -204,19 +204,19 @@ func (status ProposalStatus) String() string {
 	switch status {
 	case StatusDepositPeriod:
 		return "DepositPeriod"
-
+	
 	case StatusVotingPeriod:
 		return "VotingPeriod"
-
+	
 	case StatusPassed:
 		return "Passed"
-
+	
 	case StatusRejected:
 		return "Rejected"
-
+	
 	case StatusFailed:
 		return "Failed"
-
+	
 	default:
 		return ""
 	}
@@ -226,16 +226,16 @@ func VoteOptionFromString(str string) (VoteOption, error) {
 	switch str {
 	case "Yes":
 		return OptionYes, nil
-
+	
 	case "Abstain":
 		return OptionAbstain, nil
-
+	
 	case "No":
 		return OptionNo, nil
-
+	
 	case "NoWithVeto":
 		return OptionNoWithVeto, nil
-
+	
 	default:
 		return VoteOption(0xff), fmt.Errorf("'%s' is not a valid vote option", str)
 	}
@@ -260,12 +260,12 @@ func (vo *VoteOption) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return err
 	}
-
+	
 	bz2, err := VoteOptionFromString(s)
 	if err != nil {
 		return err
 	}
-
+	
 	*vo = bz2
 	return nil
 }
@@ -317,7 +317,7 @@ func (pt *ProposalKind) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return err
 	}
-
+	
 	bz2, err := ProposalTypeFromString(s)
 	if err != nil {
 		return err

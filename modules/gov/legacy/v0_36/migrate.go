@@ -12,12 +12,12 @@ func Migrate(oldGenState v034gov.GenesisState) GenesisState {
 	for i, deposit := range oldGenState.Deposits {
 		deposits[i] = deposit.Deposit
 	}
-
+	
 	votes := make(v034gov.Votes, len(oldGenState.Votes))
 	for i, vote := range oldGenState.Votes {
 		votes[i] = vote.Vote
 	}
-
+	
 	proposals := make([]Proposal, len(oldGenState.Proposals))
 	for i, proposal := range oldGenState.Proposals {
 		proposals[i] = Proposal{
@@ -32,7 +32,7 @@ func Migrate(oldGenState v034gov.GenesisState) GenesisState {
 			VotingEndTime:    proposal.VotingEndTime,
 		}
 	}
-
+	
 	return NewGenesisState(
 		oldGenState.StartingProposalID, deposits, votes, proposals,
 		oldGenState.DepositParams, oldGenState.VotingParams, oldGenState.TallyParams,

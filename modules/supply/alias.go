@@ -36,15 +36,15 @@ var (
 	DefaultGenesisState   = types.DefaultGenesisState
 	NewSupply             = types.NewSupply
 	DefaultSupply         = types.DefaultSupply
-
+	
 	// variable aliases
 	DefaultCodespace = keeper.DefaultCodespace
 	ModuleCdc        = types.ModuleCdc
 )
 
 type (
-	Keeper        = keeper.Keeper
+	Keeper = keeper.Keeper
 	ModuleAccount = types.ModuleAccount
-	GenesisState  = types.GenesisState
-	Supply        = types.Supply
+	GenesisState = types.GenesisState
+	Supply = types.Supply
 )

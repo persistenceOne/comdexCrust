@@ -2,7 +2,7 @@ package types
 
 import (
 	"fmt"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -75,7 +75,7 @@ func NewGenesisState(feePool FeePool, communityTax, baseProposerReward, bonusPro
 	acc []ValidatorAccumulatedCommissionRecord, historical []ValidatorHistoricalRewardsRecord,
 	cur []ValidatorCurrentRewardsRecord, dels []DelegatorStartingInfoRecord,
 	slashes []ValidatorSlashEventRecord) GenesisState {
-
+	
 	return GenesisState{
 		FeePool:                         feePool,
 		CommunityTax:                    communityTax,

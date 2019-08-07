@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"sort"
-
+	
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -12,16 +12,16 @@ import (
 type FiatPeg interface {
 	GetPegHash() PegHash
 	SetPegHash(PegHash) error
-
+	
 	GetTransactionID() string
 	SetTransactionID(string) error
-
+	
 	GetTransactionAmount() int64
 	SetTransactionAmount(int64) error
-
+	
 	GetRedeemedAmount() int64
 	SetRedeemedAmount(int64) error
-
+	
 	GetOwners() []Owner
 	SetOwners([]Owner) error
 }
@@ -202,7 +202,7 @@ func SubtractAmountFromWallet(amount int64, fiatPegWallet FiatPegWallet) (sentFi
 		return
 	}
 	return FiatPegWallet{}, FiatPegWallet{}
-
+	
 }
 
 // RedeemAmountFromWallet : subtract fiat peg from wallet
@@ -229,7 +229,7 @@ func RedeemAmountFromWallet(amount int64, fiatPegWallet FiatPegWallet) (emptiedF
 		return
 	}
 	return FiatPegWallet{}, FiatPegWallet{}
-
+	
 }
 
 // AddFiatPegToWallet : add fiat peg to wallet
@@ -316,7 +316,7 @@ func RedeemFiatPegsFromWallet(fiatPegWallet FiatPegWallet, oldFiatPegWallet Fiat
 		for j, oldFiatPeg := range oldFiatPegWallet {
 			if fiatPeg.GetPegHash().String() == oldFiatPeg.GetPegHash().String() {
 				subtracted := 0
-
+				
 				for i, owner := range oldFiatPeg.Owners {
 					if owner.OwnerAddress.String() == fromAddress.String() && owner.Amount > fiatPeg.RedeemedAmount {
 						owner.Amount -= fiatPeg.RedeemedAmount
@@ -327,13 +327,13 @@ func RedeemFiatPegsFromWallet(fiatPegWallet FiatPegWallet, oldFiatPegWallet Fiat
 						subtracted++
 					}
 				}
-
+				
 				if subtracted != 1 {
 					return nil
 				}
 				oldFiatPeg.TransactionAmount -= fiatPeg.RedeemedAmount
 				oldFiatPeg.RedeemedAmount += fiatPeg.RedeemedAmount
-
+				
 				transfered = true
 				oldFiatPegWallet[j] = oldFiatPeg
 				break

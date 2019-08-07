@@ -3,23 +3,23 @@ package types
 import (
 	"encoding/binary"
 	"time"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (
 	// ModuleName is the name of the staking module
 	ModuleName = "staking"
-
+	
 	// StoreKey is the string store representation
 	StoreKey = ModuleName
-
+	
 	// TStoreKey is the string transient store representation
 	TStoreKey = "transient_" + ModuleName
-
+	
 	// QuerierRoute is the querier route for the staking module
 	QuerierRoute = ModuleName
-
+	
 	// RouterKey is the msg router key for the staking module
 	RouterKey = ModuleName
 )
@@ -30,18 +30,18 @@ var (
 	// Last* values are constant during a block.
 	LastValidatorPowerKey = []byte{0x11} // prefix for each key to a validator index, for bonded validators
 	LastTotalPowerKey     = []byte{0x12} // prefix for the total power
-
+	
 	ValidatorsKey             = []byte{0x21} // prefix for each key to a validator
 	ValidatorsByConsAddrKey   = []byte{0x22} // prefix for each key to a validator index, by pubkey
 	ValidatorsByPowerIndexKey = []byte{0x23} // prefix for each key to a validator index, sorted by power
-
+	
 	DelegationKey                    = []byte{0x31} // key for a delegation
 	UnbondingDelegationKey           = []byte{0x32} // key for an unbonding-delegation
 	UnbondingDelegationByValIndexKey = []byte{0x33} // prefix for each key for an unbonding-delegation, by validator operator
 	RedelegationKey                  = []byte{0x34} // key for a redelegation
 	RedelegationByValSrcIndexKey     = []byte{0x35} // prefix for each key for an redelegation, by source validator operator
 	RedelegationByValDstIndexKey     = []byte{0x36} // prefix for each key for an redelegation, by destination validator operator
-
+	
 	UnbondingQueueKey    = []byte{0x41} // prefix for the timestamps in unbonding queue
 	RedelegationQueueKey = []byte{0x42} // prefix for the timestamps in redelegations queue
 	ValidatorQueueKey    = []byte{0x43} // prefix for the timestamps in validator queue
@@ -81,17 +81,17 @@ func GetLastValidatorPowerKey(operator sdk.ValAddress) []byte {
 // get the power ranking of a validator
 // NOTE the larger values are of higher value
 func getValidatorPowerRank(validator Validator) []byte {
-
+	
 	consensusPower := sdk.TokensToConsensusPower(validator.Tokens)
 	consensusPowerBytes := make([]byte, 8)
 	binary.BigEndian.PutUint64(consensusPowerBytes[:], uint64(consensusPower))
-
+	
 	powerBytes := consensusPowerBytes
 	powerBytesLen := len(powerBytes) // 8
-
+	
 	// key is of format prefix || powerbytes || addrBytes
 	key := make([]byte, 1+powerBytesLen+sdk.AddrLen)
-
+	
 	key[0] = ValidatorsByPowerIndexKey[0]
 	copy(key[1:powerBytesLen+1], powerBytes)
 	operAddrInvr := sdk.CopyBytes(validator.OperatorAddress)
@@ -99,7 +99,7 @@ func getValidatorPowerRank(validator Validator) []byte {
 		operAddrInvr[i] = ^b
 	}
 	copy(key[powerBytesLen+1:], operAddrInvr)
-
+	
 	return key
 }
 
@@ -186,11 +186,11 @@ func GetUnbondingDelegationTimeKey(timestamp time.Time) []byte {
 // VALUE: staking/RedelegationKey
 func GetREDKey(delAddr sdk.AccAddress, valSrcAddr, valDstAddr sdk.ValAddress) []byte {
 	key := make([]byte, 1+sdk.AddrLen*3)
-
+	
 	copy(key[0:sdk.AddrLen+1], GetREDsKey(delAddr.Bytes()))
 	copy(key[sdk.AddrLen+1:2*sdk.AddrLen+1], valSrcAddr.Bytes())
 	copy(key[2*sdk.AddrLen+1:3*sdk.AddrLen+1], valDstAddr.Bytes())
-
+	
 	return key
 }
 
@@ -199,7 +199,7 @@ func GetREDKey(delAddr sdk.AccAddress, valSrcAddr, valDstAddr sdk.ValAddress) []
 func GetREDByValSrcIndexKey(delAddr sdk.AccAddress, valSrcAddr, valDstAddr sdk.ValAddress) []byte {
 	REDSFromValsSrcKey := GetREDsFromValSrcIndexKey(valSrcAddr)
 	offset := len(REDSFromValsSrcKey)
-
+	
 	// key is of the form REDSFromValsSrcKey || delAddr || valDstAddr
 	key := make([]byte, len(REDSFromValsSrcKey)+2*sdk.AddrLen)
 	copy(key[0:offset], REDSFromValsSrcKey)
@@ -213,13 +213,13 @@ func GetREDByValSrcIndexKey(delAddr sdk.AccAddress, valSrcAddr, valDstAddr sdk.V
 func GetREDByValDstIndexKey(delAddr sdk.AccAddress, valSrcAddr, valDstAddr sdk.ValAddress) []byte {
 	REDSToValsDstKey := GetREDsToValDstIndexKey(valDstAddr)
 	offset := len(REDSToValsDstKey)
-
+	
 	// key is of the form REDSToValsDstKey || delAddr || valSrcAddr
 	key := make([]byte, len(REDSToValsDstKey)+2*sdk.AddrLen)
 	copy(key[0:offset], REDSToValsDstKey)
 	copy(key[offset:offset+sdk.AddrLen], delAddr.Bytes())
 	copy(key[offset+sdk.AddrLen:offset+2*sdk.AddrLen], valSrcAddr.Bytes())
-
+	
 	return key
 }
 
@@ -232,7 +232,7 @@ func GetREDKeyFromValSrcIndexKey(indexKey []byte) []byte {
 	valSrcAddr := indexKey[1 : sdk.AddrLen+1]
 	delAddr := indexKey[sdk.AddrLen+1 : 2*sdk.AddrLen+1]
 	valDstAddr := indexKey[2*sdk.AddrLen+1 : 3*sdk.AddrLen+1]
-
+	
 	return GetREDKey(delAddr, valSrcAddr, valDstAddr)
 }
 

@@ -2,9 +2,9 @@ package types
 
 import (
 	"encoding/json"
-
+	
 	cTypes "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/types"
 )
 
@@ -71,7 +71,7 @@ func (msg MsgBuyerFeedbacks) GetSignBytes() []byte {
 	for _, submitTraderFeedback := range msg.SubmitTraderFeedbacks {
 		submitTraderFeedbacks = append(submitTraderFeedbacks, submitTraderFeedback.GetSignBytes())
 	}
-
+	
 	b, err := ModuleCdc.MarshalJSON(struct {
 		SubmitTraderFeedbacks []json.RawMessage `json:"submitTraderFeedbacks"`
 	}{
@@ -93,7 +93,7 @@ func (msg MsgBuyerFeedbacks) GetSigners() []cTypes.AccAddress {
 
 func BuildBuyerFeedbackMsg(buyerAddress cTypes.AccAddress, sellerAddress cTypes.AccAddress,
 	pegHash types.PegHash, score int64) cTypes.Msg {
-
+	
 	traderFeedback := NewTraderFeedback(buyerAddress, sellerAddress, pegHash, score)
 	submitTraderFeedback := NewSubmitTraderFeedback(traderFeedback)
 	msg := NewMsgBuyerFeedbacks([]SubmitTraderFeedback{submitTraderFeedback})
@@ -130,7 +130,7 @@ func (msg MsgSellerFeedbacks) GetSignBytes() []byte {
 	for _, submitTraderFeedback := range msg.SubmitTraderFeedbacks {
 		submitTraderFeedbacks = append(submitTraderFeedbacks, submitTraderFeedback.GetSignBytes())
 	}
-
+	
 	b, err := ModuleCdc.MarshalJSON(struct {
 		SubmitTraderFeedbacks []json.RawMessage `json:"submitTraderFeedbacks"`
 	}{

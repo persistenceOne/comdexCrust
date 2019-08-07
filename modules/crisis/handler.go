@@ -2,9 +2,9 @@ package crisis
 
 import (
 	"fmt"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/crisis/internal/keeper"
 	"github.com/commitHub/commitBlockchain/modules/crisis/internal/types"
 )
@@ -15,11 +15,11 @@ const RouterKey = types.ModuleName
 func NewHandler(k keeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
-
+		
 		switch msg := msg.(type) {
 		case types.MsgVerifyInvariant:
 			return handleMsgVerifyInvariant(ctx, msg, k)
-
+		
 		default:
 			errMsg := fmt.Sprintf("unrecognized crisis message type: %T", msg)
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -30,17 +30,17 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 func handleMsgVerifyInvariant(ctx sdk.Context, msg types.MsgVerifyInvariant, k keeper.Keeper) sdk.Result {
 	// remove the constant fee
 	constantFee := sdk.NewCoins(k.GetConstantFee(ctx))
-
+	
 	if err := k.SendCoinsFromAccountToFeeCollector(ctx, msg.Sender, constantFee); err != nil {
 		return err.Result()
 	}
-
+	
 	// use a cached context to avoid gas costs during invariants
 	cacheCtx, _ := ctx.CacheContext()
-
+	
 	found := false
 	msgFullRoute := msg.FullInvariantRoute()
-
+	
 	var res string
 	var stop bool
 	for _, invarRoute := range k.Routes() {
@@ -50,16 +50,16 @@ func handleMsgVerifyInvariant(ctx sdk.Context, msg types.MsgVerifyInvariant, k k
 			break
 		}
 	}
-
+	
 	if !found {
 		return types.ErrUnknownInvariant(types.DefaultCodespace).Result()
 	}
-
+	
 	if stop {
 		// NOTE currently, because the chain halts here, this transaction will never be included
 		// in the blockchain thus the constant fee will have never been deducted. Thus no
 		// refund is required.
-
+		
 		// TODO uncomment the following code block with implementation of the circuit breaker
 		// // refund constant fee
 		// err := k.distrKeeper.DistributeFromFeePool(ctx, constantFee, msg.Sender)
@@ -70,11 +70,11 @@ func handleMsgVerifyInvariant(ctx sdk.Context, msg types.MsgVerifyInvariant, k k
 		// logger.Error(fmt.Sprintf(
 		// "WARNING: insufficient funds to allocate to sender from fee pool, err: %s", err))
 		// }
-
+		
 		// TODO replace with circuit breaker
 		panic(res)
 	}
-
+	
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeInvariant,
@@ -86,6 +86,6 @@ func handleMsgVerifyInvariant(ctx sdk.Context, msg types.MsgVerifyInvariant, k k
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender.String()),
 		),
 	})
-
+	
 	return sdk.Result{Events: ctx.EventManager().Events()}
 }

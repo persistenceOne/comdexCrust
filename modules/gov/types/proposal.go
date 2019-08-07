@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -13,15 +13,15 @@ import (
 // on network changes.
 type Proposal struct {
 	Content `json:"content" yaml:"content"` // Proposal content interface
-
+	
 	ProposalID       uint64         `json:"id" yaml:"id"`                                 //  ID of the proposal
 	Status           ProposalStatus `json:"proposal_status" yaml:"proposal_status"`       // Status of the Proposal {Pending, Active, Passed, Rejected}
 	FinalTallyResult TallyResult    `json:"final_tally_result" yaml:"final_tally_result"` // Result of Tallys
-
+	
 	SubmitTime     time.Time `json:"submit_time" yaml:"submit_time"`           // Time of the block where TxGovSubmitProposal was included
 	DepositEndTime time.Time `json:"deposit_end_time" yaml:"deposit_end_time"` // Time that the Proposal would expire if deposit amount isn't met
 	TotalDeposit   sdk.Coins `json:"total_deposit" yaml:"total_deposit"`       // Current deposit on this proposal. Initial value is set at InitialDeposit
-
+	
 	VotingStartTime time.Time `json:"voting_start_time" yaml:"voting_start_time"` // Time of the block where MinDeposit was reached. -1 if MinDeposit is not reached
 	VotingEndTime   time.Time `json:"voting_end_time" yaml:"voting_end_time"`     // Time that the VotingPeriod for this proposal will end and votes will be tallied
 }
@@ -73,7 +73,7 @@ func (p Proposals) String() string {
 type (
 	// ProposalQueue
 	ProposalQueue []uint64
-
+	
 	// ProposalStatus is a type alias that represents a proposal status as a byte
 	ProposalStatus byte
 )
@@ -93,22 +93,22 @@ func ProposalStatusFromString(str string) (ProposalStatus, error) {
 	switch str {
 	case "DepositPeriod":
 		return StatusDepositPeriod, nil
-
+	
 	case "VotingPeriod":
 		return StatusVotingPeriod, nil
-
+	
 	case "Passed":
 		return StatusPassed, nil
-
+	
 	case "Rejected":
 		return StatusRejected, nil
-
+	
 	case "Failed":
 		return StatusFailed, nil
-
+	
 	case "":
 		return StatusNil, nil
-
+	
 	default:
 		return ProposalStatus(0xff), fmt.Errorf("'%s' is not a valid proposal status", str)
 	}
@@ -150,12 +150,12 @@ func (status *ProposalStatus) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return err
 	}
-
+	
 	bz2, err := ProposalStatusFromString(s)
 	if err != nil {
 		return err
 	}
-
+	
 	*status = bz2
 	return nil
 }
@@ -165,19 +165,19 @@ func (status ProposalStatus) String() string {
 	switch status {
 	case StatusDepositPeriod:
 		return "DepositPeriod"
-
+	
 	case StatusVotingPeriod:
 		return "VotingPeriod"
-
+	
 	case StatusPassed:
 		return "Passed"
-
+	
 	case StatusRejected:
 		return "Rejected"
-
+	
 	case StatusFailed:
 		return "Failed"
-
+	
 	default:
 		return ""
 	}
@@ -322,7 +322,7 @@ func RegisterProposalType(ty string) {
 	if _, ok := validProposalTypes[ty]; ok {
 		panic(fmt.Sprintf("already registered proposal type: %s", ty))
 	}
-
+	
 	validProposalTypes[ty] = struct{}{}
 }
 
@@ -331,10 +331,10 @@ func ContentFromProposalType(title, desc, ty string) Content {
 	switch ty {
 	case ProposalTypeText:
 		return NewTextProposal(title, desc)
-
+	
 	case ProposalTypeSoftwareUpgrade:
 		return NewSoftwareUpgradeProposal(title, desc)
-
+	
 	default:
 		return nil
 	}
@@ -358,7 +358,7 @@ func ProposalHandler(_ sdk.Context, c Content) sdk.Error {
 	case ProposalTypeText, ProposalTypeSoftwareUpgrade:
 		// both proposal types do not change state so this performs a no-op
 		return nil
-
+	
 	default:
 		errMsg := fmt.Sprintf("unrecognized gov proposal type: %s", c.ProposalType())
 		return sdk.ErrUnknownRequest(errMsg)

@@ -2,9 +2,9 @@ package keeper
 
 import (
 	"fmt"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/bank/internal/types"
 )
 
@@ -19,7 +19,7 @@ func NonnegativeBalanceInvariant(ak types.AccountKeeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		var msg string
 		var count int
-
+		
 		accts := ak.GetAllAccounts(ctx)
 		for _, acc := range accts {
 			coins := acc.GetCoins()
@@ -31,7 +31,7 @@ func NonnegativeBalanceInvariant(ak types.AccountKeeper) sdk.Invariant {
 			}
 		}
 		broken := count != 0
-
+		
 		return sdk.FormatInvariant(types.ModuleName, "nonnegative-outstanding",
 			fmt.Sprintf("amount of negative accounts found %d\n%s", count, msg), broken)
 	}

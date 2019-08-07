@@ -5,14 +5,14 @@ import (
 	"errors"
 	"strings"
 	"time"
-
+	
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-
+	
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/auth/types"
 )
 
@@ -25,30 +25,30 @@ func QueryTxsByEvents(cliCtx context.CLIContext, events []string, page, limit in
 	if len(events) == 0 {
 		return nil, errors.New("must declare at least one event to search")
 	}
-
+	
 	if page <= 0 {
 		return nil, errors.New("page must greater than 0")
 	}
-
+	
 	if limit <= 0 {
 		return nil, errors.New("limit must greater than 0")
 	}
-
+	
 	// XXX: implement ANY
 	query := strings.Join(events, " AND ")
-
+	
 	node, err := cliCtx.GetNode()
 	if err != nil {
 		return nil, err
 	}
-
+	
 	prove := !cliCtx.TrustNode
-
+	
 	resTxs, err := node.TxSearch(query, prove, page, limit)
 	if err != nil {
 		return nil, err
 	}
-
+	
 	if prove {
 		for _, tx := range resTxs.Txs {
 			err := ValidateTxResult(cliCtx, tx)
@@ -57,19 +57,19 @@ func QueryTxsByEvents(cliCtx context.CLIContext, events []string, page, limit in
 			}
 		}
 	}
-
+	
 	resBlocks, err := getBlocksForTxResults(cliCtx, resTxs.Txs)
 	if err != nil {
 		return nil, err
 	}
-
+	
 	txs, err := formatTxResults(cliCtx.Codec, resTxs.Txs, resBlocks)
 	if err != nil {
 		return nil, err
 	}
-
+	
 	result := sdk.NewSearchTxsResult(resTxs.TotalCount, len(txs), page, limit, txs)
-
+	
 	return &result, nil
 }
 
@@ -80,33 +80,33 @@ func QueryTx(cliCtx context.CLIContext, hashHexStr string) (sdk.TxResponse, erro
 	if err != nil {
 		return sdk.TxResponse{}, err
 	}
-
+	
 	node, err := cliCtx.GetNode()
 	if err != nil {
 		return sdk.TxResponse{}, err
 	}
-
+	
 	resTx, err := node.Tx(hash, !cliCtx.TrustNode)
 	if err != nil {
 		return sdk.TxResponse{}, err
 	}
-
+	
 	if !cliCtx.TrustNode {
 		if err = ValidateTxResult(cliCtx, resTx); err != nil {
 			return sdk.TxResponse{}, err
 		}
 	}
-
+	
 	resBlocks, err := getBlocksForTxResults(cliCtx, []*ctypes.ResultTx{resTx})
 	if err != nil {
 		return sdk.TxResponse{}, err
 	}
-
+	
 	out, err := formatTxResult(cliCtx.Codec, resTx, resBlocks[resTx.Height])
 	if err != nil {
 		return out, err
 	}
-
+	
 	return out, nil
 }
 
@@ -120,7 +120,7 @@ func formatTxResults(cdc *codec.Codec, resTxs []*ctypes.ResultTx, resBlocks map[
 			return nil, err
 		}
 	}
-
+	
 	return out, nil
 }
 
@@ -144,20 +144,20 @@ func getBlocksForTxResults(cliCtx context.CLIContext, resTxs []*ctypes.ResultTx)
 	if err != nil {
 		return nil, err
 	}
-
+	
 	resBlocks := make(map[int64]*ctypes.ResultBlock)
-
+	
 	for _, resTx := range resTxs {
 		if _, ok := resBlocks[resTx.Height]; !ok {
 			resBlock, err := node.Block(&resTx.Height)
 			if err != nil {
 				return nil, err
 			}
-
+			
 			resBlocks[resTx.Height] = resBlock
 		}
 	}
-
+	
 	return resBlocks, nil
 }
 
@@ -166,17 +166,17 @@ func formatTxResult(cdc *codec.Codec, resTx *ctypes.ResultTx, resBlock *ctypes.R
 	if err != nil {
 		return sdk.TxResponse{}, err
 	}
-
+	
 	return sdk.NewResponseResultTx(resTx, tx, resBlock.Block.Time.Format(time.RFC3339)), nil
 }
 
 func parseTx(cdc *codec.Codec, txBytes []byte) (sdk.Tx, error) {
 	var tx types.StdTx
-
+	
 	err := cdc.UnmarshalBinaryLengthPrefixed(txBytes, &tx)
 	if err != nil {
 		return nil, err
 	}
-
+	
 	return tx, nil
 }

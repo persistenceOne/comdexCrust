@@ -4,11 +4,11 @@ package v0_34
 
 import (
 	"time"
-
+	
 	"github.com/tendermint/tendermint/crypto"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
 )
 
@@ -21,37 +21,37 @@ type (
 		NotBondedTokens sdk.Int `json:"not_bonded_tokens"`
 		BondedTokens    sdk.Int `json:"bonded_tokens"`
 	}
-
+	
 	Params struct {
 		UnbondingTime time.Duration `json:"unbonding_time"`
 		MaxValidators uint16        `json:"max_validators"`
 		MaxEntries    uint16        `json:"max_entries"`
 		BondDenom     string        `json:"bond_denom"`
 	}
-
+	
 	LastValidatorPower struct {
 		Address sdk.ValAddress
 		Power   int64
 	}
-
+	
 	Description struct {
 		Moniker  string `json:"moniker"`
 		Identity string `json:"identity"`
 		Website  string `json:"website"`
 		Details  string `json:"details"`
 	}
-
+	
 	Commission struct {
 		CommissionRates CommissionRates `json:"commission_rates"`
 		UpdateTime      time.Time       `json:"update_time"`
 	}
-
+	
 	CommissionRates struct {
 		Rate          sdk.Dec `json:"rate"`
 		MaxRate       sdk.Dec `json:"max_rate"`
 		MaxChangeRate sdk.Dec `json:"max_change_rate"`
 	}
-
+	
 	bechValidator struct {
 		OperatorAddress         sdk.ValAddress `json:"operator_address"`    // the bech32 address of the validator's operator
 		ConsPubKey              string         `json:"consensus_pubkey"`    // the bech32 consensus public key of the validator
@@ -65,7 +65,7 @@ type (
 		Commission              Commission     `json:"commission"`          // commission parameters
 		MinSelfDelegation       sdk.Int        `json:"min_self_delegation"` // minimum self delegation
 	}
-
+	
 	Validator struct {
 		OperatorAddress         sdk.ValAddress `json:"operator_address"`
 		ConsPubKey              crypto.PubKey  `json:"consensus_pubkey"`
@@ -79,44 +79,44 @@ type (
 		Commission              Commission     `json:"commission"`
 		MinSelfDelegation       sdk.Int        `json:"min_self_delegation"`
 	}
-
+	
 	Validators []Validator
-
+	
 	Delegation struct {
 		DelegatorAddress sdk.AccAddress `json:"delegator_address"`
 		ValidatorAddress sdk.ValAddress `json:"validator_address"`
 		Shares           sdk.Dec        `json:"shares"`
 	}
-
+	
 	Delegations []Delegation
-
+	
 	UnbondingDelegationEntry struct {
 		CreationHeight int64     `json:"creation_height"`
 		CompletionTime time.Time `json:"completion_time"`
 		InitialBalance sdk.Int   `json:"initial_balance"`
 		Balance        sdk.Int   `json:"balance"`
 	}
-
+	
 	UnbondingDelegation struct {
 		DelegatorAddress sdk.AccAddress             `json:"delegator_address"`
 		ValidatorAddress sdk.ValAddress             `json:"validator_address"`
 		Entries          []UnbondingDelegationEntry `json:"entries"`
 	}
-
+	
 	RedelegationEntry struct {
 		CreationHeight int64     `json:"creation_height"`
 		CompletionTime time.Time `json:"completion_time"`
 		InitialBalance sdk.Int   `json:"initial_balance"`
 		SharesDst      sdk.Dec   `json:"shares_dst"`
 	}
-
+	
 	Redelegation struct {
 		DelegatorAddress    sdk.AccAddress      `json:"delegator_address"`
 		ValidatorSrcAddress sdk.ValAddress      `json:"validator_src_address"`
 		ValidatorDstAddress sdk.ValAddress      `json:"validator_dst_address"`
 		Entries             []RedelegationEntry `json:"entries"`
 	}
-
+	
 	GenesisState struct {
 		Pool                 Pool                  `json:"pool"`
 		Params               Params                `json:"params"`
@@ -135,7 +135,7 @@ func (v Validator) MarshalJSON() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	
 	return codec.Cdc.MarshalJSON(bechValidator{
 		OperatorAddress:         v.OperatorAddress,
 		ConsPubKey:              bechConsPubKey,

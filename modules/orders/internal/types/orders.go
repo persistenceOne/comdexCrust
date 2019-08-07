@@ -1,23 +1,24 @@
 package types
 
 import (
-	"github.com/commitHub/commitBlockchain/modules/negotiation"
 	"github.com/commitHub/commitBlockchain/types"
+	
+	"github.com/commitHub/commitBlockchain/modules/negotiation"
 )
 
 type Order interface {
 	GetNegotiationID() negotiation.NegotiationID
 	SetNegotiationID(negotiation.NegotiationID)
-
+	
 	GetAssetPegWallet() types.AssetPegWallet
 	SetAssetPegWallet(types.AssetPegWallet)
-
+	
 	GetFiatPegWallet() types.FiatPegWallet
 	SetFiatPegWallet(types.FiatPegWallet)
-
+	
 	GetFiatProofHash() string
 	SetFiatProofHash(string)
-
+	
 	GetAWBProofHash() string
 	SetAWBProofHash(string)
 }

@@ -3,11 +3,11 @@ package types
 import (
 	"reflect"
 	"testing"
-
+	
 	"github.com/stretchr/testify/require"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
 )
 
@@ -130,7 +130,7 @@ func TestTxBuilderBuild(t *testing.T) {
 			true,
 		},
 	}
-
+	
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			bldr := NewTxBuilder(

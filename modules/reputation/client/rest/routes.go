@@ -7,7 +7,7 @@ import (
 
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc("/reputation/{address}", QueryReputationRequestHandlerFn(cliCtx)).Methods("GET")
-
+	
 	r.HandleFunc("/submitBuyerFeedback", SubmitBuyerFeedbackRequestHandler(cliCtx)).Methods("POST")
 	r.HandleFunc("/submitSellerFeedback", SubmitSellerFeedbackRequestHandler(cliCtx)).Methods("POST")
 }

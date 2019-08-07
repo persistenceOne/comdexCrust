@@ -2,12 +2,12 @@ package keeper
 
 import (
 	"fmt"
-
+	
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	abciTypes "github.com/tendermint/tendermint/abci/types"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
-
+	
 	"github.com/commitHub/commitBlockchain/types"
 )
 
@@ -31,12 +31,12 @@ func queryFiat(ctx cTypes.Context, path []string, keeper Keeper) ([]byte, cTypes
 	if err != nil {
 		return nil, cTypes.ErrInternal(fmt.Sprintf("failed to parse the pegHash %s", err))
 	}
-
+	
 	fiatPeg, err := keeper.GetFiatPeg(ctx, pegHashHex)
 	if err != nil {
 		return nil, cTypes.ErrInternal(fmt.Sprintf("%s", err))
 	}
-
+	
 	res, err := codec.MarshalJSONIndent(keeper.cdc, fiatPeg)
 	if err != nil {
 		return nil, cTypes.ErrInternal(fmt.Sprintf("failed to marshal data %s", err.Error()))

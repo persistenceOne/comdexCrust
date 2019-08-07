@@ -3,45 +3,46 @@ package types
 import (
 	"bytes"
 	"sort"
-
+	
 	cTypes "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/commitHub/commitBlockchain/modules/negotiation"
+	
 	"github.com/commitHub/commitBlockchain/types"
+	
+	"github.com/commitHub/commitBlockchain/modules/negotiation"
 )
 
 // TransactionFeedback : type
 type TransactionFeedback struct {
 	SendAssetsPositiveTx int64 `json:"sendAssetsPositiveTx"`
 	SendAssetsNegativeTx int64 `json:"sendAssetsNegativeTx"`
-
+	
 	SendFiatsPositiveTx int64 `json:"sendFiatsPositiveTx"`
 	SendFiatsNegativeTx int64 `json:"sendFiatsNegativeTx"`
-
+	
 	IBCIssueAssetsPositiveTx int64 `json:"ibcIssueAssetsPositiveTx"`
 	IBCIssueAssetsNegativeTx int64 `json:"ibcIssueAssetsNegativeTx"`
-
+	
 	IBCIssueFiatsPositiveTx int64 `json:"ibcIssueFiatsPositiveTx"`
 	IBCIssueFiatsNegativeTx int64 `json:"ibcIssueFiatsNegativeTx"`
-
+	
 	BuyerExecuteOrderPositiveTx int64 `json:"buyerExecuteOrderPositiveTx"`
 	BuyerExecuteOrderNegativeTx int64 `json:"buyerExecuteOrderNegativeTx"`
-
+	
 	SellerExecuteOrderPositiveTx int64 `json:"sellerExecuteOrderPositiveTx"`
 	SellerExecuteOrderNegativeTx int64 `json:"sellerExecuteOrderNegativeTx"`
-
+	
 	ChangeBuyerBidPositiveTx int64 `json:"changeBuyerBidPositiveTx"`
 	ChangeBuyerBidNegativeTx int64 `json:"changeBuyerBidNegativeTx"`
-
+	
 	ChangeSellerBidPositiveTx int64 `json:"changeSellerBidPositiveTx"`
 	ChangeSellerBidNegativeTx int64 `json:"changeSellerBidNegativeTx"`
-
+	
 	ConfirmBuyerBidPositiveTx int64 `json:"confirmBuyerBidPositiveTx"`
 	ConfirmBuyerBidNegativeTx int64 `json:"confirmBuyerBidNegativeTx"`
-
+	
 	ConfirmSellerBidPositiveTx int64 `json:"confirmSellerBidPositiveTx"`
 	ConfirmSellerBidNegativeTx int64 `json:"confirmSellerBidNegativeTx"`
-
+	
 	NegotiationPositiveTx int64 `json:"negotiationPositiveTx"`
 	NegotiationNegativeTx int64 `json:"negotiationNegativeTx"`
 }
@@ -103,15 +104,15 @@ func (traderFeedbackHistory TraderFeedbackHistory) Search(incomingFeedback Trade
 type AccountReputation interface {
 	GetAddress() cTypes.AccAddress
 	SetAddress(cTypes.AccAddress) error
-
+	
 	GetTransactionFeedback() TransactionFeedback
 	SetTransactionFeedback(TransactionFeedback) error
-
+	
 	GetTraderFeedbackHistory() TraderFeedbackHistory
 	SetTraderFeedbackHistory(TraderFeedbackHistory) error
-
+	
 	AddTraderFeedback(TraderFeedback) cTypes.Error
-
+	
 	GetRating() int64
 }
 
@@ -190,7 +191,7 @@ func (baseAccountReputation *BaseAccountReputation) AddTraderFeedback(traderFeed
 		baseAccountReputation.TraderFeedbackHistory = baseAccountReputation.TraderFeedbackHistory.Sort()
 		return nil
 	}
-
+	
 	return ErrFeedbackCannotRegister("You have already given a  traderFeedback for this transaction")
 }
 

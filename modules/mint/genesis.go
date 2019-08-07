@@ -46,11 +46,11 @@ func ValidateGenesis(data GenesisState) error {
 	if err != nil {
 		return err
 	}
-
+	
 	err = ValidateMinter(data.Minter)
 	if err != nil {
 		return err
 	}
-
+	
 	return nil
 }

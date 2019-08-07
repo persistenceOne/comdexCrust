@@ -2,9 +2,9 @@ package slashing
 
 import (
 	"time"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/slashing/types"
 )
 
@@ -25,7 +25,7 @@ func (k Keeper) MinSignedPerWindow(ctx sdk.Context) int64 {
 	var minSignedPerWindow sdk.Dec
 	k.paramspace.Get(ctx, types.KeyMinSignedPerWindow, &minSignedPerWindow)
 	signedBlocksWindow := k.SignedBlocksWindow(ctx)
-
+	
 	// NOTE: RoundInt64 will never panic as minSignedPerWindow is
 	//       less than 1.
 	return minSignedPerWindow.MulInt64(signedBlocksWindow).RoundInt64()

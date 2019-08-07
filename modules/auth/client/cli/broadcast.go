@@ -2,14 +2,14 @@ package cli
 
 import (
 	"strings"
-
+	
 	"github.com/spf13/cobra"
-
+	
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
 )
 
@@ -32,18 +32,18 @@ $ <appcli> tx broadcast ./mytxn.json
 			if err != nil {
 				return
 			}
-
+			
 			txBytes, err := cliCtx.Codec.MarshalBinaryLengthPrefixed(stdTx)
 			if err != nil {
 				return
 			}
-
+			
 			res, err := cliCtx.BroadcastTx(txBytes)
 			cliCtx.PrintOutput(res) // nolint:errcheck
-
+			
 			return err
 		},
 	}
-
+	
 	return flags.PostCommands(cmd)[0]
 }

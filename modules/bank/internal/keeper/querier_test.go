@@ -3,15 +3,15 @@ package keeper
 import (
 	"fmt"
 	"testing"
-
+	
 	"github.com/stretchr/testify/require"
-
+	
 	abci "github.com/tendermint/tendermint/abci/types"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/bank/internal/types"
-
+	
 	authtypes "github.com/commitHub/commitBlockchain/modules/auth/types"
 )
 
@@ -21,23 +21,23 @@ func TestBalances(t *testing.T) {
 		Path: fmt.Sprintf("custom/bank/%s", QueryBalance),
 		Data: []byte{},
 	}
-
+	
 	querier := NewQuerier(input.k)
-
+	
 	res, err := querier(input.ctx, []string{"balances"}, req)
 	require.NotNil(t, err)
 	require.Nil(t, res)
-
+	
 	_, _, addr := authtypes.KeyTestPubAddr()
 	req.Data = input.cdc.MustMarshalJSON(types.NewQueryBalanceParams(addr))
 	res, err = querier(input.ctx, []string{"balances"}, req)
 	require.Nil(t, err) // the account does not exist, no error returned anyway
 	require.NotNil(t, res)
-
+	
 	var coins sdk.Coins
 	require.NoError(t, input.cdc.UnmarshalJSON(res, &coins))
 	require.True(t, coins.IsZero())
-
+	
 	acc := input.ak.NewAccountWithAddress(input.ctx, addr)
 	acc.SetCoins(sdk.NewCoins(sdk.NewInt64Coin("foo", 10)))
 	input.ak.SetAccount(input.ctx, acc)
@@ -54,7 +54,7 @@ func TestQuerierRouteNotFound(t *testing.T) {
 		Path: "custom/bank/notfound",
 		Data: []byte{},
 	}
-
+	
 	querier := NewQuerier(input.k)
 	_, err := querier(input.ctx, []string{"notfound"}, req)
 	require.Error(t, err)

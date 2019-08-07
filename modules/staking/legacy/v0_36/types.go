@@ -4,7 +4,7 @@ package v0_36
 
 import (
 	v034staking "github.com/commitHub/commitBlockchain/modules/staking/legacy/v0_34"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -30,7 +30,7 @@ func NewGenesisState(
 	validators v034staking.Validators, delegations v034staking.Delegations,
 	ubds []v034staking.UnbondingDelegation, reds []v034staking.Redelegation, exported bool,
 ) GenesisState {
-
+	
 	return GenesisState{
 		Params:               params,
 		LastTotalPower:       lastTotalPower,

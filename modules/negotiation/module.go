@@ -2,18 +2,18 @@ package negotiation
 
 import (
 	"encoding/json"
-
+	
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/types/module"
-
+	
 	abci "github.com/tendermint/tendermint/abci/types"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/negotiation/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/negotiation/client/rest"
 )
@@ -54,14 +54,14 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-
+	
 	negotiationTxCmd.AddCommand(client.PostCommands(
 		cli.ChangeBuyerBidCmd(cdc),
 		cli.ChangeSellerBidCmd(cdc),
 		cli.ConfirmBuyerBidCmd(cdc),
 		cli.ConfirmSellerBidCmd(cdc),
 	)...)
-
+	
 	return negotiationTxCmd
 }
 
@@ -73,11 +73,11 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-
+	
 	negotiationQueryCmd.AddCommand(client.GetCommands(
 		cli.GetNegotiationCmd(cdc),
 	)...)
-
+	
 	return negotiationQueryCmd
 }
 
@@ -111,16 +111,16 @@ func (am AppModule) NewQuerierHandler() cTypes.Querier { return NewQuerier(am.ke
 
 func (am AppModule) InitGenesis(ctx cTypes.Context, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState GenesisState
-
+	
 	_ = ModuleCdc.UnmarshalJSON(data, &genesisState)
 	InitGenesis(ctx, am.keeper, genesisState)
-
+	
 	return []abci.ValidatorUpdate{}
 }
 
 func (am AppModule) ExportGenesis(ctx cTypes.Context) json.RawMessage {
 	gs := ExportGenesis(ctx, am.keeper)
-
+	
 	return ModuleCdc.MustMarshalJSON(gs)
 }
 

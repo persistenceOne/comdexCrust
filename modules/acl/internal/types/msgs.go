@@ -2,7 +2,7 @@ package types
 
 import (
 	"encoding/json"
-
+	
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -83,7 +83,7 @@ func (msg MsgDefineZones) GetSignBytes() []byte {
 	for _, defineZone := range msg.DefineZones {
 		defineZones = append(defineZones, defineZone.GetSignBytes())
 	}
-
+	
 	b, err := ModuleCdc.MarshalJSON(struct {
 		DefineZones []json.RawMessage `json:"defineZones"`
 	}{
@@ -203,7 +203,7 @@ func (msg MsgDefineOrganizations) GetSignBytes() []byte {
 	for _, defineOrganization := range msg.DefineOrganizations {
 		defineOrganizations = append(defineOrganizations, defineOrganization.GetSignBytes())
 	}
-
+	
 	b, err := ModuleCdc.MarshalJSON(struct {
 		DefineOrganizations []json.RawMessage `json:"defineOrganizations"`
 	}{
@@ -323,7 +323,7 @@ func (msg MsgDefineACLs) GetSignBytes() []byte {
 	for _, defineACL := range msg.DefineACLs {
 		defineACLs = append(defineACLs, defineACL.GetSignBytes())
 	}
-
+	
 	b, err := ModuleCdc.MarshalJSON(struct {
 		DefineACLs []json.RawMessage `json:"defineACLs"`
 	}{

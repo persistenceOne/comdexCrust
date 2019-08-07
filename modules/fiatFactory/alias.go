@@ -18,22 +18,22 @@ const (
 var (
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
-
+	
 	DefaultGenesisState = types.DefaultGenesisState
 	ValidateGenesis     = types.ValidateGenesis
 	PegHashKey          = types.PegHashKey
 	FiatPegHashStoreKey = types.FiatPegHashStoreKey
-
+	
 	EventTypeFiatFactoryAssignFiat  = types.EventTypeFiatFactoryAssignFiat
 	EventTypeFiatFactoryRedeemFiat  = types.EventTypeFiatFactoryRedeemFiat
 	EventTypeFiatFactorySendFiat    = types.EventTypeFiatFactorySendFiat
 	EventTypeFiatFactoryExecuteFiat = types.EventTypeFiatFactoryExecuteFiat
-
+	
 	ErrInvalidAmount  = types.ErrInvalidAmount
 	ErrInvalidString  = types.ErrInvalidString
 	ErrNoInputs       = types.ErrNoInputs
 	ErrInvalidPegHash = types.ErrInvalidPegHash
-
+	
 	BuildIssueFiatMsg   = types.BuildIssueFiatMsg
 	BuildSendFiatMsg    = types.BuildSendFiatMsg
 	BuildExecuteFiatMsg = types.BuildExecuteFiatMsg
@@ -42,10 +42,10 @@ var (
 
 type (
 	GenesisState = types.GenesisState
-	Keeper       = keeper.Keeper
-
-	MsgFactoryIssueFiats   = types.MsgFactoryIssueFiats
-	MsgFactoryRedeemFiats  = types.MsgFactoryRedeemFiats
-	MsgFactorySendFiats    = types.MsgFactorySendFiats
+	Keeper = keeper.Keeper
+	
+	MsgFactoryIssueFiats = types.MsgFactoryIssueFiats
+	MsgFactoryRedeemFiats = types.MsgFactoryRedeemFiats
+	MsgFactorySendFiats = types.MsgFactorySendFiats
 	MsgFactoryExecuteFiats = types.MsgFactoryExecuteFiats
 )

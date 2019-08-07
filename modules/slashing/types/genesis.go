@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 	"time"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -18,7 +18,7 @@ type GenesisState struct {
 func NewGenesisState(
 	params Params, signingInfos map[string]ValidatorSigningInfo, missedBlocks map[string][]MissedBlock,
 ) GenesisState {
-
+	
 	return GenesisState{
 		Params:       params,
 		SigningInfos: signingInfos,
@@ -47,31 +47,31 @@ func ValidateGenesis(data GenesisState) error {
 	if downtime.IsNegative() || downtime.GT(sdk.OneDec()) {
 		return fmt.Errorf("Slashing fraction downtime should be less than or equal to one and greater than zero, is %s", downtime.String())
 	}
-
+	
 	dblSign := data.Params.SlashFractionDoubleSign
 	if dblSign.IsNegative() || dblSign.GT(sdk.OneDec()) {
 		return fmt.Errorf("Slashing fraction double sign should be less than or equal to one and greater than zero, is %s", dblSign.String())
 	}
-
+	
 	minSign := data.Params.MinSignedPerWindow
 	if minSign.IsNegative() || minSign.GT(sdk.OneDec()) {
 		return fmt.Errorf("Min signed per window should be less than or equal to one and greater than zero, is %s", minSign.String())
 	}
-
+	
 	maxEvidence := data.Params.MaxEvidenceAge
 	if maxEvidence < 1*time.Minute {
 		return fmt.Errorf("Max evidence age must be at least 1 minute, is %s", maxEvidence.String())
 	}
-
+	
 	downtimeJail := data.Params.DowntimeJailDuration
 	if downtimeJail < 1*time.Minute {
 		return fmt.Errorf("Downtime unblond duration must be at least 1 minute, is %s", downtimeJail.String())
 	}
-
+	
 	signedWindow := data.Params.SignedBlocksWindow
 	if signedWindow < 10 {
 		return fmt.Errorf("Signed blocks window must be at least 10, is %d", signedWindow)
 	}
-
+	
 	return nil
 }

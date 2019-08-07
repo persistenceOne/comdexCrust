@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 	"time"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -13,7 +13,7 @@ type (
 		CommissionRates
 		UpdateTime time.Time `json:"update_time" yaml:"update_time"` // the last time the commission rate was changed
 	}
-
+	
 	// CommissionRates defines the initial commission rates to be used for creating a
 	// validator.
 	CommissionRates struct {
@@ -72,28 +72,28 @@ func (c CommissionRates) Validate() sdk.Error {
 	case c.MaxRate.LT(sdk.ZeroDec()):
 		// max rate cannot be negative
 		return ErrCommissionNegative(DefaultCodespace)
-
+	
 	case c.MaxRate.GT(sdk.OneDec()):
 		// max rate cannot be greater than 1
 		return ErrCommissionHuge(DefaultCodespace)
-
+	
 	case c.Rate.LT(sdk.ZeroDec()):
 		// rate cannot be negative
 		return ErrCommissionNegative(DefaultCodespace)
-
+	
 	case c.Rate.GT(c.MaxRate):
 		// rate cannot be greater than the max rate
 		return ErrCommissionGTMaxRate(DefaultCodespace)
-
+	
 	case c.MaxChangeRate.LT(sdk.ZeroDec()):
 		// change rate cannot be negative
 		return ErrCommissionChangeRateNegative(DefaultCodespace)
-
+	
 	case c.MaxChangeRate.GT(c.MaxRate):
 		// change rate cannot be greater than the max rate
 		return ErrCommissionChangeRateGTMaxRate(DefaultCodespace)
 	}
-
+	
 	return nil
 }
 
@@ -104,19 +104,19 @@ func (c Commission) ValidateNewRate(newRate sdk.Dec, blockTime time.Time) sdk.Er
 	case blockTime.Sub(c.UpdateTime).Hours() < 24:
 		// new rate cannot be changed more than once within 24 hours
 		return ErrCommissionUpdateTime(DefaultCodespace)
-
+	
 	case newRate.LT(sdk.ZeroDec()):
 		// new rate cannot be negative
 		return ErrCommissionNegative(DefaultCodespace)
-
+	
 	case newRate.GT(c.MaxRate):
 		// new rate cannot be greater than the max rate
 		return ErrCommissionGTMaxRate(DefaultCodespace)
-
+	
 	case newRate.Sub(c.Rate).GT(c.MaxChangeRate):
 		// new rate % points change cannot be greater than the max change rate
 		return ErrCommissionGTMaxChangeRate(DefaultCodespace)
 	}
-
+	
 	return nil
 }

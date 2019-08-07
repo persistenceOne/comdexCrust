@@ -2,7 +2,7 @@ package types
 
 import (
 	"fmt"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -24,6 +24,6 @@ func (f FeePool) ValidateGenesis() error {
 		return fmt.Errorf("negative CommunityPool in distribution fee pool, is %v",
 			f.CommunityPool)
 	}
-
+	
 	return nil
 }

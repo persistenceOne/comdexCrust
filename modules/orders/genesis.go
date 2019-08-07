@@ -12,11 +12,11 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 
 func ExportGenesis(ctx sdk.Context, keeper Keeper) (data GenesisState) {
 	var orders []Order
-
+	
 	keeper.IterateOrders(ctx, func(order Order) (stop bool) {
 		orders = append(orders, order)
 		return false
 	})
-
+	
 	return GenesisState{Orders: orders}
 }

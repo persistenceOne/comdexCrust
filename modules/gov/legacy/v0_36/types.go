@@ -6,26 +6,26 @@ import (
 	"fmt"
 	"strings"
 	"time"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
-
+	
 	v034gov "github.com/commitHub/commitBlockchain/modules/gov/legacy/v0_34"
 )
 
 const (
 	ModuleName = "gov"
 	RouterKey  = ModuleName
-
+	
 	DefaultCodespace sdk.CodespaceType = "gov"
-
+	
 	ProposalTypeText            string = "Text"
 	ProposalTypeSoftwareUpgrade string = "SoftwareUpgrade"
-
+	
 	MaxDescriptionLength int = 5000
 	MaxTitleLength       int = 140
-
+	
 	CodeInvalidContent sdk.CodeType = 6
 )
 
@@ -35,19 +35,19 @@ var (
 )
 
 type (
-	Proposals     []Proposal
+	Proposals []Proposal
 	ProposalQueue []uint64
-
+	
 	TextProposal struct {
 		Title       string `json:"title"`
 		Description string `json:"description"`
 	}
-
+	
 	SoftwareUpgradeProposal struct {
 		Title       string `json:"title"`
 		Description string `json:"description"`
 	}
-
+	
 	Content interface {
 		GetTitle() string
 		GetDescription() string
@@ -56,22 +56,22 @@ type (
 		ValidateBasic() sdk.Error
 		String() string
 	}
-
+	
 	Proposal struct {
 		Content `json:"content"`
-
+		
 		ProposalID       uint64                 `json:"id"`
 		Status           v034gov.ProposalStatus `json:"proposal_status"`
 		FinalTallyResult v034gov.TallyResult    `json:"final_tally_result"`
-
+		
 		SubmitTime     time.Time `json:"submit_time"`
 		DepositEndTime time.Time `json:"deposit_end_time"`
 		TotalDeposit   sdk.Coins `json:"total_deposit"`
-
+		
 		VotingStartTime time.Time `json:"voting_start_time"`
 		VotingEndTime   time.Time `json:"voting_end_time"`
 	}
-
+	
 	GenesisState struct {
 		StartingProposalID uint64                `json:"starting_proposal_id"`
 		Deposits           v034gov.Deposits      `json:"deposits"`
@@ -87,7 +87,7 @@ func NewGenesisState(
 	startingProposalID uint64, deposits v034gov.Deposits, votes v034gov.Votes, proposals []Proposal,
 	depositParams v034gov.DepositParams, votingParams v034gov.VotingParams, tallyParams v034gov.TallyParams,
 ) GenesisState {
-
+	
 	return GenesisState{
 		StartingProposalID: startingProposalID,
 		Deposits:           deposits,
@@ -147,7 +147,7 @@ func ValidateAbstract(codespace sdk.CodespaceType, c Content) sdk.Error {
 	if len(title) > MaxTitleLength {
 		return ErrInvalidProposalContent(codespace, fmt.Sprintf("proposal title is longer than max length of %d", MaxTitleLength))
 	}
-
+	
 	description := c.GetDescription()
 	if len(description) == 0 {
 		return ErrInvalidProposalContent(codespace, "proposal description cannot be blank")
@@ -155,7 +155,7 @@ func ValidateAbstract(codespace sdk.CodespaceType, c Content) sdk.Error {
 	if len(description) > MaxDescriptionLength {
 		return ErrInvalidProposalContent(codespace, fmt.Sprintf("proposal description is longer than max length of %d", MaxDescriptionLength))
 	}
-
+	
 	return nil
 }
 

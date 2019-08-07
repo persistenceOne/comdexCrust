@@ -3,10 +3,10 @@ package rest
 import (
 	"io/ioutil"
 	"net/http"
-
+	
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/auth/types"
 )
 
@@ -22,33 +22,33 @@ type BroadcastReq struct {
 func BroadcastTxRequest(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req BroadcastReq
-
+		
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-
+		
 		err = cliCtx.Codec.UnmarshalJSON(body, &req)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-
+		
 		txBytes, err := cliCtx.Codec.MarshalBinaryLengthPrefixed(req.Tx)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-
+		
 		cliCtx = cliCtx.WithBroadcastMode(req.Mode)
-
+		
 		res, err := cliCtx.BroadcastTx(txBytes)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-
+		
 		rest.PostProcessResponse(w, cliCtx, res)
 	}
 }

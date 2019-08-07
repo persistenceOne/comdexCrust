@@ -2,7 +2,7 @@ package fiatFactory
 
 import (
 	"fmt"
-
+	
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -26,14 +26,14 @@ func NewHandler(keeper Keeper) cTypes.Handler {
 }
 
 func handleMsgFactoryIssueFiat(ctx cTypes.Context, keeper Keeper, msg MsgFactoryIssueFiats) cTypes.Result {
-
+	
 	for _, issueFiat := range msg.IssueFiats {
 		err := instantiateAndAssignFiat(ctx, keeper, issueFiat.IssuerAddress, issueFiat.ToAddress, issueFiat.FiatPeg)
 		if err != nil {
 			return err.Result()
 		}
 	}
-
+	
 	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
@@ -42,12 +42,12 @@ func handleMsgFactoryIssueFiat(ctx cTypes.Context, keeper Keeper, msg MsgFactory
 func handleMsgFactoryRedeemFiat(ctx cTypes.Context, keeper Keeper, msg MsgFactoryRedeemFiats) cTypes.Result {
 	for _, redeemFiat := range msg.RedeemFiats {
 		err := instantiateAndRedeemFiat(ctx, keeper, redeemFiat.RelayerAddress, redeemFiat.FiatPegWallet)
-
+		
 		if err != nil {
 			return err.Result()
 		}
 	}
-
+	
 	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
@@ -56,7 +56,7 @@ func handleMsgFactoryRedeemFiat(ctx cTypes.Context, keeper Keeper, msg MsgFactor
 func handleMsgFactorySendFiat(ctx cTypes.Context, keeper Keeper, msg MsgFactorySendFiats) cTypes.Result {
 	events := cTypes.EmptyEvents()
 	ctx.EventManager().EmitEvents(events)
-
+	
 	for _, sendFiat := range msg.SendFiats {
 		err := sendFiatToOrder(ctx, keeper, sendFiat.FromAddress, sendFiat.ToAddress,
 			sendFiat.PegHash, sendFiat.FiatPegWallet)
@@ -64,7 +64,7 @@ func handleMsgFactorySendFiat(ctx cTypes.Context, keeper Keeper, msg MsgFactoryS
 			return err.Result()
 		}
 	}
-
+	
 	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
@@ -73,7 +73,7 @@ func handleMsgFactorySendFiat(ctx cTypes.Context, keeper Keeper, msg MsgFactoryS
 func handleMsgFactoryExecuteFiat(ctx cTypes.Context, keeper Keeper, msg MsgFactoryExecuteFiats) cTypes.Result {
 	events := cTypes.EmptyEvents()
 	ctx.EventManager().EmitEvents(events)
-
+	
 	for _, executeFiat := range msg.SendFiats {
 		err := sendFiatFromOrder(ctx, keeper, executeFiat.FromAddress, executeFiat.ToAddress,
 			executeFiat.PegHash, executeFiat.FiatPegWallet)
@@ -81,7 +81,7 @@ func handleMsgFactoryExecuteFiat(ctx cTypes.Context, keeper Keeper, msg MsgFacto
 			return err.Result()
 		}
 	}
-
+	
 	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}

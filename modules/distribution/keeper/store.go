@@ -2,7 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/distribution/types"
 )
 
@@ -239,14 +239,14 @@ func (k Keeper) GetValidatorAccumulatedCommission(ctx sdk.Context, val sdk.ValAd
 // set accumulated commission for a validator
 func (k Keeper) SetValidatorAccumulatedCommission(ctx sdk.Context, val sdk.ValAddress, commission types.ValidatorAccumulatedCommission) {
 	var bz []byte
-
+	
 	store := ctx.KVStore(k.storeKey)
 	if commission.IsZero() {
 		bz = k.cdc.MustMarshalBinaryLengthPrefixed(types.InitialValidatorAccumulatedCommission())
 	} else {
 		bz = k.cdc.MustMarshalBinaryLengthPrefixed(commission)
 	}
-
+	
 	store.Set(GetValidatorAccumulatedCommissionKey(val), bz)
 }
 

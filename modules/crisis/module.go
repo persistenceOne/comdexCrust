@@ -2,18 +2,18 @@ package crisis
 
 import (
 	"encoding/json"
-
+	
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-
+	
 	abci "github.com/tendermint/tendermint/abci/types"
-
+	
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/types/module"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/crisis/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/crisis/internal/keeper"
 	"github.com/commitHub/commitBlockchain/modules/crisis/internal/types"
@@ -108,7 +108,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.Va
 	var genesisState GenesisState
 	types.ModuleCdc.MustUnmarshalJSON(data, &genesisState)
 	InitGenesis(ctx, am.keeper, genesisState)
-
+	
 	am.keeper.AssertInvariants(ctx)
 	return []abci.ValidatorUpdate{}
 }

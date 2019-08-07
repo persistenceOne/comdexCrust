@@ -2,9 +2,9 @@ package keeper
 
 import (
 	"fmt"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/distribution/types"
 	"github.com/commitHub/commitBlockchain/modules/staking/exported"
 )
@@ -46,7 +46,7 @@ func NonNegativeOutstandingInvariant(k Keeper) sdk.Invariant {
 		var msg string
 		var count int
 		var outstanding sdk.DecCoins
-
+		
 		k.IterateValidatorOutstandingRewards(ctx, func(addr sdk.ValAddress, rewards types.ValidatorOutstandingRewards) (stop bool) {
 			outstanding = rewards
 			if outstanding.IsAnyNegative() {
@@ -56,7 +56,7 @@ func NonNegativeOutstandingInvariant(k Keeper) sdk.Invariant {
 			return false
 		})
 		broken := count != 0
-
+		
 		return sdk.FormatInvariant(types.ModuleName, "nonnegative outstanding",
 			fmt.Sprintf("found %d validators with negative outstanding rewards\n%s", count, msg), broken)
 	}
@@ -65,22 +65,22 @@ func NonNegativeOutstandingInvariant(k Keeper) sdk.Invariant {
 // CanWithdrawInvariant checks that current rewards can be completely withdrawn
 func CanWithdrawInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
-
+		
 		// cache, we don't want to write changes
 		ctx, _ = ctx.CacheContext()
-
+		
 		var remaining sdk.DecCoins
-
+		
 		valDelegationAddrs := make(map[string][]sdk.AccAddress)
 		for _, del := range k.stakingKeeper.GetAllSDKDelegations(ctx) {
 			valAddr := del.GetValidatorAddr().String()
 			valDelegationAddrs[valAddr] = append(valDelegationAddrs[valAddr], del.GetDelegatorAddr())
 		}
-
+		
 		// iterate over all validators
 		k.stakingKeeper.IterateValidators(ctx, func(_ int64, val exported.ValidatorI) (stop bool) {
 			_, _ = k.WithdrawValidatorCommission(ctx, val.GetOperator())
-
+			
 			delegationAddrs, ok := valDelegationAddrs[val.GetOperator().String()]
 			if ok {
 				for _, delAddr := range delegationAddrs {
@@ -89,15 +89,15 @@ func CanWithdrawInvariant(k Keeper) sdk.Invariant {
 					}
 				}
 			}
-
+			
 			remaining = k.GetValidatorOutstandingRewards(ctx, val.GetOperator())
 			if len(remaining) > 0 && remaining[0].Amount.LT(sdk.ZeroDec()) {
 				return true
 			}
-
+			
 			return false
 		})
-
+		
 		broken := len(remaining) > 0 && remaining[0].Amount.LT(sdk.ZeroDec())
 		return sdk.FormatInvariant(types.ModuleName, "can withdraw",
 			fmt.Sprintf("remaining coins: %v\n", remaining), broken)
@@ -107,7 +107,7 @@ func CanWithdrawInvariant(k Keeper) sdk.Invariant {
 // ReferenceCountInvariant checks that the number of historical rewards records is correct
 func ReferenceCountInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
-
+		
 		valCount := uint64(0)
 		k.stakingKeeper.IterateValidators(ctx, func(_ int64, val exported.ValidatorI) (stop bool) {
 			valCount++
@@ -120,13 +120,13 @@ func ReferenceCountInvariant(k Keeper) sdk.Invariant {
 				slashCount++
 				return false
 			})
-
+		
 		// one record per validator (last tracked period), one record per
 		// delegation (previous period), one record per slash (previous period)
 		expected := valCount + uint64(len(dels)) + slashCount
 		count := k.GetValidatorHistoricalReferenceCount(ctx)
 		broken := count != expected
-
+		
 		return sdk.FormatInvariant(types.ModuleName, "reference count",
 			fmt.Sprintf("expected historical reference count: %d = %v validators + %v delegations + %v slashes\n"+
 				"total validator historical reference count: %d\n",
@@ -138,18 +138,18 @@ func ReferenceCountInvariant(k Keeper) sdk.Invariant {
 // is consistent with the sum of validator outstanding rewards
 func ModuleAccountInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
-
+		
 		var expectedCoins sdk.DecCoins
 		k.IterateValidatorOutstandingRewards(ctx, func(_ sdk.ValAddress, rewards types.ValidatorOutstandingRewards) (stop bool) {
 			expectedCoins = expectedCoins.Add(rewards)
 			return false
 		})
-
+		
 		communityPool := k.GetFeePoolCommunityCoins(ctx)
 		expectedInt, _ := expectedCoins.Add(communityPool).TruncateDecimal()
-
+		
 		macc := k.GetDistributionAccount(ctx)
-
+		
 		broken := !macc.GetCoins().IsEqual(expectedInt)
 		return sdk.FormatInvariant(types.ModuleName, "ModuleAccount coins",
 			fmt.Sprintf("\texpected ModuleAccount coins:     %s\n"+

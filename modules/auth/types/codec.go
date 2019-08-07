@@ -2,7 +2,7 @@ package types
 
 import (
 	"github.com/commitHub/commitBlockchain/codec"
-
+	
 	"github.com/commitHub/commitBlockchain/modules/auth/exported"
 )
 

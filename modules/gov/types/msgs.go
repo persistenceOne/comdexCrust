@@ -2,7 +2,7 @@ package types
 
 import (
 	"fmt"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -53,7 +53,7 @@ func (msg MsgSubmitProposal) ValidateBasic() sdk.Error {
 	if !IsValidProposalType(msg.Content.ProposalType()) {
 		return ErrInvalidProposalType(DefaultCodespace, msg.Content.ProposalType())
 	}
-
+	
 	return msg.Content.ValidateBasic()
 }
 
@@ -102,7 +102,7 @@ func (msg MsgDeposit) ValidateBasic() sdk.Error {
 	if msg.Amount.IsAnyNegative() {
 		return sdk.ErrInvalidCoins(msg.Amount.String())
 	}
-
+	
 	return nil
 }
 
@@ -149,7 +149,7 @@ func (msg MsgVote) ValidateBasic() sdk.Error {
 	if !ValidVoteOption(msg.Option) {
 		return ErrInvalidVote(DefaultCodespace, msg.Option)
 	}
-
+	
 	return nil
 }
 

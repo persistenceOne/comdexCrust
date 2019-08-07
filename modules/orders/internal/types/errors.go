@@ -8,7 +8,7 @@ type CodeType cTypes.CodeType
 
 const (
 	DefaultCodeSpace cTypes.CodespaceType = ModuleName
-
+	
 	CodeInvalidInputsOutputs cTypes.CodeType = 701
 	CodeUnauthorized         cTypes.CodeType = 702
 )

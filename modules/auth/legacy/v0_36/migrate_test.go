@@ -2,11 +2,11 @@ package v0_36
 
 import (
 	"testing"
-
+	
 	"github.com/cosmos/cosmos-sdk/types"
-
+	
 	v034auth "github.com/commitHub/commitBlockchain/modules/auth/legacy/v0_34"
-
+	
 	"github.com/stretchr/testify/require"
 )
 
