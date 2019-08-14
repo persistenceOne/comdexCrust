@@ -5835,7 +5835,7 @@
           <hashTree>
             <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="JSON Extractor" enabled="true">
               <stringProp name="JSONPostProcessor.referenceNames">pegHash</stringProp>
-              <stringProp name="JSONPostProcessor.jsonPathExprs">$.value.asset_peg_wallet[0].pegHash</stringProp>
+              <stringProp name="JSONPostProcessor.jsonPathExprs">$.value.assetPegWallet[0].pegHash</stringProp>
               <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
               <stringProp name="JSONPostProcessor.defaultValues">0</stringProp>
             </JSONPostProcessor>
@@ -5980,7 +5980,7 @@
           <hashTree>
             <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="JSON Extractor" enabled="true">
               <stringProp name="JSONPostProcessor.referenceNames">fiatPegHash</stringProp>
-              <stringProp name="JSONPostProcessor.jsonPathExprs">$.value.fiat_peg_wallet[0].pegHash</stringProp>
+              <stringProp name="JSONPostProcessor.jsonPathExprs">$.value.fiatPegWallet[0].pegHash</stringProp>
               <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
               <stringProp name="JSONPostProcessor.defaultValues">0</stringProp>
             </JSONPostProcessor>
@@ -6784,7 +6784,7 @@
             </ConstantTimer>
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion" enabled="true">
-              <stringProp name="JSON_PATH">$.value.asset_peg_wallet[0].quantityUnit</stringProp>
+              <stringProp name="JSON_PATH">$.value.assetPegWallet[0].quantityUnit</stringProp>
               <stringProp name="EXPECTED_VALUE">MT</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
@@ -6793,7 +6793,7 @@
             </JSONPathAssertion>
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion" enabled="true">
-              <stringProp name="JSON_PATH">$.value.asset_peg_wallet[0].assetQuantity</stringProp>
+              <stringProp name="JSON_PATH">$.value.assetPegWallet[0].assetQuantity</stringProp>
               <stringProp name="EXPECTED_VALUE">${asset_quantity}</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
@@ -6802,7 +6802,7 @@
             </JSONPathAssertion>
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion" enabled="true">
-              <stringProp name="JSON_PATH">$.value.asset_peg_wallet[0].assetType</stringProp>
+              <stringProp name="JSON_PATH">$.value.assetPegWallet[0].assetType</stringProp>
               <stringProp name="EXPECTED_VALUE">${asset_type}</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
@@ -6811,7 +6811,7 @@
             </JSONPathAssertion>
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion" enabled="true">
-              <stringProp name="JSON_PATH">$.value.asset_peg_wallet[0].documentHash</stringProp>
+              <stringProp name="JSON_PATH">$.value.assetPegWallet[0].documentHash</stringProp>
               <stringProp name="EXPECTED_VALUE">${doccument_hash}</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
@@ -7171,7 +7171,7 @@
           </HTTPSamplerProxy>
           <hashTree>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion" enabled="true">
-              <stringProp name="JSON_PATH">$.value.asset_peg_wallet</stringProp>
+              <stringProp name="JSON_PATH">$.value.assetPegWallet</stringProp>
               <stringProp name="EXPECTED_VALUE"></stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">true</boolProp>
@@ -8513,7 +8513,7 @@ vars.put(&quot;final_transaction_amount&quot;, finalTransaction);</stringProp>
           <hashTree>
             <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="JSON Extractor" enabled="true">
               <stringProp name="JSONPostProcessor.referenceNames">pegHash</stringProp>
-              <stringProp name="JSONPostProcessor.jsonPathExprs">$.value.asset_peg_wallet[0].pegHash</stringProp>
+              <stringProp name="JSONPostProcessor.jsonPathExprs">$.value.assetPegWallet[0].pegHash</stringProp>
               <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
               <stringProp name="JSONPostProcessor.defaultValues">0</stringProp>
             </JSONPostProcessor>
@@ -8657,7 +8657,7 @@ vars.put(&quot;final_transaction_amount&quot;, finalTransaction);</stringProp>
           <hashTree>
             <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="JSON Extractor" enabled="true">
               <stringProp name="JSONPostProcessor.referenceNames">fiatPegHash</stringProp>
-              <stringProp name="JSONPostProcessor.jsonPathExprs">$.value.fiat_peg_wallet[0].pegHash</stringProp>
+              <stringProp name="JSONPostProcessor.jsonPathExprs">$.value.fiatPegWallet[0].pegHash</stringProp>
               <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
               <stringProp name="JSONPostProcessor.defaultValues">0</stringProp>
             </JSONPostProcessor>
@@ -8844,7 +8844,7 @@ vars.put(&quot;final_transaction_amount&quot;, finalTransaction);</stringProp>
             </ConstantTimer>
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion" enabled="true">
-              <stringProp name="JSON_PATH">$.value.asset_peg_wallet[0].quantityUnit</stringProp>
+              <stringProp name="JSON_PATH">$.value.assetPegWallet[0].quantityUnit</stringProp>
               <stringProp name="EXPECTED_VALUE">MT</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
@@ -8853,7 +8853,7 @@ vars.put(&quot;final_transaction_amount&quot;, finalTransaction);</stringProp>
             </JSONPathAssertion>
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion" enabled="true">
-              <stringProp name="JSON_PATH">$.value.asset_peg_wallet[0].assetQuantity</stringProp>
+              <stringProp name="JSON_PATH">$.value.assetPegWallet[0].assetQuantity</stringProp>
               <stringProp name="EXPECTED_VALUE">${asset_quantity}</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
@@ -8862,7 +8862,7 @@ vars.put(&quot;final_transaction_amount&quot;, finalTransaction);</stringProp>
             </JSONPathAssertion>
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion" enabled="true">
-              <stringProp name="JSON_PATH">$.value.asset_peg_wallet[0].assetType</stringProp>
+              <stringProp name="JSON_PATH">$.value.assetPegWallet[0].assetType</stringProp>
               <stringProp name="EXPECTED_VALUE">${asset_type}</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
@@ -8871,7 +8871,7 @@ vars.put(&quot;final_transaction_amount&quot;, finalTransaction);</stringProp>
             </JSONPathAssertion>
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion" enabled="true">
-              <stringProp name="JSON_PATH">$.value.asset_peg_wallet[0].documentHash</stringProp>
+              <stringProp name="JSON_PATH">$.value.assetPegWallet[0].documentHash</stringProp>
               <stringProp name="EXPECTED_VALUE">${doccument_hash}</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
@@ -9087,7 +9087,7 @@ vars.put(&quot;final_transaction_amount&quot;, finalTransaction);</stringProp>
           </HTTPSamplerProxy>
           <hashTree>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion" enabled="true">
-              <stringProp name="JSON_PATH">$.value.asset_peg_wallet</stringProp>
+              <stringProp name="JSON_PATH">$.value.assetPegWallet</stringProp>
               <stringProp name="EXPECTED_VALUE"></stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">true</boolProp>
