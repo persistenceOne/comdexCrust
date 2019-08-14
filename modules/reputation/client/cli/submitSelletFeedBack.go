@@ -7,12 +7,10 @@ import (
 	"github.com/spf13/viper"
 	
 	"github.com/commitHub/commitBlockchain/codec"
-	
-	"github.com/commitHub/commitBlockchain/types"
-	
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
-	types2 "github.com/commitHub/commitBlockchain/modules/reputation/internal/types"
+	reputationTypes "github.com/commitHub/commitBlockchain/modules/reputation/internal/types"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 func SubmitSellerFeedbackCmd(cdc *codec.Codec) *cobra.Command {
@@ -37,7 +35,7 @@ func SubmitSellerFeedbackCmd(cdc *codec.Codec) *cobra.Command {
 			
 			rating := viper.GetInt64(FlagRating)
 			
-			msg := types2.BuildSellerFeedbackMsg(toAddress, cliCtx.GetFromAddress(), pegHashHex, rating)
+			msg := reputationTypes.BuildSellerFeedbackMsg(toAddress, cliCtx.GetFromAddress(), pegHashHex, rating)
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []cTypes.Msg{msg})
 		},
 	}

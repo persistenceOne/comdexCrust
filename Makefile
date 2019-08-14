@@ -29,7 +29,7 @@ else
 	go build -mod=readonly ${BUILD_FLAGS} -o bin/maincli main/cmd/maincli/
 endif
 
-install:
+install: go.sum
 	go install -mod=readonly ${BUILD_FLAGS} ./main/cmd/maind
 	go install -mod=readonly ${BUILD_FLAGS} ./main/cmd/maincli
 

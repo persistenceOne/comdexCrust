@@ -6,13 +6,11 @@ import (
 	"strings"
 	"time"
 	
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	
 	"github.com/cosmos/cosmos-sdk/client/context"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
+	crTypes "github.com/tendermint/tendermint/rpc/core/types"
 	
 	"github.com/commitHub/commitBlockchain/codec"
-	
 	"github.com/commitHub/commitBlockchain/modules/auth/types"
 )
 
@@ -21,7 +19,7 @@ import (
 // "{eventAttribute}.{attributeKey} = '{attributeValue}'". Each event is
 // concatenated with an 'AND' operand. It returns a slice of Info object
 // containing txs and metadata. An error is returned if the query fails.
-func QueryTxsByEvents(cliCtx context.CLIContext, events []string, page, limit int) (*sdk.SearchTxsResult, error) {
+func QueryTxsByEvents(cliCtx context.CLIContext, events []string, page, limit int) (*cTypes.SearchTxsResult, error) {
 	if len(events) == 0 {
 		return nil, errors.New("must declare at least one event to search")
 	}
@@ -68,38 +66,38 @@ func QueryTxsByEvents(cliCtx context.CLIContext, events []string, page, limit in
 		return nil, err
 	}
 	
-	result := sdk.NewSearchTxsResult(resTxs.TotalCount, len(txs), page, limit, txs)
+	result := cTypes.NewSearchTxsResult(resTxs.TotalCount, len(txs), page, limit, txs)
 	
 	return &result, nil
 }
 
 // QueryTx queries for a single transaction by a hash string in hex format. An
 // error is returned if the transaction does not exist or cannot be queried.
-func QueryTx(cliCtx context.CLIContext, hashHexStr string) (sdk.TxResponse, error) {
+func QueryTx(cliCtx context.CLIContext, hashHexStr string) (cTypes.TxResponse, error) {
 	hash, err := hex.DecodeString(hashHexStr)
 	if err != nil {
-		return sdk.TxResponse{}, err
+		return cTypes.TxResponse{}, err
 	}
 	
 	node, err := cliCtx.GetNode()
 	if err != nil {
-		return sdk.TxResponse{}, err
+		return cTypes.TxResponse{}, err
 	}
 	
 	resTx, err := node.Tx(hash, !cliCtx.TrustNode)
 	if err != nil {
-		return sdk.TxResponse{}, err
+		return cTypes.TxResponse{}, err
 	}
 	
 	if !cliCtx.TrustNode {
 		if err = ValidateTxResult(cliCtx, resTx); err != nil {
-			return sdk.TxResponse{}, err
+			return cTypes.TxResponse{}, err
 		}
 	}
 	
-	resBlocks, err := getBlocksForTxResults(cliCtx, []*ctypes.ResultTx{resTx})
+	resBlocks, err := getBlocksForTxResults(cliCtx, []*crTypes.ResultTx{resTx})
 	if err != nil {
-		return sdk.TxResponse{}, err
+		return cTypes.TxResponse{}, err
 	}
 	
 	out, err := formatTxResult(cliCtx.Codec, resTx, resBlocks[resTx.Height])
@@ -111,9 +109,9 @@ func QueryTx(cliCtx context.CLIContext, hashHexStr string) (sdk.TxResponse, erro
 }
 
 // formatTxResults parses the indexed txs into a slice of TxResponse objects.
-func formatTxResults(cdc *codec.Codec, resTxs []*ctypes.ResultTx, resBlocks map[int64]*ctypes.ResultBlock) ([]sdk.TxResponse, error) {
+func formatTxResults(cdc *codec.Codec, resTxs []*crTypes.ResultTx, resBlocks map[int64]*crTypes.ResultBlock) ([]cTypes.TxResponse, error) {
 	var err error
-	out := make([]sdk.TxResponse, len(resTxs))
+	out := make([]cTypes.TxResponse, len(resTxs))
 	for i := range resTxs {
 		out[i], err = formatTxResult(cdc, resTxs[i], resBlocks[resTxs[i].Height])
 		if err != nil {
@@ -125,7 +123,7 @@ func formatTxResults(cdc *codec.Codec, resTxs []*ctypes.ResultTx, resBlocks map[
 }
 
 // ValidateTxResult performs transaction verification.
-func ValidateTxResult(cliCtx context.CLIContext, resTx *ctypes.ResultTx) error {
+func ValidateTxResult(cliCtx context.CLIContext, resTx *crTypes.ResultTx) error {
 	if !cliCtx.TrustNode {
 		check, err := cliCtx.Verify(resTx.Height)
 		if err != nil {
@@ -139,13 +137,13 @@ func ValidateTxResult(cliCtx context.CLIContext, resTx *ctypes.ResultTx) error {
 	return nil
 }
 
-func getBlocksForTxResults(cliCtx context.CLIContext, resTxs []*ctypes.ResultTx) (map[int64]*ctypes.ResultBlock, error) {
+func getBlocksForTxResults(cliCtx context.CLIContext, resTxs []*crTypes.ResultTx) (map[int64]*crTypes.ResultBlock, error) {
 	node, err := cliCtx.GetNode()
 	if err != nil {
 		return nil, err
 	}
 	
-	resBlocks := make(map[int64]*ctypes.ResultBlock)
+	resBlocks := make(map[int64]*crTypes.ResultBlock)
 	
 	for _, resTx := range resTxs {
 		if _, ok := resBlocks[resTx.Height]; !ok {
@@ -161,16 +159,16 @@ func getBlocksForTxResults(cliCtx context.CLIContext, resTxs []*ctypes.ResultTx)
 	return resBlocks, nil
 }
 
-func formatTxResult(cdc *codec.Codec, resTx *ctypes.ResultTx, resBlock *ctypes.ResultBlock) (sdk.TxResponse, error) {
+func formatTxResult(cdc *codec.Codec, resTx *crTypes.ResultTx, resBlock *crTypes.ResultBlock) (cTypes.TxResponse, error) {
 	tx, err := parseTx(cdc, resTx.Tx)
 	if err != nil {
-		return sdk.TxResponse{}, err
+		return cTypes.TxResponse{}, err
 	}
 	
-	return sdk.NewResponseResultTx(resTx, tx, resBlock.Block.Time.Format(time.RFC3339)), nil
+	return cTypes.NewResponseResultTx(resTx, tx, resBlock.Block.Time.Format(time.RFC3339)), nil
 }
 
-func parseTx(cdc *codec.Codec, txBytes []byte) (sdk.Tx, error) {
+func parseTx(cdc *codec.Codec, txBytes []byte) (cTypes.Tx, error) {
 	var tx types.StdTx
 	
 	err := cdc.UnmarshalBinaryLengthPrefixed(txBytes, &tx)

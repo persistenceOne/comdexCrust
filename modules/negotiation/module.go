@@ -2,20 +2,19 @@ package negotiation
 
 import (
 	"encoding/json"
-	
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-	
+	abciTypes "github.com/tendermint/tendermint/abci/types"
+
 	"github.com/commitHub/commitBlockchain/codec"
-	"github.com/commitHub/commitBlockchain/types/module"
-	
-	abci "github.com/tendermint/tendermint/abci/types"
-	
+	"github.com/commitHub/commitBlockchain/kafka"
 	"github.com/commitHub/commitBlockchain/modules/negotiation/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/negotiation/client/rest"
+	"github.com/commitHub/commitBlockchain/types/module"
 )
 
 var (
@@ -42,8 +41,8 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 	return ValidateGenesis(data)
 }
 
-func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
-	rest.RegisterRoutes(ctx, rtr)
+func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router, kafkaBool bool, kafkaState kafka.KafkaState) {
+	rest.RegisterRoutes(ctx, rtr, kafkaBool, kafkaState)
 }
 
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
@@ -54,14 +53,14 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	
+
 	negotiationTxCmd.AddCommand(client.PostCommands(
 		cli.ChangeBuyerBidCmd(cdc),
 		cli.ChangeSellerBidCmd(cdc),
 		cli.ConfirmBuyerBidCmd(cdc),
 		cli.ConfirmSellerBidCmd(cdc),
 	)...)
-	
+
 	return negotiationTxCmd
 }
 
@@ -73,11 +72,11 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	
+
 	negotiationQueryCmd.AddCommand(client.GetCommands(
 		cli.GetNegotiationCmd(cdc),
 	)...)
-	
+
 	return negotiationQueryCmd
 }
 
@@ -109,23 +108,23 @@ func (am AppModule) QuerierRoute() string { return QuerierRoute }
 
 func (am AppModule) NewQuerierHandler() cTypes.Querier { return NewQuerier(am.keeper) }
 
-func (am AppModule) InitGenesis(ctx cTypes.Context, data json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx cTypes.Context, data json.RawMessage) []abciTypes.ValidatorUpdate {
 	var genesisState GenesisState
-	
+
 	_ = ModuleCdc.UnmarshalJSON(data, &genesisState)
 	InitGenesis(ctx, am.keeper, genesisState)
-	
-	return []abci.ValidatorUpdate{}
+
+	return []abciTypes.ValidatorUpdate{}
 }
 
 func (am AppModule) ExportGenesis(ctx cTypes.Context) json.RawMessage {
 	gs := ExportGenesis(ctx, am.keeper)
-	
+
 	return ModuleCdc.MustMarshalJSON(gs)
 }
 
-func (AppModule) BeginBlock(cTypes.Context, abci.RequestBeginBlock) {}
+func (AppModule) BeginBlock(cTypes.Context, abciTypes.RequestBeginBlock) {}
 
-func (AppModule) EndBlock(_ cTypes.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
+func (AppModule) EndBlock(_ cTypes.Context, _ abciTypes.RequestEndBlock) []abciTypes.ValidatorUpdate {
+	return []abciTypes.ValidatorUpdate{}
 }

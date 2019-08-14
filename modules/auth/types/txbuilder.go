@@ -9,14 +9,14 @@ import (
 	
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
-	crkeys "github.com/cosmos/cosmos-sdk/crypto/keys"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	crKeys "github.com/cosmos/cosmos-sdk/crypto/keys"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 )
 
 // TxBuilder implements a transaction context created in SDK modules.
 type TxBuilder struct {
-	txEncoder          sdk.TxEncoder
-	keybase            crkeys.Keybase
+	txEncoder          cTypes.TxEncoder
+	keybase            crKeys.Keybase
 	accountNumber      uint64
 	sequence           uint64
 	gas                uint64
@@ -24,14 +24,14 @@ type TxBuilder struct {
 	simulateAndExecute bool
 	chainID            string
 	memo               string
-	fees               sdk.Coins
-	gasPrices          sdk.DecCoins
+	fees               cTypes.Coins
+	gasPrices          cTypes.DecCoins
 }
 
 // NewTxBuilder returns a new initialized TxBuilder.
 func NewTxBuilder(
-	txEncoder sdk.TxEncoder, accNumber, seq, gas uint64, gasAdj float64,
-	simulateAndExecute bool, chainID, memo string, fees sdk.Coins, gasPrices sdk.DecCoins,
+	txEncoder cTypes.TxEncoder, accNumber, seq, gas uint64, gasAdj float64,
+	simulateAndExecute bool, chainID, memo string, fees cTypes.Coins, gasPrices cTypes.DecCoins,
 ) TxBuilder {
 	
 	return TxBuilder{
@@ -74,7 +74,7 @@ func NewTxBuilderFromCLI() TxBuilder {
 }
 
 // TxEncoder returns the transaction encoder
-func (bldr TxBuilder) TxEncoder() sdk.TxEncoder { return bldr.txEncoder }
+func (bldr TxBuilder) TxEncoder() cTypes.TxEncoder { return bldr.txEncoder }
 
 // AccountNumber returns the account number
 func (bldr TxBuilder) AccountNumber() uint64 { return bldr.accountNumber }
@@ -89,7 +89,7 @@ func (bldr TxBuilder) Gas() uint64 { return bldr.gas }
 func (bldr TxBuilder) GasAdjustment() float64 { return bldr.gasAdjustment }
 
 // Keybase returns the keybase
-func (bldr TxBuilder) Keybase() crkeys.Keybase { return bldr.keybase }
+func (bldr TxBuilder) Keybase() crKeys.Keybase { return bldr.keybase }
 
 // SimulateAndExecute returns the option to simulate and then execute the transaction
 // using the gas from the simulation results
@@ -102,13 +102,13 @@ func (bldr TxBuilder) ChainID() string { return bldr.chainID }
 func (bldr TxBuilder) Memo() string { return bldr.memo }
 
 // Fees returns the fees for the transaction
-func (bldr TxBuilder) Fees() sdk.Coins { return bldr.fees }
+func (bldr TxBuilder) Fees() cTypes.Coins { return bldr.fees }
 
 // GasPrices returns the gas prices set for the transaction, if any.
-func (bldr TxBuilder) GasPrices() sdk.DecCoins { return bldr.gasPrices }
+func (bldr TxBuilder) GasPrices() cTypes.DecCoins { return bldr.gasPrices }
 
 // WithTxEncoder returns a copy of the context with an updated codec.
-func (bldr TxBuilder) WithTxEncoder(txEncoder sdk.TxEncoder) TxBuilder {
+func (bldr TxBuilder) WithTxEncoder(txEncoder cTypes.TxEncoder) TxBuilder {
 	bldr.txEncoder = txEncoder
 	return bldr
 }
@@ -127,7 +127,7 @@ func (bldr TxBuilder) WithGas(gas uint64) TxBuilder {
 
 // WithFees returns a copy of the context with an updated fee.
 func (bldr TxBuilder) WithFees(fees string) TxBuilder {
-	parsedFees, err := sdk.ParseCoins(fees)
+	parsedFees, err := cTypes.ParseCoins(fees)
 	if err != nil {
 		panic(err)
 	}
@@ -138,7 +138,7 @@ func (bldr TxBuilder) WithFees(fees string) TxBuilder {
 
 // WithGasPrices returns a copy of the context with updated gas prices.
 func (bldr TxBuilder) WithGasPrices(gasPrices string) TxBuilder {
-	parsedGasPrices, err := sdk.ParseDecCoins(gasPrices)
+	parsedGasPrices, err := cTypes.ParseDecCoins(gasPrices)
 	if err != nil {
 		panic(err)
 	}
@@ -148,7 +148,7 @@ func (bldr TxBuilder) WithGasPrices(gasPrices string) TxBuilder {
 }
 
 // WithKeybase returns a copy of the context with updated keybase.
-func (bldr TxBuilder) WithKeybase(keybase crkeys.Keybase) TxBuilder {
+func (bldr TxBuilder) WithKeybase(keybase crKeys.Keybase) TxBuilder {
 	bldr.keybase = keybase
 	return bldr
 }
@@ -174,7 +174,7 @@ func (bldr TxBuilder) WithAccountNumber(accnum uint64) TxBuilder {
 // BuildSignMsg builds a single message to be signed from a TxBuilder given a
 // set of messages. It returns an error if a fee is supplied but cannot be
 // parsed.
-func (bldr TxBuilder) BuildSignMsg(msgs []sdk.Msg) (StdSignMsg, error) {
+func (bldr TxBuilder) BuildSignMsg(msgs []cTypes.Msg) (StdSignMsg, error) {
 	if bldr.chainID == "" {
 		return StdSignMsg{}, fmt.Errorf("chain ID required but not specified")
 	}
@@ -185,14 +185,14 @@ func (bldr TxBuilder) BuildSignMsg(msgs []sdk.Msg) (StdSignMsg, error) {
 			return StdSignMsg{}, errors.New("cannot provide both fees and gas prices")
 		}
 		
-		glDec := sdk.NewDec(int64(bldr.gas))
+		glDec := cTypes.NewDec(int64(bldr.gas))
 		
 		// Derive the fees based on the provided gas prices, where
 		// fee = ceil(gasPrice * gasLimit).
-		fees = make(sdk.Coins, len(bldr.gasPrices))
+		fees = make(cTypes.Coins, len(bldr.gasPrices))
 		for i, gp := range bldr.gasPrices {
 			fee := gp.Amount.Mul(glDec)
-			fees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
+			fees[i] = cTypes.NewCoin(gp.Denom, fee.Ceil().RoundInt())
 		}
 	}
 	
@@ -219,7 +219,7 @@ func (bldr TxBuilder) Sign(name, passphrase string, msg StdSignMsg) ([]byte, err
 
 // BuildAndSign builds a single message to be signed, and signs a transaction
 // with the built message given a name, passphrase, and a set of messages.
-func (bldr TxBuilder) BuildAndSign(name, passphrase string, msgs []sdk.Msg) ([]byte, error) {
+func (bldr TxBuilder) BuildAndSign(name, passphrase string, msgs []cTypes.Msg) ([]byte, error) {
 	msg, err := bldr.BuildSignMsg(msgs)
 	if err != nil {
 		return nil, err
@@ -230,7 +230,7 @@ func (bldr TxBuilder) BuildAndSign(name, passphrase string, msgs []sdk.Msg) ([]b
 
 // BuildTxForSim creates a StdSignMsg and encodes a transaction with the
 // StdSignMsg with a single empty StdSignature for tx simulation.
-func (bldr TxBuilder) BuildTxForSim(msgs []sdk.Msg) ([]byte, error) {
+func (bldr TxBuilder) BuildTxForSim(msgs []cTypes.Msg) ([]byte, error) {
 	signMsg, err := bldr.BuildSignMsg(msgs)
 	if err != nil {
 		return nil, err
@@ -271,7 +271,7 @@ func (bldr TxBuilder) SignStdTx(name, passphrase string, stdTx StdTx, appendSig 
 }
 
 // MakeSignature builds a StdSignature given keybase, key name, passphrase, and a StdSignMsg.
-func MakeSignature(keybase crkeys.Keybase, name, passphrase string,
+func MakeSignature(keybase crKeys.Keybase, name, passphrase string,
 	msg StdSignMsg) (sig StdSignature, err error) {
 	if keybase == nil {
 		keybase, err = keys.NewKeyBaseFromHomeFlag()

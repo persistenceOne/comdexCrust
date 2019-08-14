@@ -1,15 +1,15 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 )
 
 // QueryBalanceParams defines the params for querying an account balance.
 type QueryBalanceParams struct {
-	Address sdk.AccAddress
+	Address cTypes.AccAddress
 }
 
 // NewQueryBalanceParams creates a new instance of QueryBalanceParams.
-func NewQueryBalanceParams(addr sdk.AccAddress) QueryBalanceParams {
+func NewQueryBalanceParams(addr cTypes.AccAddress) QueryBalanceParams {
 	return QueryBalanceParams{Address: addr}
 }

@@ -3,13 +3,11 @@ package cli
 import (
 	"encoding/base64"
 	
-	"github.com/spf13/cobra"
-	
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/spf13/cobra"
 	
 	"github.com/commitHub/commitBlockchain/codec"
-	
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
 )
 

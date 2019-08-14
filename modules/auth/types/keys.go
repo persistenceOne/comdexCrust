@@ -1,7 +1,7 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (
@@ -29,6 +29,6 @@ var (
 )
 
 // AddressStoreKey turn an address to key used to get it from the account store
-func AddressStoreKey(addr sdk.AccAddress) []byte {
+func AddressStoreKey(addr cTypes.AccAddress) []byte {
 	return append(AddressStoreKeyPrefix, addr.Bytes()...)
 }

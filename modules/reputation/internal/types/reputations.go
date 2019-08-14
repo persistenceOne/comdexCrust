@@ -6,9 +6,8 @@ import (
 	
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	
-	"github.com/commitHub/commitBlockchain/types"
-	
 	"github.com/commitHub/commitBlockchain/modules/negotiation"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 // TransactionFeedback : type

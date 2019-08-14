@@ -1,37 +1,37 @@
 package types
 
 import (
-	ctypes "github.com/cosmos/cosmos-sdk/types"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 )
 
-type CodeType ctypes.CodeType
+type CodeType cTypes.CodeType
 
 const (
-	DefaultCodeSpace         ctypes.CodespaceType = ModuleName
-	CodeInvalidAmount        ctypes.CodeType      = 601
-	CodeInvalidString        ctypes.CodeType      = 602
-	CodeInvalidInputsOutputs ctypes.CodeType      = 603
-	CodeInvalidPegHash       ctypes.CodeType      = 604
+	DefaultCodeSpace         cTypes.CodespaceType = ModuleName
+	CodeInvalidAmount        cTypes.CodeType      = 601
+	CodeInvalidString        cTypes.CodeType      = 602
+	CodeInvalidInputsOutputs cTypes.CodeType      = 603
+	CodeInvalidPegHash       cTypes.CodeType      = 604
 )
 
-func ErrInvalidAmount(codespace ctypes.CodespaceType, msg string) ctypes.Error {
+func ErrInvalidAmount(codespace cTypes.CodespaceType, msg string) cTypes.Error {
 	if msg != "" {
-		return ctypes.NewError(codespace, CodeInvalidAmount, msg)
+		return cTypes.NewError(codespace, CodeInvalidAmount, msg)
 	}
-	return ctypes.NewError(codespace, CodeInvalidAmount, "invalid Amount")
+	return cTypes.NewError(codespace, CodeInvalidAmount, "invalid Amount")
 }
 
-func ErrInvalidString(codespace ctypes.CodespaceType, msg string) ctypes.Error {
+func ErrInvalidString(codespace cTypes.CodespaceType, msg string) cTypes.Error {
 	if msg != "" {
-		return ctypes.NewError(codespace, CodeInvalidString, msg)
+		return cTypes.NewError(codespace, CodeInvalidString, msg)
 	}
-	return ctypes.NewError(codespace, CodeInvalidString, "Invalid string")
+	return cTypes.NewError(codespace, CodeInvalidString, "Invalid string")
 }
 
-func ErrNoInputs(codespace ctypes.CodespaceType) ctypes.Error {
-	return ctypes.NewError(codespace, CodeInvalidInputsOutputs, "no inputs to send transaction")
+func ErrNoInputs(codespace cTypes.CodespaceType) cTypes.Error {
+	return cTypes.NewError(codespace, CodeInvalidInputsOutputs, "no inputs to send transaction")
 }
 
-func ErrInvalidPegHash(codespace ctypes.CodespaceType) ctypes.Error {
-	return ctypes.NewError(codespace, CodeInvalidPegHash, "invalid peg hash")
+func ErrInvalidPegHash(codespace cTypes.CodespaceType) cTypes.Error {
+	return cTypes.NewError(codespace, CodeInvalidPegHash, "invalid peg hash")
 }

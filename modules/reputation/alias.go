@@ -18,9 +18,6 @@ var (
 	DefaultGenesisState = types.DefaultGenesisState
 	ValidateGenesis     = types.ValidateGensis
 	
-	GetReputationKey = types.GetReputationKey
-	ReputationKey    = types.ReputationKey
-	
 	EventTypeSetBuyerRatingToFeedback  = types.EventTypeSetBuyerRatingToFeedback
 	EventTypeSetSellerRatingToFeedback = types.EventTypeSetSellerRatingToFeedback
 	
@@ -34,11 +31,11 @@ var (
 )
 
 type (
-	Keeper = keeper.Keeper
-	GenesisState = types.GenesisState
-	MsgBuyerFeedbacks = types.MsgBuyerFeedbacks
+	Keeper             = keeper.Keeper
+	GenesisState       = types.GenesisState
+	MsgBuyerFeedbacks  = types.MsgBuyerFeedbacks
 	MsgSellerFeedbacks = types.MsgSellerFeedbacks
 	
-	AccountReputation = types.AccountReputation
+	AccountReputation     = types.AccountReputation
 	BaseAccountReputation = types.BaseAccountReputation
 )

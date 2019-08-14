@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	
-	"github.com/commitHub/commitBlockchain/types"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 	
 	"github.com/commitHub/commitBlockchain/modules/acl"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 // RouterKey is they name of the bank module
@@ -16,15 +15,15 @@ const RouterKey = ModuleName
 
 // MsgSend - high level transaction of the coin module
 type MsgSend struct {
-	FromAddress sdk.AccAddress `json:"from_address" yaml:"from_address"`
-	ToAddress   sdk.AccAddress `json:"to_address" yaml:"to_address"`
-	Amount      sdk.Coins      `json:"amount" yaml:"amount"`
+	FromAddress cTypes.AccAddress `json:"from_address" yaml:"from_address"`
+	ToAddress   cTypes.AccAddress `json:"to_address" yaml:"to_address"`
+	Amount      cTypes.Coins      `json:"amount" yaml:"amount"`
 }
 
-var _ sdk.Msg = MsgSend{}
+var _ cTypes.Msg = MsgSend{}
 
 // NewMsgSend - construct arbitrary multi-in, multi-out send msg.
-func NewMsgSend(fromAddr, toAddr sdk.AccAddress, amount sdk.Coins) MsgSend {
+func NewMsgSend(fromAddr, toAddr cTypes.AccAddress, amount cTypes.Coins) MsgSend {
 	return MsgSend{FromAddress: fromAddr, ToAddress: toAddr, Amount: amount}
 }
 
@@ -35,30 +34,30 @@ func (msg MsgSend) Route() string { return RouterKey }
 func (msg MsgSend) Type() string { return "send" }
 
 // ValidateBasic Implements Msg.
-func (msg MsgSend) ValidateBasic() sdk.Error {
+func (msg MsgSend) ValidateBasic() cTypes.Error {
 	if msg.FromAddress.Empty() {
-		return sdk.ErrInvalidAddress("missing sender address")
+		return cTypes.ErrInvalidAddress("missing sender address")
 	}
 	if msg.ToAddress.Empty() {
-		return sdk.ErrInvalidAddress("missing recipient address")
+		return cTypes.ErrInvalidAddress("missing recipient address")
 	}
 	if !msg.Amount.IsValid() {
-		return sdk.ErrInvalidCoins("send amount is invalid: " + msg.Amount.String())
+		return cTypes.ErrInvalidCoins("send amount is invalid: " + msg.Amount.String())
 	}
 	if !msg.Amount.IsAllPositive() {
-		return sdk.ErrInsufficientCoins("send amount must be positive")
+		return cTypes.ErrInsufficientCoins("send amount must be positive")
 	}
 	return nil
 }
 
 // GetSignBytes Implements Msg.
 func (msg MsgSend) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return cTypes.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
-func (msg MsgSend) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.FromAddress}
+func (msg MsgSend) GetSigners() []cTypes.AccAddress {
+	return []cTypes.AccAddress{msg.FromAddress}
 }
 
 // MsgMultiSend - high level transaction of the coin module
@@ -67,7 +66,7 @@ type MsgMultiSend struct {
 	Outputs []Output `json:"outputs" yaml:"outputs"`
 }
 
-var _ sdk.Msg = MsgMultiSend{}
+var _ cTypes.Msg = MsgMultiSend{}
 
 // NewMsgMultiSend - construct arbitrary multi-in, multi-out send msg.
 func NewMsgMultiSend(in []Input, out []Output) MsgMultiSend {
@@ -81,7 +80,7 @@ func (msg MsgMultiSend) Route() string { return RouterKey }
 func (msg MsgMultiSend) Type() string { return "multisend" }
 
 // ValidateBasic Implements Msg.
-func (msg MsgMultiSend) ValidateBasic() sdk.Error {
+func (msg MsgMultiSend) ValidateBasic() cTypes.Error {
 	// this just makes sure all the inputs and outputs are properly formatted,
 	// not that they actually have the money inside
 	if len(msg.Inputs) == 0 {
@@ -96,12 +95,12 @@ func (msg MsgMultiSend) ValidateBasic() sdk.Error {
 
 // GetSignBytes Implements Msg.
 func (msg MsgMultiSend) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return cTypes.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
-func (msg MsgMultiSend) GetSigners() []sdk.AccAddress {
-	addrs := make([]sdk.AccAddress, len(msg.Inputs))
+func (msg MsgMultiSend) GetSigners() []cTypes.AccAddress {
+	addrs := make([]cTypes.AccAddress, len(msg.Inputs))
 	for i, in := range msg.Inputs {
 		addrs[i] = in.Address
 	}
@@ -110,26 +109,26 @@ func (msg MsgMultiSend) GetSigners() []sdk.AccAddress {
 
 // Input models transaction input
 type Input struct {
-	Address sdk.AccAddress `json:"address" yaml:"address"`
-	Coins   sdk.Coins      `json:"coins" yaml:"coins"`
+	Address cTypes.AccAddress `json:"address" yaml:"address"`
+	Coins   cTypes.Coins      `json:"coins" yaml:"coins"`
 }
 
 // ValidateBasic - validate transaction input
-func (in Input) ValidateBasic() sdk.Error {
+func (in Input) ValidateBasic() cTypes.Error {
 	if len(in.Address) == 0 {
-		return sdk.ErrInvalidAddress(in.Address.String())
+		return cTypes.ErrInvalidAddress(in.Address.String())
 	}
 	if !in.Coins.IsValid() {
-		return sdk.ErrInvalidCoins(in.Coins.String())
+		return cTypes.ErrInvalidCoins(in.Coins.String())
 	}
 	if !in.Coins.IsAllPositive() {
-		return sdk.ErrInvalidCoins(in.Coins.String())
+		return cTypes.ErrInvalidCoins(in.Coins.String())
 	}
 	return nil
 }
 
 // NewInput - create a transaction input, used with MsgMultiSend
-func NewInput(addr sdk.AccAddress, coins sdk.Coins) Input {
+func NewInput(addr cTypes.AccAddress, coins cTypes.Coins) Input {
 	return Input{
 		Address: addr,
 		Coins:   coins,
@@ -138,26 +137,26 @@ func NewInput(addr sdk.AccAddress, coins sdk.Coins) Input {
 
 // Output models transaction outputs
 type Output struct {
-	Address sdk.AccAddress `json:"address" yaml:"address"`
-	Coins   sdk.Coins      `json:"coins" yaml:"coins"`
+	Address cTypes.AccAddress `json:"address" yaml:"address"`
+	Coins   cTypes.Coins      `json:"coins" yaml:"coins"`
 }
 
 // ValidateBasic - validate transaction output
-func (out Output) ValidateBasic() sdk.Error {
+func (out Output) ValidateBasic() cTypes.Error {
 	if len(out.Address) == 0 {
-		return sdk.ErrInvalidAddress(out.Address.String())
+		return cTypes.ErrInvalidAddress(out.Address.String())
 	}
 	if !out.Coins.IsValid() {
-		return sdk.ErrInvalidCoins(out.Coins.String())
+		return cTypes.ErrInvalidCoins(out.Coins.String())
 	}
 	if !out.Coins.IsAllPositive() {
-		return sdk.ErrInvalidCoins(out.Coins.String())
+		return cTypes.ErrInvalidCoins(out.Coins.String())
 	}
 	return nil
 }
 
 // NewOutput - create a transaction output, used with MsgMultiSend
-func NewOutput(addr sdk.AccAddress, coins sdk.Coins) Output {
+func NewOutput(addr cTypes.AccAddress, coins cTypes.Coins) Output {
 	return Output{
 		Address: addr,
 		Coins:   coins,
@@ -166,8 +165,8 @@ func NewOutput(addr sdk.AccAddress, coins sdk.Coins) Output {
 
 // ValidateInputsOutputs validates that each respective input and output is
 // valid and that the sum of inputs is equal to the sum of outputs.
-func ValidateInputsOutputs(inputs []Input, outputs []Output) sdk.Error {
-	var totalIn, totalOut sdk.Coins
+func ValidateInputsOutputs(inputs []Input, outputs []Output) cTypes.Error {
+	var totalIn, totalOut cTypes.Coins
 	
 	for _, in := range inputs {
 		if err := in.ValidateBasic(); err != nil {
@@ -197,13 +196,13 @@ func ValidateInputsOutputs(inputs []Input, outputs []Output) sdk.Error {
 
 // IssueAsset - transaction input
 type IssueAsset struct {
-	IssuerAddress sdk.AccAddress `json:"issuerAddress"`
-	ToAddress     sdk.AccAddress `json:"toAddress"`
-	AssetPeg      types.AssetPeg `json:"assetPeg"`
+	IssuerAddress cTypes.AccAddress `json:"issuerAddress"`
+	ToAddress     cTypes.AccAddress `json:"toAddress"`
+	AssetPeg      types.AssetPeg    `json:"assetPeg"`
 }
 
 // NewIssueAsset : initializer
-func NewIssueAsset(issuerAddress sdk.AccAddress, toAddress sdk.AccAddress, assetPeg types.AssetPeg) IssueAsset {
+func NewIssueAsset(issuerAddress cTypes.AccAddress, toAddress cTypes.AccAddress, assetPeg types.AssetPeg) IssueAsset {
 	return IssueAsset{issuerAddress, toAddress, assetPeg}
 }
 
@@ -224,19 +223,19 @@ func (in IssueAsset) GetSignBytes() []byte {
 	return bin
 }
 
-func (in IssueAsset) ValidateBasic() sdk.Error {
+func (in IssueAsset) ValidateBasic() cTypes.Error {
 	if len(in.IssuerAddress) == 0 {
-		return sdk.ErrInvalidAddress(fmt.Sprintf("invalid Issuer address %s", in.IssuerAddress.String()))
+		return cTypes.ErrInvalidAddress(fmt.Sprintf("invalid Issuer address %s", in.IssuerAddress.String()))
 	} else if len(in.ToAddress) == 0 {
-		return sdk.ErrInvalidAddress(fmt.Sprintf("invalid To address %s", in.ToAddress.String()))
+		return cTypes.ErrInvalidAddress(fmt.Sprintf("invalid To address %s", in.ToAddress.String()))
 	} else if in.AssetPeg.GetAssetPrice() < 0 {
 		return ErrNegativeAmount(DefaultCodespace, "Asset price should be grater than 0.")
 	} else if in.AssetPeg.GetAssetQuantity() < 0 {
 		return ErrNegativeAmount(DefaultCodespace, "Asset quantity should be grater than 0.")
 	} else if in.AssetPeg.GetAssetType() == "" {
-		return sdk.ErrUnknownRequest("asset type should not be empty")
+		return cTypes.ErrUnknownRequest("asset type should not be empty")
 	} else if in.AssetPeg.GetDocumentHash() == "" {
-		return sdk.ErrUnknownRequest("DocumentHash should not be empty")
+		return cTypes.ErrUnknownRequest("DocumentHash should not be empty")
 	}
 	return nil
 }
@@ -255,9 +254,9 @@ func NewMsgBankIssueAssets(issueAssets []IssueAsset) MsgBankIssueAssets {
 	return MsgBankIssueAssets{issueAssets}
 }
 
-// ***** Implementing sdk.Msg
+// ***** Implementing cTypes.Msg
 
-var _ sdk.Msg = MsgBankIssueAssets{}
+var _ cTypes.Msg = MsgBankIssueAssets{}
 
 // Type : implements msg
 func (msg MsgBankIssueAssets) Type() string { return "bank" }
@@ -265,7 +264,7 @@ func (msg MsgBankIssueAssets) Type() string { return "bank" }
 func (msg MsgBankIssueAssets) Route() string { return RouterKey }
 
 // ValidateBasic : implements msg
-func (msg MsgBankIssueAssets) ValidateBasic() sdk.Error {
+func (msg MsgBankIssueAssets) ValidateBasic() cTypes.Error {
 	if len(msg.IssueAssets) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
 	}
@@ -296,15 +295,15 @@ func (msg MsgBankIssueAssets) GetSignBytes() []byte {
 }
 
 // GetSigners : implements msg
-func (msg MsgBankIssueAssets) GetSigners() []sdk.AccAddress {
-	addrs := make([]sdk.AccAddress, len(msg.IssueAssets))
+func (msg MsgBankIssueAssets) GetSigners() []cTypes.AccAddress {
+	addrs := make([]cTypes.AccAddress, len(msg.IssueAssets))
 	for i, in := range msg.IssueAssets {
 		addrs[i] = in.IssuerAddress
 	}
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+// ##### Implement cTypes.Msg
 
 // #####MsgBankIssueAssets
 
@@ -312,13 +311,13 @@ func (msg MsgBankIssueAssets) GetSigners() []sdk.AccAddress {
 
 // RedeemAsset : transsction input
 type RedeemAsset struct {
-	IssuerAddress   sdk.AccAddress `json:"issuerAddress"`
-	RedeemerAddress sdk.AccAddress `json:"redeemerAddress"`
-	PegHash         types.PegHash  `json:"pegHash"`
+	IssuerAddress   cTypes.AccAddress `json:"issuerAddress"`
+	RedeemerAddress cTypes.AccAddress `json:"redeemerAddress"`
+	PegHash         types.PegHash     `json:"pegHash"`
 }
 
 // NewRedeemAsset : initializer
-func NewRedeemAsset(issuerAddress sdk.AccAddress, redeemerAddress sdk.AccAddress, pegHash types.PegHash) RedeemAsset {
+func NewRedeemAsset(issuerAddress cTypes.AccAddress, redeemerAddress cTypes.AccAddress, pegHash types.PegHash) RedeemAsset {
 	return RedeemAsset{issuerAddress, redeemerAddress, pegHash}
 }
 
@@ -339,13 +338,13 @@ func (in RedeemAsset) GetSignBytes() []byte {
 	return bin
 }
 
-func (in RedeemAsset) ValidateBasic() sdk.Error {
+func (in RedeemAsset) ValidateBasic() cTypes.Error {
 	if len(in.IssuerAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.IssuerAddress.String())
+		return cTypes.ErrInvalidAddress(in.IssuerAddress.String())
 	} else if len(in.RedeemerAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.RedeemerAddress.String())
+		return cTypes.ErrInvalidAddress(in.RedeemerAddress.String())
 	} else if len(in.PegHash) == 0 {
-		return sdk.ErrUnknownRequest("PegHash should not be empty.")
+		return cTypes.ErrUnknownRequest("PegHash should not be empty.")
 	}
 	return nil
 }
@@ -364,9 +363,9 @@ func NewMsgBankRedeemAssets(redeemAssets []RedeemAsset) MsgBankRedeemAssets {
 	return MsgBankRedeemAssets{redeemAssets}
 }
 
-// *****Implementing sdk.Msg
+// *****Implementing cTypes.Msg
 
-var _ sdk.Msg = MsgBankRedeemAssets{}
+var _ cTypes.Msg = MsgBankRedeemAssets{}
 
 // Type : implements msg
 func (msg MsgBankRedeemAssets) Type() string { return "bank" }
@@ -374,7 +373,7 @@ func (msg MsgBankRedeemAssets) Type() string { return "bank" }
 func (msg MsgBankRedeemAssets) Route() string { return RouterKey }
 
 // ValidateBasic : implements msg
-func (msg MsgBankRedeemAssets) ValidateBasic() sdk.Error {
+func (msg MsgBankRedeemAssets) ValidateBasic() cTypes.Error {
 	if len(msg.RedeemAssets) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
 	}
@@ -405,15 +404,15 @@ func (msg MsgBankRedeemAssets) GetSignBytes() []byte {
 }
 
 // GetSigners : implements msg
-func (msg MsgBankRedeemAssets) GetSigners() []sdk.AccAddress {
-	addrs := make([]sdk.AccAddress, len(msg.RedeemAssets))
+func (msg MsgBankRedeemAssets) GetSigners() []cTypes.AccAddress {
+	addrs := make([]cTypes.AccAddress, len(msg.RedeemAssets))
 	for i, in := range msg.RedeemAssets {
 		addrs[i] = in.RedeemerAddress
 	}
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+// ##### Implement cTypes.Msg
 
 // ######MsgBankRedeemAssets
 
@@ -421,13 +420,13 @@ func (msg MsgBankRedeemAssets) GetSigners() []sdk.AccAddress {
 
 // IssueFiat - transaction input
 type IssueFiat struct {
-	IssuerAddress sdk.AccAddress `json:"issuerAddress"`
-	ToAddress     sdk.AccAddress `json:"toAddress"`
-	FiatPeg       types.FiatPeg  `json:"fiatPeg"`
+	IssuerAddress cTypes.AccAddress `json:"issuerAddress"`
+	ToAddress     cTypes.AccAddress `json:"toAddress"`
+	FiatPeg       types.FiatPeg     `json:"fiatPeg"`
 }
 
 // NewIssueFiat : initializer
-func NewIssueFiat(issuerAddress sdk.AccAddress, toAddress sdk.AccAddress, fiatPeg types.FiatPeg) IssueFiat {
+func NewIssueFiat(issuerAddress cTypes.AccAddress, toAddress cTypes.AccAddress, fiatPeg types.FiatPeg) IssueFiat {
 	return IssueFiat{issuerAddress, toAddress, fiatPeg}
 }
 
@@ -448,15 +447,15 @@ func (in IssueFiat) GetSignBytes() []byte {
 	return bin
 }
 
-func (in IssueFiat) ValidateBasic() sdk.Error {
+func (in IssueFiat) ValidateBasic() cTypes.Error {
 	if len(in.IssuerAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.IssuerAddress.String())
+		return cTypes.ErrInvalidAddress(in.IssuerAddress.String())
 	} else if len(in.ToAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.ToAddress.String())
+		return cTypes.ErrInvalidAddress(in.ToAddress.String())
 	} else if in.FiatPeg.GetTransactionAmount() < 0 {
 		return ErrNegativeAmount(DefaultCodespace, "Transaction amount should be grater than 0.")
 	} else if in.FiatPeg.GetTransactionID() == "" {
-		return sdk.ErrUnknownRequest("Transaction should not be empty")
+		return cTypes.ErrUnknownRequest("Transaction should not be empty")
 	}
 	return nil
 }
@@ -475,9 +474,9 @@ func NewMsgBankIssueFiats(issueFiats []IssueFiat) MsgBankIssueFiats {
 	return MsgBankIssueFiats{issueFiats}
 }
 
-// ***** Implementing sdk.Msg
+// ***** Implementing cTypes.Msg
 
-var _ sdk.Msg = MsgBankIssueFiats{}
+var _ cTypes.Msg = MsgBankIssueFiats{}
 
 // Type : implements msg
 func (msg MsgBankIssueFiats) Type() string { return "bank" }
@@ -485,7 +484,7 @@ func (msg MsgBankIssueFiats) Type() string { return "bank" }
 func (msg MsgBankIssueFiats) Route() string { return RouterKey }
 
 // ValidateBasic : implements msg
-func (msg MsgBankIssueFiats) ValidateBasic() sdk.Error {
+func (msg MsgBankIssueFiats) ValidateBasic() cTypes.Error {
 	if len(msg.IssueFiats) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
 	}
@@ -516,15 +515,15 @@ func (msg MsgBankIssueFiats) GetSignBytes() []byte {
 }
 
 // GetSigners : implements msg
-func (msg MsgBankIssueFiats) GetSigners() []sdk.AccAddress {
-	addrs := make([]sdk.AccAddress, len(msg.IssueFiats))
+func (msg MsgBankIssueFiats) GetSigners() []cTypes.AccAddress {
+	addrs := make([]cTypes.AccAddress, len(msg.IssueFiats))
 	for i, in := range msg.IssueFiats {
 		addrs[i] = in.IssuerAddress
 	}
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+// ##### Implement cTypes.Msg
 
 // #####MsgBankIssueFiats
 
@@ -532,13 +531,13 @@ func (msg MsgBankIssueFiats) GetSigners() []sdk.AccAddress {
 
 // RedeemFiat : transaction input
 type RedeemFiat struct {
-	RedeemerAddress sdk.AccAddress `json:"redeemerAddress"`
-	IssuerAddress   sdk.AccAddress `json:"issuerAddress"`
-	Amount          int64          `json:"amount"`
+	RedeemerAddress cTypes.AccAddress `json:"redeemerAddress"`
+	IssuerAddress   cTypes.AccAddress `json:"issuerAddress"`
+	Amount          int64             `json:"amount"`
 }
 
 // NewRedeemFiat : initializer
-func NewRedeemFiat(redeemerAddress sdk.AccAddress, issuerAddress sdk.AccAddress, amount int64) RedeemFiat {
+func NewRedeemFiat(redeemerAddress cTypes.AccAddress, issuerAddress cTypes.AccAddress, amount int64) RedeemFiat {
 	return RedeemFiat{redeemerAddress, issuerAddress, amount}
 }
 
@@ -558,13 +557,13 @@ func (in RedeemFiat) GetSignBytes() []byte {
 	}
 	return bin
 }
-func (in RedeemFiat) ValidateBasic() sdk.Error {
+func (in RedeemFiat) ValidateBasic() cTypes.Error {
 	if len(in.IssuerAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.IssuerAddress.String())
+		return cTypes.ErrInvalidAddress(in.IssuerAddress.String())
 	} else if len(in.RedeemerAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.RedeemerAddress.String())
+		return cTypes.ErrInvalidAddress(in.RedeemerAddress.String())
 	} else if in.Amount <= 0 {
-		return sdk.ErrUnknownRequest("Amount should be Positive")
+		return cTypes.ErrUnknownRequest("Amount should be Positive")
 	}
 	return nil
 }
@@ -583,9 +582,9 @@ func NewMsgBankRedeemFiats(redeemFiats []RedeemFiat) MsgBankRedeemFiats {
 	return MsgBankRedeemFiats{redeemFiats}
 }
 
-// *****Implementing sdk.Msg
+// *****Implementing cTypes.Msg
 
-var _ sdk.Msg = MsgBankRedeemFiats{}
+var _ cTypes.Msg = MsgBankRedeemFiats{}
 
 // Type : implements msg
 func (msg MsgBankRedeemFiats) Type() string { return "bank" }
@@ -593,7 +592,7 @@ func (msg MsgBankRedeemFiats) Type() string { return "bank" }
 func (msg MsgBankRedeemFiats) Route() string { return RouterKey }
 
 // ValidateBasic : implements msg
-func (msg MsgBankRedeemFiats) ValidateBasic() sdk.Error {
+func (msg MsgBankRedeemFiats) ValidateBasic() cTypes.Error {
 	if len(msg.RedeemFiats) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
 	}
@@ -624,15 +623,15 @@ func (msg MsgBankRedeemFiats) GetSignBytes() []byte {
 }
 
 // GetSigners : implements msg
-func (msg MsgBankRedeemFiats) GetSigners() []sdk.AccAddress {
-	addrs := make([]sdk.AccAddress, len(msg.RedeemFiats))
+func (msg MsgBankRedeemFiats) GetSigners() []cTypes.AccAddress {
+	addrs := make([]cTypes.AccAddress, len(msg.RedeemFiats))
 	for i, in := range msg.RedeemFiats {
 		addrs[i] = in.RedeemerAddress
 	}
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+// ##### Implement cTypes.Msg
 
 // ######MsgBankRedeemFiats
 
@@ -640,13 +639,13 @@ func (msg MsgBankRedeemFiats) GetSigners() []sdk.AccAddress {
 
 // SendAsset - transaction input
 type SendAsset struct {
-	FromAddress sdk.AccAddress `json:"fromAddress"`
-	ToAddress   sdk.AccAddress `json:"toAddress"`
-	PegHash     types.PegHash  `json:"pegHash"`
+	FromAddress cTypes.AccAddress `json:"fromAddress"`
+	ToAddress   cTypes.AccAddress `json:"toAddress"`
+	PegHash     types.PegHash     `json:"pegHash"`
 }
 
 // NewSendAsset : initializer
-func NewSendAsset(fromAddress sdk.AccAddress, toAddress sdk.AccAddress, pegHash types.PegHash) SendAsset {
+func NewSendAsset(fromAddress cTypes.AccAddress, toAddress cTypes.AccAddress, pegHash types.PegHash) SendAsset {
 	return SendAsset{fromAddress, toAddress, pegHash}
 }
 
@@ -667,13 +666,13 @@ func (in SendAsset) GetSignBytes() []byte {
 	return bin
 }
 
-func (in SendAsset) ValidateBasic() sdk.Error {
+func (in SendAsset) ValidateBasic() cTypes.Error {
 	if len(in.FromAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.FromAddress.String())
+		return cTypes.ErrInvalidAddress(in.FromAddress.String())
 	} else if len(in.ToAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.ToAddress.String())
+		return cTypes.ErrInvalidAddress(in.ToAddress.String())
 	} else if len(in.PegHash) == 0 {
-		return sdk.ErrUnknownRequest("PegHash is empty")
+		return cTypes.ErrUnknownRequest("PegHash is empty")
 	}
 	return nil
 }
@@ -692,9 +691,9 @@ func NewMsgBankSendAssets(sendAssets []SendAsset) MsgBankSendAssets {
 	return MsgBankSendAssets{sendAssets}
 }
 
-// ***** Implementing sdk.Msg
+// ***** Implementing cTypes.Msg
 
-var _ sdk.Msg = MsgBankSendAssets{}
+var _ cTypes.Msg = MsgBankSendAssets{}
 
 // Type : implements msg
 func (msg MsgBankSendAssets) Type() string { return "bank" }
@@ -702,7 +701,7 @@ func (msg MsgBankSendAssets) Type() string { return "bank" }
 func (msg MsgBankSendAssets) Route() string { return RouterKey }
 
 // ValidateBasic : implements msg
-func (msg MsgBankSendAssets) ValidateBasic() sdk.Error {
+func (msg MsgBankSendAssets) ValidateBasic() cTypes.Error {
 	if len(msg.SendAssets) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
 	}
@@ -733,15 +732,15 @@ func (msg MsgBankSendAssets) GetSignBytes() []byte {
 }
 
 // GetSigners : implements msg
-func (msg MsgBankSendAssets) GetSigners() []sdk.AccAddress {
-	addrs := make([]sdk.AccAddress, len(msg.SendAssets))
+func (msg MsgBankSendAssets) GetSigners() []cTypes.AccAddress {
+	addrs := make([]cTypes.AccAddress, len(msg.SendAssets))
 	for i, in := range msg.SendAssets {
 		addrs[i] = in.FromAddress
 	}
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+// ##### Implement cTypes.Msg
 
 // #####MsgBankSendAssets
 
@@ -749,14 +748,14 @@ func (msg MsgBankSendAssets) GetSigners() []sdk.AccAddress {
 
 // SendFiat - transaction input
 type SendFiat struct {
-	FromAddress sdk.AccAddress `json:"fromAddress"`
-	ToAddress   sdk.AccAddress `json:"toAddress"`
-	PegHash     types.PegHash  `json:"pegHash"`
-	Amount      int64          `json:"amount"`
+	FromAddress cTypes.AccAddress `json:"fromAddress"`
+	ToAddress   cTypes.AccAddress `json:"toAddress"`
+	PegHash     types.PegHash     `json:"pegHash"`
+	Amount      int64             `json:"amount"`
 }
 
 // NewSendFiat : initializer
-func NewSendFiat(fromAddress sdk.AccAddress, toAddress sdk.AccAddress, pegHash types.PegHash, amount int64) SendFiat {
+func NewSendFiat(fromAddress cTypes.AccAddress, toAddress cTypes.AccAddress, pegHash types.PegHash, amount int64) SendFiat {
 	return SendFiat{fromAddress, toAddress, pegHash, amount}
 }
 
@@ -779,13 +778,13 @@ func (in SendFiat) GetSignBytes() []byte {
 	return bin
 }
 
-func (in SendFiat) ValidateBasic() sdk.Error {
+func (in SendFiat) ValidateBasic() cTypes.Error {
 	if len(in.FromAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.FromAddress.String())
+		return cTypes.ErrInvalidAddress(in.FromAddress.String())
 	} else if len(in.ToAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.ToAddress.String())
+		return cTypes.ErrInvalidAddress(in.ToAddress.String())
 	} else if len(in.PegHash) == 0 {
-		return sdk.ErrUnknownRequest("PegHash is Empty")
+		return cTypes.ErrUnknownRequest("PegHash is Empty")
 	} else if in.Amount <= 0 {
 		return ErrNegativeAmount(DefaultCodespace, "Amount should be positive")
 	}
@@ -806,9 +805,9 @@ func NewMsgBankSendFiats(sendFiats []SendFiat) MsgBankSendFiats {
 	return MsgBankSendFiats{sendFiats}
 }
 
-// ***** Implementing sdk.Msg
+// ***** Implementing cTypes.Msg
 
-var _ sdk.Msg = MsgBankSendFiats{}
+var _ cTypes.Msg = MsgBankSendFiats{}
 
 // Type : implements msg
 func (msg MsgBankSendFiats) Type() string { return "bank" }
@@ -816,7 +815,7 @@ func (msg MsgBankSendFiats) Type() string { return "bank" }
 func (msg MsgBankSendFiats) Route() string { return RouterKey }
 
 // ValidateBasic : implements msg
-func (msg MsgBankSendFiats) ValidateBasic() sdk.Error {
+func (msg MsgBankSendFiats) ValidateBasic() cTypes.Error {
 	if len(msg.SendFiats) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
 	}
@@ -847,15 +846,15 @@ func (msg MsgBankSendFiats) GetSignBytes() []byte {
 }
 
 // GetSigners : implements msg
-func (msg MsgBankSendFiats) GetSigners() []sdk.AccAddress {
-	addrs := make([]sdk.AccAddress, len(msg.SendFiats))
+func (msg MsgBankSendFiats) GetSigners() []cTypes.AccAddress {
+	addrs := make([]cTypes.AccAddress, len(msg.SendFiats))
 	for i, in := range msg.SendFiats {
 		addrs[i] = in.FromAddress
 	}
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+// ##### Implement cTypes.Msg
 
 // #####MsgBankSendFiats
 
@@ -863,15 +862,15 @@ func (msg MsgBankSendFiats) GetSigners() []sdk.AccAddress {
 
 // BuyerExecuteOrder - transaction input
 type BuyerExecuteOrder struct {
-	MediatorAddress sdk.AccAddress `json:"mediatorAddress"`
-	BuyerAddress    sdk.AccAddress `json:"buyerAddress"`
-	SellerAddress   sdk.AccAddress `json:"sellerAddress"`
-	PegHash         types.PegHash  `json:"pegHash"`
-	FiatProofHash   string         `json:"fiatProofHash"`
+	MediatorAddress cTypes.AccAddress `json:"mediatorAddress"`
+	BuyerAddress    cTypes.AccAddress `json:"buyerAddress"`
+	SellerAddress   cTypes.AccAddress `json:"sellerAddress"`
+	PegHash         types.PegHash     `json:"pegHash"`
+	FiatProofHash   string            `json:"fiatProofHash"`
 }
 
 // NewBuyerExecuteOrder : initializer
-func NewBuyerExecuteOrder(mediatorAddress sdk.AccAddress, buyerAddress sdk.AccAddress, sellerAddress sdk.AccAddress, pegHash types.PegHash, fiatProofHash string) BuyerExecuteOrder {
+func NewBuyerExecuteOrder(mediatorAddress cTypes.AccAddress, buyerAddress cTypes.AccAddress, sellerAddress cTypes.AccAddress, pegHash types.PegHash, fiatProofHash string) BuyerExecuteOrder {
 	return BuyerExecuteOrder{mediatorAddress, buyerAddress, sellerAddress, pegHash, fiatProofHash}
 }
 
@@ -896,17 +895,17 @@ func (in BuyerExecuteOrder) GetSignBytes() []byte {
 	return bin
 }
 
-func (in BuyerExecuteOrder) ValidateBasic() sdk.Error {
+func (in BuyerExecuteOrder) ValidateBasic() cTypes.Error {
 	if len(in.MediatorAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.MediatorAddress.String())
+		return cTypes.ErrInvalidAddress(in.MediatorAddress.String())
 	} else if len(in.SellerAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.SellerAddress.String())
+		return cTypes.ErrInvalidAddress(in.SellerAddress.String())
 	} else if len(in.BuyerAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.BuyerAddress.String())
+		return cTypes.ErrInvalidAddress(in.BuyerAddress.String())
 	} else if len(in.PegHash) == 0 {
-		return sdk.ErrUnknownRequest("PegHash is Empty")
+		return cTypes.ErrUnknownRequest("PegHash is Empty")
 	} else if in.FiatProofHash == "" {
-		return sdk.ErrUnknownRequest("FiatProofHash is Empty")
+		return cTypes.ErrUnknownRequest("FiatProofHash is Empty")
 	}
 	return nil
 }
@@ -925,9 +924,9 @@ func NewMsgBankBuyerExecuteOrders(buyerExecuteOrders []BuyerExecuteOrder) MsgBan
 	return MsgBankBuyerExecuteOrders{buyerExecuteOrders}
 }
 
-// ***** Implementing sdk.Msg
+// ***** Implementing cTypes.Msg
 
-var _ sdk.Msg = MsgBankBuyerExecuteOrders{}
+var _ cTypes.Msg = MsgBankBuyerExecuteOrders{}
 
 // Type : implements msg
 func (msg MsgBankBuyerExecuteOrders) Type() string { return "bank" }
@@ -935,7 +934,7 @@ func (msg MsgBankBuyerExecuteOrders) Type() string { return "bank" }
 func (msg MsgBankBuyerExecuteOrders) Route() string { return RouterKey }
 
 // ValidateBasic : implements msg
-func (msg MsgBankBuyerExecuteOrders) ValidateBasic() sdk.Error {
+func (msg MsgBankBuyerExecuteOrders) ValidateBasic() cTypes.Error {
 	if len(msg.BuyerExecuteOrders) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
 	}
@@ -965,15 +964,15 @@ func (msg MsgBankBuyerExecuteOrders) GetSignBytes() []byte {
 }
 
 // GetSigners : implements msg
-func (msg MsgBankBuyerExecuteOrders) GetSigners() []sdk.AccAddress {
-	addrs := make([]sdk.AccAddress, len(msg.BuyerExecuteOrders))
+func (msg MsgBankBuyerExecuteOrders) GetSigners() []cTypes.AccAddress {
+	addrs := make([]cTypes.AccAddress, len(msg.BuyerExecuteOrders))
 	for i, in := range msg.BuyerExecuteOrders {
 		addrs[i] = in.MediatorAddress
 	}
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+// ##### Implement cTypes.Msg
 
 // #####MsgBankBuyerExecuteOrders
 
@@ -981,15 +980,15 @@ func (msg MsgBankBuyerExecuteOrders) GetSigners() []sdk.AccAddress {
 
 // SellerExecuteOrder - transaction input
 type SellerExecuteOrder struct {
-	MediatorAddress sdk.AccAddress `json:"mediatorAddress"`
-	BuyerAddress    sdk.AccAddress `json:"buyerAddress"`
-	SellerAddress   sdk.AccAddress `json:"sellerAddress"`
-	PegHash         types.PegHash  `json:"pegHash"`
-	AWBProofHash    string         `json:"awbProofHash"`
+	MediatorAddress cTypes.AccAddress `json:"mediatorAddress"`
+	BuyerAddress    cTypes.AccAddress `json:"buyerAddress"`
+	SellerAddress   cTypes.AccAddress `json:"sellerAddress"`
+	PegHash         types.PegHash     `json:"pegHash"`
+	AWBProofHash    string            `json:"awbProofHash"`
 }
 
 // NewSellerExecuteOrder : initializer
-func NewSellerExecuteOrder(mediatorAddress sdk.AccAddress, buyerAddress sdk.AccAddress, sellerAddress sdk.AccAddress, pegHash types.PegHash, awbProofHash string) SellerExecuteOrder {
+func NewSellerExecuteOrder(mediatorAddress cTypes.AccAddress, buyerAddress cTypes.AccAddress, sellerAddress cTypes.AccAddress, pegHash types.PegHash, awbProofHash string) SellerExecuteOrder {
 	return SellerExecuteOrder{mediatorAddress, buyerAddress, sellerAddress, pegHash, awbProofHash}
 }
 
@@ -1014,17 +1013,17 @@ func (in SellerExecuteOrder) GetSignBytes() []byte {
 	return bin
 }
 
-func (in SellerExecuteOrder) ValidateBasic() sdk.Error {
+func (in SellerExecuteOrder) ValidateBasic() cTypes.Error {
 	if len(in.MediatorAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.MediatorAddress.String())
+		return cTypes.ErrInvalidAddress(in.MediatorAddress.String())
 	} else if len(in.SellerAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.SellerAddress.String())
+		return cTypes.ErrInvalidAddress(in.SellerAddress.String())
 	} else if len(in.BuyerAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.BuyerAddress.String())
+		return cTypes.ErrInvalidAddress(in.BuyerAddress.String())
 	} else if len(in.PegHash) == 0 {
-		return sdk.ErrUnknownRequest("PegHash is Empty")
+		return cTypes.ErrUnknownRequest("PegHash is Empty")
 	} else if in.AWBProofHash == "" {
-		return sdk.ErrUnknownRequest("ABAProofHash is Empty")
+		return cTypes.ErrUnknownRequest("ABAProofHash is Empty")
 	}
 	return nil
 }
@@ -1043,9 +1042,9 @@ func NewMsgBankSellerExecuteOrders(sellerExecuteOrders []SellerExecuteOrder) Msg
 	return MsgBankSellerExecuteOrders{sellerExecuteOrders}
 }
 
-// ***** Implementing sdk.Msg
+// ***** Implementing cTypes.Msg
 
-var _ sdk.Msg = MsgBankSellerExecuteOrders{}
+var _ cTypes.Msg = MsgBankSellerExecuteOrders{}
 
 // Type : implements msg
 func (msg MsgBankSellerExecuteOrders) Type() string { return "bank" }
@@ -1053,7 +1052,7 @@ func (msg MsgBankSellerExecuteOrders) Type() string { return "bank" }
 func (msg MsgBankSellerExecuteOrders) Route() string { return RouterKey }
 
 // ValidateBasic : implements msg
-func (msg MsgBankSellerExecuteOrders) ValidateBasic() sdk.Error {
+func (msg MsgBankSellerExecuteOrders) ValidateBasic() cTypes.Error {
 	if len(msg.SellerExecuteOrders) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
 	}
@@ -1083,15 +1082,15 @@ func (msg MsgBankSellerExecuteOrders) GetSignBytes() []byte {
 }
 
 // GetSigners : implements msg
-func (msg MsgBankSellerExecuteOrders) GetSigners() []sdk.AccAddress {
-	addrs := make([]sdk.AccAddress, len(msg.SellerExecuteOrders))
+func (msg MsgBankSellerExecuteOrders) GetSigners() []cTypes.AccAddress {
+	addrs := make([]cTypes.AccAddress, len(msg.SellerExecuteOrders))
 	for i, in := range msg.SellerExecuteOrders {
 		addrs[i] = in.MediatorAddress
 	}
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+// ##### Implement cTypes.Msg
 
 // #####MsgBankSellerExecuteOrders
 
@@ -1099,13 +1098,13 @@ func (msg MsgBankSellerExecuteOrders) GetSigners() []sdk.AccAddress {
 
 // ReleaseAsset - transaction input
 type ReleaseAsset struct {
-	ZoneAddress  sdk.AccAddress `json:"zoneAddress"`
-	OwnerAddress sdk.AccAddress `json:"ownerAddress"`
-	PegHash      types.PegHash  `json:"pegHash"`
+	ZoneAddress  cTypes.AccAddress `json:"zoneAddress"`
+	OwnerAddress cTypes.AccAddress `json:"ownerAddress"`
+	PegHash      types.PegHash     `json:"pegHash"`
 }
 
 // NewReleaseAsset : initializer
-func NewReleaseAsset(zoneAddress sdk.AccAddress, ownerAddress sdk.AccAddress, pegHash types.PegHash) ReleaseAsset {
+func NewReleaseAsset(zoneAddress cTypes.AccAddress, ownerAddress cTypes.AccAddress, pegHash types.PegHash) ReleaseAsset {
 	return ReleaseAsset{zoneAddress, ownerAddress, pegHash}
 }
 
@@ -1126,13 +1125,13 @@ func (in ReleaseAsset) GetSignBytes() []byte {
 	return bin
 }
 
-func (in ReleaseAsset) ValidateBasic() sdk.Error {
+func (in ReleaseAsset) ValidateBasic() cTypes.Error {
 	if len(in.OwnerAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.OwnerAddress.String())
+		return cTypes.ErrInvalidAddress(in.OwnerAddress.String())
 	} else if len(in.ZoneAddress) == 0 {
-		return sdk.ErrInvalidAddress(in.ZoneAddress.String())
+		return cTypes.ErrInvalidAddress(in.ZoneAddress.String())
 	} else if len(in.PegHash) == 0 {
-		return sdk.ErrUnknownRequest("PegHash is Empty")
+		return cTypes.ErrUnknownRequest("PegHash is Empty")
 	}
 	return nil
 }
@@ -1151,9 +1150,9 @@ func NewMsgBankReleaseAssets(releseAsset []ReleaseAsset) MsgBankReleaseAssets {
 	return MsgBankReleaseAssets{releseAsset}
 }
 
-// ***** Implementing sdk.Msg
+// ***** Implementing cTypes.Msg
 
-var _ sdk.Msg = MsgBankReleaseAssets{}
+var _ cTypes.Msg = MsgBankReleaseAssets{}
 
 // Type : implements msg
 func (msg MsgBankReleaseAssets) Type() string { return "bank" }
@@ -1161,7 +1160,7 @@ func (msg MsgBankReleaseAssets) Type() string { return "bank" }
 func (msg MsgBankReleaseAssets) Route() string { return RouterKey }
 
 // ValidateBasic : implements msg
-func (msg MsgBankReleaseAssets) ValidateBasic() sdk.Error {
+func (msg MsgBankReleaseAssets) ValidateBasic() cTypes.Error {
 	if len(msg.ReleaseAssets) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
 	}
@@ -1192,28 +1191,28 @@ func (msg MsgBankReleaseAssets) GetSignBytes() []byte {
 }
 
 // GetSigners : implements msg
-func (msg MsgBankReleaseAssets) GetSigners() []sdk.AccAddress {
-	addrs := make([]sdk.AccAddress, len(msg.ReleaseAssets))
+func (msg MsgBankReleaseAssets) GetSigners() []cTypes.AccAddress {
+	addrs := make([]cTypes.AccAddress, len(msg.ReleaseAssets))
 	for i, in := range msg.ReleaseAssets {
 		addrs[i] = in.ZoneAddress
 	}
 	return addrs
 }
 
-// ##### Implement sdk.Msg
+// ##### Implement cTypes.Msg
 
 // #####MsgBankReleaseAssets
 
 // DefineZone : singular define zone message
 // *****ACL
 type DefineZone struct {
-	From   sdk.AccAddress `json:"from"`
-	To     sdk.AccAddress `json:"to"`
-	ZoneID acl.ZoneID     `json:"zoneID"`
+	From   cTypes.AccAddress `json:"from"`
+	To     cTypes.AccAddress `json:"to"`
+	ZoneID acl.ZoneID        `json:"zoneID"`
 }
 
 // NewDefineZone : new define zone struct
-func NewDefineZone(from sdk.AccAddress, to sdk.AccAddress, zoneID acl.ZoneID) DefineZone {
+func NewDefineZone(from cTypes.AccAddress, to cTypes.AccAddress, zoneID acl.ZoneID) DefineZone {
 	return DefineZone{from, to, zoneID}
 }
 
@@ -1235,13 +1234,13 @@ func (in DefineZone) GetSignBytes() []byte {
 }
 
 // ValidateBasic : Validate Basic
-func (in DefineZone) ValidateBasic() sdk.Error {
+func (in DefineZone) ValidateBasic() cTypes.Error {
 	if len(in.From) == 0 {
-		return sdk.ErrInvalidAddress(in.From.String())
+		return cTypes.ErrInvalidAddress(in.From.String())
 	} else if len(in.To) == 0 {
-		return sdk.ErrInvalidAddress(in.To.String())
+		return cTypes.ErrInvalidAddress(in.To.String())
 	} else if len(in.ZoneID) == 0 {
-		return sdk.ErrInvalidAddress(in.ZoneID.String())
+		return cTypes.ErrInvalidAddress(in.ZoneID.String())
 	}
 	return nil
 }
@@ -1256,7 +1255,7 @@ func NewMsgDefineZones(defineZones []DefineZone) MsgDefineZones {
 	return MsgDefineZones{defineZones}
 }
 
-var _ sdk.Msg = MsgDefineZones{}
+var _ cTypes.Msg = MsgDefineZones{}
 
 // Type : implements msg
 func (msg MsgDefineZones) Type() string { return "bank" }
@@ -1264,7 +1263,7 @@ func (msg MsgDefineZones) Type() string { return "bank" }
 func (msg MsgDefineZones) Route() string { return RouterKey }
 
 // ValidateBasic : implements msg
-func (msg MsgDefineZones) ValidateBasic() sdk.Error {
+func (msg MsgDefineZones) ValidateBasic() cTypes.Error {
 	if len(msg.DefineZones) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
 	}
@@ -1295,8 +1294,8 @@ func (msg MsgDefineZones) GetSignBytes() []byte {
 }
 
 // GetSigners : implements msg
-func (msg MsgDefineZones) GetSigners() []sdk.AccAddress {
-	addrs := make([]sdk.AccAddress, len(msg.DefineZones))
+func (msg MsgDefineZones) GetSigners() []cTypes.AccAddress {
+	addrs := make([]cTypes.AccAddress, len(msg.DefineZones))
 	for i, in := range msg.DefineZones {
 		addrs[i] = in.From
 	}
@@ -1304,33 +1303,33 @@ func (msg MsgDefineZones) GetSigners() []sdk.AccAddress {
 }
 
 // BuildMsgDefineZones : build define zones message
-func BuildMsgDefineZones(from sdk.AccAddress, to sdk.AccAddress, zoneID acl.ZoneID, msgs []DefineZone) []DefineZone {
+func BuildMsgDefineZones(from cTypes.AccAddress, to cTypes.AccAddress, zoneID acl.ZoneID, msgs []DefineZone) []DefineZone {
 	defineZone := NewDefineZone(from, to, zoneID)
 	msgs = append(msgs, defineZone)
 	return msgs
 }
 
 // BuildMsgDefineZoneWithDefineZones : build define zones message
-func BuildMsgDefineZoneWithDefineZones(msgs []DefineZone) sdk.Msg {
+func BuildMsgDefineZoneWithDefineZones(msgs []DefineZone) cTypes.Msg {
 	return NewMsgDefineZones(msgs)
 }
 
 // BuildMsgDefineZone : build define zones message
-func BuildMsgDefineZone(from sdk.AccAddress, to sdk.AccAddress, zoneID acl.ZoneID) sdk.Msg {
+func BuildMsgDefineZone(from cTypes.AccAddress, to cTypes.AccAddress, zoneID acl.ZoneID) cTypes.Msg {
 	defineZone := NewDefineZone(from, to, zoneID)
 	return NewMsgDefineZones([]DefineZone{defineZone})
 }
 
 // DefineOrganization : singular define organization message
 type DefineOrganization struct {
-	From           sdk.AccAddress     `json:"from"`
-	To             sdk.AccAddress     `json:"to"`
+	From           cTypes.AccAddress  `json:"from"`
+	To             cTypes.AccAddress  `json:"to"`
 	OrganizationID acl.OrganizationID `json:"organizationID"`
 	ZoneID         acl.ZoneID         `json:"zoneID"`
 }
 
 // NewDefineOrganization : new define organization struct
-func NewDefineOrganization(from sdk.AccAddress, to sdk.AccAddress, organizationID acl.OrganizationID, zoneID acl.ZoneID) DefineOrganization {
+func NewDefineOrganization(from cTypes.AccAddress, to cTypes.AccAddress, organizationID acl.OrganizationID, zoneID acl.ZoneID) DefineOrganization {
 	return DefineOrganization{from, to, organizationID, zoneID}
 }
 
@@ -1354,15 +1353,15 @@ func (in DefineOrganization) GetSignBytes() []byte {
 }
 
 // ValidateBasic : Validate Basic
-func (in DefineOrganization) ValidateBasic() sdk.Error {
+func (in DefineOrganization) ValidateBasic() cTypes.Error {
 	if len(in.From) == 0 {
-		return sdk.ErrInvalidAddress(in.From.String())
+		return cTypes.ErrInvalidAddress(in.From.String())
 	} else if len(in.To) == 0 {
-		return sdk.ErrInvalidAddress(in.To.String())
+		return cTypes.ErrInvalidAddress(in.To.String())
 	} else if len(in.OrganizationID) == 0 {
-		return sdk.ErrInvalidAddress(in.OrganizationID.String())
+		return cTypes.ErrInvalidAddress(in.OrganizationID.String())
 	} else if len(in.ZoneID) == 0 {
-		return sdk.ErrInvalidAddress(in.ZoneID.String())
+		return cTypes.ErrInvalidAddress(in.ZoneID.String())
 	}
 	return nil
 }
@@ -1377,7 +1376,7 @@ func NewMsgDefineOrganizations(defineOrganizations []DefineOrganization) MsgDefi
 	return MsgDefineOrganizations{defineOrganizations}
 }
 
-var _ sdk.Msg = MsgDefineOrganizations{}
+var _ cTypes.Msg = MsgDefineOrganizations{}
 
 // Type : implements msg
 func (msg MsgDefineOrganizations) Type() string { return "bank" }
@@ -1385,7 +1384,7 @@ func (msg MsgDefineOrganizations) Type() string { return "bank" }
 func (msg MsgDefineOrganizations) Route() string { return RouterKey }
 
 // ValidateBasic : implements msg
-func (msg MsgDefineOrganizations) ValidateBasic() sdk.Error {
+func (msg MsgDefineOrganizations) ValidateBasic() cTypes.Error {
 	if len(msg.DefineOrganizations) == 0 {
 		return ErrNoInputs(DefaultCodespace).TraceSDK("")
 	}
@@ -1416,8 +1415,8 @@ func (msg MsgDefineOrganizations) GetSignBytes() []byte {
 }
 
 // GetSigners : implements msg
-func (msg MsgDefineOrganizations) GetSigners() []sdk.AccAddress {
-	addrs := make([]sdk.AccAddress, len(msg.DefineOrganizations))
+func (msg MsgDefineOrganizations) GetSigners() []cTypes.AccAddress {
+	addrs := make([]cTypes.AccAddress, len(msg.DefineOrganizations))
 	for i, in := range msg.DefineOrganizations {
 		addrs[i] = in.From
 	}
@@ -1425,32 +1424,32 @@ func (msg MsgDefineOrganizations) GetSigners() []sdk.AccAddress {
 }
 
 // BuildMsgDefineOrganizations : build define organization message
-func BuildMsgDefineOrganizations(from sdk.AccAddress, to sdk.AccAddress, organizationID acl.OrganizationID, zoneID acl.ZoneID, msgs []DefineOrganization) []DefineOrganization {
+func BuildMsgDefineOrganizations(from cTypes.AccAddress, to cTypes.AccAddress, organizationID acl.OrganizationID, zoneID acl.ZoneID, msgs []DefineOrganization) []DefineOrganization {
 	defineOrganization := NewDefineOrganization(from, to, organizationID, zoneID)
 	msgs = append(msgs, defineOrganization)
 	return msgs
 }
 
 // BuildMsgDefineOrganizationWithMsgs : build define organization message
-func BuildMsgDefineOrganizationWithMsgs(msgs []DefineOrganization) sdk.Msg {
+func BuildMsgDefineOrganizationWithMsgs(msgs []DefineOrganization) cTypes.Msg {
 	return NewMsgDefineOrganizations(msgs)
 }
 
 // BuildMsgDefineOrganization : build define organization message
-func BuildMsgDefineOrganization(from sdk.AccAddress, to sdk.AccAddress, organizationID acl.OrganizationID, zoneID acl.ZoneID) sdk.Msg {
+func BuildMsgDefineOrganization(from cTypes.AccAddress, to cTypes.AccAddress, organizationID acl.OrganizationID, zoneID acl.ZoneID) cTypes.Msg {
 	defineOrganization := NewDefineOrganization(from, to, organizationID, zoneID)
 	return NewMsgDefineOrganizations([]DefineOrganization{defineOrganization})
 }
 
 // DefineACL : indular define acl message
 type DefineACL struct {
-	From       sdk.AccAddress `json:"from"`
-	To         sdk.AccAddress `json:"to"`
-	ACLAccount acl.ACLAccount `json:"aclAccount"`
+	From       cTypes.AccAddress `json:"from"`
+	To         cTypes.AccAddress `json:"to"`
+	ACLAccount acl.ACLAccount    `json:"aclAccount"`
 }
 
 // NewDefineACL : new define acl struct
-func NewDefineACL(from sdk.AccAddress, to sdk.AccAddress, aclAccount acl.ACLAccount) DefineACL {
+func NewDefineACL(from cTypes.AccAddress, to cTypes.AccAddress, aclAccount acl.ACLAccount) DefineACL {
 	return DefineACL{from, to, aclAccount}
 }
 
@@ -1472,11 +1471,11 @@ func (in DefineACL) GetSignBytes() []byte {
 }
 
 // ValidateBasic : Validate Basic
-func (in DefineACL) ValidateBasic() sdk.Error {
+func (in DefineACL) ValidateBasic() cTypes.Error {
 	if len(in.From) == 0 {
-		return sdk.ErrInvalidAddress(in.From.String())
+		return cTypes.ErrInvalidAddress(in.From.String())
 	} else if len(in.To) == 0 {
-		return sdk.ErrInvalidAddress(in.To.String())
+		return cTypes.ErrInvalidAddress(in.To.String())
 	}
 	return nil
 }
@@ -1491,7 +1490,7 @@ func NewMsgDefineACLs(defineACLs []DefineACL) MsgDefineACLs {
 	return MsgDefineACLs{defineACLs}
 }
 
-var _ sdk.Msg = MsgDefineACLs{}
+var _ cTypes.Msg = MsgDefineACLs{}
 
 // Type : implements msg
 func (msg MsgDefineACLs) Type() string { return "bank" }
@@ -1499,7 +1498,7 @@ func (msg MsgDefineACLs) Type() string { return "bank" }
 func (msg MsgDefineACLs) Route() string { return RouterKey }
 
 // ValidateBasic : implements msg
-func (msg MsgDefineACLs) ValidateBasic() sdk.Error {
+func (msg MsgDefineACLs) ValidateBasic() cTypes.Error {
 	if len(msg.DefineACLs) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
 	}
@@ -1530,8 +1529,8 @@ func (msg MsgDefineACLs) GetSignBytes() []byte {
 }
 
 // GetSigners : implements msg
-func (msg MsgDefineACLs) GetSigners() []sdk.AccAddress {
-	addrs := make([]sdk.AccAddress, len(msg.DefineACLs))
+func (msg MsgDefineACLs) GetSigners() []cTypes.AccAddress {
+	addrs := make([]cTypes.AccAddress, len(msg.DefineACLs))
 	for i, in := range msg.DefineACLs {
 		addrs[i] = in.From
 	}
@@ -1539,19 +1538,19 @@ func (msg MsgDefineACLs) GetSigners() []sdk.AccAddress {
 }
 
 // BuildMsgDefineACLs : build define acls message
-func BuildMsgDefineACLs(from sdk.AccAddress, to sdk.AccAddress, aclAccount acl.ACLAccount, msgs []DefineACL) []DefineACL {
+func BuildMsgDefineACLs(from cTypes.AccAddress, to cTypes.AccAddress, aclAccount acl.ACLAccount, msgs []DefineACL) []DefineACL {
 	defineACL := NewDefineACL(from, to, aclAccount)
 	msgs = append(msgs, defineACL)
 	return msgs
 }
 
 // BuildMsgDefineACLWithACLs : build define acls message
-func BuildMsgDefineACLWithACLs(msgs []DefineACL) sdk.Msg {
+func BuildMsgDefineACLWithACLs(msgs []DefineACL) cTypes.Msg {
 	return NewMsgDefineACLs(msgs)
 }
 
 // BuildMsgDefineACL : build define acls message
-func BuildMsgDefineACL(from sdk.AccAddress, to sdk.AccAddress, aclAccount acl.ACLAccount) sdk.Msg {
+func BuildMsgDefineACL(from cTypes.AccAddress, to cTypes.AccAddress, aclAccount acl.ACLAccount) cTypes.Msg {
 	defineACL := NewDefineACL(from, to, aclAccount)
 	return NewMsgDefineACLs([]DefineACL{defineACL})
 }

@@ -2,56 +2,55 @@ package rest
 
 import (
 	"net/http"
-	
-	"github.com/gorilla/mux"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
-	
-	"github.com/commitHub/commitBlockchain/modules/bank/internal/types"
+	"github.com/gorilla/mux"
+
+	rest2 "github.com/commitHub/commitBlockchain/client/rest"
+	bankTypes "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
-// query accountREST Handler
 func QueryBalancesRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
-	
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		vars := mux.Vars(r)
 		bech32addr := vars["address"]
-		
-		addr, err := sdk.AccAddressFromBech32(bech32addr)
+
+		addr, err := cTypes.AccAddressFromBech32(bech32addr)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			rest2.WriteErrorResponse(w, types.ErrAccAddressFromBech32(bankTypes.DefaultCodespace, bech32addr))
 			return
 		}
-		
+
 		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
 		if !ok {
 			return
 		}
-		
-		params := types.NewQueryBalanceParams(addr)
+
+		params := bankTypes.NewQueryBalanceParams(addr)
 		bz, err := cliCtx.Codec.MarshalJSON(params)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			rest2.WriteErrorResponse(w, types.ErrQuery(bankTypes.DefaultCodespace, "balance params"))
 			return
 		}
-		
+
 		res, height, err := cliCtx.QueryWithData("custom/bank/balances", bz)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			rest2.WriteErrorResponse(w, types.ErrQuery(bankTypes.DefaultCodespace, "balance"))
 			return
 		}
-		
+
 		cliCtx = cliCtx.WithHeight(height)
-		
-		// the query will return empty if there is no data for this account
+
 		if len(res) == 0 {
-			rest.PostProcessResponse(w, cliCtx, sdk.Coins{})
+			rest.PostProcessResponse(w, cliCtx, cTypes.Coins{})
 			return
 		}
-		
+
 		rest.PostProcessResponse(w, cliCtx, res)
 	}
 }

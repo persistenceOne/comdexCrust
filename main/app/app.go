@@ -7,11 +7,11 @@ import (
 	
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
-	abci "github.com/tendermint/tendermint/abci/types"
+	abciTypes "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
-	tmtypes "github.com/tendermint/tendermint/types"
+	tmTypes "github.com/tendermint/tendermint/types"
 	
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/modules/acl"
@@ -19,7 +19,7 @@ import (
 	"github.com/commitHub/commitBlockchain/modules/bank"
 	"github.com/commitHub/commitBlockchain/modules/crisis"
 	distr "github.com/commitHub/commitBlockchain/modules/distribution"
-	distrclient "github.com/commitHub/commitBlockchain/modules/distribution/client"
+	distrClient "github.com/commitHub/commitBlockchain/modules/distribution/client"
 	"github.com/commitHub/commitBlockchain/modules/genaccounts"
 	"github.com/commitHub/commitBlockchain/modules/genutil"
 	"github.com/commitHub/commitBlockchain/modules/gov"
@@ -27,7 +27,7 @@ import (
 	"github.com/commitHub/commitBlockchain/modules/negotiation"
 	"github.com/commitHub/commitBlockchain/modules/orders"
 	"github.com/commitHub/commitBlockchain/modules/params"
-	paramsclient "github.com/commitHub/commitBlockchain/modules/params/client"
+	paramsClient "github.com/commitHub/commitBlockchain/modules/params/client"
 	"github.com/commitHub/commitBlockchain/modules/reputation"
 	"github.com/commitHub/commitBlockchain/modules/slashing"
 	"github.com/commitHub/commitBlockchain/modules/staking"
@@ -53,7 +53,7 @@ var (
 		staking.AppModuleBasic{},
 		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
-		gov.NewAppModuleBasic(paramsclient.ProposalHandler, distrclient.ProposalHandler),
+		gov.NewAppModuleBasic(paramsClient.ProposalHandler, distrClient.ProposalHandler),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
 		slashing.AppModuleBasic{},
@@ -245,17 +245,17 @@ func NewMainApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 }
 
 // application updates every begin block
-func (app *MainApp) BeginBlocker(ctx cTypes.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+func (app *MainApp) BeginBlocker(ctx cTypes.Context, req abciTypes.RequestBeginBlock) abciTypes.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
 
 // application updates every end block
-func (app *MainApp) EndBlocker(ctx cTypes.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+func (app *MainApp) EndBlocker(ctx cTypes.Context, req abciTypes.RequestEndBlock) abciTypes.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }
 
 // application update at chain initialization
-func (app *MainApp) InitChainer(ctx cTypes.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+func (app *MainApp) InitChainer(ctx cTypes.Context, req abciTypes.RequestInitChain) abciTypes.ResponseInitChain {
 	var genesisState GenesisState
 	app.cdc.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
 	return app.mm.InitGenesis(ctx, genesisState)
@@ -277,10 +277,10 @@ func (app *MainApp) ModuleAccountAddrs() map[string]bool {
 }
 
 func (app *MainApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhiteList []string,
-) (appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
+) (appState json.RawMessage, validators []tmTypes.GenesisValidator, err error) {
 	
 	// as if they could withdraw from the start of the next block
-	ctx := app.NewContext(true, abci.Header{Height: app.LastBlockHeight()})
+	ctx := app.NewContext(true, abciTypes.Header{Height: app.LastBlockHeight()})
 	
 	genState := app.mm.ExportGenesis(ctx)
 	appState, err = codec.MarshalJSONIndent(app.cdc, genState)

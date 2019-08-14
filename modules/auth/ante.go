@@ -5,16 +5,13 @@ import (
 	"encoding/hex"
 	"fmt"
 	
-	"github.com/tendermint/tendermint/crypto/ed25519"
-	
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/crypto"
+	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/crypto/multisig"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
 	
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	
 	"github.com/commitHub/commitBlockchain/codec"
-	
 	"github.com/commitHub/commitBlockchain/modules/auth/types"
 )
 
@@ -32,15 +29,15 @@ func init() {
 
 // SignatureVerificationGasConsumer is the type of function that is used to both consume gas when verifying signatures
 // and also to accept or reject different types of PubKey's. This is where apps can define their own PubKey
-type SignatureVerificationGasConsumer = func(meter sdk.GasMeter, sig []byte, pubkey crypto.PubKey, params Params) sdk.Result
+type SignatureVerificationGasConsumer = func(meter cTypes.GasMeter, sig []byte, pubkey crypto.PubKey, params Params) cTypes.Result
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, and deducts fees from the first
 // signer.
-func NewAnteHandler(ak AccountKeeper, supplyKeeper types.SupplyKeeper, sigGasConsumer SignatureVerificationGasConsumer) sdk.AnteHandler {
+func NewAnteHandler(ak AccountKeeper, supplyKeeper types.SupplyKeeper, sigGasConsumer SignatureVerificationGasConsumer) cTypes.AnteHandler {
 	return func(
-		ctx sdk.Context, tx sdk.Tx, simulate bool,
-	) (newCtx sdk.Context, res sdk.Result, abort bool) {
+		ctx cTypes.Context, tx cTypes.Tx, simulate bool,
+	) (newCtx cTypes.Context, res cTypes.Result, abort bool) {
 		
 		if addr := supplyKeeper.GetModuleAddress(types.FeeCollectorName); addr == nil {
 			panic(fmt.Sprintf("%s module account has not been set", types.FeeCollectorName))
@@ -52,7 +49,7 @@ func NewAnteHandler(ak AccountKeeper, supplyKeeper types.SupplyKeeper, sigGasCon
 			// Set a gas meter with limit 0 as to prevent an infinite gas meter attack
 			// during runTx.
 			newCtx = SetGasMeter(simulate, ctx, 0)
-			return newCtx, sdk.ErrInternal("tx must be StdTx").Result(), true
+			return newCtx, cTypes.ErrInternal("tx must be StdTx").Result(), true
 		}
 		
 		params := ak.GetParams(ctx)
@@ -76,12 +73,12 @@ func NewAnteHandler(ak AccountKeeper, supplyKeeper types.SupplyKeeper, sigGasCon
 		defer func() {
 			if r := recover(); r != nil {
 				switch rType := r.(type) {
-				case sdk.ErrorOutOfGas:
+				case cTypes.ErrorOutOfGas:
 					log := fmt.Sprintf(
 						"out of gas in location: %v; gasWanted: %d, gasUsed: %d",
 						rType.Descriptor, stdTx.Fee.Gas, newCtx.GasMeter().GasConsumed(),
 					)
-					res = sdk.ErrOutOfGas(log).Result()
+					res = cTypes.ErrOutOfGas(log).Result()
 					
 					res.GasWanted = stdTx.Fee.Gas
 					res.GasUsed = newCtx.GasMeter().GasConsumed()
@@ -100,7 +97,7 @@ func NewAnteHandler(ak AccountKeeper, supplyKeeper types.SupplyKeeper, sigGasCon
 			return newCtx, err.Result(), true
 		}
 		
-		newCtx.GasMeter().ConsumeGas(params.TxSizeCostPerByte*sdk.Gas(len(newCtx.TxBytes())), "txSize")
+		newCtx.GasMeter().ConsumeGas(params.TxSizeCostPerByte*cTypes.Gas(len(newCtx.TxBytes())), "txSize")
 		
 		if res := ValidateMemo(stdTx, params); !res.IsOK() {
 			return newCtx, res, true
@@ -153,42 +150,42 @@ func NewAnteHandler(ak AccountKeeper, supplyKeeper types.SupplyKeeper, sigGasCon
 		}
 		
 		// TODO: tx tags (?)
-		return newCtx, sdk.Result{GasWanted: stdTx.Fee.Gas}, false // continue...
+		return newCtx, cTypes.Result{GasWanted: stdTx.Fee.Gas}, false // continue...
 	}
 }
 
 // GetSignerAcc returns an account for a given address that is expected to sign
 // a transaction.
-func GetSignerAcc(ctx sdk.Context, ak AccountKeeper, addr sdk.AccAddress) (Account, sdk.Result) {
+func GetSignerAcc(ctx cTypes.Context, ak AccountKeeper, addr cTypes.AccAddress) (Account, cTypes.Result) {
 	if acc := ak.GetAccount(ctx, addr); acc != nil {
-		return acc, sdk.Result{}
+		return acc, cTypes.Result{}
 	}
-	return nil, sdk.ErrUnknownAddress(fmt.Sprintf("account %s does not exist", addr)).Result()
+	return nil, cTypes.ErrUnknownAddress(fmt.Sprintf("account %s does not exist", addr)).Result()
 }
 
 // ValidateSigCount validates that the transaction has a valid cumulative total
 // amount of signatures.
-func ValidateSigCount(stdTx StdTx, params Params) sdk.Result {
+func ValidateSigCount(stdTx StdTx, params Params) cTypes.Result {
 	stdSigs := stdTx.GetSignatures()
 	
 	sigCount := 0
 	for i := 0; i < len(stdSigs); i++ {
 		sigCount += CountSubKeys(stdSigs[i].PubKey)
 		if uint64(sigCount) > params.TxSigLimit {
-			return sdk.ErrTooManySignatures(
+			return cTypes.ErrTooManySignatures(
 				fmt.Sprintf("signatures: %d, limit: %d", sigCount, params.TxSigLimit),
 			).Result()
 		}
 	}
 	
-	return sdk.Result{}
+	return cTypes.Result{}
 }
 
 // ValidateMemo validates the memo size.
-func ValidateMemo(stdTx StdTx, params Params) sdk.Result {
+func ValidateMemo(stdTx StdTx, params Params) cTypes.Result {
 	memoLength := len(stdTx.GetMemo())
 	if uint64(memoLength) > params.MaxMemoCharacters {
-		return sdk.ErrMemoTooLarge(
+		return cTypes.ErrMemoTooLarge(
 			fmt.Sprintf(
 				"maximum number of characters is %d but received %d characters",
 				params.MaxMemoCharacters, memoLength,
@@ -196,15 +193,15 @@ func ValidateMemo(stdTx StdTx, params Params) sdk.Result {
 		).Result()
 	}
 	
-	return sdk.Result{}
+	return cTypes.Result{}
 }
 
 // verify the signature and increment the sequence. If the account doesn't have
 // a pubkey, set it.
 func processSig(
-	ctx sdk.Context, acc Account, sig StdSignature, signBytes []byte, simulate bool, params Params,
+	ctx cTypes.Context, acc Account, sig StdSignature, signBytes []byte, simulate bool, params Params,
 	sigGasConsumer SignatureVerificationGasConsumer,
-) (updatedAcc Account, res sdk.Result) {
+) (updatedAcc Account, res cTypes.Result) {
 	
 	pubKey, res := ProcessPubKey(acc, sig, simulate)
 	if !res.IsOK() {
@@ -213,7 +210,7 @@ func processSig(
 	
 	err := acc.SetPubKey(pubKey)
 	if err != nil {
-		return nil, sdk.ErrInternal("setting PubKey on signer's account").Result()
+		return nil, cTypes.ErrInternal("setting PubKey on signer's account").Result()
 	}
 	
 	if simulate {
@@ -229,7 +226,7 @@ func processSig(
 	}
 	
 	if !simulate && !pubKey.VerifyBytes(signBytes, sig.Signature) {
-		return nil, sdk.ErrUnauthorized("signature verification failed; verify correct account sequence and chain-id").Result()
+		return nil, cTypes.ErrUnauthorized("signature verification failed; verify correct account sequence and chain-id").Result()
 	}
 	
 	if err := acc.SetSequence(acc.GetSequence() + 1); err != nil {
@@ -239,14 +236,14 @@ func processSig(
 	return acc, res
 }
 
-func consumeSimSigGas(gasmeter sdk.GasMeter, pubkey crypto.PubKey, sig StdSignature, params Params) {
+func consumeSimSigGas(gasmeter cTypes.GasMeter, pubkey crypto.PubKey, sig StdSignature, params Params) {
 	simSig := StdSignature{PubKey: pubkey}
 	if len(sig.Signature) == 0 {
 		simSig.Signature = simSecp256k1Sig[:]
 	}
 	
 	sigBz := ModuleCdc.MustMarshalBinaryLengthPrefixed(simSig)
-	cost := sdk.Gas(len(sigBz) + 6)
+	cost := cTypes.Gas(len(sigBz) + 6)
 	
 	// If the pubkey is a multi-signature pubkey, then we estimate for the maximum
 	// number of signers.
@@ -260,7 +257,7 @@ func consumeSimSigGas(gasmeter sdk.GasMeter, pubkey crypto.PubKey, sig StdSignat
 // ProcessPubKey verifies that the given account address matches that of the
 // StdSignature. In addition, it will set the public key of the account if it
 // has not been set.
-func ProcessPubKey(acc Account, sig StdSignature, simulate bool) (crypto.PubKey, sdk.Result) {
+func ProcessPubKey(acc Account, sig StdSignature, simulate bool) (crypto.PubKey, cTypes.Result) {
 	// If pubkey is not known for account, set it from the StdSignature.
 	pubKey := acc.GetPubKey()
 	if simulate {
@@ -269,55 +266,55 @@ func ProcessPubKey(acc Account, sig StdSignature, simulate bool) (crypto.PubKey,
 		// shall consume the largest amount, i.e. it takes more gas to verify
 		// secp256k1 keys than ed25519 ones.
 		if pubKey == nil {
-			return simSecp256k1Pubkey, sdk.Result{}
+			return simSecp256k1Pubkey, cTypes.Result{}
 		}
 		
-		return pubKey, sdk.Result{}
+		return pubKey, cTypes.Result{}
 	}
 	
 	if pubKey == nil {
 		pubKey = sig.PubKey
 		if pubKey == nil {
-			return nil, sdk.ErrInvalidPubKey("PubKey not found").Result()
+			return nil, cTypes.ErrInvalidPubKey("PubKey not found").Result()
 		}
 		
 		if !bytes.Equal(pubKey.Address(), acc.GetAddress()) {
-			return nil, sdk.ErrInvalidPubKey(
+			return nil, cTypes.ErrInvalidPubKey(
 				fmt.Sprintf("PubKey does not match Signer address %s", acc.GetAddress())).Result()
 		}
 	}
 	
-	return pubKey, sdk.Result{}
+	return pubKey, cTypes.Result{}
 }
 
 // DefaultSigVerificationGasConsumer is the default implementation of SignatureVerificationGasConsumer. It consumes gas
 // for signature verification based upon the public key type. The cost is fetched from the given params and is matched
 // by the concrete type.
 func DefaultSigVerificationGasConsumer(
-	meter sdk.GasMeter, sig []byte, pubkey crypto.PubKey, params Params,
-) sdk.Result {
+	meter cTypes.GasMeter, sig []byte, pubkey crypto.PubKey, params Params,
+) cTypes.Result {
 	switch pubkey := pubkey.(type) {
 	case ed25519.PubKeyEd25519:
 		meter.ConsumeGas(params.SigVerifyCostED25519, "ante verify: ed25519")
-		return sdk.ErrInvalidPubKey("ED25519 public keys are unsupported").Result()
+		return cTypes.ErrInvalidPubKey("ED25519 public keys are unsupported").Result()
 	
 	case secp256k1.PubKeySecp256k1:
 		meter.ConsumeGas(params.SigVerifyCostSecp256k1, "ante verify: secp256k1")
-		return sdk.Result{}
+		return cTypes.Result{}
 	
 	case multisig.PubKeyMultisigThreshold:
 		var multisignature multisig.Multisignature
 		codec.Cdc.MustUnmarshalBinaryBare(sig, &multisignature)
 		
 		consumeMultisignatureVerificationGas(meter, multisignature, pubkey, params)
-		return sdk.Result{}
+		return cTypes.Result{}
 	
 	default:
-		return sdk.ErrInvalidPubKey(fmt.Sprintf("unrecognized public key type: %T", pubkey)).Result()
+		return cTypes.ErrInvalidPubKey(fmt.Sprintf("unrecognized public key type: %T", pubkey)).Result()
 	}
 }
 
-func consumeMultisignatureVerificationGas(meter sdk.GasMeter,
+func consumeMultisignatureVerificationGas(meter cTypes.GasMeter,
 	sig multisig.Multisignature, pubkey multisig.PubKeyMultisigThreshold,
 	params Params) {
 	
@@ -335,18 +332,18 @@ func consumeMultisignatureVerificationGas(meter sdk.GasMeter,
 //
 // NOTE: We could use the CoinKeeper (in addition to the AccountKeeper, because
 // the CoinKeeper doesn't give us accounts), but it seems easier to do this.
-func DeductFees(supplyKeeper types.SupplyKeeper, ctx sdk.Context, acc Account, fees sdk.Coins) sdk.Result {
+func DeductFees(supplyKeeper types.SupplyKeeper, ctx cTypes.Context, acc Account, fees cTypes.Coins) cTypes.Result {
 	blockTime := ctx.BlockHeader().Time
 	coins := acc.GetCoins()
 	
 	if !fees.IsValid() {
-		return sdk.ErrInsufficientFee(fmt.Sprintf("invalid fee amount: %s", fees)).Result()
+		return cTypes.ErrInsufficientFee(fmt.Sprintf("invalid fee amount: %s", fees)).Result()
 	}
 	
 	// verify the account has enough funds to pay for fees
 	_, hasNeg := coins.SafeSub(fees)
 	if hasNeg {
-		return sdk.ErrInsufficientFunds(
+		return cTypes.ErrInsufficientFunds(
 			fmt.Sprintf("insufficient funds to pay for fees; %s < %s", coins, fees),
 		).Result()
 	}
@@ -355,7 +352,7 @@ func DeductFees(supplyKeeper types.SupplyKeeper, ctx sdk.Context, acc Account, f
 	// such as vesting accounts.
 	spendableCoins := acc.SpendableCoins(blockTime)
 	if _, hasNeg := spendableCoins.SafeSub(fees); hasNeg {
-		return sdk.ErrInsufficientFunds(
+		return cTypes.ErrInsufficientFunds(
 			fmt.Sprintf("insufficient funds to pay for fees; %s < %s", spendableCoins, fees),
 		).Result()
 	}
@@ -365,7 +362,7 @@ func DeductFees(supplyKeeper types.SupplyKeeper, ctx sdk.Context, acc Account, f
 		return err.Result()
 	}
 	
-	return sdk.Result{}
+	return cTypes.Result{}
 }
 
 // EnsureSufficientMempoolFees verifies that the given transaction has supplied
@@ -374,21 +371,21 @@ func DeductFees(supplyKeeper types.SupplyKeeper, ctx sdk.Context, acc Account, f
 //
 // Contract: This should only be called during CheckTx as it cannot be part of
 // consensus.
-func EnsureSufficientMempoolFees(ctx sdk.Context, stdFee StdFee) sdk.Result {
+func EnsureSufficientMempoolFees(ctx cTypes.Context, stdFee StdFee) cTypes.Result {
 	minGasPrices := ctx.MinGasPrices()
 	if !minGasPrices.IsZero() {
-		requiredFees := make(sdk.Coins, len(minGasPrices))
+		requiredFees := make(cTypes.Coins, len(minGasPrices))
 		
 		// Determine the required fees by multiplying each required minimum gas
 		// price by the gas limit, where fee = ceil(minGasPrice * gasLimit).
-		glDec := sdk.NewDec(int64(stdFee.Gas))
+		glDec := cTypes.NewDec(int64(stdFee.Gas))
 		for i, gp := range minGasPrices {
 			fee := gp.Amount.Mul(glDec)
-			requiredFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
+			requiredFees[i] = cTypes.NewCoin(gp.Denom, fee.Ceil().RoundInt())
 		}
 		
 		if !stdFee.Amount.IsAnyGTE(requiredFees) {
-			return sdk.ErrInsufficientFee(
+			return cTypes.ErrInsufficientFee(
 				fmt.Sprintf(
 					"insufficient fees; got: %q required: %q", stdFee.Amount, requiredFees,
 				),
@@ -396,18 +393,18 @@ func EnsureSufficientMempoolFees(ctx sdk.Context, stdFee StdFee) sdk.Result {
 		}
 	}
 	
-	return sdk.Result{}
+	return cTypes.Result{}
 }
 
 // SetGasMeter returns a new context with a gas meter set from a given context.
-func SetGasMeter(simulate bool, ctx sdk.Context, gasLimit uint64) sdk.Context {
+func SetGasMeter(simulate bool, ctx cTypes.Context, gasLimit uint64) cTypes.Context {
 	// In various cases such as simulation and during the genesis block, we do not
 	// meter any gas utilization.
 	if simulate || ctx.BlockHeight() == 0 {
-		return ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+		return ctx.WithGasMeter(cTypes.NewInfiniteGasMeter())
 	}
 	
-	return ctx.WithGasMeter(sdk.NewGasMeter(gasLimit))
+	return ctx.WithGasMeter(cTypes.NewGasMeter(gasLimit))
 }
 
 // GetSignBytes returns a slice of bytes to sign over for a given transaction

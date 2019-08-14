@@ -16,22 +16,22 @@ const (
 
 type (
 	GenesisState = types.GenesisState
-	Keeper = keeper.Keeper
+	Keeper       = keeper.Keeper
 	
 	AccountKeeper = types.AccountKeeper
 	
-	MsgDefineZones = types.MsgDefineZones
-	MsgDefineACLs = types.MsgDefineACLs
+	MsgDefineZones         = types.MsgDefineZones
+	MsgDefineACLs          = types.MsgDefineACLs
 	MsgDefineOrganizations = types.MsgDefineOrganizations
 	
-	DefineZone = types.DefineZone
+	DefineZone         = types.DefineZone
 	DefineOrganization = types.DefineOrganization
-	DefineACL = types.DefineACL
-	Organization = types.Organization
+	DefineACL          = types.DefineACL
+	Organization       = types.Organization
 	
-	ACLAccount = types.ACLAccount
+	ACLAccount     = types.ACLAccount
 	BaseACLAccount = types.BaseACLAccount
-	ZoneID = types.ZoneID
+	ZoneID         = types.ZoneID
 	OrganizationID = types.OrganizationID
 	
 	ACL = types.ACL

@@ -12,6 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	
 	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/commitHub/commitBlockchain/kafka"
 	"github.com/commitHub/commitBlockchain/types/module"
 	
 	"github.com/commitHub/commitBlockchain/modules/gov/client"
@@ -65,7 +66,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 }
 
 // register rest routes
-func (a AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
+func (a AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router, kafkaBool bool, kafkaState kafka.KafkaState) {
 	var proposalRESTHandlers []rest.ProposalRESTHandler
 	for _, proposalHandler := range a.proposalHandlers {
 		proposalRESTHandlers = append(proposalRESTHandlers, proposalHandler.RESTHandler(ctx))

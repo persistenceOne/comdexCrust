@@ -4,14 +4,11 @@ import (
 	"fmt"
 	
 	cTypes "github.com/cosmos/cosmos-sdk/types"
+	abciTypes "github.com/tendermint/tendermint/abci/types"
 	
 	"github.com/commitHub/commitBlockchain/codec"
-	
+	negotiationTypes "github.com/commitHub/commitBlockchain/modules/negotiation/internal/types"
 	"github.com/commitHub/commitBlockchain/types"
-	
-	negTypes "github.com/commitHub/commitBlockchain/modules/negotiation/internal/types"
-	
-	abciTypes "github.com/tendermint/tendermint/abci/types"
 )
 
 const (
@@ -47,18 +44,18 @@ func NewQuerier(k Keeper) cTypes.Querier {
 
 func queryNegotiation(ctx cTypes.Context, path []string, k Keeper) ([]byte, cTypes.Error) {
 	
-	negotiationKey, err := negTypes.GetNegotiationIDFromString(path[0])
+	negotiationKey, err := negotiationTypes.GetNegotiationIDFromString(path[0])
 	if err != nil {
-		return nil, negTypes.ErrInvalidNegotiationID(negTypes.DefaultCodeSpace, fmt.Sprintf("negotiation with %s "+
+		return nil, negotiationTypes.ErrInvalidNegotiationID(negotiationTypes.DefaultCodeSpace, fmt.Sprintf("negotiation with %s "+
 			" not found", err.Error()))
 	}
 	negotiation, err := k.GetNegotiation(ctx, negotiationKey)
 	if err != nil {
-		return nil, negTypes.ErrInvalidNegotiationID(negTypes.DefaultCodeSpace, fmt.Sprintf("negotiation with %s "+
+		return nil, negotiationTypes.ErrInvalidNegotiationID(negotiationTypes.DefaultCodeSpace, fmt.Sprintf("negotiation with %s "+
 			" not found", negotiationKey.String()))
 	}
 	
-	res, errRes := codec.MarshalJSONIndent(negTypes.ModuleCdc, negotiation)
+	res, errRes := codec.MarshalJSONIndent(negotiationTypes.ModuleCdc, negotiation)
 	if errRes != nil {
 		return nil, cTypes.ErrInternal(cTypes.AppendMsgToErr("could not marshal result to JSON", errRes.Error()))
 	}

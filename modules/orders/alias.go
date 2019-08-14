@@ -31,10 +31,10 @@ var (
 
 type (
 	GenesisState = types.GenesisState
-	Keeper = keeper.Keeper
-	Order = types.Order
-	BaseOrder = types.BaseOrder
+	Keeper       = keeper.Keeper
+	Order        = types.Order
+	BaseOrder    = types.BaseOrder
 	
-	ACLKeeper = types.ACLKeeper
+	ACLKeeper     = types.ACLKeeper
 	AccountKeeper = types.AccountKeeper
 )

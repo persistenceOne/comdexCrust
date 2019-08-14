@@ -3,16 +3,16 @@ package bank
 import (
 	"fmt"
 	
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 	
 	"github.com/commitHub/commitBlockchain/modules/bank/internal/keeper"
 	"github.com/commitHub/commitBlockchain/modules/bank/internal/types"
 )
 
 // NewHandler returns a handler for "bank" type messages.
-func NewHandler(k keeper.Keeper) sdk.Handler {
-	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
-		ctx = ctx.WithEventManager(sdk.NewEventManager())
+func NewHandler(k keeper.Keeper) cTypes.Handler {
+	return func(ctx cTypes.Context, msg cTypes.Msg) cTypes.Result {
+		ctx = ctx.WithEventManager(cTypes.NewEventManager())
 		
 		switch msg := msg.(type) {
 		case types.MsgSend:
@@ -58,13 +58,13 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 			return handleMsgDefineACLs(ctx, k, msg)
 		default:
 			errMsg := fmt.Sprintf("unrecognized bank message type: %T", msg)
-			return sdk.ErrUnknownRequest(errMsg).Result()
+			return cTypes.ErrUnknownRequest(errMsg).Result()
 		}
 	}
 }
 
 // Handle MsgSend.
-func handleMsgSend(ctx sdk.Context, k keeper.Keeper, msg types.MsgSend) sdk.Result {
+func handleMsgSend(ctx cTypes.Context, k keeper.Keeper, msg types.MsgSend) cTypes.Result {
 	if !k.GetSendEnabled(ctx) {
 		return types.ErrSendDisabled(k.Codespace()).Result()
 	}
@@ -75,17 +75,17 @@ func handleMsgSend(ctx sdk.Context, k keeper.Keeper, msg types.MsgSend) sdk.Resu
 	}
 	
 	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
+		cTypes.NewEvent(
 			types.EventTypeTransfer,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			cTypes.NewAttribute(cTypes.AttributeKeyModule, types.AttributeValueCategory),
 		),
 	)
 	
-	return sdk.Result{Events: ctx.EventManager().Events()}
+	return cTypes.Result{Events: ctx.EventManager().Events()}
 }
 
 // Handle MsgMultiSend.
-func handleMsgMultiSend(ctx sdk.Context, k keeper.Keeper, msg types.MsgMultiSend) sdk.Result {
+func handleMsgMultiSend(ctx cTypes.Context, k keeper.Keeper, msg types.MsgMultiSend) cTypes.Result {
 	// NOTE: totalIn == totalOut should already have been checked
 	if !k.GetSendEnabled(ctx) {
 		return types.ErrSendDisabled(k.Codespace()).Result()
@@ -97,16 +97,16 @@ func handleMsgMultiSend(ctx sdk.Context, k keeper.Keeper, msg types.MsgMultiSend
 	}
 	
 	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+		cTypes.NewEvent(
+			cTypes.EventTypeMessage,
+			cTypes.NewAttribute(cTypes.AttributeKeyModule, types.AttributeValueCategory),
 		),
 	)
 	
-	return sdk.Result{Events: ctx.EventManager().Events()}
+	return cTypes.Result{Events: ctx.EventManager().Events()}
 }
 
-func handleMsgBankIssueAssets(ctx sdk.Context, k keeper.Keeper, msg types.MsgBankIssueAssets) sdk.Result {
+func handleMsgBankIssueAssets(ctx cTypes.Context, k keeper.Keeper, msg types.MsgBankIssueAssets) cTypes.Result {
 	
 	for _, issueAsset := range msg.IssueAssets {
 		err := k.IssueAssetsToWallets(ctx, issueAsset)
@@ -115,12 +115,12 @@ func handleMsgBankIssueAssets(ctx sdk.Context, k keeper.Keeper, msg types.MsgBan
 			return err.Result()
 		}
 	}
-	return sdk.Result{
+	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
 }
 
-func handleMsgBankIssueFiats(ctx sdk.Context, k keeper.Keeper, msg types.MsgBankIssueFiats) sdk.Result {
+func handleMsgBankIssueFiats(ctx cTypes.Context, k keeper.Keeper, msg types.MsgBankIssueFiats) cTypes.Result {
 	
 	for _, issueFiat := range msg.IssueFiats {
 		err := k.IssueFiatsToWallets(ctx, issueFiat)
@@ -128,12 +128,12 @@ func handleMsgBankIssueFiats(ctx sdk.Context, k keeper.Keeper, msg types.MsgBank
 			return err.Result()
 		}
 	}
-	return sdk.Result{
+	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
 }
 
-func handleMMsgBankRedeemAssets(ctx sdk.Context, k keeper.Keeper, msg types.MsgBankRedeemAssets) sdk.Result {
+func handleMMsgBankRedeemAssets(ctx cTypes.Context, k keeper.Keeper, msg types.MsgBankRedeemAssets) cTypes.Result {
 	
 	for _, redeemAsset := range msg.RedeemAssets {
 		err := k.RedeemAssetsFromWallets(ctx, redeemAsset)
@@ -141,12 +141,12 @@ func handleMMsgBankRedeemAssets(ctx sdk.Context, k keeper.Keeper, msg types.MsgB
 			return err.Result()
 		}
 	}
-	return sdk.Result{
+	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
 }
 
-func handleMMsgBankRedeemFiats(ctx sdk.Context, k keeper.Keeper, msg types.MsgBankRedeemFiats) sdk.Result {
+func handleMMsgBankRedeemFiats(ctx cTypes.Context, k keeper.Keeper, msg types.MsgBankRedeemFiats) cTypes.Result {
 	
 	for _, redeemFiat := range msg.RedeemFiats {
 		err := k.RedeemFiatsFromWallets(ctx, redeemFiat)
@@ -155,12 +155,12 @@ func handleMMsgBankRedeemFiats(ctx sdk.Context, k keeper.Keeper, msg types.MsgBa
 		}
 	}
 	
-	return sdk.Result{
+	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
 }
 
-func handleMsgBankSendAssets(ctx sdk.Context, k keeper.Keeper, msg types.MsgBankSendAssets) sdk.Result {
+func handleMsgBankSendAssets(ctx cTypes.Context, k keeper.Keeper, msg types.MsgBankSendAssets) cTypes.Result {
 	
 	for _, sendAsset := range msg.SendAssets {
 		err := k.SendAssetsToWallets(ctx, sendAsset)
@@ -169,12 +169,12 @@ func handleMsgBankSendAssets(ctx sdk.Context, k keeper.Keeper, msg types.MsgBank
 		}
 	}
 	
-	return sdk.Result{
+	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
 }
 
-func handleMsgBankSendFiats(ctx sdk.Context, k keeper.Keeper, msg types.MsgBankSendFiats) sdk.Result {
+func handleMsgBankSendFiats(ctx cTypes.Context, k keeper.Keeper, msg types.MsgBankSendFiats) cTypes.Result {
 	
 	for _, sendFiat := range msg.SendFiats {
 		err := k.SendFiatsToWallets(ctx, sendFiat)
@@ -183,12 +183,12 @@ func handleMsgBankSendFiats(ctx sdk.Context, k keeper.Keeper, msg types.MsgBankS
 		}
 	}
 	
-	return sdk.Result{
+	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
 }
 
-func handleMsgBankBuyerExecuteOrders(ctx sdk.Context, k keeper.Keeper, msg types.MsgBankBuyerExecuteOrders) sdk.Result {
+func handleMsgBankBuyerExecuteOrders(ctx cTypes.Context, k keeper.Keeper, msg types.MsgBankBuyerExecuteOrders) cTypes.Result {
 	
 	for _, buyerExecuteOrder := range msg.BuyerExecuteOrders {
 		err, _ := k.BuyerExecuteTradeOrder(ctx, buyerExecuteOrder)
@@ -197,12 +197,12 @@ func handleMsgBankBuyerExecuteOrders(ctx sdk.Context, k keeper.Keeper, msg types
 		}
 	}
 	
-	return sdk.Result{
+	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
 }
 
-func handleMsgBankSellerExecuteOrders(ctx sdk.Context, k keeper.Keeper, msg types.MsgBankSellerExecuteOrders) sdk.Result {
+func handleMsgBankSellerExecuteOrders(ctx cTypes.Context, k keeper.Keeper, msg types.MsgBankSellerExecuteOrders) cTypes.Result {
 	
 	for _, sellerExecuteOrder := range msg.SellerExecuteOrders {
 		err, _ := k.SellerExecuteTradeOrder(ctx, sellerExecuteOrder)
@@ -211,12 +211,12 @@ func handleMsgBankSellerExecuteOrders(ctx sdk.Context, k keeper.Keeper, msg type
 		}
 	}
 	
-	return sdk.Result{
+	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
 }
 
-func handleMsgBankReleaseAssets(ctx sdk.Context, k keeper.Keeper, msg types.MsgBankReleaseAssets) sdk.Result {
+func handleMsgBankReleaseAssets(ctx cTypes.Context, k keeper.Keeper, msg types.MsgBankReleaseAssets) cTypes.Result {
 	
 	for _, releaseAsset := range msg.ReleaseAssets {
 		err := k.ReleaseLockedAssets(ctx, releaseAsset)
@@ -225,12 +225,12 @@ func handleMsgBankReleaseAssets(ctx sdk.Context, k keeper.Keeper, msg types.MsgB
 		}
 	}
 	
-	return sdk.Result{
+	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
 }
 
-func handleMsgDefineZones(ctx sdk.Context, k keeper.Keeper, msg types.MsgDefineZones) sdk.Result {
+func handleMsgDefineZones(ctx cTypes.Context, k keeper.Keeper, msg types.MsgDefineZones) cTypes.Result {
 	
 	for _, defineZone := range msg.DefineZones {
 		err := k.DefineZones(ctx, defineZone)
@@ -238,12 +238,12 @@ func handleMsgDefineZones(ctx sdk.Context, k keeper.Keeper, msg types.MsgDefineZ
 			return err.Result()
 		}
 	}
-	return sdk.Result{
+	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
 }
 
-func handleMsgDefineOrganizations(ctx sdk.Context, k keeper.Keeper, msg types.MsgDefineOrganizations) sdk.Result {
+func handleMsgDefineOrganizations(ctx cTypes.Context, k keeper.Keeper, msg types.MsgDefineOrganizations) cTypes.Result {
 	
 	for _, defineOrganization := range msg.DefineOrganizations {
 		err := k.DefineOrganizations(ctx, defineOrganization)
@@ -251,12 +251,12 @@ func handleMsgDefineOrganizations(ctx sdk.Context, k keeper.Keeper, msg types.Ms
 			return err.Result()
 		}
 	}
-	return sdk.Result{
+	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
 }
 
-func handleMsgDefineACLs(ctx sdk.Context, k keeper.Keeper, msg types.MsgDefineACLs) sdk.Result {
+func handleMsgDefineACLs(ctx cTypes.Context, k keeper.Keeper, msg types.MsgDefineACLs) cTypes.Result {
 	
 	for _, defineACL := range msg.DefineACLs {
 		err := k.DefineACLs(ctx, defineACL)
@@ -265,7 +265,7 @@ func handleMsgDefineACLs(ctx sdk.Context, k keeper.Keeper, msg types.MsgDefineAC
 		}
 	}
 	
-	return sdk.Result{
+	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
 }

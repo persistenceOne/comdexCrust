@@ -10,7 +10,7 @@ import (
 	"github.com/commitHub/commitBlockchain/modules/acl"
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
-	types2 "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
+	bankTypes "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
 )
 
 func DefineZoneCmd(cdc *codec.Codec) *cobra.Command {
@@ -34,7 +34,7 @@ func DefineZoneCmd(cdc *codec.Codec) *cobra.Command {
 				return nil
 			}
 			
-			msg := types2.BuildMsgDefineZone(cliCtx.GetFromAddress(), to, zoneID)
+			msg := bankTypes.BuildMsgDefineZone(cliCtx.GetFromAddress(), to, zoneID)
 			
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []cTypes.Msg{msg})
 		},

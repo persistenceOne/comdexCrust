@@ -1,16 +1,15 @@
 package rest
 
 import (
-	"fmt"
 	"net/http"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
-	
-	"github.com/commitHub/commitBlockchain/types"
-	
+
+	rest2 "github.com/commitHub/commitBlockchain/client/rest"
 	"github.com/commitHub/commitBlockchain/modules/assetFactory"
+	bankTypes "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 func QueryAssetHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
@@ -18,45 +17,42 @@ func QueryAssetHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 		vars := mux.Vars(r)
 		peghashstr := vars["peghash"]
 		nodeURI := "tcp://0.0.0.0:46657"
-		
+
 		cliCtx := cliCtx
 		cliCtx = cliCtx.WithNodeURI(nodeURI)
 		cliCtx = cliCtx.WithTrustNode(true)
-		
+
 		peghashHex, err := types.GetAssetPegHashHex(peghashstr)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			rest2.WriteErrorResponse(w, types.ErrPegHashHex(bankTypes.DefaultCodespace, peghashstr))
 			return
 		}
-		
+
 		res, _, err := cliCtx.QueryStore(assetFactory.AssetPegHashStoreKey(peghashHex), "asset")
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError,
-				fmt.Sprintf("couldn't query account. Error: %s", err.Error()))
+			rest2.WriteErrorResponse(w, types.ErrQuery(bankTypes.DefaultCodespace, "asset"))
 			return
 		}
-		
+
 		if len(res) == 0 {
-			w.WriteHeader(http.StatusNoContent)
+			rest2.WriteErrorResponse(w, types.ErrQueryResponseLengthZero(bankTypes.DefaultCodespace, "asset"))
 			return
 		}
-		
+
 		var assetPeg types.AssetPeg
 		err = cliCtx.Codec.UnmarshalBinaryLengthPrefixed(res, &assetPeg)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError,
-				fmt.Sprintf("couldn't Unmarshall assetPeg. Error: %s", err.Error()))
+			rest2.WriteErrorResponse(w, types.ErrUnmarshal(bankTypes.DefaultCodespace, "assetPeg"))
 			return
 		}
-		
+
 		output, err := cliCtx.Codec.MarshalJSON(assetPeg)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError,
-				fmt.Sprintf("couldn't marshall query result. Error: %s", err.Error()))
+			rest2.WriteErrorResponse(w, types.ErrMarshal(bankTypes.DefaultCodespace, "asset"))
 			return
 		}
-		
+
 		w.Write(output)
-		
+
 	}
 }

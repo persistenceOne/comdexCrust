@@ -1,7 +1,7 @@
 package bank
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 )
 
 // GenesisState is the bank state that must be provided at genesis.
@@ -18,12 +18,12 @@ func NewGenesisState(sendEnabled bool) GenesisState {
 func DefaultGenesisState() GenesisState { return NewGenesisState(true) }
 
 // InitGenesis sets distribution information for genesis.
-func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
+func InitGenesis(ctx cTypes.Context, keeper Keeper, data GenesisState) {
 	keeper.SetSendEnabled(ctx, data.SendEnabled)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
+func ExportGenesis(ctx cTypes.Context, keeper Keeper) GenesisState {
 	return NewGenesisState(keeper.GetSendEnabled(ctx))
 }
 

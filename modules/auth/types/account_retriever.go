@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 	
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 	
 	"github.com/commitHub/commitBlockchain/modules/auth/exported"
 )
@@ -29,7 +29,7 @@ func NewAccountRetriever(querier NodeQuerier) AccountRetriever {
 
 // GetAccount queries for an account given an address and a block height. An
 // error is returned if the query or decoding fails.
-func (ar AccountRetriever) GetAccount(addr sdk.AccAddress) (exported.Account, error) {
+func (ar AccountRetriever) GetAccount(addr cTypes.AccAddress) (exported.Account, error) {
 	account, _, err := ar.GetAccountWithHeight(addr)
 	return account, err
 }
@@ -37,7 +37,7 @@ func (ar AccountRetriever) GetAccount(addr sdk.AccAddress) (exported.Account, er
 // GetAccountWithHeight queries for an account given an address. Returns the
 // height of the query with the account. An error is returned if the query
 // or decoding fails.
-func (ar AccountRetriever) GetAccountWithHeight(addr sdk.AccAddress) (exported.Account, int64, error) {
+func (ar AccountRetriever) GetAccountWithHeight(addr cTypes.AccAddress) (exported.Account, int64, error) {
 	bs, err := ModuleCdc.MarshalJSON(NewQueryAccountParams(addr))
 	if err != nil {
 		return nil, 0, err
@@ -57,7 +57,7 @@ func (ar AccountRetriever) GetAccountWithHeight(addr sdk.AccAddress) (exported.A
 }
 
 // EnsureExists returns an error if no account exists for the given address else nil.
-func (ar AccountRetriever) EnsureExists(addr sdk.AccAddress) error {
+func (ar AccountRetriever) EnsureExists(addr cTypes.AccAddress) error {
 	if _, err := ar.GetAccount(addr); err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func (ar AccountRetriever) EnsureExists(addr sdk.AccAddress) error {
 
 // GetAccountNumberSequence returns sequence and account number for the given address.
 // It returns an error if the account couldn't be retrieved from the state.
-func (ar AccountRetriever) GetAccountNumberSequence(addr sdk.AccAddress) (uint64, uint64, error) {
+func (ar AccountRetriever) GetAccountNumberSequence(addr cTypes.AccAddress) (uint64, uint64, error) {
 	acc, err := ar.GetAccount(addr)
 	if err != nil {
 		return 0, 0, err

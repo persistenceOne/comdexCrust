@@ -5,16 +5,14 @@ import (
 	"os"
 	"strings"
 	
+	"github.com/cosmos/cosmos-sdk/client/context"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/crypto/multisig"
 	
-	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	
 	"github.com/commitHub/commitBlockchain/codec"
-	
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
 	"github.com/commitHub/commitBlockchain/modules/auth/types"
 )
@@ -118,9 +116,9 @@ func makeSignCmd(cdc *codec.Codec) func(cmd *cobra.Command, args []string) error
 		multisigAddrStr := viper.GetString(flagMultisig)
 		
 		if multisigAddrStr != "" {
-			var multisigAddr sdk.AccAddress
+			var multisigAddr cTypes.AccAddress
 			
-			multisigAddr, err = sdk.AccAddressFromBech32(multisigAddrStr)
+			multisigAddr, err = cTypes.AccAddressFromBech32(multisigAddrStr)
 			if err != nil {
 				return err
 			}
@@ -208,7 +206,7 @@ func printAndValidateSigs(
 	}
 	
 	for i, sig := range sigs {
-		sigAddr := sdk.AccAddress(sig.Address())
+		sigAddr := cTypes.AccAddress(sig.Address())
 		sigSanity := "OK"
 		
 		var (
@@ -251,7 +249,7 @@ func printAndValidateSigs(
 			
 			for i := 0; i < multiSig.BitArray.Size(); i++ {
 				if multiSig.BitArray.GetIndex(i) {
-					addr := sdk.AccAddress(multiPK.PubKeys[i].Address().Bytes())
+					addr := cTypes.AccAddress(multiPK.PubKeys[i].Address().Bytes())
 					b.WriteString(fmt.Sprintf("    %d: %s (weight: %d)\n", i, addr, 1))
 				}
 			}

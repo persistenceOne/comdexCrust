@@ -1,7 +1,7 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 )
 
 // query endpoints supported by the auth Querier
@@ -11,10 +11,10 @@ const (
 
 // QueryAccountParams defines the params for querying accounts.
 type QueryAccountParams struct {
-	Address sdk.AccAddress
+	Address cTypes.AccAddress
 }
 
 // NewQueryAccountParams creates a new instance of QueryAccountParams.
-func NewQueryAccountParams(addr sdk.AccAddress) QueryAccountParams {
+func NewQueryAccountParams(addr cTypes.AccAddress) QueryAccountParams {
 	return QueryAccountParams{Address: addr}
 }

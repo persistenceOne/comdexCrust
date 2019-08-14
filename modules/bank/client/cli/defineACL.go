@@ -12,7 +12,7 @@ import (
 	"github.com/commitHub/commitBlockchain/modules/acl"
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
-	types2 "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
+	bankTypes "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
 )
 
 func DefineACLCmd(cdc *codec.Codec) *cobra.Command {
@@ -50,7 +50,7 @@ func DefineACLCmd(cdc *codec.Codec) *cobra.Command {
 				ACL:            aclRequest,
 			}
 			
-			msg := types2.BuildMsgDefineACL(cliCtx.GetFromAddress(), to, aclAccount)
+			msg := bankTypes.BuildMsgDefineACL(cliCtx.GetFromAddress(), to, aclAccount)
 			
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []cTypes.Msg{msg})
 		},

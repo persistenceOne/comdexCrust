@@ -1,6 +1,7 @@
 package types
 
 type GenesisState struct {
+	Reputations []AccountReputation
 }
 
 func DefaultGenesisState() GenesisState {

@@ -123,7 +123,7 @@ func postProposalHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 		
-		rest2.SignAndBroadcast(w, req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
+		rest2.SignAndBroadcast(req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
 	}
 }
 
@@ -169,7 +169,7 @@ func depositHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 		
-		rest2.SignAndBroadcast(w, req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
+		rest2.SignAndBroadcast(req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
 	}
 }
 
@@ -221,7 +221,7 @@ func voteHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 		
-		rest2.SignAndBroadcast(w, req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
+		rest2.SignAndBroadcast(req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
 	}
 }
 

@@ -6,15 +6,13 @@ import (
 	"strings"
 	"time"
 	
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	tmtypes "github.com/tendermint/tendermint/types"
 	"gopkg.in/yaml.v2"
 	
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	
 	"github.com/commitHub/commitBlockchain/codec"
-	
 	"github.com/commitHub/commitBlockchain/modules/staking/exported"
 )
 

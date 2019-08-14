@@ -3,16 +3,16 @@ package types
 import (
 	"encoding/json"
 	"fmt"
-	
+
 	ctypes "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/types"
 )
 
 type IssueFiat struct {
-	IssuerAddress ctypes.AccAddress `json:"issuer_address"`
-	ToAddress     ctypes.AccAddress `json:"to_address"`
-	FiatPeg       types.FiatPeg     `json:"fiat_peg"`
+	IssuerAddress ctypes.AccAddress `json:"issuerAddress"`
+	ToAddress     ctypes.AccAddress `json:"toAddress"`
+	FiatPeg       types.FiatPeg     `json:"fiatPeg"`
 }
 
 func NewIssueFiat(issuerAddress ctypes.AccAddress, toAddress ctypes.AccAddress, fiatPeg types.FiatPeg) IssueFiat {
@@ -25,9 +25,9 @@ func NewIssueFiat(issuerAddress ctypes.AccAddress, toAddress ctypes.AccAddress, 
 
 func (in IssueFiat) GetSignBytes() []byte {
 	bin, err := ModuleCdc.MarshalJSON(struct {
-		IssuerAddress string        `json:"issuer_address"`
-		ToAddress     string        `json:"to_address"`
-		FiatPeg       types.FiatPeg `json:"fiat_peg"`
+		IssuerAddress string        `json:"issuerAddress"`
+		ToAddress     string        `json:"toAddress"`
+		FiatPeg       types.FiatPeg `json:"fiatPeg"`
 	}{
 		IssuerAddress: in.IssuerAddress.String(),
 		ToAddress:     in.ToAddress.String(),
@@ -57,7 +57,7 @@ func (in IssueFiat) ValidateBasic() ctypes.Error {
 }
 
 type MsgFactoryIssueFiats struct {
-	IssueFiats []IssueFiat `json:"issue_fiats"`
+	IssueFiats []IssueFiat `json:"issueFiats"`
 }
 
 func NewMsgFactoryIssueFiats(issueFiats []IssueFiat) MsgFactoryIssueFiats {
@@ -88,7 +88,7 @@ func (msg MsgFactoryIssueFiats) GetSignBytes() []byte {
 		issueFiats = append(issueFiats, issueFiat.GetSignBytes())
 	}
 	bz, err := ModuleCdc.MarshalJSON(struct {
-		IssueFiats []json.RawMessage `json:"issue_fiats"`
+		IssueFiats []json.RawMessage `json:"issueFiats"`
 	}{
 		IssueFiats: issueFiats,
 	})
@@ -113,10 +113,10 @@ func BuildIssueFiatMsg(issuerAddress ctypes.AccAddress, toAddress ctypes.AccAddr
 }
 
 type RedeemFiat struct {
-	RelayerAddress  ctypes.AccAddress   `json:"relayer_address"`
-	RedeemerAddress ctypes.AccAddress   `json:"redeemer_address"`
+	RelayerAddress  ctypes.AccAddress   `json:"relayerAddress"`
+	RedeemerAddress ctypes.AccAddress   `json:"redeemerAaddress"`
 	Amount          int64               `json:"amount"`
-	FiatPegWallet   types.FiatPegWallet `json:"fiat_peg_wallet"`
+	FiatPegWallet   types.FiatPegWallet `json:"fiatPegWallet"`
 }
 
 func NewRedeemFiat(relayerAddress ctypes.AccAddress, redeemerAddress ctypes.AccAddress, amount int64, wallet types.FiatPegWallet) RedeemFiat {
@@ -158,7 +158,7 @@ func (in RedeemFiat) ValidateBasic() ctypes.Error {
 }
 
 type MsgFactoryRedeemFiats struct {
-	RedeemFiats []RedeemFiat `json:"redeem_fiats"`
+	RedeemFiats []RedeemFiat `json:"redeemFiats"`
 }
 
 func NewMsgFactoryRedeemFiats(redeemFiats []RedeemFiat) MsgFactoryRedeemFiats {
@@ -188,7 +188,7 @@ func (msg MsgFactoryRedeemFiats) GetSignBytes() []byte {
 	for _, redeemFiat := range msg.RedeemFiats {
 		redeemFiats = append(redeemFiats, redeemFiat.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		RedeemFiats []json.RawMessage `json:"redeemFiats"`
 	}{
@@ -266,7 +266,7 @@ func (in SendFiat) ValidateBasic() ctypes.Error {
 }
 
 type MsgFactorySendFiats struct {
-	SendFiats []SendFiat `json:"send_fiats"`
+	SendFiats []SendFiat `json:"sendFiats"`
 }
 
 func NewMsgFactorySendFiats(sendFiats []SendFiat) MsgFactorySendFiats {
@@ -296,7 +296,7 @@ func (msg MsgFactorySendFiats) GetSignBytes() []byte {
 	for _, sendFiat := range msg.SendFiats {
 		sendFiats = append(sendFiats, sendFiat.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		SendFiats []json.RawMessage `json:"sendFiats"`
 	}{
@@ -357,7 +357,7 @@ func (msg MsgFactoryExecuteFiats) GetSignBytes() []byte {
 	for _, sendFiat := range msg.SendFiats {
 		sendFiats = append(sendFiats, sendFiat.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		SendFiats []json.RawMessage `json:"sendFiats"`
 	}{

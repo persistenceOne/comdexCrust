@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"time"
 	
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/crypto"
 	"gopkg.in/yaml.v2"
 	
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	
 	"github.com/commitHub/commitBlockchain/modules/auth/exported"
-	
 	"github.com/commitHub/commitBlockchain/types"
 )
 
@@ -25,17 +23,17 @@ var _ exported.Account = (*BaseAccount)(nil)
 // However one doesn't have to use BaseAccount as long as your struct
 // implements Account.
 type BaseAccount struct {
-	Address        sdk.AccAddress       `json:"address" yaml:"address"`
-	Coins          sdk.Coins            `json:"coins" yaml:"coins"`
+	Address        cTypes.AccAddress    `json:"address" yaml:"address"`
+	Coins          cTypes.Coins         `json:"coins" yaml:"coins"`
 	PubKey         crypto.PubKey        `json:"public_key" yaml:"public_key"`
 	AccountNumber  uint64               `json:"account_number" yaml:"account_number"`
 	Sequence       uint64               `json:"sequence" yaml:"sequence"`
-	FiatPegWallet  types.FiatPegWallet  `json:"fiat_peg_wallet"`
-	AssetPegWallet types.AssetPegWallet `json:"asset_peg_wallet"`
+	FiatPegWallet  types.FiatPegWallet  `json:"fiatPegWallet"`
+	AssetPegWallet types.AssetPegWallet `json:"assetPegWallet"`
 }
 
 // NewBaseAccount creates a new BaseAccount object
-func NewBaseAccount(address sdk.AccAddress, coins sdk.Coins,
+func NewBaseAccount(address cTypes.AccAddress, coins cTypes.Coins,
 	pubKey crypto.PubKey, accountNumber uint64, sequence uint64) *BaseAccount {
 	
 	return &BaseAccount{
@@ -52,7 +50,7 @@ func (acc BaseAccount) String() string {
 	var pubkey string
 	
 	if acc.PubKey != nil {
-		pubkey = sdk.MustBech32ifyAccPub(acc.PubKey)
+		pubkey = cTypes.MustBech32ifyAccPub(acc.PubKey)
 	}
 	
 	return fmt.Sprintf(`Account:
@@ -71,19 +69,19 @@ func ProtoBaseAccount() exported.Account {
 }
 
 // NewBaseAccountWithAddress - returns a new base account with a given address
-func NewBaseAccountWithAddress(addr sdk.AccAddress) BaseAccount {
+func NewBaseAccountWithAddress(addr cTypes.AccAddress) BaseAccount {
 	return BaseAccount{
 		Address: addr,
 	}
 }
 
-// GetAddress - Implements sdk.Account.
-func (acc BaseAccount) GetAddress() sdk.AccAddress {
+// GetAddress - Implements cTypes.Account.
+func (acc BaseAccount) GetAddress() cTypes.AccAddress {
 	return acc.Address
 }
 
-// SetAddress - Implements sdk.Account.
-func (acc *BaseAccount) SetAddress(addr sdk.AccAddress) error {
+// SetAddress - Implements cTypes.Account.
+func (acc *BaseAccount) SetAddress(addr cTypes.AccAddress) error {
 	if len(acc.Address) != 0 {
 		return errors.New("cannot override BaseAccount address")
 	}
@@ -91,24 +89,24 @@ func (acc *BaseAccount) SetAddress(addr sdk.AccAddress) error {
 	return nil
 }
 
-// GetPubKey - Implements sdk.Account.
+// GetPubKey - Implements cTypes.Account.
 func (acc BaseAccount) GetPubKey() crypto.PubKey {
 	return acc.PubKey
 }
 
-// SetPubKey - Implements sdk.Account.
+// SetPubKey - Implements cTypes.Account.
 func (acc *BaseAccount) SetPubKey(pubKey crypto.PubKey) error {
 	acc.PubKey = pubKey
 	return nil
 }
 
-// GetCoins - Implements sdk.Account.
-func (acc *BaseAccount) GetCoins() sdk.Coins {
+// GetCoins - Implements cTypes.Account.
+func (acc *BaseAccount) GetCoins() cTypes.Coins {
 	return acc.Coins
 }
 
-// SetCoins - Implements sdk.Account.
-func (acc *BaseAccount) SetCoins(coins sdk.Coins) error {
+// SetCoins - Implements cTypes.Account.
+func (acc *BaseAccount) SetCoins(coins cTypes.Coins) error {
 	acc.Coins = coins
 	return nil
 }
@@ -124,12 +122,12 @@ func (acc *BaseAccount) SetAccountNumber(accNumber uint64) error {
 	return nil
 }
 
-// GetSequence - Implements sdk.Account.
+// GetSequence - Implements cTypes.Account.
 func (acc *BaseAccount) GetSequence() uint64 {
 	return acc.Sequence
 }
 
-// SetSequence - Implements sdk.Account.
+// SetSequence - Implements cTypes.Account.
 func (acc *BaseAccount) SetSequence(seq uint64) error {
 	acc.Sequence = seq
 	return nil
@@ -137,7 +135,7 @@ func (acc *BaseAccount) SetSequence(seq uint64) error {
 
 // SpendableCoins returns the total set of spendable coins. For a base account,
 // this is simply the base coins.
-func (acc *BaseAccount) SpendableCoins(_ time.Time) sdk.Coins {
+func (acc *BaseAccount) SpendableCoins(_ time.Time) cTypes.Coins {
 	return acc.GetCoins()
 }
 
@@ -170,15 +168,15 @@ func (acc BaseAccount) MarshalYAML() (interface{}, error) {
 	var pubkey string
 	
 	if acc.PubKey != nil {
-		pubkey, err = sdk.Bech32ifyAccPub(acc.PubKey)
+		pubkey, err = cTypes.Bech32ifyAccPub(acc.PubKey)
 		if err != nil {
 			return nil, err
 		}
 	}
 	
 	bs, err = yaml.Marshal(struct {
-		Address       sdk.AccAddress
-		Coins         sdk.Coins
+		Address       cTypes.AccAddress
+		Coins         cTypes.Coins
 		PubKey        string
 		AccountNumber uint64
 		Sequence      uint64
@@ -204,16 +202,16 @@ func (acc BaseAccount) MarshalYAML() (interface{}, error) {
 type BaseVestingAccount struct {
 	*BaseAccount
 	
-	OriginalVesting  sdk.Coins `json:"original_vesting"`  // coins in account upon initialization
-	DelegatedFree    sdk.Coins `json:"delegated_free"`    // coins that are vested and delegated
-	DelegatedVesting sdk.Coins `json:"delegated_vesting"` // coins that vesting and delegated
+	OriginalVesting  cTypes.Coins `json:"original_vesting"`  // coins in account upon initialization
+	DelegatedFree    cTypes.Coins `json:"delegated_free"`    // coins that are vested and delegated
+	DelegatedVesting cTypes.Coins `json:"delegated_vesting"` // coins that vesting and delegated
 	
 	EndTime int64 `json:"end_time"` // when the coins become unlocked
 }
 
 // NewBaseVestingAccount creates a new BaseVestingAccount object
-func NewBaseVestingAccount(baseAccount *BaseAccount, originalVesting sdk.Coins,
-	delegatedFree sdk.Coins, delegatedVesting sdk.Coins, endTime int64) *BaseVestingAccount {
+func NewBaseVestingAccount(baseAccount *BaseAccount, originalVesting cTypes.Coins,
+	delegatedFree cTypes.Coins, delegatedVesting cTypes.Coins, endTime int64) *BaseVestingAccount {
 	
 	return &BaseVestingAccount{
 		BaseAccount:      baseAccount,
@@ -229,7 +227,7 @@ func (bva BaseVestingAccount) String() string {
 	var pubkey string
 	
 	if bva.PubKey != nil {
-		pubkey = sdk.MustBech32ifyAccPub(bva.PubKey)
+		pubkey = cTypes.MustBech32ifyAccPub(bva.PubKey)
 	}
 	
 	return fmt.Sprintf(`Vesting Account:
@@ -252,8 +250,8 @@ func (bva BaseVestingAccount) String() string {
 //
 // CONTRACT: The account's coins, delegated vesting coins, vestingCoins must be
 // sorted.
-func (bva BaseVestingAccount) spendableCoins(vestingCoins sdk.Coins) sdk.Coins {
-	var spendableCoins sdk.Coins
+func (bva BaseVestingAccount) spendableCoins(vestingCoins cTypes.Coins) cTypes.Coins {
+	var spendableCoins cTypes.Coins
 	bc := bva.GetCoins()
 	
 	for _, coin := range bc {
@@ -263,11 +261,11 @@ func (bva BaseVestingAccount) spendableCoins(vestingCoins sdk.Coins) sdk.Coins {
 		delVestingAmt := bva.DelegatedVesting.AmountOf(coin.Denom)
 		
 		// compute min((BC + DV) - V, BC) per the specification
-		min := sdk.MinInt(baseAmt.Add(delVestingAmt).Sub(vestingAmt), baseAmt)
-		spendableCoin := sdk.NewCoin(coin.Denom, min)
+		min := cTypes.MinInt(baseAmt.Add(delVestingAmt).Sub(vestingAmt), baseAmt)
+		spendableCoin := cTypes.NewCoin(coin.Denom, min)
 		
 		if !spendableCoin.IsZero() {
-			spendableCoins = spendableCoins.Add(sdk.Coins{spendableCoin})
+			spendableCoins = spendableCoins.Add(cTypes.Coins{spendableCoin})
 		}
 	}
 	
@@ -280,7 +278,7 @@ func (bva BaseVestingAccount) spendableCoins(vestingCoins sdk.Coins) sdk.Coins {
 //
 // CONTRACT: The account's coins, delegation coins, vesting coins, and delegated
 // vesting coins must be sorted.
-func (bva *BaseVestingAccount) trackDelegation(vestingCoins, amount sdk.Coins) {
+func (bva *BaseVestingAccount) trackDelegation(vestingCoins, amount cTypes.Coins) {
 	bc := bva.GetCoins()
 	
 	for _, coin := range amount {
@@ -299,20 +297,20 @@ func (bva *BaseVestingAccount) trackDelegation(vestingCoins, amount sdk.Coins) {
 		// compute x and y per the specification, where:
 		// X := min(max(V - DV, 0), D)
 		// Y := D - X
-		x := sdk.MinInt(sdk.MaxInt(vestingAmt.Sub(delVestingAmt), sdk.ZeroInt()), coin.Amount)
+		x := cTypes.MinInt(cTypes.MaxInt(vestingAmt.Sub(delVestingAmt), cTypes.ZeroInt()), coin.Amount)
 		y := coin.Amount.Sub(x)
 		
 		if !x.IsZero() {
-			xCoin := sdk.NewCoin(coin.Denom, x)
-			bva.DelegatedVesting = bva.DelegatedVesting.Add(sdk.Coins{xCoin})
+			xCoin := cTypes.NewCoin(coin.Denom, x)
+			bva.DelegatedVesting = bva.DelegatedVesting.Add(cTypes.Coins{xCoin})
 		}
 		
 		if !y.IsZero() {
-			yCoin := sdk.NewCoin(coin.Denom, y)
-			bva.DelegatedFree = bva.DelegatedFree.Add(sdk.Coins{yCoin})
+			yCoin := cTypes.NewCoin(coin.Denom, y)
+			bva.DelegatedFree = bva.DelegatedFree.Add(cTypes.Coins{yCoin})
 		}
 		
-		bva.Coins = bva.Coins.Sub(sdk.Coins{coin})
+		bva.Coins = bva.Coins.Sub(cTypes.Coins{coin})
 	}
 }
 
@@ -327,7 +325,7 @@ func (bva *BaseVestingAccount) trackDelegation(vestingCoins, amount sdk.Coins) {
 // the undelegated tokens are non-integral.
 //
 // CONTRACT: The account's coins and undelegation coins must be sorted.
-func (bva *BaseVestingAccount) TrackUndelegation(amount sdk.Coins) {
+func (bva *BaseVestingAccount) TrackUndelegation(amount cTypes.Coins) {
 	for _, coin := range amount {
 		// panic if the undelegation amount is zero
 		if coin.Amount.IsZero() {
@@ -339,37 +337,37 @@ func (bva *BaseVestingAccount) TrackUndelegation(amount sdk.Coins) {
 		// compute x and y per the specification, where:
 		// X := min(DF, D)
 		// Y := min(DV, D - X)
-		x := sdk.MinInt(delegatedFree, coin.Amount)
-		y := sdk.MinInt(delegatedVesting, coin.Amount.Sub(x))
+		x := cTypes.MinInt(delegatedFree, coin.Amount)
+		y := cTypes.MinInt(delegatedVesting, coin.Amount.Sub(x))
 		
 		if !x.IsZero() {
-			xCoin := sdk.NewCoin(coin.Denom, x)
-			bva.DelegatedFree = bva.DelegatedFree.Sub(sdk.Coins{xCoin})
+			xCoin := cTypes.NewCoin(coin.Denom, x)
+			bva.DelegatedFree = bva.DelegatedFree.Sub(cTypes.Coins{xCoin})
 		}
 		
 		if !y.IsZero() {
-			yCoin := sdk.NewCoin(coin.Denom, y)
-			bva.DelegatedVesting = bva.DelegatedVesting.Sub(sdk.Coins{yCoin})
+			yCoin := cTypes.NewCoin(coin.Denom, y)
+			bva.DelegatedVesting = bva.DelegatedVesting.Sub(cTypes.Coins{yCoin})
 		}
 		
-		bva.Coins = bva.Coins.Add(sdk.Coins{coin})
+		bva.Coins = bva.Coins.Add(cTypes.Coins{coin})
 	}
 }
 
 // GetOriginalVesting returns a vesting account's original vesting amount
-func (bva BaseVestingAccount) GetOriginalVesting() sdk.Coins {
+func (bva BaseVestingAccount) GetOriginalVesting() cTypes.Coins {
 	return bva.OriginalVesting
 }
 
 // GetDelegatedFree returns a vesting account's delegation amount that is not
 // vesting.
-func (bva BaseVestingAccount) GetDelegatedFree() sdk.Coins {
+func (bva BaseVestingAccount) GetDelegatedFree() cTypes.Coins {
 	return bva.DelegatedFree
 }
 
 // GetDelegatedVesting returns a vesting account's delegation amount that is
 // still vesting.
-func (bva BaseVestingAccount) GetDelegatedVesting() sdk.Coins {
+func (bva BaseVestingAccount) GetDelegatedVesting() cTypes.Coins {
 	return bva.DelegatedVesting
 }
 
@@ -417,7 +415,7 @@ func (cva ContinuousVestingAccount) String() string {
 	var pubkey string
 	
 	if cva.PubKey != nil {
-		pubkey = sdk.MustBech32ifyAccPub(cva.PubKey)
+		pubkey = cTypes.MustBech32ifyAccPub(cva.PubKey)
 	}
 	
 	return fmt.Sprintf(`Continuous Vesting Account:
@@ -439,8 +437,8 @@ func (cva ContinuousVestingAccount) String() string {
 
 // GetVestedCoins returns the total number of vested coins. If no coins are vested,
 // nil is returned.
-func (cva ContinuousVestingAccount) GetVestedCoins(blockTime time.Time) sdk.Coins {
-	var vestedCoins sdk.Coins
+func (cva ContinuousVestingAccount) GetVestedCoins(blockTime time.Time) cTypes.Coins {
+	var vestedCoins cTypes.Coins
 	
 	// We must handle the case where the start time for a vesting account has
 	// been set into the future or when the start of the chain is not exactly
@@ -454,11 +452,11 @@ func (cva ContinuousVestingAccount) GetVestedCoins(blockTime time.Time) sdk.Coin
 	// calculate the vesting scalar
 	x := blockTime.Unix() - cva.StartTime
 	y := cva.EndTime - cva.StartTime
-	s := sdk.NewDec(x).Quo(sdk.NewDec(y))
+	s := cTypes.NewDec(x).Quo(cTypes.NewDec(y))
 	
 	for _, ovc := range cva.OriginalVesting {
 		vestedAmt := ovc.Amount.ToDec().Mul(s).RoundInt()
-		vestedCoins = append(vestedCoins, sdk.NewCoin(ovc.Denom, vestedAmt))
+		vestedCoins = append(vestedCoins, cTypes.NewCoin(ovc.Denom, vestedAmt))
 	}
 	
 	return vestedCoins
@@ -466,20 +464,20 @@ func (cva ContinuousVestingAccount) GetVestedCoins(blockTime time.Time) sdk.Coin
 
 // GetVestingCoins returns the total number of vesting coins. If no coins are
 // vesting, nil is returned.
-func (cva ContinuousVestingAccount) GetVestingCoins(blockTime time.Time) sdk.Coins {
+func (cva ContinuousVestingAccount) GetVestingCoins(blockTime time.Time) cTypes.Coins {
 	return cva.OriginalVesting.Sub(cva.GetVestedCoins(blockTime))
 }
 
 // SpendableCoins returns the total number of spendable coins per denom for a
 // continuous vesting account.
-func (cva ContinuousVestingAccount) SpendableCoins(blockTime time.Time) sdk.Coins {
+func (cva ContinuousVestingAccount) SpendableCoins(blockTime time.Time) cTypes.Coins {
 	return cva.spendableCoins(cva.GetVestingCoins(blockTime))
 }
 
 // TrackDelegation tracks a desired delegation amount by setting the appropriate
 // values for the amount of delegated vesting, delegated free, and reducing the
 // overall amount of base coins.
-func (cva *ContinuousVestingAccount) TrackDelegation(blockTime time.Time, amount sdk.Coins) {
+func (cva *ContinuousVestingAccount) TrackDelegation(blockTime time.Time, amount cTypes.Coins) {
 	cva.trackDelegation(cva.GetVestingCoins(blockTime), amount)
 }
 
@@ -526,7 +524,7 @@ func NewDelayedVestingAccount(baseAcc *BaseAccount, EndTime int64) *DelayedVesti
 
 // GetVestedCoins returns the total amount of vested coins for a delayed vesting
 // account. All coins are only vested once the schedule has elapsed.
-func (dva DelayedVestingAccount) GetVestedCoins(blockTime time.Time) sdk.Coins {
+func (dva DelayedVestingAccount) GetVestedCoins(blockTime time.Time) cTypes.Coins {
 	if blockTime.Unix() >= dva.EndTime {
 		return dva.OriginalVesting
 	}
@@ -536,20 +534,20 @@ func (dva DelayedVestingAccount) GetVestedCoins(blockTime time.Time) sdk.Coins {
 
 // GetVestingCoins returns the total number of vesting coins for a delayed
 // vesting account.
-func (dva DelayedVestingAccount) GetVestingCoins(blockTime time.Time) sdk.Coins {
+func (dva DelayedVestingAccount) GetVestingCoins(blockTime time.Time) cTypes.Coins {
 	return dva.OriginalVesting.Sub(dva.GetVestedCoins(blockTime))
 }
 
 // SpendableCoins returns the total number of spendable coins for a delayed
 // vesting account.
-func (dva DelayedVestingAccount) SpendableCoins(blockTime time.Time) sdk.Coins {
+func (dva DelayedVestingAccount) SpendableCoins(blockTime time.Time) cTypes.Coins {
 	return dva.spendableCoins(dva.GetVestingCoins(blockTime))
 }
 
 // TrackDelegation tracks a desired delegation amount by setting the appropriate
 // values for the amount of delegated vesting, delegated free, and reducing the
 // overall amount of base coins.
-func (dva *DelayedVestingAccount) TrackDelegation(blockTime time.Time, amount sdk.Coins) {
+func (dva *DelayedVestingAccount) TrackDelegation(blockTime time.Time, amount cTypes.Coins) {
 	dva.trackDelegation(dva.GetVestingCoins(blockTime), amount)
 }
 

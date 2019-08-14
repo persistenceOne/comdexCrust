@@ -5,11 +5,10 @@ import (
 	"net/http"
 	"strings"
 	
-	"github.com/gorilla/mux"
-	
 	"github.com/cosmos/cosmos-sdk/client/context"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
+	"github.com/gorilla/mux"
 	
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
 	"github.com/commitHub/commitBlockchain/modules/auth/types"
@@ -22,7 +21,7 @@ func QueryAccountRequestHandlerFn(storeName string, cliCtx context.CLIContext) h
 		vars := mux.Vars(r)
 		bech32addr := vars["address"]
 		
-		addr, err := sdk.AccAddressFromBech32(bech32addr)
+		addr, err := cTypes.AccAddressFromBech32(bech32addr)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -57,14 +56,14 @@ func QueryTxsByEventsRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFun
 	return func(w http.ResponseWriter, r *http.Request) {
 		var (
 			tags        []string
-			txs         []sdk.TxResponse
+			txs         []cTypes.TxResponse
 			page, limit int
 		)
 		
 		err := r.ParseForm()
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest,
-				sdk.AppendMsgToErr("could not parse query parameters", err.Error()))
+				cTypes.AppendMsgToErr("could not parse query parameters", err.Error()))
 			return
 		}
 		

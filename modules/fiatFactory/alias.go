@@ -21,7 +21,6 @@ var (
 	
 	DefaultGenesisState = types.DefaultGenesisState
 	ValidateGenesis     = types.ValidateGenesis
-	PegHashKey          = types.PegHashKey
 	FiatPegHashStoreKey = types.FiatPegHashStoreKey
 	
 	EventTypeFiatFactoryAssignFiat  = types.EventTypeFiatFactoryAssignFiat
@@ -29,23 +28,16 @@ var (
 	EventTypeFiatFactorySendFiat    = types.EventTypeFiatFactorySendFiat
 	EventTypeFiatFactoryExecuteFiat = types.EventTypeFiatFactoryExecuteFiat
 	
-	ErrInvalidAmount  = types.ErrInvalidAmount
-	ErrInvalidString  = types.ErrInvalidString
 	ErrNoInputs       = types.ErrNoInputs
 	ErrInvalidPegHash = types.ErrInvalidPegHash
-	
-	BuildIssueFiatMsg   = types.BuildIssueFiatMsg
-	BuildSendFiatMsg    = types.BuildSendFiatMsg
-	BuildExecuteFiatMsg = types.BuildExecuteFiatMsg
-	BuildRedeemFiatMsg  = types.BuildRedeemFiatMsg
 )
 
 type (
 	GenesisState = types.GenesisState
-	Keeper = keeper.Keeper
+	Keeper       = keeper.Keeper
 	
-	MsgFactoryIssueFiats = types.MsgFactoryIssueFiats
-	MsgFactoryRedeemFiats = types.MsgFactoryRedeemFiats
-	MsgFactorySendFiats = types.MsgFactorySendFiats
+	MsgFactoryIssueFiats   = types.MsgFactoryIssueFiats
+	MsgFactoryRedeemFiats  = types.MsgFactoryRedeemFiats
+	MsgFactorySendFiats    = types.MsgFactorySendFiats
 	MsgFactoryExecuteFiats = types.MsgFactoryExecuteFiats
 )

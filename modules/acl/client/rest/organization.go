@@ -3,52 +3,47 @@ package rest
 import (
 	"fmt"
 	"net/http"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
-	
-	"github.com/commitHub/commitBlockchain/modules/acl/internal/types"
+
+	rest2 "github.com/commitHub/commitBlockchain/client/rest"
+	aclTypes "github.com/commitHub/commitBlockchain/modules/acl/internal/types"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 // GetOrganizationRequestHandler query organization account address Handler
 func GetOrganizationRequestHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		
+
 		strOrganizationID := vars["organizationID"]
 		cliCtx := cliCtx
-		
+
 		if strOrganizationID == "" {
-			w.WriteHeader(http.StatusBadRequest)
+			rest2.WriteErrorResponse(w, types.ErrEmptyRequestFields(aclTypes.DefaultCodeSpace, strOrganizationID))
 			return
 		}
-		
-		organizationID, err := types.GetOrganizationIDFromString(vars["organizationID"])
+
+		organizationID, err := aclTypes.GetOrganizationIDFromString(vars["organizationID"])
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			rest2.WriteErrorResponse(w, types.ErrOrganizationIDFromString(aclTypes.DefaultCodeSpace, strOrganizationID))
 			return
 		}
-		
-		res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, "queryOrganization",
+
+		res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", aclTypes.QuerierRoute, "queryOrganization",
 			organizationID), nil)
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			rest2.WriteErrorResponse(w, types.ErrQuery(aclTypes.DefaultCodeSpace, "organization"))
 			return
 		}
-		
-		fmt.Println(string(res))
+
 		if res == nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			rest2.WriteErrorResponse(w, types.ErrQueryResponseLengthZero(aclTypes.DefaultCodeSpace, "organization"))
 			return
 		}
-		
-		// var org types.Organization
-		// cliCtx.Codec.MustUnmarshalJSON(res, &org)
-		
+
 		rest.PostProcessResponse(w, cliCtx, res)
 	}
 }

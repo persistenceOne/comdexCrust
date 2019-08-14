@@ -5,11 +5,9 @@ import (
 	
 	"github.com/cosmos/cosmos-sdk/client/context"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
-	
-	"github.com/commitHub/commitBlockchain/codec"
-	
 	"github.com/spf13/cobra"
 	
+	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/modules/acl/internal/types"
 )
 

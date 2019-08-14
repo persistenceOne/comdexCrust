@@ -2,9 +2,8 @@ package keeper
 
 import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
 	"github.com/commitHub/commitBlockchain/modules/orders"
 	reputationTypes "github.com/commitHub/commitBlockchain/modules/reputation/internal/types"
 )
@@ -54,6 +53,22 @@ func (k Keeper) GetAccountReputation(ctx cTypes.Context, addr cTypes.AccAddress)
 	}
 	accountReputation := k.decodeAccountReputation(bz)
 	return accountReputation
+}
+
+func (keeper Keeper) GetReputations(ctx cTypes.Context) []reputationTypes.AccountReputation {
+	var reputations []reputationTypes.AccountReputation
+
+	store := ctx.KVStore(keeper.key)
+	iterator := cTypes.KVStorePrefixIterator(store, []byte("address:"))
+
+	for ; iterator.Valid(); iterator.Next() {
+		var reputation reputationTypes.AccountReputation
+
+		keeper.cdc.MustUnmarshalBinaryLengthPrefixed(iterator.Value(), &reputation)
+		reputations = append(reputations, reputation)
+	}
+
+	return reputations
 }
 
 func (k Keeper) SetAccountReputation(ctx cTypes.Context, accountReputation reputationTypes.AccountReputation) {

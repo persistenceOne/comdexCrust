@@ -95,7 +95,7 @@ func postDelegationsHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 		
-		rest2.SignAndBroadcast(w, req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
+		rest2.SignAndBroadcast(req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
 	}
 }
 
@@ -127,7 +127,7 @@ func postRedelegationsHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 		
-		rest2.SignAndBroadcast(w, req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
+		rest2.SignAndBroadcast(req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
 	}
 }
 
@@ -163,6 +163,6 @@ func postUnbondingDelegationsHandlerFn(cliCtx context.CLIContext) http.HandlerFu
 			return
 		}
 		
-		rest2.SignAndBroadcast(w, req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
+		rest2.SignAndBroadcast(req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
 	}
 }

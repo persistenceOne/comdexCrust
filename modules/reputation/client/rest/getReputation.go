@@ -3,12 +3,14 @@ package rest
 import (
 	"fmt"
 	"net/http"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
-	
-	"github.com/commitHub/commitBlockchain/modules/reputation/internal/types"
+
+	rest2 "github.com/commitHub/commitBlockchain/client/rest"
+	reputationTypes "github.com/commitHub/commitBlockchain/modules/reputation/internal/types"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 func QueryReputationRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
@@ -16,28 +18,27 @@ func QueryReputationRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc
 		w.Header().Set("Content-Type", "application/json")
 		vars := mux.Vars(r)
 		cliCtx := cliCtx
-		
+
 		bech32addr := vars["address"]
 		if bech32addr == "" {
-			w.WriteHeader(http.StatusBadRequest)
+			rest2.WriteErrorResponse(w, types.ErrEmptyRequestFields(reputationTypes.DefaultCodeSpace, "address"))
 			return
 		}
-		
-		res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, "reputationQuery", bech32addr), nil)
+
+		res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", reputationTypes.QuerierRoute, "reputationQuery", bech32addr), nil)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError,
-				fmt.Sprintf("couldn't query account. Error: %s", err.Error()))
+			rest2.WriteErrorResponse(w, types.ErrQuery(reputationTypes.DefaultCodeSpace, "reputation"))
 			return
 		}
-		
+
 		if len(res) == 0 {
-			w.WriteHeader(http.StatusNoContent)
+			rest2.WriteErrorResponse(w, types.ErrQueryResponseLengthZero(reputationTypes.DefaultCodeSpace, "reputation"))
 			return
 		}
-		
-		var reputation types.AccountReputation
+
+		var reputation reputationTypes.AccountReputation
 		cliCtx.Codec.MustUnmarshalJSON(res, &reputation)
-		
+
 		rest.PostProcessResponse(w, cliCtx, reputation)
 	}
 }

@@ -5,18 +5,18 @@ import (
 	
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-	
-	"github.com/commitHub/commitBlockchain/codec"
-	"github.com/commitHub/commitBlockchain/types/module"
-	
-	cTypes "github.com/cosmos/cosmos-sdk/types"
 	abciTypes "github.com/tendermint/tendermint/abci/types"
 	
+	"github.com/commitHub/commitBlockchain/kafka"
+	
+	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/modules/fiatFactory/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/fiatFactory/client/rest"
 	fiatFactoryTypes "github.com/commitHub/commitBlockchain/modules/fiatFactory/internal/types"
+	"github.com/commitHub/commitBlockchain/types/module"
 )
 
 var (
@@ -43,7 +43,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 	return ValidateGenesis(data)
 }
 
-func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, router *mux.Router) {
+func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, router *mux.Router, kafkaBool bool, kafkaState kafka.KafkaState) {
 	rest.RegisterRoutes(ctx, router)
 }
 

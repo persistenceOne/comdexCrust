@@ -53,19 +53,19 @@ var (
 
 type (
 	GenesisState = types.GenesisState
-	Keeper = keeper.Keeper
+	Keeper       = keeper.Keeper
 	
 	NegotiationID = types.NegotiationID
-	Negotiation = types.Negotiation
+	Negotiation   = types.Negotiation
 	
 	BaseNegotiation = types.BaseNegotiation
 	
-	MsgChangeBuyerBids = types.MsgChangeBuyerBids
-	MsgChangeSellerBids = types.MsgChangeSellerBids
-	MsgConfirmBuyerBids = types.MsgConfirmBuyerBids
+	MsgChangeBuyerBids   = types.MsgChangeBuyerBids
+	MsgChangeSellerBids  = types.MsgChangeSellerBids
+	MsgConfirmBuyerBids  = types.MsgConfirmBuyerBids
 	MsgConfirmSellerBids = types.MsgConfirmSellerBids
 	
-	ChangeBid = types.ChangeBid
+	ChangeBid  = types.ChangeBid
 	ConfirmBid = types.ConfirmBid
 	
 	Signature = types.Signature

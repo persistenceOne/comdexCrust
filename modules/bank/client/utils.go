@@ -3,9 +3,8 @@ package client
 import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	
-	"github.com/commitHub/commitBlockchain/types"
-	
 	bankTypes "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 func BuildMsg(from cTypes.AccAddress, to cTypes.AccAddress, coins cTypes.Coins) cTypes.Msg {

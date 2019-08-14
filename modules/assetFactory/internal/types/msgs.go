@@ -9,9 +9,9 @@ import (
 )
 
 type IssueAsset struct {
-	IssuerAddress cTypes.AccAddress `json:"issuer_address"`
-	ToAddress     cTypes.AccAddress `json:"to_address"`
-	AssetPeg      types.AssetPeg    `json:"asset_peg"`
+	IssuerAddress cTypes.AccAddress `json:"issuerAddress"`
+	ToAddress     cTypes.AccAddress `json:"toAddress"`
+	AssetPeg      types.AssetPeg    `json:"assetPeg"`
 }
 
 // NewIssueAsset : returns issueAsset
@@ -26,9 +26,9 @@ func NewIssueAsset(issuerAddress cTypes.AccAddress, toAddress cTypes.AccAddress,
 // GetSignBytes : get bytes to sign
 func (in IssueAsset) GetSignBytes() []byte {
 	bz, err := ModuleCdc.MarshalJSON(struct {
-		IssuerAddress string         `json:"issuer_address"`
-		ToAddress     string         `json:"to_address"`
-		AssetPeg      types.AssetPeg `json:"asset_peg"`
+		IssuerAddress string         `json:"issuerAddress"`
+		ToAddress     string         `json:"toAddress"`
+		AssetPeg      types.AssetPeg `json:"assetPeg"`
 	}{
 		IssuerAddress: in.IssuerAddress.String(),
 		ToAddress:     in.ToAddress.String(),
@@ -98,7 +98,7 @@ func (msg MsgFactoryIssueAssets) GetSignBytes() []byte {
 	}
 	
 	bz, err := ModuleCdc.MarshalJSON(struct {
-		IssueAssets []json.RawMessage `json:"issue_asset"`
+		IssueAssets []json.RawMessage `json:"issueAsset"`
 	}{
 		IssueAssets: issueAssets,
 	})
@@ -123,10 +123,10 @@ func BuildIssueAssetMsg(issuerAddress cTypes.AccAddress, toAddress cTypes.AccAdd
 }
 
 type RedeemAsset struct {
-	RelayerAddress cTypes.AccAddress `json:"relayer_address"`
-	OwnerAddress   cTypes.AccAddress `json:"owner_address"`
-	ToAddress      cTypes.AccAddress `json:"to_address"`
-	PegHash        types.PegHash     `json:"peg_hash"`
+	RelayerAddress cTypes.AccAddress `json:"relayerAddress"`
+	OwnerAddress   cTypes.AccAddress `json:"ownerAddress"`
+	ToAddress      cTypes.AccAddress `json:"toAddress"`
+	PegHash        types.PegHash     `json:"pegHash"`
 }
 
 func NewRedeemAsset(relayerAddress cTypes.AccAddress, ownerAddress cTypes.AccAddress, toAddress cTypes.AccAddress, pegHash types.PegHash) RedeemAsset {
@@ -140,10 +140,10 @@ func NewRedeemAsset(relayerAddress cTypes.AccAddress, ownerAddress cTypes.AccAdd
 
 func (in RedeemAsset) GetSignBytes() []byte {
 	bz, err := ModuleCdc.MarshalJSON(struct {
-		RelayerAddress string        `json:relayer_address`
-		OwnerAddress   string        `json:owner_address`
-		ToAddress      string        `json:to_address`
-		PegHash        types.PegHash `json:"peg_hash"`
+		RelayerAddress string        `json:relayerAddress`
+		OwnerAddress   string        `json:ownerAddress`
+		ToAddress      string        `json:toAddress`
+		PegHash        types.PegHash `json:"pegHash"`
 	}{
 		RelayerAddress: in.RelayerAddress.String(),
 		OwnerAddress:   in.OwnerAddress.String(),
@@ -170,7 +170,7 @@ func (in RedeemAsset) ValidateBasic() cTypes.Error {
 }
 
 type MsgFactoryRedeemAssets struct {
-	RedeemAssets []RedeemAsset `json:"redeem_assets"`
+	RedeemAssets []RedeemAsset `json:"redeemAssets"`
 }
 
 func NewMsgFactoryRedeemAssets(redeemAssets []RedeemAsset) MsgFactoryRedeemAssets {
@@ -202,7 +202,7 @@ func (msg MsgFactoryRedeemAssets) GetSignBytes() []byte {
 	}
 	
 	bz, err := ModuleCdc.MarshalJSON(struct {
-		RedeemAssets []json.RawMessage `json:"redeem_assets"`
+		RedeemAssets []json.RawMessage `json:"redeemAssets"`
 	}{
 		RedeemAssets: redeemAssets,
 	})
@@ -231,10 +231,10 @@ func BuildRedeemAssetMsg(relayerAddress cTypes.AccAddress, ownerAddress cTypes.A
 }
 
 type SendAsset struct {
-	RelayerAddress cTypes.AccAddress `json:"relayer_address"`
-	FromAddress    cTypes.AccAddress `json:"from_address"`
-	ToAddress      cTypes.AccAddress `json:"to_address"`
-	PegHash        types.PegHash     `json:"peg_hash"`
+	RelayerAddress cTypes.AccAddress `json:"relayerAddress"`
+	FromAddress    cTypes.AccAddress `json:"fromAddress"`
+	ToAddress      cTypes.AccAddress `json:"toAddress"`
+	PegHash        types.PegHash     `json:"pegHash"`
 }
 
 func NewSendAsset(relayerAddress cTypes.AccAddress, fromAddress cTypes.AccAddress, toAddress cTypes.AccAddress, peghash types.PegHash) SendAsset {
@@ -248,10 +248,10 @@ func NewSendAsset(relayerAddress cTypes.AccAddress, fromAddress cTypes.AccAddres
 
 func (in SendAsset) GetSignBytes() []byte {
 	biz, err := ModuleCdc.MarshalJSON(struct {
-		RelayerAddress string        `json:"relayer_address"`
-		FromAddress    string        `json:"from_address"`
-		ToAddress      string        `json:"to_address"`
-		PegHash        types.PegHash `json:"peg_hash"`
+		RelayerAddress string        `json:"relayerAddress"`
+		FromAddress    string        `json:"fromAddress"`
+		ToAddress      string        `json:"toAddress"`
+		PegHash        types.PegHash `json:"pegHash"`
 	}{
 		RelayerAddress: in.RelayerAddress.String(),
 		FromAddress:    in.FromAddress.String(),
@@ -280,7 +280,7 @@ func (in SendAsset) ValidateBasic() cTypes.Error {
 }
 
 type MsgFactorySendAssets struct {
-	SendAssets []SendAsset `json:"send_assets"`
+	SendAssets []SendAsset `json:"sendAssets"`
 }
 
 func NewMsgFactorySendAssets(sendAssets []SendAsset) MsgFactorySendAssets {
@@ -311,7 +311,7 @@ func (msg MsgFactorySendAssets) GetSignBytes() []byte {
 		sendAssets = append(sendAssets, sendAsset.GetSignBytes())
 	}
 	bz, err := ModuleCdc.MarshalJSON(struct {
-		SendAssets []json.RawMessage `json:"send_assets"`
+		SendAssets []json.RawMessage `json:"sendAssets"`
 	}{
 		SendAssets: sendAssets,
 	})
@@ -336,7 +336,7 @@ func BuildSendAssetMsg(relayerAddress cTypes.AccAddress, fromAddress cTypes.AccA
 }
 
 type MsgFactoryExecuteAssets struct {
-	SendAssets []SendAsset `json:"send_assets"`
+	SendAssets []SendAsset `json:"sendAssets"`
 }
 
 func NewMsgFactoryExecuteAssets(sendAssets []SendAsset) MsgFactoryExecuteAssets {
@@ -368,7 +368,7 @@ func (msg MsgFactoryExecuteAssets) GetSignBytes() []byte {
 	}
 	
 	bz, err := ModuleCdc.MarshalJSON(struct {
-		SendAssets []json.RawMessage `json:"send_assets"`
+		SendAssets []json.RawMessage `json:"sendAssets"`
 	}{
 		SendAssets: sendAssets,
 	})

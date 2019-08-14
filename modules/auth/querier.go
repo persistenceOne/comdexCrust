@@ -3,41 +3,39 @@ package auth
 import (
 	"fmt"
 	
-	abci "github.com/tendermint/tendermint/abci/types"
-	
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
+	abciTypes "github.com/tendermint/tendermint/abci/types"
 	
 	"github.com/commitHub/commitBlockchain/codec"
-	
 	"github.com/commitHub/commitBlockchain/modules/auth/types"
 )
 
 // creates a querier for auth REST endpoints
-func NewQuerier(keeper AccountKeeper) sdk.Querier {
-	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, sdk.Error) {
+func NewQuerier(keeper AccountKeeper) cTypes.Querier {
+	return func(ctx cTypes.Context, path []string, req abciTypes.RequestQuery) ([]byte, cTypes.Error) {
 		switch path[0] {
 		case types.QueryAccount:
 			return queryAccount(ctx, req, keeper)
 		default:
-			return nil, sdk.ErrUnknownRequest("unknown auth query endpoint")
+			return nil, cTypes.ErrUnknownRequest("unknown auth query endpoint")
 		}
 	}
 }
 
-func queryAccount(ctx sdk.Context, req abci.RequestQuery, keeper AccountKeeper) ([]byte, sdk.Error) {
+func queryAccount(ctx cTypes.Context, req abciTypes.RequestQuery, keeper AccountKeeper) ([]byte, cTypes.Error) {
 	var params types.QueryAccountParams
 	if err := keeper.cdc.UnmarshalJSON(req.Data, &params); err != nil {
-		return nil, sdk.ErrInternal(fmt.Sprintf("failed to parse params: %s", err))
+		return nil, cTypes.ErrInternal(fmt.Sprintf("failed to parse params: %s", err))
 	}
 	
 	account := keeper.GetAccount(ctx, params.Address)
 	if account == nil {
-		return nil, sdk.ErrUnknownAddress(fmt.Sprintf("account %s does not exist", params.Address))
+		return nil, cTypes.ErrUnknownAddress(fmt.Sprintf("account %s does not exist", params.Address))
 	}
 	
 	bz, err := codec.MarshalJSONIndent(keeper.cdc, account)
 	if err != nil {
-		return nil, sdk.ErrInternal(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
+		return nil, cTypes.ErrInternal(cTypes.AppendMsgToErr("could not marshal result to JSON", err.Error()))
 	}
 	
 	return bz, nil

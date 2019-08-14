@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	
 	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/commitHub/commitBlockchain/kafka"
 	"github.com/commitHub/commitBlockchain/types/module"
 	
 	"github.com/commitHub/commitBlockchain/modules/params/types"
@@ -40,7 +41,8 @@ func (AppModuleBasic) DefaultGenesis() json.RawMessage { return nil }
 func (AppModuleBasic) ValidateGenesis(_ json.RawMessage) error { return nil }
 
 // register rest routes
-func (AppModuleBasic) RegisterRESTRoutes(_ context.CLIContext, _ *mux.Router) {}
+func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router, kafkaBool bool, kafkaState kafka.KafkaState) {
+}
 
 // get the root tx command of this module
 func (AppModuleBasic) GetTxCmd(_ *codec.Codec) *cobra.Command { return nil }

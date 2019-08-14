@@ -7,7 +7,6 @@ import (
 	abciTypes "github.com/tendermint/tendermint/abci/types"
 	
 	"github.com/commitHub/commitBlockchain/codec"
-	
 	aclTypes "github.com/commitHub/commitBlockchain/modules/acl/internal/types"
 )
 

@@ -9,7 +9,7 @@ import (
 )
 
 type SubmitTraderFeedback struct {
-	TraderFeedback TraderFeedback `json:"trader_feedback"`
+	TraderFeedback TraderFeedback `json:"traderFeedback"`
 }
 
 func NewSubmitTraderFeedback(traderFeedback TraderFeedback) SubmitTraderFeedback {
@@ -18,7 +18,7 @@ func NewSubmitTraderFeedback(traderFeedback TraderFeedback) SubmitTraderFeedback
 
 func (submitTraderFeedback SubmitTraderFeedback) GetSignBytes() []byte {
 	bin, err := ModuleCdc.MarshalJSON(struct {
-		TraderFeedback TraderFeedback `json:"traderfeedback"`
+		TraderFeedback TraderFeedback `json:"traderFeedback"`
 	}{
 		TraderFeedback: submitTraderFeedback.TraderFeedback,
 	})

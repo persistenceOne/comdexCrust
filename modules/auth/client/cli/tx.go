@@ -1,12 +1,10 @@
 package cli
 
 import (
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
 	
-	"github.com/cosmos/cosmos-sdk/client"
-	
 	"github.com/commitHub/commitBlockchain/codec"
-	
 	"github.com/commitHub/commitBlockchain/modules/auth/types"
 )
 

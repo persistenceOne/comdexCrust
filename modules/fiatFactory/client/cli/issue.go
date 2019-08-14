@@ -7,13 +7,10 @@ import (
 	"github.com/spf13/viper"
 	
 	"github.com/commitHub/commitBlockchain/codec"
-	
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
-	
-	"github.com/commitHub/commitBlockchain/types"
-	
 	fiatFactoryTypes "github.com/commitHub/commitBlockchain/modules/fiatFactory/internal/types"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 func IssueFiatCmd(cdc *codec.Codec) *cobra.Command {

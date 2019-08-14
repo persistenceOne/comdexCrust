@@ -7,12 +7,10 @@ import (
 	"github.com/spf13/viper"
 	
 	"github.com/commitHub/commitBlockchain/codec"
-	
-	"github.com/commitHub/commitBlockchain/types"
-	
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
 	reputationTypes "github.com/commitHub/commitBlockchain/modules/reputation/internal/types"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 func SubmitBuyerFeedbackCmd(cdc *codec.Codec) *cobra.Command {

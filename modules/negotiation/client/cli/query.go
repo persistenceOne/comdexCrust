@@ -8,7 +8,6 @@ import (
 	"github.com/spf13/cobra"
 	
 	"github.com/commitHub/commitBlockchain/codec"
-	
 	negotiationTypes "github.com/commitHub/commitBlockchain/modules/negotiation/internal/types"
 )
 

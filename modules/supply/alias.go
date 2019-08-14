@@ -43,8 +43,8 @@ var (
 )
 
 type (
-	Keeper = keeper.Keeper
+	Keeper        = keeper.Keeper
 	ModuleAccount = types.ModuleAccount
-	GenesisState = types.GenesisState
-	Supply = types.Supply
+	GenesisState  = types.GenesisState
+	Supply        = types.Supply
 )

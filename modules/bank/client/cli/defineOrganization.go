@@ -10,7 +10,7 @@ import (
 	"github.com/commitHub/commitBlockchain/modules/acl"
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
-	types2 "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
+	bankTypes "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
 )
 
 func DefineOrganizationCmd(cdc *codec.Codec) *cobra.Command {
@@ -40,7 +40,7 @@ func DefineOrganizationCmd(cdc *codec.Codec) *cobra.Command {
 				return nil
 			}
 			
-			msg := types2.BuildMsgDefineOrganization(cliCtx.GetFromAddress(), to, organizationID, zoneID)
+			msg := bankTypes.BuildMsgDefineOrganization(cliCtx.GetFromAddress(), to, organizationID, zoneID)
 			
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []cTypes.Msg{msg})
 		},

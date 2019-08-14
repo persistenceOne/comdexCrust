@@ -7,13 +7,10 @@ import (
 	"github.com/spf13/viper"
 	
 	"github.com/commitHub/commitBlockchain/codec"
-	
+	assetFactoryTypes "github.com/commitHub/commitBlockchain/modules/assetFactory/internal/types"
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
-	
 	"github.com/commitHub/commitBlockchain/types"
-	
-	assetFactoryTypes "github.com/commitHub/commitBlockchain/modules/assetFactory/internal/types"
 )
 
 func SendAssetCmd(cdc *codec.Codec) *cobra.Command {

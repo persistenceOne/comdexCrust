@@ -37,11 +37,11 @@ var (
 )
 
 type (
-	BaseKeeper = keeper.BaseKeeper // ibc module depends on this
-	Keeper = keeper.Keeper
-	MsgSend = types.MsgSend
-	MsgMultiSend = types.MsgMultiSend
-	Input = types.Input
-	Output = types.Output
+	BaseKeeper         = keeper.BaseKeeper // ibc module depends on this
+	Keeper             = keeper.Keeper
+	MsgSend            = types.MsgSend
+	MsgMultiSend       = types.MsgMultiSend
+	Input              = types.Input
+	Output             = types.Output
 	MsgBankIssueAssets = types.MsgBankIssueAssets
 )

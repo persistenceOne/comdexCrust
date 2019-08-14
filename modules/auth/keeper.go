@@ -3,25 +3,21 @@ package auth
 import (
 	"fmt"
 	
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 	
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	
 	"github.com/commitHub/commitBlockchain/codec"
-	
-	"github.com/commitHub/commitBlockchain/modules/params/subspace"
-	
 	"github.com/commitHub/commitBlockchain/modules/auth/exported"
-	
 	"github.com/commitHub/commitBlockchain/modules/auth/types"
+	"github.com/commitHub/commitBlockchain/modules/params/subspace"
 )
 
 // AccountKeeper encodes/decodes accounts using the go-amino (binary)
 // encoding/decoding library.
 type AccountKeeper struct {
 	// The (unexposed) key used to access the store from the Context.
-	key sdk.StoreKey
+	key cTypes.StoreKey
 	
 	// The prototypical Account constructor.
 	proto func() exported.Account
@@ -32,11 +28,11 @@ type AccountKeeper struct {
 	paramSubspace subspace.Subspace
 }
 
-// NewAccountKeeper returns a new sdk.AccountKeeper that uses go-amino to
-// (binary) encode and decode concrete sdk.Accounts.
+// NewAccountKeeper returns a new cTypes.AccountKeeper that uses go-amino to
+// (binary) encode and decode concrete cTypes.Accounts.
 // nolint
 func NewAccountKeeper(
-	cdc *codec.Codec, key sdk.StoreKey, paramstore subspace.Subspace, proto func() exported.Account,
+	cdc *codec.Codec, key cTypes.StoreKey, paramstore subspace.Subspace, proto func() exported.Account,
 ) AccountKeeper {
 	
 	return AccountKeeper{
@@ -48,12 +44,12 @@ func NewAccountKeeper(
 }
 
 // Logger returns a module-specific logger.
-func (ak AccountKeeper) Logger(ctx sdk.Context) log.Logger {
+func (ak AccountKeeper) Logger(ctx cTypes.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-// NewAccountWithAddress implements sdk.AccountKeeper.
-func (ak AccountKeeper) NewAccountWithAddress(ctx sdk.Context, addr sdk.AccAddress) exported.Account {
+// NewAccountWithAddress implements cTypes.AccountKeeper.
+func (ak AccountKeeper) NewAccountWithAddress(ctx cTypes.Context, addr cTypes.AccAddress) exported.Account {
 	acc := ak.proto()
 	err := acc.SetAddress(addr)
 	if err != nil {
@@ -69,15 +65,15 @@ func (ak AccountKeeper) NewAccountWithAddress(ctx sdk.Context, addr sdk.AccAddre
 }
 
 // NewAccount creates a new account
-func (ak AccountKeeper) NewAccount(ctx sdk.Context, acc exported.Account) exported.Account {
+func (ak AccountKeeper) NewAccount(ctx cTypes.Context, acc exported.Account) exported.Account {
 	if err := acc.SetAccountNumber(ak.GetNextAccountNumber(ctx)); err != nil {
 		panic(err)
 	}
 	return acc
 }
 
-// GetAccount implements sdk.AccountKeeper.
-func (ak AccountKeeper) GetAccount(ctx sdk.Context, addr sdk.AccAddress) exported.Account {
+// GetAccount implements cTypes.AccountKeeper.
+func (ak AccountKeeper) GetAccount(ctx cTypes.Context, addr cTypes.AccAddress) exported.Account {
 	store := ctx.KVStore(ak.key)
 	bz := store.Get(types.AddressStoreKey(addr))
 	if bz == nil {
@@ -88,7 +84,7 @@ func (ak AccountKeeper) GetAccount(ctx sdk.Context, addr sdk.AccAddress) exporte
 }
 
 // GetAllAccounts returns all accounts in the accountKeeper.
-func (ak AccountKeeper) GetAllAccounts(ctx sdk.Context) []exported.Account {
+func (ak AccountKeeper) GetAllAccounts(ctx cTypes.Context) []exported.Account {
 	accounts := []exported.Account{}
 	appendAccount := func(acc exported.Account) (stop bool) {
 		accounts = append(accounts, acc)
@@ -98,8 +94,8 @@ func (ak AccountKeeper) GetAllAccounts(ctx sdk.Context) []exported.Account {
 	return accounts
 }
 
-// SetAccount implements sdk.AccountKeeper.
-func (ak AccountKeeper) SetAccount(ctx sdk.Context, acc exported.Account) {
+// SetAccount implements cTypes.AccountKeeper.
+func (ak AccountKeeper) SetAccount(ctx cTypes.Context, acc exported.Account) {
 	addr := acc.GetAddress()
 	store := ctx.KVStore(ak.key)
 	bz, err := ak.cdc.MarshalBinaryBare(acc)
@@ -111,16 +107,16 @@ func (ak AccountKeeper) SetAccount(ctx sdk.Context, acc exported.Account) {
 
 // RemoveAccount removes an account for the account mapper store.
 // NOTE: this will cause supply invariant violation if called
-func (ak AccountKeeper) RemoveAccount(ctx sdk.Context, acc exported.Account) {
+func (ak AccountKeeper) RemoveAccount(ctx cTypes.Context, acc exported.Account) {
 	addr := acc.GetAddress()
 	store := ctx.KVStore(ak.key)
 	store.Delete(types.AddressStoreKey(addr))
 }
 
-// IterateAccounts implements sdk.AccountKeeper.
-func (ak AccountKeeper) IterateAccounts(ctx sdk.Context, process func(exported.Account) (stop bool)) {
+// IterateAccounts implements cTypes.AccountKeeper.
+func (ak AccountKeeper) IterateAccounts(ctx cTypes.Context, process func(exported.Account) (stop bool)) {
 	store := ctx.KVStore(ak.key)
-	iter := sdk.KVStorePrefixIterator(store, types.AddressStoreKeyPrefix)
+	iter := cTypes.KVStorePrefixIterator(store, types.AddressStoreKeyPrefix)
 	defer iter.Close()
 	for {
 		if !iter.Valid() {
@@ -136,25 +132,25 @@ func (ak AccountKeeper) IterateAccounts(ctx sdk.Context, process func(exported.A
 }
 
 // GetPubKey Returns the PubKey of the account at address
-func (ak AccountKeeper) GetPubKey(ctx sdk.Context, addr sdk.AccAddress) (crypto.PubKey, sdk.Error) {
+func (ak AccountKeeper) GetPubKey(ctx cTypes.Context, addr cTypes.AccAddress) (crypto.PubKey, cTypes.Error) {
 	acc := ak.GetAccount(ctx, addr)
 	if acc == nil {
-		return nil, sdk.ErrUnknownAddress(fmt.Sprintf("account %s does not exist", addr))
+		return nil, cTypes.ErrUnknownAddress(fmt.Sprintf("account %s does not exist", addr))
 	}
 	return acc.GetPubKey(), nil
 }
 
 // GetSequence Returns the Sequence of the account at address
-func (ak AccountKeeper) GetSequence(ctx sdk.Context, addr sdk.AccAddress) (uint64, sdk.Error) {
+func (ak AccountKeeper) GetSequence(ctx cTypes.Context, addr cTypes.AccAddress) (uint64, cTypes.Error) {
 	acc := ak.GetAccount(ctx, addr)
 	if acc == nil {
-		return 0, sdk.ErrUnknownAddress(fmt.Sprintf("account %s does not exist", addr))
+		return 0, cTypes.ErrUnknownAddress(fmt.Sprintf("account %s does not exist", addr))
 	}
 	return acc.GetSequence(), nil
 }
 
 // GetNextAccountNumber Returns and increments the global account number counter
-func (ak AccountKeeper) GetNextAccountNumber(ctx sdk.Context) uint64 {
+func (ak AccountKeeper) GetNextAccountNumber(ctx cTypes.Context) uint64 {
 	var accNumber uint64
 	store := ctx.KVStore(ak.key)
 	bz := store.Get(types.GlobalAccountNumberKey)
@@ -177,12 +173,12 @@ func (ak AccountKeeper) GetNextAccountNumber(ctx sdk.Context) uint64 {
 // Params
 
 // SetParams sets the auth module's parameters.
-func (ak AccountKeeper) SetParams(ctx sdk.Context, params types.Params) {
+func (ak AccountKeeper) SetParams(ctx cTypes.Context, params types.Params) {
 	ak.paramSubspace.SetParamSet(ctx, &params)
 }
 
 // GetParams gets the auth module's parameters.
-func (ak AccountKeeper) GetParams(ctx sdk.Context) (params types.Params) {
+func (ak AccountKeeper) GetParams(ctx cTypes.Context) (params types.Params) {
 	ak.paramSubspace.GetParamSet(ctx, &params)
 	return
 }
@@ -198,7 +194,7 @@ func (ak AccountKeeper) decodeAccount(bz []byte) (acc exported.Account) {
 	return
 }
 
-func (ak AccountKeeper) GetNextAssetPegHash(ctx sdk.Context) int {
+func (ak AccountKeeper) GetNextAssetPegHash(ctx cTypes.Context) int {
 	var assetNumber int
 	store := ctx.KVStore(ak.key)
 	bz := store.Get(types.AssetPegHashKey)
@@ -215,7 +211,7 @@ func (ak AccountKeeper) GetNextAssetPegHash(ctx sdk.Context) int {
 }
 
 // GetNextFiatPegHash : Returns and increments the fiatPeg counter
-func (am AccountKeeper) GetNextFiatPegHash(ctx sdk.Context) int {
+func (am AccountKeeper) GetNextFiatPegHash(ctx cTypes.Context) int {
 	var fiatNumber int
 	store := ctx.KVStore(am.key)
 	bz := store.Get(types.FiatPegHashKey)

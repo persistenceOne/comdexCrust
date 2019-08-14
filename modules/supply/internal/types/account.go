@@ -3,13 +3,11 @@ package types
 import (
 	"fmt"
 	
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/tendermint/tendermint/crypto"
 	"gopkg.in/yaml.v2"
 	
-	"github.com/tendermint/tendermint/crypto"
-	
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	
-	authtypes "github.com/commitHub/commitBlockchain/modules/auth/types"
+	authTypes "github.com/commitHub/commitBlockchain/modules/auth/types"
 	"github.com/commitHub/commitBlockchain/modules/supply/exported"
 )
 
@@ -17,7 +15,7 @@ var _ exported.ModuleAccountI = (*ModuleAccount)(nil)
 
 // ModuleAccount defines an account for modules that holds coins on a pool
 type ModuleAccount struct {
-	*authtypes.BaseAccount
+	*authTypes.BaseAccount
 	Name        string   `json:"name" yaml:"name"`               // name of the module
 	Permissions []string `json:"permissions" yaml:"permissions"` // permissions of module account
 }
@@ -29,7 +27,7 @@ func NewModuleAddress(name string) sdk.AccAddress {
 
 func NewEmptyModuleAccount(name string, permissions ...string) *ModuleAccount {
 	moduleAddress := NewModuleAddress(name)
-	baseAcc := authtypes.NewBaseAccountWithAddress(moduleAddress)
+	baseAcc := authTypes.NewBaseAccountWithAddress(moduleAddress)
 	
 	if err := validatePermissions(permissions...); err != nil {
 		panic(err)
@@ -43,7 +41,7 @@ func NewEmptyModuleAccount(name string, permissions ...string) *ModuleAccount {
 }
 
 // NewModuleAccount creates a new ModuleAccount instance
-func NewModuleAccount(ba *authtypes.BaseAccount,
+func NewModuleAccount(ba *authTypes.BaseAccount,
 	name string, permissions ...string) *ModuleAccount {
 	
 	if err := validatePermissions(permissions...); err != nil {

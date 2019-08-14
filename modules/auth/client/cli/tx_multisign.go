@@ -6,20 +6,17 @@ import (
 	"os"
 	"strings"
 	
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	
-	"github.com/tendermint/tendermint/crypto/multisig"
-	"github.com/tendermint/tendermint/libs/cli"
-	
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
-	crkeys "github.com/cosmos/cosmos-sdk/crypto/keys"
+	crKeys "github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"github.com/tendermint/tendermint/crypto/multisig"
+	"github.com/tendermint/tendermint/libs/cli"
 	
 	"github.com/commitHub/commitBlockchain/codec"
-	
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
 	"github.com/commitHub/commitBlockchain/modules/auth/types"
 )
@@ -76,8 +73,8 @@ func makeMultiSignCmd(cdc *codec.Codec) func(cmd *cobra.Command, args []string) 
 		if err != nil {
 			return
 		}
-		if multisigInfo.GetType() != crkeys.TypeMulti {
-			return fmt.Errorf("%q must be of type %s: %s", args[1], crkeys.TypeMulti, multisigInfo.GetType())
+		if multisigInfo.GetType() != crKeys.TypeMulti {
+			return fmt.Errorf("%q must be of type %s: %s", args[1], crKeys.TypeMulti, multisigInfo.GetType())
 		}
 		
 		multisigPub := multisigInfo.GetPubKey().(multisig.PubKeyMultisigThreshold)

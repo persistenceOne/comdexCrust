@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	
 	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/commitHub/commitBlockchain/kafka"
 	"github.com/commitHub/commitBlockchain/types/module"
 	
 	abciTypes "github.com/tendermint/tendermint/abci/types"
@@ -43,7 +44,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 	return ValidateGenesis(data)
 }
 
-func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, router *mux.Router) {
+func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, router *mux.Router, kafkaBool bool, kafkaState kafka.KafkaState) {
 	rest.RegisterRoutes(ctx, router)
 }
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {

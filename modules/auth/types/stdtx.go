@@ -3,32 +3,31 @@ package types
 import (
 	"encoding/json"
 	"fmt"
-	
+
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/multisig"
 	"gopkg.in/yaml.v2"
-	
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 )
 
 var (
-	_ sdk.Tx = (*StdTx)(nil)
-	
+	_ cTypes.Tx = (*StdTx)(nil)
+
 	maxGasWanted = uint64((1 << 63) - 1)
 )
 
 // StdTx is a standard way to wrap a Msg with Fee and Signatures.
 // NOTE: the first signature is the fee payer (Signatures must not be nil).
 type StdTx struct {
-	Msgs       []sdk.Msg      `json:"msg" yaml:"msg"`
+	Msgs       []cTypes.Msg   `json:"msg" yaml:"msg"`
 	Fee        StdFee         `json:"fee" yaml:"fee"`
 	Signatures []StdSignature `json:"signatures" yaml:"signatures"`
 	Memo       string         `json:"memo" yaml:"memo"`
 }
 
-func NewStdTx(msgs []sdk.Msg, fee StdFee, sigs []StdSignature, memo string) StdTx {
+func NewStdTx(msgs []cTypes.Msg, fee StdFee, sigs []StdSignature, memo string) StdTx {
 	return StdTx{
 		Msgs:       msgs,
 		Fee:        fee,
@@ -38,26 +37,26 @@ func NewStdTx(msgs []sdk.Msg, fee StdFee, sigs []StdSignature, memo string) StdT
 }
 
 // GetMsgs returns the all the transaction's messages.
-func (tx StdTx) GetMsgs() []sdk.Msg { return tx.Msgs }
+func (tx StdTx) GetMsgs() []cTypes.Msg { return tx.Msgs }
 
 // ValidateBasic does a simple and lightweight validation check that doesn't
 // require access to any other information.
-func (tx StdTx) ValidateBasic() sdk.Error {
+func (tx StdTx) ValidateBasic() cTypes.Error {
 	stdSigs := tx.GetSignatures()
-	
+
 	if tx.Fee.Gas > maxGasWanted {
-		return sdk.ErrGasOverflow(fmt.Sprintf("invalid gas supplied; %d > %d", tx.Fee.Gas, maxGasWanted))
+		return cTypes.ErrGasOverflow(fmt.Sprintf("invalid gas supplied; %d > %d", tx.Fee.Gas, maxGasWanted))
 	}
 	if tx.Fee.Amount.IsAnyNegative() {
-		return sdk.ErrInsufficientFee(fmt.Sprintf("invalid fee %s amount provided", tx.Fee.Amount))
+		return cTypes.ErrInsufficientFee(fmt.Sprintf("invalid fee %s amount provided", tx.Fee.Amount))
 	}
 	if len(stdSigs) == 0 {
-		return sdk.ErrNoSignatures("no signers")
+		return cTypes.ErrNoSignatures("no signers")
 	}
 	if len(stdSigs) != len(tx.GetSigners()) {
-		return sdk.ErrUnauthorized("wrong number of signers")
+		return cTypes.ErrUnauthorized("wrong number of signers")
 	}
-	
+
 	return nil
 }
 
@@ -67,12 +66,12 @@ func CountSubKeys(pub crypto.PubKey) int {
 	if !ok {
 		return 1
 	}
-	
+
 	numKeys := 0
 	for _, subkey := range v.PubKeys {
 		numKeys += CountSubKeys(subkey)
 	}
-	
+
 	return numKeys
 }
 
@@ -81,15 +80,11 @@ func CountSubKeys(pub crypto.PubKey) int {
 // They are accumulated from the GetSigners method for each Msg
 // in the order they appear in tx.GetMsgs().
 // Duplicate addresses will be omitted.
-func (tx StdTx) GetSigners() []sdk.AccAddress {
-	seen := map[string]bool{}
-	var signers []sdk.AccAddress
+func (tx StdTx) GetSigners() []cTypes.AccAddress {
+	var signers []cTypes.AccAddress
 	for _, msg := range tx.GetMsgs() {
 		for _, addr := range msg.GetSigners() {
-			if !seen[addr.String()] {
-				signers = append(signers, addr)
-				seen[addr.String()] = true
-			}
+			signers = append(signers, addr)
 		}
 	}
 	return signers
@@ -114,12 +109,12 @@ func (tx StdTx) GetSignatures() []StdSignature { return tx.Signatures }
 // gas to be used by the transaction. The ratio yields an effective "gasprice",
 // which must be above some miminum to be accepted into the mempool.
 type StdFee struct {
-	Amount sdk.Coins `json:"amount" yaml:"amount"`
-	Gas    uint64    `json:"gas" yaml:"gas"`
+	Amount cTypes.Coins `json:"amount" yaml:"amount"`
+	Gas    uint64       `json:"gas" yaml:"gas"`
 }
 
 // NewStdFee returns a new instance of StdFee
-func NewStdFee(gas uint64, amount sdk.Coins) StdFee {
+func NewStdFee(gas uint64, amount cTypes.Coins) StdFee {
 	return StdFee{
 		Amount: amount,
 		Gas:    gas,
@@ -133,7 +128,7 @@ func (fee StdFee) Bytes() []byte {
 	// (in the lcd_test, client side its null,
 	// server side its [])
 	if len(fee.Amount) == 0 {
-		fee.Amount = sdk.NewCoins()
+		fee.Amount = cTypes.NewCoins()
 	}
 	bz, err := ModuleCdc.MarshalJSON(fee) // TODO
 	if err != nil {
@@ -147,8 +142,8 @@ func (fee StdFee) Bytes() []byte {
 // NOTE: The gas prices returned are not the true gas prices that were
 // originally part of the submitted transaction because the fee is computed
 // as fee = ceil(gasWanted * gasPrices).
-func (fee StdFee) GasPrices() sdk.DecCoins {
-	return sdk.NewDecCoins(fee.Amount).QuoDec(sdk.NewDec(int64(fee.Gas)))
+func (fee StdFee) GasPrices() cTypes.DecCoins {
+	return cTypes.NewDecCoins(fee.Amount).QuoDec(cTypes.NewDec(int64(fee.Gas)))
 }
 
 // __________________________________________________________
@@ -168,7 +163,7 @@ type StdSignDoc struct {
 }
 
 // StdSignBytes returns the bytes to sign for a transaction.
-func StdSignBytes(chainID string, accnum uint64, sequence uint64, fee StdFee, msgs []sdk.Msg, memo string) []byte {
+func StdSignBytes(chainID string, accnum uint64, sequence uint64, fee StdFee, msgs []cTypes.Msg, memo string) []byte {
 	var msgsBytes []json.RawMessage
 	for _, msg := range msgs {
 		msgsBytes = append(msgsBytes, json.RawMessage(msg.GetSignBytes()))
@@ -184,38 +179,38 @@ func StdSignBytes(chainID string, accnum uint64, sequence uint64, fee StdFee, ms
 	if err != nil {
 		panic(err)
 	}
-	return sdk.MustSortJSON(bz)
+	return cTypes.MustSortJSON(bz)
 }
 
 // StdSignature represents a sig
 type StdSignature struct {
 	crypto.PubKey `json:"pub_key" yaml:"pub_key"` // optional
-	Signature     []byte `json:"signature" yaml:"signature"`
+	Signature     []byte                          `json:"signature" yaml:"signature"`
 }
 
 // DefaultTxDecoder logic for standard transaction decoding
-func DefaultTxDecoder(cdc *codec.Codec) sdk.TxDecoder {
-	return func(txBytes []byte) (sdk.Tx, sdk.Error) {
+func DefaultTxDecoder(cdc *codec.Codec) cTypes.TxDecoder {
+	return func(txBytes []byte) (cTypes.Tx, cTypes.Error) {
 		var tx = StdTx{}
-		
+
 		if len(txBytes) == 0 {
-			return nil, sdk.ErrTxDecode("txBytes are empty")
+			return nil, cTypes.ErrTxDecode("txBytes are empty")
 		}
-		
+
 		// StdTx.Msg is an interface. The concrete types
 		// are registered by MakeTxCodec
 		err := cdc.UnmarshalBinaryLengthPrefixed(txBytes, &tx)
 		if err != nil {
-			return nil, sdk.ErrTxDecode("error decoding transaction").TraceSDK(err.Error())
+			return nil, cTypes.ErrTxDecode("error decoding transaction").TraceSDK(err.Error())
 		}
-		
+
 		return tx, nil
 	}
 }
 
 // DefaultTxEncoder logic for standard transaction encoding
-func DefaultTxEncoder(cdc *codec.Codec) sdk.TxEncoder {
-	return func(tx sdk.Tx) ([]byte, error) {
+func DefaultTxEncoder(cdc *codec.Codec) cTypes.TxEncoder {
+	return func(tx cTypes.Tx) ([]byte, error) {
 		return cdc.MarshalBinaryLengthPrefixed(tx)
 	}
 }
@@ -227,14 +222,14 @@ func (ss StdSignature) MarshalYAML() (interface{}, error) {
 		pubkey string
 		err    error
 	)
-	
+
 	if ss.PubKey != nil {
-		pubkey, err = sdk.Bech32ifyAccPub(ss.PubKey)
+		pubkey, err = cTypes.Bech32ifyAccPub(ss.PubKey)
 		if err != nil {
 			return nil, err
 		}
 	}
-	
+
 	bz, err = yaml.Marshal(struct {
 		PubKey    string
 		Signature string
@@ -245,6 +240,6 @@ func (ss StdSignature) MarshalYAML() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return string(bz), err
 }

@@ -3,13 +3,10 @@ package keeper
 import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	
-	"github.com/commitHub/commitBlockchain/types"
-	
 	"github.com/commitHub/commitBlockchain/codec"
-	
 	"github.com/commitHub/commitBlockchain/modules/auth"
-	
-	negTypes "github.com/commitHub/commitBlockchain/modules/negotiation/internal/types"
+	negotiationTypes "github.com/commitHub/commitBlockchain/modules/negotiation/internal/types"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 type Keeper struct {
@@ -27,22 +24,22 @@ func NewKeeper(storeKey cTypes.StoreKey, ak auth.AccountKeeper, cdc *codec.Codec
 }
 
 // negotiation/{0x01}/{buyerAddress+sellerAddress+pegHash} => negotiation
-func (k Keeper) SetNegotiation(ctx cTypes.Context, negotiation negTypes.Negotiation) {
+func (k Keeper) SetNegotiation(ctx cTypes.Context, negotiation negotiationTypes.Negotiation) {
 	store := ctx.KVStore(k.storeKey)
 	
-	negotiationKey := negTypes.GetNegotiationKey(negotiation.GetNegotiationID())
+	negotiationKey := negotiationTypes.GetNegotiationKey(negotiation.GetNegotiationID())
 	bz := k.cdc.MustMarshalBinaryLengthPrefixed(negotiation)
 	store.Set(negotiationKey, bz)
 }
 
 // returns negotiation by negotiationID
-func (k Keeper) GetNegotiation(ctx cTypes.Context, negotiationID negTypes.NegotiationID) (negotiation negTypes.Negotiation, err cTypes.Error) {
+func (k Keeper) GetNegotiation(ctx cTypes.Context, negotiationID negotiationTypes.NegotiationID) (negotiation negotiationTypes.Negotiation, err cTypes.Error) {
 	store := ctx.KVStore(k.storeKey)
 	
-	negotiationKey := negTypes.GetNegotiationKey(negotiationID)
+	negotiationKey := negotiationTypes.GetNegotiationKey(negotiationID)
 	bz := store.Get(negotiationKey)
 	if bz == nil {
-		return nil, negTypes.ErrInvalidNegotiationID(negTypes.DefaultCodeSpace, "negotiation not found.")
+		return nil, negotiationTypes.ErrInvalidNegotiationID(negotiationTypes.DefaultCodeSpace, "negotiation not found.")
 	}
 	
 	k.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &negotiation)
@@ -50,8 +47,8 @@ func (k Keeper) GetNegotiation(ctx cTypes.Context, negotiationID negTypes.Negoti
 }
 
 // get all negotiations => []Negotiations from store
-func (k Keeper) GetNegotiations(ctx cTypes.Context) (negotiations []negTypes.Negotiation) {
-	k.IterateNegotiations(ctx, func(negotiation negTypes.Negotiation) (stop bool) {
+func (k Keeper) GetNegotiations(ctx cTypes.Context) (negotiations []negotiationTypes.Negotiation) {
+	k.IterateNegotiations(ctx, func(negotiation negotiationTypes.Negotiation) (stop bool) {
 		negotiations = append(negotiations, negotiation)
 		return false
 	},
@@ -59,14 +56,14 @@ func (k Keeper) GetNegotiations(ctx cTypes.Context) (negotiations []negTypes.Neg
 	return
 }
 
-func (k Keeper) IterateNegotiations(ctx cTypes.Context, handler func(negotiation negTypes.Negotiation) (stop bool)) {
+func (k Keeper) IterateNegotiations(ctx cTypes.Context, handler func(negotiation negotiationTypes.Negotiation) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	
-	iterator := cTypes.KVStorePrefixIterator(store, negTypes.NegotiationKey)
+	iterator := cTypes.KVStorePrefixIterator(store, negotiationTypes.NegotiationKey)
 	defer iterator.Close()
 	
 	for ; iterator.Valid(); iterator.Next() {
-		var negotiation negTypes.Negotiation
+		var negotiation negotiationTypes.Negotiation
 		k.cdc.MustUnmarshalBinaryLengthPrefixed(iterator.Value(), &negotiation)
 		if handler(negotiation) {
 			break
@@ -80,9 +77,9 @@ func (k Keeper) GetNegotiatorAccount(ctx cTypes.Context, address cTypes.AccAddre
 }
 
 func (k Keeper) GetNegotiationDetails(ctx cTypes.Context, buyerAddress cTypes.AccAddress, sellerAddress cTypes.AccAddress,
-	hash types.PegHash) (negTypes.Negotiation, cTypes.Error) {
+	hash types.PegHash) (negotiationTypes.Negotiation, cTypes.Error) {
 	
-	negotiationID := negTypes.NegotiationID(append(append(buyerAddress.Bytes(), sellerAddress.Bytes()...), hash.Bytes()...))
+	negotiationID := negotiationTypes.NegotiationID(append(append(buyerAddress.Bytes(), sellerAddress.Bytes()...), hash.Bytes()...))
 	_negotiation, err := k.GetNegotiation(ctx, negotiationID)
 	if err != nil {
 		return nil, err

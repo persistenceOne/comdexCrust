@@ -8,7 +8,7 @@ const (
 	FlagTo            = "to"
 	FlagAmount        = "amount"
 	FlagDocumentHash  = "document-hash"
-	FlagAssetType     = "asset-hype"
+	FlagAssetType     = "asset-type"
 	FlagAssetPrice    = "asset-price"
 	FlagAssetQuantity = "asset-quantity"
 	FlagQuantityUnit  = "quantity-unit"

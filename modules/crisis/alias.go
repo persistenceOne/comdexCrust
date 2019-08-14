@@ -34,8 +34,8 @@ var (
 )
 
 type (
-	GenesisState = types.GenesisState
+	GenesisState       = types.GenesisState
 	MsgVerifyInvariant = types.MsgVerifyInvariant
-	InvarRoute = types.InvarRoute
-	Keeper = keeper.Keeper
+	InvarRoute         = types.InvarRoute
+	Keeper             = keeper.Keeper
 )

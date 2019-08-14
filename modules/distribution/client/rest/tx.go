@@ -91,7 +91,7 @@ func withdrawDelegatorRewardsHandlerFn(cliCtx context.CLIContext, queryRoute str
 			return
 		}
 		
-		rest2.SignAndBroadcast(w, req.BaseReq, cliCtx, req.Mode, req.Password, msgs)
+		rest2.SignAndBroadcast(req.BaseReq, cliCtx, req.Mode, req.Password, msgs)
 	}
 }
 
@@ -134,7 +134,7 @@ func withdrawDelegationRewardsHandlerFn(cliCtx context.CLIContext) http.HandlerF
 			return
 		}
 		
-		rest2.SignAndBroadcast(w, req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
+		rest2.SignAndBroadcast(req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
 	}
 }
 
@@ -173,7 +173,7 @@ func setDelegatorWithdrawalAddrHandlerFn(cliCtx context.CLIContext) http.Handler
 			return
 		}
 		
-		rest2.SignAndBroadcast(w, req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
+		rest2.SignAndBroadcast(req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
 	}
 }
 
@@ -212,7 +212,7 @@ func withdrawValidatorRewardsHandlerFn(cliCtx context.CLIContext) http.HandlerFu
 			return
 		}
 		
-		rest2.SignAndBroadcast(w, req.BaseReq, cliCtx, req.Mode, req.Password, msgs)
+		rest2.SignAndBroadcast(req.BaseReq, cliCtx, req.Mode, req.Password, msgs)
 	}
 }
 

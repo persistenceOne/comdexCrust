@@ -5,10 +5,9 @@ import (
 	
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	
-	"github.com/commitHub/commitBlockchain/types"
-	
 	"github.com/commitHub/commitBlockchain/modules/fiatFactory/internal/keeper"
 	"github.com/commitHub/commitBlockchain/modules/negotiation"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 func instantiateAndAssignFiat(ctx cTypes.Context, keeper Keeper, issuerAddress cTypes.AccAddress,

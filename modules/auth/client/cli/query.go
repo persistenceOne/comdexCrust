@@ -4,21 +4,18 @@ import (
 	"fmt"
 	"strings"
 	
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	tmTypes "github.com/tendermint/tendermint/types"
 	
 	"github.com/commitHub/commitBlockchain/codec"
-	
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
 	"github.com/commitHub/commitBlockchain/modules/auth/types"
-	
-	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 const (
@@ -53,7 +50,7 @@ func GetAccountCmd(cdc *codec.Codec) *cobra.Command {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			accGetter := types.NewAccountRetriever(cliCtx)
 			
-			key, err := sdk.AccAddressFromBech32(args[0])
+			key, err := cTypes.AccAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
@@ -105,7 +102,7 @@ $ <appcli> query txs --tags '<tag1>:<value1>&<tag2>:<value2>' --page 1 --limit 3
 				}
 				
 				keyValue := strings.Split(tag, ":")
-				if keyValue[0] == tmtypes.TxHeightKey {
+				if keyValue[0] == tmTypes.TxHeightKey {
 					tag = fmt.Sprintf("%s=%s", keyValue[0], keyValue[1])
 				} else {
 					tag = fmt.Sprintf("%s='%s'", keyValue[0], keyValue[1])

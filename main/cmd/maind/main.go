@@ -5,29 +5,24 @@ import (
 	"io"
 	
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	cserver "github.com/cosmos/cosmos-sdk/server"
+	cServer "github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/store"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/spf13/viper"
-	
-	"github.com/commitHub/commitBlockchain/server"
-	
-	"github.com/commitHub/commitBlockchain/modules/genaccounts"
-	genaccscli "github.com/commitHub/commitBlockchain/modules/genaccounts/client/cli"
-	genutilcli "github.com/commitHub/commitBlockchain/modules/genutil/client/cli"
-	"github.com/commitHub/commitBlockchain/modules/staking"
-	
 	"github.com/spf13/cobra"
-	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/spf13/viper"
+	abciTypes "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/cli"
 	dbm "github.com/tendermint/tendermint/libs/db"
-	
 	"github.com/tendermint/tendermint/libs/log"
-	tmtypes "github.com/tendermint/tendermint/types"
-	
-	"github.com/commitHub/commitBlockchain/types"
+	tmTypes "github.com/tendermint/tendermint/types"
 	
 	"github.com/commitHub/commitBlockchain/main/app"
+	"github.com/commitHub/commitBlockchain/modules/genaccounts"
+	genAccsCli "github.com/commitHub/commitBlockchain/modules/genaccounts/client/cli"
+	genUtilCli "github.com/commitHub/commitBlockchain/modules/genutil/client/cli"
+	"github.com/commitHub/commitBlockchain/modules/staking"
+	"github.com/commitHub/commitBlockchain/server"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 const (
@@ -49,21 +44,21 @@ func main() {
 	config.SetBech32PrefixForConsensusNode(types.Bech32PrefixConsAddr, types.Bech32PrefixConsPub)
 	config.Seal()
 	
-	ctx := cserver.NewDefaultContext()
+	ctx := cServer.NewDefaultContext()
 	
 	rootCmd := &cobra.Command{
 		Use:               "maind",
 		Short:             "Main  Daemon (server)",
-		PersistentPreRunE: cserver.PersistentPreRunEFn(ctx),
+		PersistentPreRunE: cServer.PersistentPreRunEFn(ctx),
 	}
 	// CLI commands to initialize the chain
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(ctx, cdc, app.ModuleBasics, app.DefaultNodeHome),
-		genutilcli.CollectGenTxsCmd(ctx, cdc, genaccounts.AppModuleBasic{}, app.DefaultNodeHome),
-		genutilcli.GenTxCmd(ctx, cdc, app.ModuleBasics, staking.AppModuleBasic{}, genaccounts.AppModuleBasic{}, app.DefaultNodeHome, app.DefaultCLIHome),
-		genutilcli.ValidateGenesisCmd(ctx, cdc, app.ModuleBasics),
+		genUtilCli.InitCmd(ctx, cdc, app.ModuleBasics, app.DefaultNodeHome),
+		genUtilCli.CollectGenTxsCmd(ctx, cdc, genaccounts.AppModuleBasic{}, app.DefaultNodeHome),
+		genUtilCli.GenTxCmd(ctx, cdc, app.ModuleBasics, staking.AppModuleBasic{}, genaccounts.AppModuleBasic{}, app.DefaultNodeHome, app.DefaultCLIHome),
+		genUtilCli.ValidateGenesisCmd(ctx, cdc, app.ModuleBasics),
 		// AddGenesisAccountCmd allows users to add accounts to the genesis file
-		genaccscli.AddGenesisAccountCmd(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome),
+		genAccsCli.AddGenesisAccountCmd(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome),
 	)
 	rootCmd.PersistentFlags().UintVar(&invCheckPeriod, flagInvCheckPeriod,
 		0, "Assert registered invariants every N blocks")
@@ -78,15 +73,15 @@ func main() {
 	}
 }
 
-func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application {
+func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abciTypes.Application {
 	return app.NewMainApp(logger, db, traceStore, true, invCheckPeriod, baseapp.SetPruning(store.NewPruningOptionsFromString(viper.GetString("pruning"))),
-		baseapp.SetMinGasPrices(viper.GetString(cserver.FlagMinGasPrices)),
+		baseapp.SetMinGasPrices(viper.GetString(cServer.FlagMinGasPrices)),
 	)
 }
 
 func exportAppStateAndTMValidators(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, height int64, forZeroHeight bool, jailWhiteList []string,
-) (json.RawMessage, []tmtypes.GenesisValidator, error) {
+) (json.RawMessage, []tmTypes.GenesisValidator, error) {
 	
 	if height != -1 {
 		nsApp := app.NewMainApp(logger, db, traceStore, false, uint(2))

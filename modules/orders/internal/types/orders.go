@@ -1,34 +1,33 @@
 package types
 
 import (
-	"github.com/commitHub/commitBlockchain/types"
-	
 	"github.com/commitHub/commitBlockchain/modules/negotiation"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 type Order interface {
 	GetNegotiationID() negotiation.NegotiationID
 	SetNegotiationID(negotiation.NegotiationID)
-	
+
 	GetAssetPegWallet() types.AssetPegWallet
 	SetAssetPegWallet(types.AssetPegWallet)
-	
+
 	GetFiatPegWallet() types.FiatPegWallet
 	SetFiatPegWallet(types.FiatPegWallet)
-	
+
 	GetFiatProofHash() string
 	SetFiatProofHash(string)
-	
+
 	GetAWBProofHash() string
 	SetAWBProofHash(string)
 }
 
 type BaseOrder struct {
-	NegotiationID  negotiation.NegotiationID `json:"negotiation_id"`
-	FiatPegWallet  types.FiatPegWallet       `json:"fiat_peg_wallet"`
-	AssetPegWallet types.AssetPegWallet      `json:"asset_peg_wallet"`
-	FiatProofHash  string                    `json:"fiat_proof_hash"`
-	AWBProofHash   string                    `json:"awb_proof_hash"`
+	NegotiationID  negotiation.NegotiationID `json:"negotiationID"`
+	FiatPegWallet  types.FiatPegWallet       `json:"fiatPegWallet"`
+	AssetPegWallet types.AssetPegWallet      `json:"assetPegWallet"`
+	FiatProofHash  string                    `json:"fiatProofHash"`
+	AWBProofHash   string                    `json:"awbProofHash"`
 }
 
 var _ Order = (*BaseOrder)(nil)

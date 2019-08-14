@@ -6,12 +6,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	
-	"github.com/commitHub/commitBlockchain/types"
-	
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
 	"github.com/commitHub/commitBlockchain/modules/bank/client"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 func SendFiatCmd(cdc *codec.Codec) *cobra.Command {

@@ -73,12 +73,12 @@ var (
 )
 
 type (
-	CodeType = types.CodeType
-	GenesisState = types.GenesisState
-	MissedBlock = types.MissedBlock
-	MsgUnjail = types.MsgUnjail
-	Params = types.Params
-	QuerySigningInfoParams = types.QuerySigningInfoParams
+	CodeType                = types.CodeType
+	GenesisState            = types.GenesisState
+	MissedBlock             = types.MissedBlock
+	MsgUnjail               = types.MsgUnjail
+	Params                  = types.Params
+	QuerySigningInfoParams  = types.QuerySigningInfoParams
 	QuerySigningInfosParams = types.QuerySigningInfosParams
-	ValidatorSigningInfo = types.ValidatorSigningInfo
+	ValidatorSigningInfo    = types.ValidatorSigningInfo
 )

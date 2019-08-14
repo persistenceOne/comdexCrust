@@ -4,18 +4,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
-	
-	"github.com/commitHub/commitBlockchain/codec"
-	
-	"github.com/commitHub/commitBlockchain/modules/auth"
-	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
-	
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	
-	"github.com/commitHub/commitBlockchain/types"
-	
+	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/commitHub/commitBlockchain/modules/auth"
+	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
 	negotiationTypes "github.com/commitHub/commitBlockchain/modules/negotiation/internal/types"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 func ConfirmBuyerBidCmd(cdc *codec.Codec) *cobra.Command {

@@ -9,10 +9,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	
-	"github.com/commitHub/commitBlockchain/types"
-	
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/modules/assetFactory"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 func GetAssetCmd(cdc *codec.Codec) *cobra.Command {

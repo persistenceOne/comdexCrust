@@ -3,9 +3,8 @@ package exported
 import (
 	"time"
 	
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/crypto"
-	
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	
 	"github.com/commitHub/commitBlockchain/types"
 )
@@ -17,8 +16,8 @@ import (
 //
 // Many complex conditions can be used in the concrete struct which implements Account.
 type Account interface {
-	GetAddress() sdk.AccAddress
-	SetAddress(sdk.AccAddress) error // errors if already set.
+	GetAddress() cTypes.AccAddress
+	SetAddress(cTypes.AccAddress) error // errors if already set.
 	
 	GetPubKey() crypto.PubKey // can return nil.
 	SetPubKey(crypto.PubKey) error
@@ -29,12 +28,12 @@ type Account interface {
 	GetSequence() uint64
 	SetSequence(uint64) error
 	
-	GetCoins() sdk.Coins
-	SetCoins(sdk.Coins) error
+	GetCoins() cTypes.Coins
+	SetCoins(cTypes.Coins) error
 	
 	// Calculates the amount of coins that can be sent to other accounts given
 	// the current time.
-	SpendableCoins(blockTime time.Time) sdk.Coins
+	SpendableCoins(blockTime time.Time) cTypes.Coins
 	
 	// Ensure that account implements stringer
 	String() string
@@ -52,16 +51,16 @@ type VestingAccount interface {
 	
 	// Delegation and undelegation accounting that returns the resulting base
 	// coins amount.
-	TrackDelegation(blockTime time.Time, amount sdk.Coins)
-	TrackUndelegation(amount sdk.Coins)
+	TrackDelegation(blockTime time.Time, amount cTypes.Coins)
+	TrackUndelegation(amount cTypes.Coins)
 	
-	GetVestedCoins(blockTime time.Time) sdk.Coins
-	GetVestingCoins(blockTime time.Time) sdk.Coins
+	GetVestedCoins(blockTime time.Time) cTypes.Coins
+	GetVestingCoins(blockTime time.Time) cTypes.Coins
 	
 	GetStartTime() int64
 	GetEndTime() int64
 	
-	GetOriginalVesting() sdk.Coins
-	GetDelegatedFree() sdk.Coins
-	GetDelegatedVesting() sdk.Coins
+	GetOriginalVesting() cTypes.Coins
+	GetDelegatedFree() cTypes.Coins
+	GetDelegatedVesting() cTypes.Coins
 }

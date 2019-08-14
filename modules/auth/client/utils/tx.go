@@ -7,18 +7,16 @@ import (
 	"io/ioutil"
 	"os"
 	
-	"github.com/pkg/errors"
-	"github.com/spf13/viper"
-	
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/cosmos/cosmos-sdk/client/keys"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 	
 	"github.com/commitHub/commitBlockchain/codec"
-	
-	authtypes "github.com/commitHub/commitBlockchain/modules/auth/types"
+	authTypes "github.com/commitHub/commitBlockchain/modules/auth/types"
 )
 
 // GasEstimateResponse defines a response definition for tx gas estimation.
@@ -34,7 +32,7 @@ func (gr GasEstimateResponse) String() string {
 // the provided context has generate-only enabled, the tx will only be printed
 // to STDOUT in a fully offline manner. Otherwise, the tx will be signed and
 // broadcasted.
-func GenerateOrBroadcastMsgs(cliCtx context.CLIContext, txBldr authtypes.TxBuilder, msgs []sdk.Msg) error {
+func GenerateOrBroadcastMsgs(cliCtx context.CLIContext, txBldr authTypes.TxBuilder, msgs []cTypes.Msg) error {
 	if cliCtx.GenerateOnly {
 		return PrintUnsignedStdTx(txBldr, cliCtx, msgs)
 	}
@@ -47,7 +45,7 @@ func GenerateOrBroadcastMsgs(cliCtx context.CLIContext, txBldr authtypes.TxBuild
 // QueryContext. It ensures that the account exists, has a proper number and
 // sequence set. In addition, it builds and signs a transaction with the
 // supplied messages. Finally, it broadcasts the signed transaction to a node.
-func CompleteAndBroadcastTxCLI(txBldr authtypes.TxBuilder, cliCtx context.CLIContext, msgs []sdk.Msg) error {
+func CompleteAndBroadcastTxCLI(txBldr authTypes.TxBuilder, cliCtx context.CLIContext, msgs []cTypes.Msg) error {
 	txBldr, err := PrepareTxBuilder(txBldr, cliCtx)
 	if err != nil {
 		return err
@@ -117,7 +115,7 @@ func CompleteAndBroadcastTxCLI(txBldr authtypes.TxBuilder, cliCtx context.CLICon
 
 // EnrichWithGas calculates the gas estimate that would be consumed by the
 // transaction and set the transaction's respective value accordingly.
-func EnrichWithGas(txBldr authtypes.TxBuilder, cliCtx context.CLIContext, msgs []sdk.Msg) (authtypes.TxBuilder, error) {
+func EnrichWithGas(txBldr authTypes.TxBuilder, cliCtx context.CLIContext, msgs []cTypes.Msg) (authTypes.TxBuilder, error) {
 	_, adjusted, err := simulateMsgs(txBldr, cliCtx, msgs)
 	if err != nil {
 		return txBldr, err
@@ -150,7 +148,7 @@ func CalculateGas(
 }
 
 // PrintUnsignedStdTx builds an unsigned StdTx and prints it to os.Stdout.
-func PrintUnsignedStdTx(txBldr authtypes.TxBuilder, cliCtx context.CLIContext, msgs []sdk.Msg) error {
+func PrintUnsignedStdTx(txBldr authTypes.TxBuilder, cliCtx context.CLIContext, msgs []cTypes.Msg) error {
 	stdTx, err := buildUnsignedStdTxOffline(txBldr, cliCtx, msgs)
 	if err != nil {
 		return err
@@ -169,11 +167,11 @@ func PrintUnsignedStdTx(txBldr authtypes.TxBuilder, cliCtx context.CLIContext, m
 // is false, it replaces the signatures already attached with the new signature.
 // Don't perform online validation or lookups if offline is true.
 func SignStdTx(
-	txBldr authtypes.TxBuilder, cliCtx context.CLIContext, name string,
-	stdTx authtypes.StdTx, appendSig bool, offline bool,
-) (authtypes.StdTx, error) {
+	txBldr authTypes.TxBuilder, cliCtx context.CLIContext, name string,
+	stdTx authTypes.StdTx, appendSig bool, offline bool,
+) (authTypes.StdTx, error) {
 	
-	var signedStdTx authtypes.StdTx
+	var signedStdTx authTypes.StdTx
 	
 	info, err := txBldr.Keybase().Get(name)
 	if err != nil {
@@ -183,12 +181,12 @@ func SignStdTx(
 	addr := info.GetPubKey().Address()
 	
 	// check whether the address is a signer
-	if !isTxSigner(sdk.AccAddress(addr), stdTx.GetSigners()) {
+	if !isTxSigner(cTypes.AccAddress(addr), stdTx.GetSigners()) {
 		return signedStdTx, fmt.Errorf("%s: %s", errInvalidSigner, name)
 	}
 	
 	if !offline {
-		txBldr, err = populateAccountFromState(txBldr, cliCtx, sdk.AccAddress(addr))
+		txBldr, err = populateAccountFromState(txBldr, cliCtx, cTypes.AccAddress(addr))
 		if err != nil {
 			return signedStdTx, err
 		}
@@ -205,9 +203,9 @@ func SignStdTx(
 // SignStdTxWithSignerAddress attaches a signature to a StdTx and returns a copy of a it.
 // Don't perform online validation or lookups if offline is true, else
 // populate account and sequence numbers from a foreign account.
-func SignStdTxWithSignerAddress(txBldr authtypes.TxBuilder, cliCtx context.CLIContext,
-	addr sdk.AccAddress, name string, stdTx authtypes.StdTx,
-	offline bool) (signedStdTx authtypes.StdTx, err error) {
+func SignStdTxWithSignerAddress(txBldr authTypes.TxBuilder, cliCtx context.CLIContext,
+	addr cTypes.AccAddress, name string, stdTx authTypes.StdTx,
+	offline bool) (signedStdTx authTypes.StdTx, err error) {
 	
 	// check whether the address is a signer
 	if !isTxSigner(addr, stdTx.GetSigners()) {
@@ -230,7 +228,7 @@ func SignStdTxWithSignerAddress(txBldr authtypes.TxBuilder, cliCtx context.CLICo
 }
 
 // Read and decode a StdTx from the given filename.  Can pass "-" to read from stdin.
-func ReadStdTxFromFile(cdc *codec.Codec, filename string) (stdTx authtypes.StdTx, err error) {
+func ReadStdTxFromFile(cdc *codec.Codec, filename string) (stdTx authTypes.StdTx, err error) {
 	var bytes []byte
 	
 	if filename == "-" {
@@ -251,10 +249,10 @@ func ReadStdTxFromFile(cdc *codec.Codec, filename string) (stdTx authtypes.StdTx
 }
 
 func populateAccountFromState(
-	txBldr authtypes.TxBuilder, cliCtx context.CLIContext, addr sdk.AccAddress,
-) (authtypes.TxBuilder, error) {
+	txBldr authTypes.TxBuilder, cliCtx context.CLIContext, addr cTypes.AccAddress,
+) (authTypes.TxBuilder, error) {
 	
-	num, seq, err := authtypes.NewAccountRetriever(cliCtx).GetAccountNumberSequence(addr)
+	num, seq, err := authTypes.NewAccountRetriever(cliCtx).GetAccountNumberSequence(addr)
 	if err != nil {
 		return txBldr, err
 	}
@@ -262,12 +260,12 @@ func populateAccountFromState(
 	return txBldr.WithAccountNumber(num).WithSequence(seq), nil
 }
 
-// GetTxEncoder return tx encoder from global sdk configuration if ones is defined.
+// GetTxEncoder return tx encoder from global cTypes configuration if ones is defined.
 // Otherwise returns encoder with default logic.
-func GetTxEncoder(cdc *codec.Codec) (encoder sdk.TxEncoder) {
-	encoder = sdk.GetConfig().GetTxEncoder()
+func GetTxEncoder(cdc *codec.Codec) (encoder cTypes.TxEncoder) {
+	encoder = cTypes.GetConfig().GetTxEncoder()
 	if encoder == nil {
-		encoder = authtypes.DefaultTxEncoder(cdc)
+		encoder = authTypes.DefaultTxEncoder(cdc)
 	}
 	
 	return encoder
@@ -275,7 +273,7 @@ func GetTxEncoder(cdc *codec.Codec) (encoder sdk.TxEncoder) {
 
 // nolint
 // SimulateMsgs simulates the transaction and returns the gas estimate and the adjusted value.
-func simulateMsgs(txBldr authtypes.TxBuilder, cliCtx context.CLIContext, msgs []sdk.Msg) (estimated, adjusted uint64, err error) {
+func simulateMsgs(txBldr authTypes.TxBuilder, cliCtx context.CLIContext, msgs []cTypes.Msg) (estimated, adjusted uint64, err error) {
 	txBytes, err := txBldr.BuildTxForSim(msgs)
 	if err != nil {
 		return
@@ -290,7 +288,7 @@ func adjustGasEstimate(estimate uint64, adjustment float64) uint64 {
 }
 
 func parseQueryResponse(cdc *codec.Codec, rawRes []byte) (uint64, error) {
-	var simulationResult sdk.Result
+	var simulationResult cTypes.Result
 	if err := cdc.UnmarshalBinaryLengthPrefixed(rawRes, &simulationResult); err != nil {
 		return 0, err
 	}
@@ -299,10 +297,10 @@ func parseQueryResponse(cdc *codec.Codec, rawRes []byte) (uint64, error) {
 }
 
 // PrepareTxBuilder populates a TxBuilder in preparation for the build of a Tx.
-func PrepareTxBuilder(txBldr authtypes.TxBuilder, cliCtx context.CLIContext) (authtypes.TxBuilder, error) {
+func PrepareTxBuilder(txBldr authTypes.TxBuilder, cliCtx context.CLIContext) (authTypes.TxBuilder, error) {
 	from := cliCtx.GetFromAddress()
 	
-	accGetter := authtypes.NewAccountRetriever(cliCtx)
+	accGetter := authTypes.NewAccountRetriever(cliCtx)
 	if err := accGetter.EnsureExists(from); err != nil {
 		return txBldr, err
 	}
@@ -311,7 +309,7 @@ func PrepareTxBuilder(txBldr authtypes.TxBuilder, cliCtx context.CLIContext) (au
 	// TODO: (ref #1903) Allow for user supplied account number without
 	// automatically doing a manual lookup.
 	if txbldrAccNum == 0 || txbldrAccSeq == 0 {
-		num, seq, err := authtypes.NewAccountRetriever(cliCtx).GetAccountNumberSequence(from)
+		num, seq, err := authTypes.NewAccountRetriever(cliCtx).GetAccountNumberSequence(from)
 		if err != nil {
 			return txBldr, err
 		}
@@ -327,7 +325,7 @@ func PrepareTxBuilder(txBldr authtypes.TxBuilder, cliCtx context.CLIContext) (au
 	return txBldr, nil
 }
 
-func buildUnsignedStdTxOffline(txBldr authtypes.TxBuilder, cliCtx context.CLIContext, msgs []sdk.Msg) (stdTx authtypes.StdTx, err error) {
+func buildUnsignedStdTxOffline(txBldr authTypes.TxBuilder, cliCtx context.CLIContext, msgs []cTypes.Msg) (stdTx authTypes.StdTx, err error) {
 	if txBldr.SimulateAndExecute() {
 		if cliCtx.GenerateOnly {
 			return stdTx, errors.New("cannot estimate gas with generate-only")
@@ -346,10 +344,10 @@ func buildUnsignedStdTxOffline(txBldr authtypes.TxBuilder, cliCtx context.CLICon
 		return stdTx, nil
 	}
 	
-	return authtypes.NewStdTx(stdSignMsg.Msgs, stdSignMsg.Fee, nil, stdSignMsg.Memo), nil
+	return authTypes.NewStdTx(stdSignMsg.Msgs, stdSignMsg.Fee, nil, stdSignMsg.Memo), nil
 }
 
-func isTxSigner(user sdk.AccAddress, signers []sdk.AccAddress) bool {
+func isTxSigner(user cTypes.AccAddress, signers []cTypes.AccAddress) bool {
 	for _, s := range signers {
 		if bytes.Equal(user.Bytes(), s.Bytes()) {
 			return true

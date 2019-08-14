@@ -3,14 +3,15 @@ package auth
 import (
 	"encoding/json"
 	
+	"github.com/cosmos/cosmos-sdk/client/context"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-	abci "github.com/tendermint/tendermint/abci/types"
 	
-	"github.com/cosmos/cosmos-sdk/client/context"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	abciTypes "github.com/tendermint/tendermint/abci/types"
 	
 	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/commitHub/commitBlockchain/kafka"
 	"github.com/commitHub/commitBlockchain/types/module"
 	
 	"github.com/commitHub/commitBlockchain/modules/auth/client/cli"
@@ -52,7 +53,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 }
 
 // register rest routes
-func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
+func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router, kafkaBool bool, kafkaState kafka.KafkaState) {
 	rest.RegisterRoutes(ctx, rtr, types.StoreKey)
 }
 
@@ -87,13 +88,13 @@ func (AppModule) Name() string {
 }
 
 // register invariants
-func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
+func (AppModule) RegisterInvariants(_ cTypes.InvariantRegistry) {}
 
 // module message route name
 func (AppModule) Route() string { return "" }
 
 // module handler
-func (AppModule) NewHandler() sdk.Handler { return nil }
+func (AppModule) NewHandler() cTypes.Handler { return nil }
 
 // module querier route name
 func (AppModule) QuerierRoute() string {
@@ -101,28 +102,28 @@ func (AppModule) QuerierRoute() string {
 }
 
 // module querier
-func (am AppModule) NewQuerierHandler() sdk.Querier {
+func (am AppModule) NewQuerierHandler() cTypes.Querier {
 	return NewQuerier(am.accountKeeper)
 }
 
 // module init-genesis
-func (am AppModule) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx cTypes.Context, data json.RawMessage) []abciTypes.ValidatorUpdate {
 	var genesisState GenesisState
 	types.ModuleCdc.MustUnmarshalJSON(data, &genesisState)
 	InitGenesis(ctx, am.accountKeeper, genesisState)
-	return []abci.ValidatorUpdate{}
+	return []abciTypes.ValidatorUpdate{}
 }
 
 // module export genesis
-func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
+func (am AppModule) ExportGenesis(ctx cTypes.Context) json.RawMessage {
 	gs := ExportGenesis(ctx, am.accountKeeper)
 	return types.ModuleCdc.MustMarshalJSON(gs)
 }
 
 // module begin-block
-func (AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
+func (AppModule) BeginBlock(_ cTypes.Context, _ abciTypes.RequestBeginBlock) {}
 
 // module end-block
-func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
+func (AppModule) EndBlock(_ cTypes.Context, _ abciTypes.RequestEndBlock) []abciTypes.ValidatorUpdate {
+	return []abciTypes.ValidatorUpdate{}
 }

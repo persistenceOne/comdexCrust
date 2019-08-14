@@ -5,22 +5,16 @@ import (
 )
 
 const (
-	ModuleName = "acl"
-	
-	StoreKey = ModuleName
-	
-	RouterKey = StoreKey
-	
+	ModuleName   = "acl"
+	StoreKey     = ModuleName
+	RouterKey    = StoreKey
 	QuerierRoute = RouterKey
 )
 
 var (
-	ZoneKey = []byte{0x01}
-	
-	OrganizationKey = []byte{0x02}
-	
-	ACLKey = []byte{0x03}
-	
+	ZoneKey               = []byte{0x01}
+	OrganizationKey       = []byte{0x02}
+	ACLKey                = []byte{0x03}
 	DefaultZoneID         = []byte("zone")
 	DefaultOrganizationID = []byte("organization")
 )

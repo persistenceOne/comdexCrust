@@ -6,10 +6,8 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	
 	"github.com/commitHub/commitBlockchain/codec"
-	
-	"github.com/commitHub/commitBlockchain/types"
-	
 	assetFactoryTypes "github.com/commitHub/commitBlockchain/modules/assetFactory/internal/types"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 type Keeper struct {

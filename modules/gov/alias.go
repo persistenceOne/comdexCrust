@@ -129,29 +129,29 @@ var (
 )
 
 type (
-	Content = types.Content
-	Handler = types.Handler
-	Deposit = types.Deposit
-	Deposits = types.Deposits
-	MsgSubmitProposal = types.MsgSubmitProposal
-	MsgDeposit = types.MsgDeposit
-	MsgVote = types.MsgVote
-	DepositParams = types.DepositParams
-	TallyParams = types.TallyParams
-	VotingParams = types.VotingParams
-	Params = types.Params
-	Proposal = types.Proposal
-	Proposals = types.Proposals
-	ProposalQueue = types.ProposalQueue
-	ProposalStatus = types.ProposalStatus
-	TallyResult = types.TallyResult
-	TextProposal = types.TextProposal
+	Content                 = types.Content
+	Handler                 = types.Handler
+	Deposit                 = types.Deposit
+	Deposits                = types.Deposits
+	MsgSubmitProposal       = types.MsgSubmitProposal
+	MsgDeposit              = types.MsgDeposit
+	MsgVote                 = types.MsgVote
+	DepositParams           = types.DepositParams
+	TallyParams             = types.TallyParams
+	VotingParams            = types.VotingParams
+	Params                  = types.Params
+	Proposal                = types.Proposal
+	Proposals               = types.Proposals
+	ProposalQueue           = types.ProposalQueue
+	ProposalStatus          = types.ProposalStatus
+	TallyResult             = types.TallyResult
+	TextProposal            = types.TextProposal
 	SoftwareUpgradeProposal = types.SoftwareUpgradeProposal
-	QueryProposalParams = types.QueryProposalParams
-	QueryDepositParams = types.QueryDepositParams
-	QueryVoteParams = types.QueryVoteParams
-	QueryProposalsParams = types.QueryProposalsParams
-	Vote = types.Vote
-	Votes = types.Votes
-	VoteOption = types.VoteOption
+	QueryProposalParams     = types.QueryProposalParams
+	QueryDepositParams      = types.QueryDepositParams
+	QueryVoteParams         = types.QueryVoteParams
+	QueryProposalsParams    = types.QueryProposalsParams
+	Vote                    = types.Vote
+	Votes                   = types.Votes
+	VoteOption              = types.VoteOption
 )

@@ -4,13 +4,11 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	
 	"github.com/commitHub/commitBlockchain/codec"
-	
-	"github.com/commitHub/commitBlockchain/types"
-	
 	"github.com/commitHub/commitBlockchain/modules/acl"
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/negotiation"
 	orderTypes "github.com/commitHub/commitBlockchain/modules/orders/internal/types"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 type Keeper struct {
