@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	
+
 	"github.com/spf13/viper"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	crKeys "github.com/cosmos/cosmos-sdk/crypto/keys"
@@ -33,7 +33,7 @@ func NewTxBuilder(
 	txEncoder cTypes.TxEncoder, accNumber, seq, gas uint64, gasAdj float64,
 	simulateAndExecute bool, chainID, memo string, fees cTypes.Coins, gasPrices cTypes.DecCoins,
 ) TxBuilder {
-	
+
 	return TxBuilder{
 		txEncoder:          txEncoder,
 		keybase:            nil,
@@ -66,10 +66,10 @@ func NewTxBuilderFromCLI() TxBuilder {
 		chainID:            viper.GetString(flags.FlagChainID),
 		memo:               viper.GetString(flags.FlagMemo),
 	}
-	
+
 	txbldr = txbldr.WithFees(viper.GetString(flags.FlagFees))
 	txbldr = txbldr.WithGasPrices(viper.GetString(flags.FlagGasPrices))
-	
+
 	return txbldr
 }
 
@@ -131,7 +131,7 @@ func (bldr TxBuilder) WithFees(fees string) TxBuilder {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	bldr.fees = parsedFees
 	return bldr
 }
@@ -142,7 +142,7 @@ func (bldr TxBuilder) WithGasPrices(gasPrices string) TxBuilder {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	bldr.gasPrices = parsedGasPrices
 	return bldr
 }
@@ -178,15 +178,15 @@ func (bldr TxBuilder) BuildSignMsg(msgs []cTypes.Msg) (StdSignMsg, error) {
 	if bldr.chainID == "" {
 		return StdSignMsg{}, fmt.Errorf("chain ID required but not specified")
 	}
-	
+
 	fees := bldr.fees
 	if !bldr.gasPrices.IsZero() {
 		if !fees.IsZero() {
 			return StdSignMsg{}, errors.New("cannot provide both fees and gas prices")
 		}
-		
+
 		glDec := cTypes.NewDec(int64(bldr.gas))
-		
+
 		// Derive the fees based on the provided gas prices, where
 		// fee = ceil(gasPrice * gasLimit).
 		fees = make(cTypes.Coins, len(bldr.gasPrices))
@@ -195,7 +195,7 @@ func (bldr TxBuilder) BuildSignMsg(msgs []cTypes.Msg) (StdSignMsg, error) {
 			fees[i] = cTypes.NewCoin(gp.Denom, fee.Ceil().RoundInt())
 		}
 	}
-	
+
 	return StdSignMsg{
 		ChainID:       bldr.chainID,
 		AccountNumber: bldr.accountNumber,
@@ -213,7 +213,7 @@ func (bldr TxBuilder) Sign(name, passphrase string, msg StdSignMsg) ([]byte, err
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return bldr.txEncoder(NewStdTx(msg.Msgs, msg.Fee, []StdSignature{sig}, msg.Memo))
 }
 
@@ -224,7 +224,7 @@ func (bldr TxBuilder) BuildAndSign(name, passphrase string, msgs []cTypes.Msg) (
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return bldr.Sign(name, passphrase, msg)
 }
 
@@ -235,7 +235,7 @@ func (bldr TxBuilder) BuildTxForSim(msgs []cTypes.Msg) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// the ante handler will populate with a sentinel pubkey
 	sigs := []StdSignature{{}}
 	return bldr.txEncoder(NewStdTx(signMsg.Msgs, signMsg.Fee, sigs, signMsg.Memo))
@@ -247,7 +247,7 @@ func (bldr TxBuilder) SignStdTx(name, passphrase string, stdTx StdTx, appendSig 
 	if bldr.chainID == "" {
 		return StdTx{}, fmt.Errorf("chain ID required but not specified")
 	}
-	
+
 	stdSignature, err := MakeSignature(bldr.keybase, name, passphrase, StdSignMsg{
 		ChainID:       bldr.chainID,
 		AccountNumber: bldr.accountNumber,
@@ -259,7 +259,7 @@ func (bldr TxBuilder) SignStdTx(name, passphrase string, stdTx StdTx, appendSig 
 	if err != nil {
 		return
 	}
-	
+
 	sigs := stdTx.GetSignatures()
 	if len(sigs) == 0 || !appendSig {
 		sigs = []StdSignature{stdSignature}
@@ -279,7 +279,7 @@ func MakeSignature(keybase crKeys.Keybase, name, passphrase string,
 			return
 		}
 	}
-	
+
 	sigBytes, pubkey, err := keybase.Sign(name, passphrase, msg.Bytes())
 	if err != nil {
 		return

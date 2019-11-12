@@ -3,7 +3,7 @@ package keys
 import (
 	"encoding/json"
 	"net/http"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/cosmos/cosmos-sdk/types/rest"
@@ -27,7 +27,7 @@ func runListCmd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	infos, err := kb.List()
 	if err == nil {
 		printInfos(infos)
@@ -37,13 +37,13 @@ func runListCmd(cmd *cobra.Command, args []string) error {
 
 func QueryKeysRequestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	
+
 	kb, err := NewKeyBaseFromHomeFlag()
 	if err != nil {
 		rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	
+
 	info, err := kb.List()
 	if err != nil {
 		rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())

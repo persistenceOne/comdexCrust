@@ -6,24 +6,24 @@ import (
 	"os"
 	"strings"
 	"time"
-	
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/log"
 	rpcserver "github.com/tendermint/tendermint/rpc/lib/server"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	
+
 	keys2 "github.com/commitHub/commitBlockchain/client/keys"
-	
+
 	"github.com/commitHub/commitBlockchain/client/rest"
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/kafka"
 	"github.com/commitHub/commitBlockchain/main/app"
-	
+
 	keybase "github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/cosmos/cosmos-sdk/server"
 	// unnamed import of statik for swagger UI support
@@ -35,7 +35,7 @@ type RestServer struct {
 	Mux     *mux.Router
 	CliCtx  context.CLIContext
 	KeyBase keybase.Keybase
-	
+
 	log      log.Logger
 	listener net.Listener
 }
@@ -45,7 +45,7 @@ func NewRestServer(cdc *codec.Codec) *RestServer {
 	r := mux.NewRouter()
 	cliCtx := context.NewCLIContext().WithCodec(cdc)
 	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout)).With("module", "rest-server")
-	
+
 	return &RestServer{
 		Mux:    r,
 		CliCtx: cliCtx,
@@ -58,7 +58,7 @@ func (rs *RestServer) Start(listenAddr string, maxOpen int, readTimeout, writeTi
 	server.TrapSignal(func() {
 		if kafkaBool == true {
 			err = kafkaState.Producer.Close()
-			
+
 			err = kafkaState.Admin.Close()
 			for _, consumer := range kafkaState.Consumers {
 				err = consumer.Close()
@@ -67,15 +67,15 @@ func (rs *RestServer) Start(listenAddr string, maxOpen int, readTimeout, writeTi
 		}
 		err := rs.listener.Close()
 		rs.log.Error("error closing listener", "err", err)
-		
+
 	})
-	
+
 	cfg := &rpcserver.Config{
 		MaxOpenConnections: maxOpen,
 		ReadTimeout:        time.Duration(readTimeout) * time.Second,
 		WriteTimeout:       time.Duration(writeTimeout) * time.Second,
 	}
-	
+
 	rs.listener, err = rpcserver.Listen(listenAddr, cfg)
 	if err != nil {
 		return
@@ -86,7 +86,7 @@ func (rs *RestServer) Start(listenAddr string, maxOpen int, readTimeout, writeTi
 			viper.GetString(flags.FlagChainID),
 		),
 	)
-	
+
 	return rpcserver.StartHTTPServer(rs.listener, rs.Mux, rs.log, cfg)
 }
 
@@ -101,11 +101,11 @@ func ServeCommand(cdc *codec.Codec) *cobra.Command {
 		Short: "Start LCD (light-client daemon), a local REST server",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			rs := NewRestServer(cdc)
-			
+
 			kafkaBool := viper.GetBool(flagKafka)
-			
+
 			var kafkaState kafka.KafkaState
-			
+
 			if kafkaBool == true {
 				kafkaPort := viper.GetString(kafkaPorts)
 				kafkaPort = strings.Trim(kafkaPort, "\" ")
@@ -114,7 +114,7 @@ func ServeCommand(cdc *codec.Codec) *cobra.Command {
 				rs.Mux.HandleFunc("/response/{ticketid}", kafka.QueryDB(cdc, rs.Mux, kafkaState.KafkaDB)).Methods("GET")
 			}
 			registerRoutes(rs, kafkaBool, kafkaState)
-			
+
 			if kafkaBool == true {
 				go func() {
 					for {
@@ -122,9 +122,9 @@ func ServeCommand(cdc *codec.Codec) *cobra.Command {
 						time.Sleep(kafka.SleepRoutine)
 					}
 				}()
-				
+
 			}
-			
+
 			// Start the rest server and return error if one exists
 			err = rs.Start(
 				viper.GetString(flags.FlagListenAddr),
@@ -134,21 +134,21 @@ func ServeCommand(cdc *codec.Codec) *cobra.Command {
 				kafkaBool,
 				kafkaState,
 			)
-			
+
 			return err
 		},
 	}
 	cmd.Flags().Bool(flagKafka, false, "Whether have kafka running")
 	cmd.Flags().String(kafkaPorts, "localhost:9092", "Space seperated addresses in quotes of the kafka listening node: example: --kafkaPort \"addr1 addr2\" ")
-	
+
 	return flags.RegisterRestServerFlags(cmd)
 }
 
 func registerRoutes(rs *RestServer, kafkaBool bool, kafkaState kafka.KafkaState) {
 	client.RegisterRoutes(rs.CliCtx, rs.Mux)
 	app.ModuleBasics.RegisterRESTRoutes(rs.CliCtx, rs.Mux, kafkaBool, kafkaState)
-	keys2.RegisterRoutes(rs.Mux)
-	
+	keys2.RegisterRoutes(rs.CliCtx, rs.Mux)
+
 }
 
 //

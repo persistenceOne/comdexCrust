@@ -5,30 +5,32 @@ import (
 )
 
 const (
-	CodeSendDisabled                cTypes.CodeType = 101
-	CodeInvalidInputsOutputs        cTypes.CodeType = 102
-	CodeNegativeAmount              cTypes.CodeType = 103
-	CodeGoValidation                cTypes.CodeType = 104
-	CodeFromName                    cTypes.CodeType = 105
-	CodeZoneIDFromString            cTypes.CodeType = 106
-	CodeAccAddressFromBech32        cTypes.CodeType = 107
-	CodeOrganizationIDFromString    cTypes.CodeType = 108
-	CodeInvalidOrganization         cTypes.CodeType = 109
-	CodeInvalidOrganizationWithZone cTypes.CodeType = 110
-	CodeInvalidACLAccount           cTypes.CodeType = 111
-	CodeUnAuthorizedTransaction     cTypes.CodeType = 112
-	CodeInvalidQuery                cTypes.CodeType = 113
-	CodeInvalidFields               cTypes.CodeType = 114
-	CodeNotEqual                    cTypes.CodeType = 115
-	CodeResponseDataLengthZero      cTypes.CodeType = 116
-	CodePegHashHex                  cTypes.CodeType = 117
-	CodeMarshal                     cTypes.CodeType = 118
-	CodeUnmarshal                   cTypes.CodeType = 119
-	CodeKeyBase                     cTypes.CodeType = 120
-	CodeSign                        cTypes.CodeType = 121
-	CodeNegotiationIDFromString     cTypes.CodeType = 122
-	CodeZoneIDExists                cTypes.CodeType = 123
-	CodeOrganizationIDExists        cTypes.CodeType = 124
+	DefaultCodeSpace                cTypes.CodespaceType = "types"
+	CodeSendDisabled                cTypes.CodeType      = 101
+	CodeInvalidInputsOutputs        cTypes.CodeType      = 102
+	CodeNegativeAmount              cTypes.CodeType      = 103
+	CodeGoValidation                cTypes.CodeType      = 104
+	CodeFromName                    cTypes.CodeType      = 105
+	CodeZoneIDFromString            cTypes.CodeType      = 106
+	CodeAccAddressFromBech32        cTypes.CodeType      = 107
+	CodeOrganizationIDFromString    cTypes.CodeType      = 108
+	CodeInvalidOrganization         cTypes.CodeType      = 109
+	CodeInvalidOrganizationWithZone cTypes.CodeType      = 110
+	CodeInvalidACLAccount           cTypes.CodeType      = 111
+	CodeUnAuthorizedTransaction     cTypes.CodeType      = 112
+	CodeInvalidQuery                cTypes.CodeType      = 113
+	CodeInvalidFields               cTypes.CodeType      = 114
+	CodeNotEqual                    cTypes.CodeType      = 115
+	CodeResponseDataLengthZero      cTypes.CodeType      = 116
+	CodePegHashHex                  cTypes.CodeType      = 117
+	CodeMarshal                     cTypes.CodeType      = 118
+	CodeUnmarshal                   cTypes.CodeType      = 119
+	CodeKeyBase                     cTypes.CodeType      = 120
+	CodeSign                        cTypes.CodeType      = 121
+	CodeNegotiationIDFromString     cTypes.CodeType      = 122
+	CodeZoneIDExists                cTypes.CodeType      = 123
+	CodeOrganizationIDExists        cTypes.CodeType      = 124
+	CodeFeedbackCannotRegister      cTypes.CodeType      = 125
 )
 
 func ErrNoInputs(codespace cTypes.CodespaceType) cTypes.Error {
@@ -136,4 +138,8 @@ func ErrZoneIDExists(codeSpace cTypes.CodespaceType, ID string) cTypes.Error {
 
 func ErrOrganizationIDExists(codeSpace cTypes.CodespaceType, ID string) cTypes.Error {
 	return cTypes.NewError(codeSpace, CodeOrganizationIDExists, "Organization ID "+ID+" already exists")
+}
+
+func ErrFeedbackCannotRegister(codeSpace cTypes.CodespaceType) cTypes.Error {
+	return cTypes.NewError(codeSpace, CodeFeedbackCannotRegister, "You have already given a  traderFeedback for this transaction")
 }

@@ -52,7 +52,7 @@ var (
 	NewTxBuilderFromCLI            = types.NewTxBuilderFromCLI
 	MakeSignature                  = types.MakeSignature
 	NewAccountRetriever            = types.NewAccountRetriever
-	
+
 	// variable aliases
 	ModuleCdc                 = types.ModuleCdc
 	AddressStoreKeyPrefix     = types.AddressStoreKeyPrefix

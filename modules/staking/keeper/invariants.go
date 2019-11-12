@@ -3,16 +3,16 @@ package keeper
 import (
 	"bytes"
 	"fmt"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/staking/exported"
 	"github.com/commitHub/commitBlockchain/modules/staking/types"
 )
 
 // RegisterInvariants registers all staking invariants
 func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
-	
+
 	ir.RegisterRoute(types.ModuleName, "module-accounts",
 		ModuleAccountInvariants(k))
 	ir.RegisterRoute(types.ModuleName, "nonnegative-power",
@@ -25,23 +25,23 @@ func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
 
 // AllInvariants runs all invariants of the staking module.
 func AllInvariants(k Keeper) sdk.Invariant {
-	
+
 	return func(ctx sdk.Context) (string, bool) {
 		res, stop := ModuleAccountInvariants(k)(ctx)
 		if stop {
 			return res, stop
 		}
-		
+
 		res, stop = NonNegativePowerInvariant(k)(ctx)
 		if stop {
 			return res, stop
 		}
-		
+
 		res, stop = PositiveDelegationInvariant(k)(ctx)
 		if stop {
 			return res, stop
 		}
-		
+
 		return DelegatorSharesInvariant(k)(ctx)
 	}
 }
@@ -55,7 +55,7 @@ func ModuleAccountInvariants(k Keeper) sdk.Invariant {
 		bondedPool := k.GetBondedPool(ctx)
 		notBondedPool := k.GetNotBondedPool(ctx)
 		bondDenom := k.BondDenom(ctx)
-		
+
 		k.IterateValidators(ctx, func(_ int64, validator exported.ValidatorI) bool {
 			switch validator.GetStatus() {
 			case sdk.Bonded:
@@ -67,18 +67,18 @@ func ModuleAccountInvariants(k Keeper) sdk.Invariant {
 			}
 			return false
 		})
-		
+
 		k.IterateUnbondingDelegations(ctx, func(_ int64, ubd types.UnbondingDelegation) bool {
 			for _, entry := range ubd.Entries {
 				notBonded = notBonded.Add(entry.Balance)
 			}
 			return false
 		})
-		
+
 		poolBonded := bondedPool.GetCoins().AmountOf(bondDenom)
 		poolNotBonded := notBondedPool.GetCoins().AmountOf(bondDenom)
 		broken := !poolBonded.Equal(bonded) || !poolNotBonded.Equal(notBonded)
-		
+
 		// Bonded tokens should equal sum of tokens with bonded validators
 		// Not-bonded tokens should equal unbonding delegations	plus tokens on unbonded validators
 		return sdk.FormatInvariant(types.ModuleName, "bonded and not bonded module account coins", fmt.Sprintf(
@@ -99,24 +99,24 @@ func NonNegativePowerInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		var msg string
 		var broken bool
-		
+
 		iterator := k.ValidatorsPowerStoreIterator(ctx)
-		
+
 		for ; iterator.Valid(); iterator.Next() {
 			validator, found := k.GetValidator(ctx, iterator.Value())
 			if !found {
 				panic(fmt.Sprintf("validator record not found for address: %X\n", iterator.Value()))
 			}
-			
+
 			powerKey := types.GetValidatorsByPowerIndexKey(validator)
-			
+
 			if !bytes.Equal(iterator.Key(), powerKey) {
 				broken = true
 				msg += fmt.Sprintf("power store invariance:\n\tvalidator.Power: %v"+
 					"\n\tkey should be: %v\n\tkey in store: %v\n",
 					validator.GetConsensusPower(), powerKey, iterator.Key())
 			}
-			
+
 			if validator.Tokens.IsNegative() {
 				broken = true
 				msg += fmt.Sprintf("\tnegative tokens for validator: %v\n", validator)
@@ -132,7 +132,7 @@ func PositiveDelegationInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		var msg string
 		var count int
-		
+
 		delegations := k.GetAllDelegations(ctx)
 		for _, delegation := range delegations {
 			if delegation.Shares.IsNegative() {
@@ -145,7 +145,7 @@ func PositiveDelegationInvariant(k Keeper) sdk.Invariant {
 			}
 		}
 		broken := count != 0
-		
+
 		return sdk.FormatInvariant(types.ModuleName, "positive delegations", fmt.Sprintf(
 			"%d invalid delegations found\n%s", count, msg), broken)
 	}
@@ -158,18 +158,18 @@ func DelegatorSharesInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		var msg string
 		var broken bool
-		
+
 		validators := k.GetAllValidators(ctx)
 		for _, validator := range validators {
-			
+
 			valTotalDelShares := validator.GetDelegatorShares()
-			
+
 			totalDelShares := sdk.ZeroDec()
 			delegations := k.GetValidatorDelegations(ctx, validator.GetOperator())
 			for _, delegation := range delegations {
 				totalDelShares = totalDelShares.Add(delegation.Shares)
 			}
-			
+
 			if !valTotalDelShares.Equal(totalDelShares) {
 				broken = true
 				msg += fmt.Sprintf("broken delegator shares invariance:\n"+

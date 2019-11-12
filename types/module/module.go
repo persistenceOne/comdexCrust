@@ -29,15 +29,15 @@ package module
 
 import (
 	"encoding/json"
-	
+
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/kafka"
 )
@@ -47,11 +47,11 @@ import (
 type AppModuleBasic interface {
 	Name() string
 	RegisterCodec(*codec.Codec)
-	
+
 	// genesis
 	DefaultGenesis() json.RawMessage
 	ValidateGenesis(json.RawMessage) error
-	
+
 	// client functionality
 	RegisterRESTRoutes(context.CLIContext, *mux.Router, bool, kafka.KafkaState)
 	GetTxCmd(*codec.Codec) *cobra.Command
@@ -131,16 +131,16 @@ type AppModuleGenesis interface {
 // AppModule is the standard form for an application module
 type AppModule interface {
 	AppModuleGenesis
-	
+
 	// registers
 	RegisterInvariants(cTypes.InvariantRegistry)
-	
+
 	// routes
 	Route() string
 	NewHandler() cTypes.Handler
 	QuerierRoute() string
 	NewQuerierHandler() cTypes.Querier
-	
+
 	BeginBlock(cTypes.Context, abci.RequestBeginBlock)
 	EndBlock(cTypes.Context, abci.RequestEndBlock) []abci.ValidatorUpdate
 }
@@ -194,14 +194,14 @@ type Manager struct {
 
 // NewModuleManager creates a new Manager object
 func NewManager(modules ...AppModule) *Manager {
-	
+
 	moduleMap := make(map[string]AppModule)
 	var modulesStr []string
 	for _, module := range modules {
 		moduleMap[module.Name()] = module
 		modulesStr = append(modulesStr, module.Name())
 	}
-	
+
 	return &Manager{
 		Modules:            moduleMap,
 		OrderInitGenesis:   modulesStr,
@@ -258,7 +258,7 @@ func (m *Manager) InitGenesis(ctx cTypes.Context, genesisData map[string]json.Ra
 			continue
 		}
 		moduleValUpdates := m.Modules[moduleName].InitGenesis(ctx, genesisData[moduleName])
-		
+
 		// use these validator updates if provided, the module manager assumes
 		// only one module will update the validator set
 		if len(moduleValUpdates) > 0 {
@@ -268,7 +268,7 @@ func (m *Manager) InitGenesis(ctx cTypes.Context, genesisData map[string]json.Ra
 			validatorUpdates = moduleValUpdates
 		}
 	}
-	
+
 	return abci.ResponseInitChain{
 		Validators: validatorUpdates,
 	}
@@ -288,11 +288,11 @@ func (m *Manager) ExportGenesis(ctx cTypes.Context) map[string]json.RawMessage {
 // modules.
 func (m *Manager) BeginBlock(ctx cTypes.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	ctx = ctx.WithEventManager(cTypes.NewEventManager())
-	
+
 	for _, moduleName := range m.OrderBeginBlockers {
 		m.Modules[moduleName].BeginBlock(ctx, req)
 	}
-	
+
 	return abci.ResponseBeginBlock{
 		Events: ctx.EventManager().ABCIEvents(),
 	}
@@ -304,21 +304,21 @@ func (m *Manager) BeginBlock(ctx cTypes.Context, req abci.RequestBeginBlock) abc
 func (m *Manager) EndBlock(ctx cTypes.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	ctx = ctx.WithEventManager(cTypes.NewEventManager())
 	validatorUpdates := []abci.ValidatorUpdate{}
-	
+
 	for _, moduleName := range m.OrderEndBlockers {
 		moduleValUpdates := m.Modules[moduleName].EndBlock(ctx, req)
-		
+
 		// use these validator updates if provided, the module manager assumes
 		// only one module will update the validator set
 		if len(moduleValUpdates) > 0 {
 			if len(validatorUpdates) > 0 {
 				panic("validator EndBlock updates already set by a previous module")
 			}
-			
+
 			validatorUpdates = moduleValUpdates
 		}
 	}
-	
+
 	return abci.ResponseEndBlock{
 		ValidatorUpdates: validatorUpdates,
 		Events:           ctx.EventManager().ABCIEvents(),

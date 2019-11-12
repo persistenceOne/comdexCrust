@@ -1,7 +1,11 @@
 package types
 
+import (
+	"github.com/commitHub/commitBlockchain/types"
+)
+
 type GenesisState struct {
-	Reputations []AccountReputation
+	Reputations []types.BaseAccountReputation
 }
 
 func DefaultGenesisState() GenesisState {

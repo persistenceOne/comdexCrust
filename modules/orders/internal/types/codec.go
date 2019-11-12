@@ -2,11 +2,12 @@ package types
 
 import (
 	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterInterface((*Order)(nil), nil)
-	cdc.RegisterConcrete(&BaseOrder{}, "commit-blockchain/Order", nil)
+	cdc.RegisterInterface((*types.Order)(nil), nil)
+	cdc.RegisterConcrete(&types.BaseOrder{}, "commit-blockchain/Order", nil)
 }
 
 var ModuleCdc *codec.Codec

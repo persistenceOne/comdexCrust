@@ -7,6 +7,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a
 	github.com/bartekn/go-bip39 v0.0.0-20171116152956-a05967ea095d
 	github.com/cosmos/cosmos-sdk v0.36.0-rc1 //latest
+	github.com/cosmos/go-bip39 v0.0.0-20180618194314-52158e4697b8
 	github.com/gorilla/mux v1.7.0
 	github.com/pkg/errors v0.8.1
 	github.com/spf13/cobra v0.0.5

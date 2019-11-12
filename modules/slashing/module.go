@@ -2,19 +2,19 @@ package slashing
 
 import (
 	"encoding/json"
-	
+
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/kafka"
 	"github.com/commitHub/commitBlockchain/types/module"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/slashing/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/slashing/client/rest"
 	"github.com/commitHub/commitBlockchain/modules/slashing/types"

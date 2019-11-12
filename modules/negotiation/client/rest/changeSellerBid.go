@@ -80,9 +80,9 @@ func ChangeSellerBidRequestHandlerFn(cliCtx context.CLIContext, kafkaBool bool, 
 		}
 
 		pegHashHex, err := types.GetAssetPegHashHex(req.PegHash)
-		negotiationID := negotiationTypes.NegotiationID(append(append(to.Bytes(), fromAddr.Bytes()...), pegHashHex...))
+		negotiationID := types.NegotiationID(append(append(to.Bytes(), fromAddr.Bytes()...), pegHashHex...))
 
-		proposedNegotiation := &negotiationTypes.BaseNegotiation{
+		proposedNegotiation := &types.BaseNegotiation{
 			NegotiationID: negotiationID,
 			BuyerAddress:  to,
 			SellerAddress: fromAddr,

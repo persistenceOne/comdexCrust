@@ -3,7 +3,7 @@ package keys
 import (
 	"errors"
 	"fmt"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
@@ -24,9 +24,9 @@ const (
 	FlagBechPrefix = "bech"
 	// FlagDevice indicates that the information should be shown in the device
 	FlagDevice = "device"
-	
+
 	flagMultiSigThreshold = "multisig-threshold"
-	
+
 	defaultMultiSigKeyName = "multi"
 )
 
@@ -40,20 +40,20 @@ consisting of all the keys provided by name and multisig threshold.`,
 		Args: cobra.MinimumNArgs(1),
 		RunE: runShowCmd,
 	}
-	
+
 	cmd.Flags().String(FlagBechPrefix, cTypes.PrefixAccount, "The Bech32 prefix encoding for a key (acc|val|cons)")
 	cmd.Flags().BoolP(FlagAddress, "a", false, "Output the address only (overrides --output)")
 	cmd.Flags().BoolP(FlagPublicKey, "p", false, "Output the public key only (overrides --output)")
 	cmd.Flags().BoolP(FlagDevice, "d", false, "Output the address in a ledger device")
 	cmd.Flags().Uint(flagMultiSigThreshold, 1, "K out of N required signatures")
 	cmd.Flags().Bool(flags.FlagIndentResponse, false, "Add indent to JSON response")
-	
+
 	return cmd
 }
 
 func runShowCmd(cmd *cobra.Command, args []string) (err error) {
 	var info keys.Info
-	
+
 	if len(args) == 1 {
 		info, err = GetKeyInfo(args[0])
 		if err != nil {
@@ -66,43 +66,43 @@ func runShowCmd(cmd *cobra.Command, args []string) (err error) {
 			if err != nil {
 				return err
 			}
-			
+
 			pks[i] = info.GetPubKey()
 		}
-		
+
 		multisigThreshold := viper.GetInt(flagMultiSigThreshold)
 		err = validateMultisigThreshold(multisigThreshold, len(args))
 		if err != nil {
 			return err
 		}
-		
+
 		multikey := multisig.NewPubKeyMultisigThreshold(multisigThreshold, pks)
 		info = keys.NewMultiInfo(defaultMultiSigKeyName, multikey)
 	}
-	
+
 	isShowAddr := viper.GetBool(FlagAddress)
 	isShowPubKey := viper.GetBool(FlagPublicKey)
 	isShowDevice := viper.GetBool(FlagDevice)
-	
+
 	isOutputSet := false
 	tmp := cmd.Flag(cli.OutputFlag)
 	if tmp != nil {
 		isOutputSet = tmp.Changed
 	}
-	
+
 	if isShowAddr && isShowPubKey {
 		return errors.New("cannot use both --address and --pubkey at once")
 	}
-	
+
 	if isOutputSet && (isShowAddr || isShowPubKey) {
 		return errors.New("cannot use --output with --address or --pubkey")
 	}
-	
+
 	bechKeyOut, err := getBechKeyOut(viper.GetString(FlagBechPrefix))
 	if err != nil {
 		return err
 	}
-	
+
 	switch {
 	case isShowAddr:
 		printKeyAddress(info, bechKeyOut)
@@ -111,7 +111,7 @@ func runShowCmd(cmd *cobra.Command, args []string) (err error) {
 	default:
 		printKeyInfo(info, bechKeyOut)
 	}
-	
+
 	if isShowDevice {
 		if isShowPubKey {
 			return fmt.Errorf("the device flag (-d) can only be used for addresses not pubkeys")
@@ -123,15 +123,15 @@ func runShowCmd(cmd *cobra.Command, args []string) (err error) {
 		if info.GetType() != keys.TypeLedger {
 			return fmt.Errorf("the device flag (-d) can only be used for accounts stored in devices")
 		}
-		
+
 		hdpath, err := info.GetPath()
 		if err != nil {
 			return nil
 		}
-		
+
 		return crypto.LedgerShowAddress(*hdpath, info.GetPubKey())
 	}
-	
+
 	return nil
 }
 
@@ -155,6 +155,6 @@ func getBechKeyOut(bechPrefix string) (bechKeyOutFn, error) {
 	case cTypes.PrefixConsensus:
 		return keys.Bech32ConsKeyOutput, nil
 	}
-	
+
 	return nil, fmt.Errorf("invalid Bech32 prefix encoding provided: %s", bechPrefix)
 }

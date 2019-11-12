@@ -2,23 +2,23 @@ package types
 
 import (
 	"encoding/json"
-	
+
 	cTypes "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/types"
 )
 
 type SubmitTraderFeedback struct {
-	TraderFeedback TraderFeedback `json:"traderFeedback"`
+	TraderFeedback types.TraderFeedback `json:"traderFeedback"`
 }
 
-func NewSubmitTraderFeedback(traderFeedback TraderFeedback) SubmitTraderFeedback {
+func NewSubmitTraderFeedback(traderFeedback types.TraderFeedback) SubmitTraderFeedback {
 	return SubmitTraderFeedback{TraderFeedback: traderFeedback}
 }
 
 func (submitTraderFeedback SubmitTraderFeedback) GetSignBytes() []byte {
 	bin, err := ModuleCdc.MarshalJSON(struct {
-		TraderFeedback TraderFeedback `json:"traderFeedback"`
+		TraderFeedback types.TraderFeedback `json:"traderFeedback"`
 	}{
 		TraderFeedback: submitTraderFeedback.TraderFeedback,
 	})
@@ -71,7 +71,7 @@ func (msg MsgBuyerFeedbacks) GetSignBytes() []byte {
 	for _, submitTraderFeedback := range msg.SubmitTraderFeedbacks {
 		submitTraderFeedbacks = append(submitTraderFeedbacks, submitTraderFeedback.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		SubmitTraderFeedbacks []json.RawMessage `json:"submitTraderFeedbacks"`
 	}{
@@ -93,8 +93,8 @@ func (msg MsgBuyerFeedbacks) GetSigners() []cTypes.AccAddress {
 
 func BuildBuyerFeedbackMsg(buyerAddress cTypes.AccAddress, sellerAddress cTypes.AccAddress,
 	pegHash types.PegHash, score int64) cTypes.Msg {
-	
-	traderFeedback := NewTraderFeedback(buyerAddress, sellerAddress, pegHash, score)
+
+	traderFeedback := types.NewTraderFeedback(buyerAddress, sellerAddress, pegHash, score)
 	submitTraderFeedback := NewSubmitTraderFeedback(traderFeedback)
 	msg := NewMsgBuyerFeedbacks([]SubmitTraderFeedback{submitTraderFeedback})
 	return &msg
@@ -130,7 +130,7 @@ func (msg MsgSellerFeedbacks) GetSignBytes() []byte {
 	for _, submitTraderFeedback := range msg.SubmitTraderFeedbacks {
 		submitTraderFeedbacks = append(submitTraderFeedbacks, submitTraderFeedback.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		SubmitTraderFeedbacks []json.RawMessage `json:"submitTraderFeedbacks"`
 	}{
@@ -152,7 +152,7 @@ func (msg MsgSellerFeedbacks) GetSigners() []cTypes.AccAddress {
 
 func BuildSellerFeedbackMsg(buyerAddress cTypes.AccAddress, sellerAddress cTypes.AccAddress,
 	pegHash types.PegHash, score int64) cTypes.Msg {
-	traderFeedback := NewTraderFeedback(buyerAddress, sellerAddress, pegHash, score)
+	traderFeedback := types.NewTraderFeedback(buyerAddress, sellerAddress, pegHash, score)
 	submitTraderFeedback := NewSubmitTraderFeedback(traderFeedback)
 	msg := NewMsgSellerFeedbacks([]SubmitTraderFeedback{submitTraderFeedback})
 	return &msg

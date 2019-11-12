@@ -114,7 +114,7 @@ var (
 	NewVote                       = types.NewVote
 	VoteOptionFromString          = types.VoteOptionFromString
 	ValidVoteOption               = types.ValidVoteOption
-	
+
 	// variable aliases
 	ModuleCdc                   = types.ModuleCdc
 	ProposalsKeyPrefix          = types.ProposalsKeyPrefix

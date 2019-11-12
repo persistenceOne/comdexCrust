@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	
+
 	"github.com/tendermint/go-amino"
 	cryptoAmino "github.com/tendermint/tendermint/crypto/encoding/amino"
 )
@@ -27,7 +27,7 @@ func MarshalJSONIndent(cdc *Codec, obj interface{}) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	var out bytes.Buffer
 	err = json.Indent(&out, bz, "", "  ")
 	if err != nil {
@@ -42,7 +42,7 @@ func MustMarshalJSONIndent(cdc *Codec, obj interface{}) []byte {
 	if err != nil {
 		panic(fmt.Sprintf("failed to marshal JSON: %s", err))
 	}
-	
+
 	return bz
 }
 

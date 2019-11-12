@@ -54,7 +54,7 @@ var (
 	NewQuerySigningInfoParams                = types.NewQuerySigningInfoParams
 	NewQuerySigningInfosParams               = types.NewQuerySigningInfosParams
 	NewValidatorSigningInfo                  = types.NewValidatorSigningInfo
-	
+
 	// variable aliases
 	ModuleCdc                       = types.ModuleCdc
 	ValidatorSigningInfoKey         = types.ValidatorSigningInfoKey

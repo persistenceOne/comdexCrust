@@ -2,9 +2,9 @@ package types
 
 import (
 	"fmt"
-	
+
 	cTypes "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/auth/exported"
 )
 
@@ -42,17 +42,17 @@ func (ar AccountRetriever) GetAccountWithHeight(addr cTypes.AccAddress) (exporte
 	if err != nil {
 		return nil, 0, err
 	}
-	
+
 	res, height, err := ar.querier.QueryWithData(fmt.Sprintf("custom/%s/%s", QuerierRoute, QueryAccount), bs)
 	if err != nil {
 		return nil, 0, err
 	}
-	
+
 	var account exported.Account
 	if err := ModuleCdc.UnmarshalJSON(res, &account); err != nil {
 		return nil, 0, err
 	}
-	
+
 	return account, height, nil
 }
 

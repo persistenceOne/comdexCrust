@@ -36,7 +36,7 @@ var (
 	DefaultGenesisState   = types.DefaultGenesisState
 	NewSupply             = types.NewSupply
 	DefaultSupply         = types.DefaultSupply
-	
+
 	// variable aliases
 	DefaultCodespace = keeper.DefaultCodespace
 	ModuleCdc        = types.ModuleCdc

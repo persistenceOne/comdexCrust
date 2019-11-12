@@ -2,24 +2,26 @@ package types
 
 import (
 	"encoding/json"
-	
+
 	cTypes "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 // ChangeBid - change negotiation bid
 type ChangeBid struct {
-	Negotiation Negotiation `json:"negotiation" valid:"required"`
+	Negotiation types.Negotiation `json:"negotiation" valid:"required"`
 }
 
 // NewChangeBid : initializer
-func NewChangeBid(negotiation Negotiation) ChangeBid {
+func NewChangeBid(negotiation types.Negotiation) ChangeBid {
 	return ChangeBid{negotiation}
 }
 
 // GetSignBytes : get bytes to sign
 func (in ChangeBid) GetSignBytes() []byte {
 	bin, err := ModuleCdc.MarshalJSON(struct {
-		Negotiation Negotiation `json:"negotiation"`
+		Negotiation types.Negotiation `json:"negotiation"`
 	}{
 		Negotiation: in.Negotiation,
 	})
@@ -76,7 +78,7 @@ func (msg MsgChangeBuyerBids) GetSignBytes() []byte {
 	for _, changeBid := range msg.ChangeBids {
 		changeBids = append(changeBids, changeBid.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		ChangeBids []json.RawMessage `json:"changeBids"`
 	}{
@@ -84,7 +86,7 @@ func (msg MsgChangeBuyerBids) GetSignBytes() []byte {
 	})
 	if err != nil {
 		panic(err)
-		
+
 	}
 	return b
 }
@@ -101,7 +103,7 @@ func (msg MsgChangeBuyerBids) GetSigners() []cTypes.AccAddress {
 func (msg MsgChangeBuyerBids) Route() string { return RouterKey }
 
 // BuildMsgChangeBuyerBid : build the MsgChangeBuyerBids
-func BuildMsgChangeBuyerBid(negotiation Negotiation) cTypes.Msg {
+func BuildMsgChangeBuyerBid(negotiation types.Negotiation) cTypes.Msg {
 	changeBid := NewChangeBid(negotiation)
 	msg := NewMsgChangeBuyerBids([]ChangeBid{changeBid})
 	return msg
@@ -141,7 +143,7 @@ func (msg MsgChangeSellerBids) GetSignBytes() []byte {
 	for _, changeBid := range msg.ChangeBids {
 		changeBids = append(changeBids, changeBid.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		ChangeBids []json.RawMessage `json:"changeBids"`
 	}{
@@ -167,7 +169,7 @@ func (msg MsgChangeSellerBids) Route() string {
 }
 
 // BuildMsgChangeSellerBid : build the MsgChangeSellerBids
-func BuildMsgChangeSellerBid(negotiation Negotiation) cTypes.Msg {
+func BuildMsgChangeSellerBid(negotiation types.Negotiation) cTypes.Msg {
 	changeBid := NewChangeBid(negotiation)
 	msg := NewMsgChangeSellerBids([]ChangeBid{changeBid})
 	return msg
@@ -175,18 +177,18 @@ func BuildMsgChangeSellerBid(negotiation Negotiation) cTypes.Msg {
 
 // ConfirmBid :
 type ConfirmBid struct {
-	Negotiation Negotiation `json:"negotiation" valid:"required"`
+	Negotiation types.Negotiation `json:"negotiation" valid:"required"`
 }
 
 // NewConfirmBid : initializer
-func NewConfirmBid(negotiation Negotiation) ConfirmBid {
+func NewConfirmBid(negotiation types.Negotiation) ConfirmBid {
 	return ConfirmBid{negotiation}
 }
 
 // GetSignBytes : get bytes to sign
 func (in ConfirmBid) GetSignBytes() []byte {
 	bin, err := ModuleCdc.MarshalJSON(struct {
-		Negotiation Negotiation `json:"negotiation"`
+		Negotiation types.Negotiation `json:"negotiation"`
 	}{
 		Negotiation: in.Negotiation,
 	})
@@ -243,7 +245,7 @@ func (msg MsgConfirmBuyerBids) GetSignBytes() []byte {
 	for _, confirmBid := range msg.ConfirmBids {
 		confirmBids = append(confirmBids, confirmBid.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		ConfirmBids []json.RawMessage `json:"confirmBids"`
 	}{
@@ -269,7 +271,7 @@ func (msg MsgConfirmBuyerBids) Route() string {
 }
 
 // BuildMsgConfirmBuyerBid : build the MsgConfirmBuyerBids
-func BuildMsgConfirmBuyerBid(negotiation Negotiation) cTypes.Msg {
+func BuildMsgConfirmBuyerBid(negotiation types.Negotiation) cTypes.Msg {
 	confirmBid := NewConfirmBid(negotiation)
 	msg := NewMsgConfirmBuyerBids([]ConfirmBid{confirmBid})
 	return msg
@@ -313,7 +315,7 @@ func (msg MsgConfirmSellerBids) GetSignBytes() []byte {
 	for _, confirmBid := range msg.ConfirmBids {
 		confirmBids = append(confirmBids, confirmBid.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		ConfirmBids []json.RawMessage `json:"confirmBids"`
 	}{
@@ -339,10 +341,39 @@ func (msg MsgConfirmSellerBids) Route() string {
 }
 
 // BuildMsgConfirmSellerBid : build the MsgConfirmBuyerBids
-func BuildMsgConfirmSellerBid(negotiation Negotiation) cTypes.Msg {
+func BuildMsgConfirmSellerBid(negotiation types.Negotiation) cTypes.Msg {
 	confirmBid := NewConfirmBid(negotiation)
 	msg := NewMsgConfirmSellerBids([]ConfirmBid{confirmBid})
 	return msg
+}
+
+// SignNegotiationBody :
+type SignNegotiationBody struct {
+	BuyerAddress  cTypes.AccAddress `json:"buyerAddress"`
+	SellerAddress cTypes.AccAddress `json:"sellerAddress"`
+	PegHash       types.PegHash     `json:"pegHash"`
+	Bid           int64             `json:"bid"`
+	Time          int64             `json:"time"`
+}
+
+// NewSignNegotiationBody :
+func NewSignNegotiationBody(buyerAddress, sellerAddress cTypes.AccAddress, peghash types.PegHash, bid, time int64) *SignNegotiationBody {
+	return &SignNegotiationBody{
+		BuyerAddress:  buyerAddress,
+		SellerAddress: sellerAddress,
+		PegHash:       peghash,
+		Bid:           bid,
+		Time:          time,
+	}
+}
+
+// GetSignBytes :
+func (bytes SignNegotiationBody) GetSignBytes() []byte {
+	bz, err := ModuleCdc.MarshalJSON(bytes)
+	if err != nil {
+		panic(err)
+	}
+	return bz
 }
 
 // #####MsgSellerBids

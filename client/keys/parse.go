@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
@@ -50,17 +50,17 @@ func newBech32Output(bs []byte) bech32Output {
 		}
 		out.Formats[i] = bech32Addr
 	}
-	
+
 	return out
 }
 
 func (bo bech32Output) String() string {
 	out := make([]string, len(bo.Formats))
-	
+
 	for i, format := range bo.Formats {
 		out[i] = fmt.Sprintf("  - %s", format)
 	}
-	
+
 	return fmt.Sprintf("Bech32 Formats:\n%s", strings.Join(out, "\n"))
 }
 
@@ -75,7 +75,7 @@ hexadecimal into bech32 cosmos prefixed format and vice versa.
 		RunE: parseKey,
 	}
 	cmd.Flags().Bool(flags.FlagIndentResponse, false, "Indent JSON output")
-	
+
 	return cmd
 }
 
@@ -113,24 +113,24 @@ func runFromHex(hexstr string) bool {
 func displayParseKeyInfo(stringer fmt.Stringer) {
 	var out []byte
 	var err error
-	
+
 	switch viper.Get(cli.OutputFlag) {
 	case OutputFormatText:
 		out, err = yaml.Marshal(&stringer)
-	
+
 	case OutputFormatJSON:
-		
+
 		if viper.GetBool(flags.FlagIndentResponse) {
 			out, err = cdc.MarshalJSONIndent(stringer, "", "  ")
 		} else {
 			out = cdc.MustMarshalJSON(stringer)
 		}
-		
+
 	}
-	
+
 	if err != nil {
 		panic(err)
 	}
-	
+
 	fmt.Println(string(out))
 }

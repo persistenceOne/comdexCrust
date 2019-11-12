@@ -9,7 +9,6 @@ import (
 	"github.com/gorilla/mux"
 
 	rest2 "github.com/commitHub/commitBlockchain/client/rest"
-	"github.com/commitHub/commitBlockchain/modules/negotiation"
 	"github.com/commitHub/commitBlockchain/modules/orders/internal/keeper"
 	orderTypes "github.com/commitHub/commitBlockchain/modules/orders/internal/types"
 	"github.com/commitHub/commitBlockchain/types"
@@ -19,7 +18,7 @@ func QueryOrderRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 
-		negotiationID, err := negotiation.GetNegotiationIDFromString(vars["negotiation-id"])
+		negotiationID, err := types.GetNegotiationIDFromString(vars["negotiation-id"])
 		if err != nil {
 			rest2.WriteErrorResponse(w, types.ErrNegotiationIDFromString(orderTypes.DefaultCodeSpace, vars["negotiation-id"]))
 			return
@@ -36,7 +35,7 @@ func QueryOrderRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		var order orderTypes.Order
+		var order types.Order
 		cliCtx.Codec.MustUnmarshalJSON(res, &order)
 
 		rest.PostProcessResponse(w, cliCtx, order)

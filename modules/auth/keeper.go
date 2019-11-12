@@ -2,11 +2,11 @@ package auth
 
 import (
 	"fmt"
-	
+
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/modules/auth/exported"
 	"github.com/commitHub/commitBlockchain/modules/auth/types"
@@ -18,13 +18,13 @@ import (
 type AccountKeeper struct {
 	// The (unexposed) key used to access the store from the Context.
 	key cTypes.StoreKey
-	
+
 	// The prototypical Account constructor.
 	proto func() exported.Account
-	
+
 	// The codec codec for binary encoding/decoding of accounts.
 	cdc *codec.Codec
-	
+
 	paramSubspace subspace.Subspace
 }
 
@@ -34,7 +34,7 @@ type AccountKeeper struct {
 func NewAccountKeeper(
 	cdc *codec.Codec, key cTypes.StoreKey, paramstore subspace.Subspace, proto func() exported.Account,
 ) AccountKeeper {
-	
+
 	return AccountKeeper{
 		key:           key,
 		proto:         proto,
@@ -162,10 +162,10 @@ func (ak AccountKeeper) GetNextAccountNumber(ctx cTypes.Context) uint64 {
 			panic(err)
 		}
 	}
-	
+
 	bz = ak.cdc.MustMarshalBinaryLengthPrefixed(accNumber + 1)
 	store.Set(types.GlobalAccountNumberKey, bz)
-	
+
 	return accNumber
 }
 
@@ -203,10 +203,10 @@ func (ak AccountKeeper) GetNextAssetPegHash(ctx cTypes.Context) int {
 	} else {
 		ak.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &assetNumber)
 	}
-	
+
 	bz = ak.cdc.MustMarshalBinaryLengthPrefixed(assetNumber + 1)
 	store.Set(types.AssetPegHashKey, bz)
-	
+
 	return assetNumber
 }
 
@@ -220,9 +220,9 @@ func (am AccountKeeper) GetNextFiatPegHash(ctx cTypes.Context) int {
 	} else {
 		am.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &fiatNumber)
 	}
-	
+
 	bz = am.cdc.MustMarshalBinaryLengthPrefixed(fiatNumber + 1)
 	store.Set(types.FiatPegHashKey, bz)
-	
+
 	return fiatNumber
 }

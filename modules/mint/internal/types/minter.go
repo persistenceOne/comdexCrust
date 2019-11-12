@@ -2,7 +2,7 @@ package types
 
 import (
 	"fmt"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -53,13 +53,13 @@ func (m Minter) NextInflationRate(params Params, bondedRatio sdk.Dec) sdk.Dec {
 	// the distance from the desired ratio (67%). The maximum rate change possible is
 	// defined to be 13% per year, however the annual inflation is capped as between
 	// 7% and 20%.
-	
+
 	// (1 - bondedRatio/GoalBonded) * InflationRateChange
 	inflationRateChangePerYear := sdk.OneDec().
 		Sub(bondedRatio.Quo(params.GoalBonded)).
 		Mul(params.InflationRateChange)
 	inflationRateChange := inflationRateChangePerYear.Quo(sdk.NewDec(int64(params.BlocksPerYear)))
-	
+
 	// adjust the new annual inflation for this next cycle
 	inflation := m.Inflation.Add(inflationRateChange) // note inflationRateChange may be negative
 	if inflation.GT(params.InflationMax) {
@@ -68,7 +68,7 @@ func (m Minter) NextInflationRate(params Params, bondedRatio sdk.Dec) sdk.Dec {
 	if inflation.LT(params.InflationMin) {
 		inflation = params.InflationMin
 	}
-	
+
 	return inflation
 }
 

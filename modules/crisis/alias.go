@@ -27,7 +27,7 @@ var (
 	ParamKeyTable         = types.ParamKeyTable
 	NewInvarRoute         = types.NewInvarRoute
 	NewKeeper             = keeper.NewKeeper
-	
+
 	// variable aliases
 	ModuleCdc                = types.ModuleCdc
 	ParamStoreKeyConstantFee = types.ParamStoreKeyConstantFee

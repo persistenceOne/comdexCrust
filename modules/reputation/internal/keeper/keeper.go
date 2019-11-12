@@ -1,11 +1,14 @@
 package keeper
 
 import (
+	"strconv"
+
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/modules/orders"
 	reputationTypes "github.com/commitHub/commitBlockchain/modules/reputation/internal/types"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 type Keeper struct {
@@ -26,27 +29,24 @@ func AccountStoreKey(addr cTypes.AccAddress) []byte {
 	return append([]byte("address:"), addr.Bytes()...)
 }
 
-func (k Keeper) encodeAccountReputation(accountReputation reputationTypes.AccountReputation) []byte {
-	bz, err := k.cdc.MarshalBinaryBare(accountReputation)
+func (k Keeper) encodeAccountReputation(accountReputation types.AccountReputation) []byte {
+	bz, err := k.cdc.MarshalBinaryLengthPrefixed(accountReputation)
 	if err != nil {
 		panic(err)
 	}
 	return bz
 }
 
-func (k Keeper) decodeAccountReputation(bz []byte) (accountReputation reputationTypes.AccountReputation) {
-	err := k.cdc.UnmarshalBinaryBare(bz, &accountReputation)
-	if err != nil {
-		panic(err)
-	}
+func (k Keeper) decodeAccountReputation(bz []byte) (accountReputation types.AccountReputation) {
+	k.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &accountReputation)
 	return
 }
 
-func (k Keeper) GetAccountReputation(ctx cTypes.Context, addr cTypes.AccAddress) reputationTypes.AccountReputation {
+func (k Keeper) GetAccountReputation(ctx cTypes.Context, addr cTypes.AccAddress) types.AccountReputation {
 	store := ctx.KVStore(k.key)
 	bz := store.Get(AccountStoreKey(addr))
 	if bz == nil {
-		accountReputation := reputationTypes.NewAccountReputation()
+		accountReputation := types.NewAccountReputation()
 		accountReputation.SetAddress(addr)
 		k.SetAccountReputation(ctx, accountReputation)
 		bz = store.Get(AccountStoreKey(addr))
@@ -55,14 +55,14 @@ func (k Keeper) GetAccountReputation(ctx cTypes.Context, addr cTypes.AccAddress)
 	return accountReputation
 }
 
-func (keeper Keeper) GetReputations(ctx cTypes.Context) []reputationTypes.AccountReputation {
-	var reputations []reputationTypes.AccountReputation
+func (keeper Keeper) GetReputations(ctx cTypes.Context) []types.BaseAccountReputation {
+	var reputations []types.BaseAccountReputation
 
 	store := ctx.KVStore(keeper.key)
 	iterator := cTypes.KVStorePrefixIterator(store, []byte("address:"))
 
 	for ; iterator.Valid(); iterator.Next() {
-		var reputation reputationTypes.AccountReputation
+		var reputation types.BaseAccountReputation
 
 		keeper.cdc.MustUnmarshalBinaryLengthPrefixed(iterator.Value(), &reputation)
 		reputations = append(reputations, reputation)
@@ -71,14 +71,14 @@ func (keeper Keeper) GetReputations(ctx cTypes.Context) []reputationTypes.Accoun
 	return reputations
 }
 
-func (k Keeper) SetAccountReputation(ctx cTypes.Context, accountReputation reputationTypes.AccountReputation) {
+func (k Keeper) SetAccountReputation(ctx cTypes.Context, accountReputation types.AccountReputation) {
 	addr := accountReputation.GetAddress()
 	store := ctx.KVStore(k.key)
 	bz := k.encodeAccountReputation(accountReputation)
 	store.Set(AccountStoreKey(addr), bz)
 }
 
-func (k Keeper) GetBaseReputationDetails(ctx cTypes.Context, addr cTypes.AccAddress) (cTypes.AccAddress, reputationTypes.TransactionFeedback, reputationTypes.TraderFeedbackHistory, int64) {
+func (k Keeper) GetBaseReputationDetails(ctx cTypes.Context, addr cTypes.AccAddress) (cTypes.AccAddress, types.TransactionFeedback, types.TraderFeedbackHistory, int64) {
 	accountReputation := k.GetAccountReputation(ctx, addr)
 	return accountReputation.GetAddress(), accountReputation.GetTransactionFeedback(), accountReputation.GetTraderFeedbackHistory(), accountReputation.GetRating()
 }
@@ -260,12 +260,70 @@ func (k Keeper) SetNegotiationNegativeTx(ctx cTypes.Context, addr cTypes.AccAddr
 	k.SetAccountReputation(ctx, accountReputation)
 }
 
-func (k Keeper) SetFeedback(ctx cTypes.Context, addr cTypes.AccAddress, traderFeedback reputationTypes.TraderFeedback) cTypes.Error {
+func (k Keeper) SetFeedback(ctx cTypes.Context, addr cTypes.AccAddress, traderFeedback types.TraderFeedback) cTypes.Error {
 	accountReputation := k.GetAccountReputation(ctx, addr)
 	err := accountReputation.AddTraderFeedback(traderFeedback)
 	if err != nil {
 		return err
 	}
 	k.SetAccountReputation(ctx, accountReputation)
+	return nil
+}
+
+func (k Keeper) SetBuyerRatingToFeedback(ctx cTypes.Context, msgFeedback reputationTypes.MsgBuyerFeedbacks) cTypes.Error {
+
+	for _, submitTraderFeedback := range msgFeedback.SubmitTraderFeedbacks {
+		traderFeedback := submitTraderFeedback.TraderFeedback
+
+		err, _, _, fiatProofHash, assetProofHash := k.OrderKeeper.GetOrderDetails(ctx, traderFeedback.BuyerAddress, traderFeedback.SellerAddress, traderFeedback.PegHash)
+
+		if fiatProofHash == "" || assetProofHash == "" {
+			return types.ErrFeedbackCannotRegister("you have not completed the transaction to give feedback")
+		}
+
+		err = k.SetFeedback(ctx, traderFeedback.SellerAddress, traderFeedback)
+		if err != nil {
+			return err
+		}
+
+		ctx.EventManager().EmitEvent(
+			cTypes.NewEvent(
+				reputationTypes.EventTypeSetBuyerRatingToFeedback,
+				cTypes.NewAttribute(reputationTypes.AttributeKeyFrom, traderFeedback.BuyerAddress.String()),
+				cTypes.NewAttribute(reputationTypes.AttributeKeyTo, traderFeedback.SellerAddress.String()),
+				cTypes.NewAttribute(reputationTypes.AttributeKeyPegHash, traderFeedback.PegHash.String()),
+				cTypes.NewAttribute(reputationTypes.AttributeKeyRating, strconv.FormatInt(traderFeedback.Rating, 10)),
+			))
+	}
+
+	return nil
+}
+
+func (k Keeper) SetSellerRatingToFeedback(ctx cTypes.Context, msgFeedback reputationTypes.MsgSellerFeedbacks) cTypes.Error {
+
+	for _, submitTraderFeedback := range msgFeedback.SubmitTraderFeedbacks {
+		traderFeedback := submitTraderFeedback.TraderFeedback
+
+		err, _, _, fiatProofHash, assetProofHash := k.OrderKeeper.GetOrderDetails(ctx, traderFeedback.BuyerAddress, traderFeedback.SellerAddress, traderFeedback.PegHash)
+
+		if fiatProofHash == "" || assetProofHash == "" {
+			return types.ErrFeedbackCannotRegister("you have not completed the transaction to give feedback")
+		}
+
+		err = k.SetFeedback(ctx, traderFeedback.BuyerAddress, traderFeedback)
+		if err != nil {
+			return err
+		}
+
+		ctx.EventManager().EmitEvent(
+			cTypes.NewEvent(
+				reputationTypes.EventTypeSetSellerRatingToFeedback,
+				cTypes.NewAttribute(reputationTypes.AttributeKeyFrom, traderFeedback.SellerAddress.String()),
+				cTypes.NewAttribute(reputationTypes.AttributeKeyTo, traderFeedback.BuyerAddress.String()),
+				cTypes.NewAttribute(reputationTypes.AttributeKeyPegHash, traderFeedback.PegHash.String()),
+				cTypes.NewAttribute(reputationTypes.AttributeKeyRating, strconv.FormatInt(traderFeedback.Rating, 10)),
+			))
+	}
+
 	return nil
 }

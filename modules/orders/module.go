@@ -12,7 +12,6 @@ import (
 
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/kafka"
-	"github.com/commitHub/commitBlockchain/modules/negotiation"
 	"github.com/commitHub/commitBlockchain/modules/orders/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/orders/client/rest"
 	"github.com/commitHub/commitBlockchain/types/module"
@@ -68,15 +67,13 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 
 type AppModule struct {
 	AppModuleBasic
-	keeper            Keeper
-	negotiationKeeper negotiation.Keeper
+	keeper Keeper
 }
 
-func NewAppModule(keeper Keeper, negotiationKeeper negotiation.Keeper) AppModule {
+func NewAppModule(keeper Keeper) AppModule {
 	return AppModule{
-		AppModuleBasic:    AppModuleBasic{},
-		keeper:            keeper,
-		negotiationKeeper: negotiationKeeper,
+		AppModuleBasic: AppModuleBasic{},
+		keeper:         keeper,
 	}
 }
 

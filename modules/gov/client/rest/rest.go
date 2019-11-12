@@ -4,13 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	
+
 	"github.com/gorilla/mux"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
-	
+
 	rest2 "github.com/commitHub/commitBlockchain/client/rest"
 	gcutils "github.com/commitHub/commitBlockchain/modules/gov/client/utils"
 	"github.com/commitHub/commitBlockchain/modules/gov/types"
@@ -40,16 +40,16 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, phs []ProposalREST
 	for _, ph := range phs {
 		propSubRtr.HandleFunc(fmt.Sprintf("/%s", ph.SubRoute), ph.Handler).Methods("POST")
 	}
-	
+
 	r.HandleFunc("/gov/proposals", postProposalHandlerFn(cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/gov/proposals/{%s}/deposits", RestProposalID), depositHandlerFn(cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/gov/proposals/{%s}/votes", RestProposalID), voteHandlerFn(cliCtx)).Methods("POST")
-	
+
 	r.HandleFunc(
 		fmt.Sprintf("/gov/parameters/{%s}", RestParamsType),
 		queryParamsHandlerFn(cliCtx),
 	).Methods("GET")
-	
+
 	r.HandleFunc("/gov/proposals", queryProposalsWithParameterFn(cliCtx)).Methods("GET")
 	r.HandleFunc(fmt.Sprintf("/gov/proposals/{%s}", RestProposalID), queryProposalHandlerFn(cliCtx)).Methods("GET")
 	r.HandleFunc(
@@ -99,30 +99,30 @@ func postProposalHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
 			return
 		}
-		
+
 		req.BaseReq = req.BaseReq.Sanitize()
 		if !req.BaseReq.ValidateBasic(w) {
 			return
 		}
-		
+
 		fromAddr, name, err := context.GetFromFields(req.BaseReq.From, false)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		cliCtx = cliCtx.WithFromAddress(fromAddr)
 		cliCtx = cliCtx.WithFromName(name)
-		
+
 		proposalType := gcutils.NormalizeProposalType(req.ProposalType)
 		content := types.ContentFromProposalType(req.Title, req.Description, proposalType)
-		
+
 		msg := types.NewMsgSubmitProposal(content, req.InitialDeposit, req.Proposer)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		rest2.SignAndBroadcast(req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
 	}
 }
@@ -131,44 +131,44 @@ func depositHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		strProposalID := vars[RestProposalID]
-		
+
 		if len(strProposalID) == 0 {
 			err := errors.New("proposalId required but not specified")
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		proposalID, ok := rest.ParseUint64OrReturnBadRequest(w, strProposalID)
 		if !ok {
 			return
 		}
-		
+
 		var req DepositReq
 		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
 			return
 		}
-		
+
 		req.BaseReq = req.BaseReq.Sanitize()
 		if !req.BaseReq.ValidateBasic(w) {
 			return
 		}
-		
+
 		fromAddr, name, err := context.GetFromFields(req.BaseReq.From, false)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		cliCtx = cliCtx.WithFromAddress(fromAddr)
 		cliCtx = cliCtx.WithFromName(name)
-		
+
 		// create the message
 		msg := types.NewMsgDeposit(req.Depositor, proposalID, req.Amount)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		rest2.SignAndBroadcast(req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
 	}
 }
@@ -177,50 +177,50 @@ func voteHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		strProposalID := vars[RestProposalID]
-		
+
 		if len(strProposalID) == 0 {
 			err := errors.New("proposalId required but not specified")
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		proposalID, ok := rest.ParseUint64OrReturnBadRequest(w, strProposalID)
 		if !ok {
 			return
 		}
-		
+
 		var req VoteReq
 		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
 			return
 		}
-		
+
 		req.BaseReq = req.BaseReq.Sanitize()
 		if !req.BaseReq.ValidateBasic(w) {
 			return
 		}
-		
+
 		fromAddr, name, err := context.GetFromFields(req.BaseReq.From, false)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		cliCtx = cliCtx.WithFromAddress(fromAddr)
 		cliCtx = cliCtx.WithFromName(name)
-		
+
 		voteOption, err := types.VoteOptionFromString(gcutils.NormalizeVoteOption(req.Option))
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		// create the message
 		msg := types.NewMsgVote(req.Voter, proposalID, voteOption)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		rest2.SignAndBroadcast(req.BaseReq, cliCtx, req.Mode, req.Password, []sdk.Msg{msg})
 	}
 }
@@ -229,18 +229,18 @@ func queryParamsHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		paramType := vars[RestParamsType]
-		
+
 		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
 		if !ok {
 			return
 		}
-		
+
 		res, height, err := cliCtx.QueryWithData(fmt.Sprintf("custom/gov/%s/%s", types.QueryParams, paramType), nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
-		
+
 		cliCtx = cliCtx.WithHeight(height)
 		rest.PostProcessResponse(w, cliCtx, res)
 	}
@@ -250,37 +250,37 @@ func queryProposalHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		strProposalID := vars[RestProposalID]
-		
+
 		if len(strProposalID) == 0 {
 			err := errors.New("proposalId required but not specified")
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		proposalID, ok := rest.ParseUint64OrReturnBadRequest(w, strProposalID)
 		if !ok {
 			return
 		}
-		
+
 		cliCtx, ok = rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
 		if !ok {
 			return
 		}
-		
+
 		params := types.NewQueryProposalParams(proposalID)
-		
+
 		bz, err := cliCtx.Codec.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		res, height, err := cliCtx.QueryWithData("custom/gov/proposal", bz)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		cliCtx = cliCtx.WithHeight(height)
 		rest.PostProcessResponse(w, cliCtx, res)
 	}
@@ -290,37 +290,37 @@ func queryDepositsHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		strProposalID := vars[RestProposalID]
-		
+
 		proposalID, ok := rest.ParseUint64OrReturnBadRequest(w, strProposalID)
 		if !ok {
 			return
 		}
-		
+
 		cliCtx, ok = rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
 		if !ok {
 			return
 		}
-		
+
 		params := types.NewQueryProposalParams(proposalID)
-		
+
 		bz, err := cliCtx.Codec.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		res, _, err := cliCtx.QueryWithData("custom/gov/proposal", bz)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		var proposal types.Proposal
 		if err := cliCtx.Codec.UnmarshalJSON(res, &proposal); err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		// For inactive proposals we must query the txs directly to get the deposits
 		// as they're no longer in state.
 		propStatus := proposal.Status
@@ -329,12 +329,12 @@ func queryDepositsHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 		} else {
 			res, _, err = cliCtx.QueryWithData("custom/gov/deposits", bz)
 		}
-		
+
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		rest.PostProcessResponse(w, cliCtx, res)
 	}
 }
@@ -343,23 +343,23 @@ func queryProposerHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		strProposalID := vars[RestProposalID]
-		
+
 		proposalID, ok := rest.ParseUint64OrReturnBadRequest(w, strProposalID)
 		if !ok {
 			return
 		}
-		
+
 		cliCtx, ok = rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
 		if !ok {
 			return
 		}
-		
+
 		res, err := gcutils.QueryProposerByTxQuery(cliCtx, proposalID)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		rest.PostProcessResponse(w, cliCtx, res)
 	}
 }
@@ -369,55 +369,55 @@ func queryDepositHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 		vars := mux.Vars(r)
 		strProposalID := vars[RestProposalID]
 		bechDepositorAddr := vars[RestDepositor]
-		
+
 		if len(strProposalID) == 0 {
 			err := errors.New("proposalId required but not specified")
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		proposalID, ok := rest.ParseUint64OrReturnBadRequest(w, strProposalID)
 		if !ok {
 			return
 		}
-		
+
 		if len(bechDepositorAddr) == 0 {
 			err := errors.New("depositor address required but not specified")
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		depositorAddr, err := sdk.AccAddressFromBech32(bechDepositorAddr)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		cliCtx, ok = rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
 		if !ok {
 			return
 		}
-		
+
 		params := types.NewQueryDepositParams(proposalID, depositorAddr)
-		
+
 		bz, err := cliCtx.Codec.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		res, _, err := cliCtx.QueryWithData("custom/gov/deposit", bz)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		var deposit types.Deposit
 		if err := cliCtx.Codec.UnmarshalJSON(res, &deposit); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		// For an empty deposit, either the proposal does not exist or is inactive in
 		// which case the deposit would be removed from state and should be queried
 		// for directly via a txs query.
@@ -427,21 +427,21 @@ func queryDepositHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 				rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 				return
 			}
-			
+
 			res, _, err = cliCtx.QueryWithData("custom/gov/proposal", bz)
 			if err != nil || len(res) == 0 {
 				err := fmt.Errorf("proposalID %d does not exist", proposalID)
 				rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 				return
 			}
-			
+
 			res, err = gcutils.QueryDepositByTxQuery(cliCtx, params)
 			if err != nil {
 				rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}
 		}
-		
+
 		rest.PostProcessResponse(w, cliCtx, res)
 	}
 }
@@ -451,55 +451,55 @@ func queryVoteHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 		vars := mux.Vars(r)
 		strProposalID := vars[RestProposalID]
 		bechVoterAddr := vars[RestVoter]
-		
+
 		if len(strProposalID) == 0 {
 			err := errors.New("proposalId required but not specified")
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		proposalID, ok := rest.ParseUint64OrReturnBadRequest(w, strProposalID)
 		if !ok {
 			return
 		}
-		
+
 		if len(bechVoterAddr) == 0 {
 			err := errors.New("voter address required but not specified")
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		voterAddr, err := sdk.AccAddressFromBech32(bechVoterAddr)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		cliCtx, ok = rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
 		if !ok {
 			return
 		}
-		
+
 		params := types.NewQueryVoteParams(proposalID, voterAddr)
-		
+
 		bz, err := cliCtx.Codec.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		res, _, err := cliCtx.QueryWithData("custom/gov/vote", bz)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		var vote types.Vote
 		if err := cliCtx.Codec.UnmarshalJSON(res, &vote); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		// For an empty vote, either the proposal does not exist or is inactive in
 		// which case the vote would be removed from state and should be queried for
 		// directly via a txs query.
@@ -509,21 +509,21 @@ func queryVoteHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 				rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 				return
 			}
-			
+
 			res, _, err = cliCtx.QueryWithData("custom/gov/proposal", bz)
 			if err != nil || len(res) == 0 {
 				err := fmt.Errorf("proposalID %d does not exist", proposalID)
 				rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 				return
 			}
-			
+
 			res, err = gcutils.QueryVoteByTxQuery(cliCtx, params)
 			if err != nil {
 				rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}
 		}
-		
+
 		rest.PostProcessResponse(w, cliCtx, res)
 	}
 }
@@ -533,43 +533,43 @@ func queryVotesOnProposalHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		strProposalID := vars[RestProposalID]
-		
+
 		if len(strProposalID) == 0 {
 			err := errors.New("proposalId required but not specified")
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		proposalID, ok := rest.ParseUint64OrReturnBadRequest(w, strProposalID)
 		if !ok {
 			return
 		}
-		
+
 		cliCtx, ok = rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
 		if !ok {
 			return
 		}
-		
+
 		params := types.NewQueryProposalParams(proposalID)
-		
+
 		bz, err := cliCtx.Codec.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		res, _, err := cliCtx.QueryWithData("custom/gov/proposal", bz)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		var proposal types.Proposal
 		if err := cliCtx.Codec.UnmarshalJSON(res, &proposal); err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		// For inactive proposals we must query the txs directly to get the votes
 		// as they're no longer in state.
 		propStatus := proposal.Status
@@ -578,12 +578,12 @@ func queryVotesOnProposalHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 		} else {
 			res, _, err = cliCtx.QueryWithData("custom/gov/votes", bz)
 		}
-		
+
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		rest.PostProcessResponse(w, cliCtx, res)
 	}
 }
@@ -595,9 +595,9 @@ func queryProposalsWithParameterFn(cliCtx context.CLIContext) http.HandlerFunc {
 		bechDepositorAddr := r.URL.Query().Get(RestDepositor)
 		strProposalStatus := r.URL.Query().Get(RestProposalStatus)
 		strNumLimit := r.URL.Query().Get(RestNumLimit)
-		
+
 		params := types.QueryProposalsParams{}
-		
+
 		if len(bechVoterAddr) != 0 {
 			voterAddr, err := sdk.AccAddressFromBech32(bechVoterAddr)
 			if err != nil {
@@ -606,7 +606,7 @@ func queryProposalsWithParameterFn(cliCtx context.CLIContext) http.HandlerFunc {
 			}
 			params.Voter = voterAddr
 		}
-		
+
 		if len(bechDepositorAddr) != 0 {
 			depositorAddr, err := sdk.AccAddressFromBech32(bechDepositorAddr)
 			if err != nil {
@@ -615,7 +615,7 @@ func queryProposalsWithParameterFn(cliCtx context.CLIContext) http.HandlerFunc {
 			}
 			params.Depositor = depositorAddr
 		}
-		
+
 		if len(strProposalStatus) != 0 {
 			proposalStatus, err := types.ProposalStatusFromString(gcutils.NormalizeProposalStatus(strProposalStatus))
 			if err != nil {
@@ -631,24 +631,24 @@ func queryProposalsWithParameterFn(cliCtx context.CLIContext) http.HandlerFunc {
 			}
 			params.Limit = numLimit
 		}
-		
+
 		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
 		if !ok {
 			return
 		}
-		
+
 		bz, err := cliCtx.Codec.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		res, height, err := cliCtx.QueryWithData("custom/gov/proposals", bz)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		cliCtx = cliCtx.WithHeight(height)
 		rest.PostProcessResponse(w, cliCtx, res)
 	}
@@ -659,37 +659,37 @@ func queryTallyOnProposalHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		strProposalID := vars[RestProposalID]
-		
+
 		if len(strProposalID) == 0 {
 			err := errors.New("proposalId required but not specified")
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		proposalID, ok := rest.ParseUint64OrReturnBadRequest(w, strProposalID)
 		if !ok {
 			return
 		}
-		
+
 		cliCtx, ok = rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
 		if !ok {
 			return
 		}
-		
+
 		params := types.NewQueryProposalParams(proposalID)
-		
+
 		bz, err := cliCtx.Codec.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		res, height, err := cliCtx.QueryWithData("custom/gov/tally", bz)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		cliCtx = cliCtx.WithHeight(height)
 		rest.PostProcessResponse(w, cliCtx, res)
 	}

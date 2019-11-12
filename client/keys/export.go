@@ -2,7 +2,7 @@ package keys
 
 import (
 	"bufio"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/spf13/cobra"
 )
@@ -23,7 +23,7 @@ func runExportCmd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	buf := bufio.NewReader(cmd.InOrStdin())
 	decryptPassword, err := input.GetPassword("Enter passphrase to decrypt your key:", buf)
 	if err != nil {
@@ -33,12 +33,12 @@ func runExportCmd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	armored, err := kb.ExportPrivKey(args[0], decryptPassword, encryptPassword)
 	if err != nil {
 		return err
 	}
-	
+
 	cmd.Println(armored)
 	return nil
 }

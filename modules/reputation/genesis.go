@@ -6,7 +6,7 @@ import (
 
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 	for _, reputation := range data.Reputations {
-		keeper.SetAccountReputation(ctx, reputation)
+		keeper.SetAccountReputation(ctx, &reputation)
 	}
 }
 

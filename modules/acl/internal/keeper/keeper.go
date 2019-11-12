@@ -157,14 +157,14 @@ func (keeper Keeper) GetACLAccount(ctx cTypes.Context, address cTypes.AccAddress
 	return acl, nil
 }
 
-func (keeper Keeper) GetACLAccounts(ctx cTypes.Context) []aclTypes.ACLAccount {
-	var accounts []aclTypes.ACLAccount
+func (keeper Keeper) GetACLAccounts(ctx cTypes.Context) []aclTypes.BaseACLAccount {
+	var accounts []aclTypes.BaseACLAccount
 
 	store := ctx.KVStore(keeper.storeKey)
 	iterator := cTypes.KVStorePrefixIterator(store, aclTypes.ACLKey)
 
 	for ; iterator.Valid(); iterator.Next() {
-		var account aclTypes.ACLAccount
+		var account aclTypes.BaseACLAccount
 
 		keeper.cdc.MustUnmarshalBinaryLengthPrefixed(iterator.Value(), &account)
 		accounts = append(accounts, account)

@@ -5,10 +5,10 @@ import (
 	"reflect"
 	"strconv"
 	"time"
-	
+
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/libs/log"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/acl"
 	"github.com/commitHub/commitBlockchain/modules/auth/exported"
 	bankTypes "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
@@ -25,7 +25,7 @@ var _ Keeper = (*BaseKeeper)(nil)
 // between accounts.
 type Keeper interface {
 	SendKeeper
-	
+
 	DelegateCoins(ctx cTypes.Context, delegatorAddr, moduleAccAddr cTypes.AccAddress, amt cTypes.Coins) cTypes.Error
 	UndelegateCoins(ctx cTypes.Context, moduleAccAddr, delegatorAddr cTypes.AccAddress, amt cTypes.Coins) cTypes.Error
 }
@@ -33,7 +33,7 @@ type Keeper interface {
 // BaseKeeper manages transfers between accounts. It implements the Keeper interface.
 type BaseKeeper struct {
 	BaseSendKeeper
-	
+
 	ak         bankTypes.AccountKeeper
 	paramSpace params.Subspace
 }
@@ -41,7 +41,7 @@ type BaseKeeper struct {
 // NewBaseKeeper returns a new BaseKeeper
 func NewBaseKeeper(ak bankTypes.AccountKeeper, nk negotiation.Keeper, aclK acl.Keeper, orderKeeper orders.Keeper,
 	rk reputation.Keeper, paramSpace params.Subspace, codespace cTypes.CodespaceType) BaseKeeper {
-	
+
 	ps := paramSpace.WithKeyTable(bankTypes.ParamKeyTable())
 	return BaseKeeper{
 		BaseSendKeeper: NewBaseSendKeeper(ak, nk, aclK, orderKeeper, rk, ps, codespace),
@@ -56,41 +56,41 @@ func NewBaseKeeper(ak bankTypes.AccountKeeper, nk negotiation.Keeper, aclK acl.K
 // The coins are then transferred from the delegator address to a ModuleAccount address.
 // If any of the delegation amounts are negative, an error is returned.
 func (keeper BaseKeeper) DelegateCoins(ctx cTypes.Context, delegatorAddr, moduleAccAddr cTypes.AccAddress, amt cTypes.Coins) cTypes.Error {
-	
+
 	delegatorAcc := keeper.ak.GetAccount(ctx, delegatorAddr)
 	if delegatorAcc == nil {
 		return cTypes.ErrUnknownAddress(fmt.Sprintf("account %s does not exist", delegatorAddr))
 	}
-	
+
 	moduleAcc := keeper.ak.GetAccount(ctx, moduleAccAddr)
 	if moduleAcc == nil {
 		return cTypes.ErrUnknownAddress(fmt.Sprintf("module account %s does not exist", moduleAccAddr))
 	}
-	
+
 	if !amt.IsValid() {
 		return cTypes.ErrInvalidCoins(amt.String())
 	}
-	
+
 	oldCoins := delegatorAcc.GetCoins()
-	
+
 	_, hasNeg := oldCoins.SafeSub(amt)
 	if hasNeg {
 		return cTypes.ErrInsufficientCoins(
 			fmt.Sprintf("insufficient account funds; %s < %s", oldCoins, amt),
 		)
 	}
-	
+
 	if err := trackDelegation(delegatorAcc, ctx.BlockHeader().Time, amt); err != nil {
 		return cTypes.ErrInternal(fmt.Sprintf("failed to track delegation: %v", err))
 	}
-	
+
 	keeper.ak.SetAccount(ctx, delegatorAcc)
-	
+
 	_, err := keeper.AddCoins(ctx, moduleAccAddr, amt)
 	if err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
@@ -100,39 +100,39 @@ func (keeper BaseKeeper) DelegateCoins(ctx cTypes.Context, delegatorAddr, module
 // The coins are then transferred from a ModuleAccount address to the delegator address.
 // If any of the undelegation amounts are negative, an error is returned.
 func (keeper BaseKeeper) UndelegateCoins(ctx cTypes.Context, moduleAccAddr, delegatorAddr cTypes.AccAddress, amt cTypes.Coins) cTypes.Error {
-	
+
 	delegatorAcc := keeper.ak.GetAccount(ctx, delegatorAddr)
 	if delegatorAcc == nil {
 		return cTypes.ErrUnknownAddress(fmt.Sprintf("account %s does not exist", delegatorAddr))
 	}
-	
+
 	moduleAcc := keeper.ak.GetAccount(ctx, moduleAccAddr)
 	if moduleAcc == nil {
 		return cTypes.ErrUnknownAddress(fmt.Sprintf("module account %s does not exist", moduleAccAddr))
 	}
-	
+
 	if !amt.IsValid() {
 		return cTypes.ErrInvalidCoins(amt.String())
 	}
-	
+
 	oldCoins := moduleAcc.GetCoins()
-	
+
 	newCoins, hasNeg := oldCoins.SafeSub(amt)
 	if hasNeg {
 		return cTypes.ErrInsufficientCoins(
 			fmt.Sprintf("insufficient account funds; %s < %s", oldCoins, amt),
 		)
 	}
-	
+
 	err := keeper.SetCoins(ctx, moduleAccAddr, newCoins)
 	if err != nil {
 		return err
 	}
-	
+
 	if err := trackUndelegation(delegatorAcc, amt); err != nil {
 		return cTypes.ErrInternal(fmt.Sprintf("failed to track undelegation: %v", err))
 	}
-	
+
 	keeper.ak.SetAccount(ctx, delegatorAcc)
 	return nil
 }
@@ -141,29 +141,29 @@ func (keeper BaseKeeper) UndelegateCoins(ctx cTypes.Context, moduleAccAddr, dele
 // between accounts without the possibility of creating coins.
 type SendKeeper interface {
 	ViewKeeper
-	
+
 	InputOutputCoins(ctx cTypes.Context, inputs []bankTypes.Input, outputs []bankTypes.Output) cTypes.Error
 	SendCoins(ctx cTypes.Context, fromAddr cTypes.AccAddress, toAddr cTypes.AccAddress, amt cTypes.Coins) cTypes.Error
-	
+
 	SubtractCoins(ctx cTypes.Context, addr cTypes.AccAddress, amt cTypes.Coins) (cTypes.Coins, cTypes.Error)
 	AddCoins(ctx cTypes.Context, addr cTypes.AccAddress, amt cTypes.Coins) (cTypes.Coins, cTypes.Error)
 	SetCoins(ctx cTypes.Context, addr cTypes.AccAddress, amt cTypes.Coins) cTypes.Error
-	
+
 	GetSendEnabled(ctx cTypes.Context) bool
 	SetSendEnabled(ctx cTypes.Context, enabled bool)
-	
+
 	IssueAssetsToWallets(ctx cTypes.Context, issueAsset bankTypes.IssueAsset) cTypes.Error
 	IssueFiatsToWallets(ctx cTypes.Context, issueFiat bankTypes.IssueFiat) cTypes.Error
-	
+
 	RedeemAssetsFromWallets(ctx cTypes.Context, redeemAsset bankTypes.RedeemAsset) cTypes.Error
 	RedeemFiatsFromWallets(ctx cTypes.Context, redeemFiat bankTypes.RedeemFiat) cTypes.Error
-	
+
 	SendAssetsToWallets(ctx cTypes.Context, sendAsset bankTypes.SendAsset) cTypes.Error
 	SendFiatsToWallets(ctx cTypes.Context, sendFiat bankTypes.SendFiat) cTypes.Error
-	
+
 	BuyerExecuteTradeOrder(ctx cTypes.Context, buyerExecuteOrder bankTypes.BuyerExecuteOrder) (cTypes.Error, []types.FiatPegWallet)
 	SellerExecuteTradeOrder(ctx cTypes.Context, sellerExecuteOrder bankTypes.SellerExecuteOrder) (cTypes.Error, []types.AssetPegWallet)
-	
+
 	ReleaseLockedAssets(ctx cTypes.Context, releaseAsset bankTypes.ReleaseAsset) cTypes.Error
 	DefineZones(ctx cTypes.Context, defineZone bankTypes.DefineZone) cTypes.Error
 	DefineOrganizations(ctx cTypes.Context, defineOrganization bankTypes.DefineOrganization) cTypes.Error
@@ -176,7 +176,7 @@ var _ SendKeeper = (*BaseSendKeeper)(nil)
 // creating coins. It implements the SendKeeper interface.
 type BaseSendKeeper struct {
 	BaseViewKeeper
-	
+
 	ak               bankTypes.AccountKeeper
 	nk               negotiation.Keeper
 	aclKeeper        acl.Keeper
@@ -188,7 +188,7 @@ type BaseSendKeeper struct {
 // NewBaseSendKeeper returns a new BaseSendKeeper.
 func NewBaseSendKeeper(ak bankTypes.AccountKeeper, nk negotiation.Keeper, aclK acl.Keeper, orderKeeper orders.Keeper,
 	rk reputation.Keeper, paramSpace params.Subspace, codespace cTypes.CodespaceType) BaseSendKeeper {
-	
+
 	return BaseSendKeeper{
 		BaseViewKeeper:   NewBaseViewKeeper(ak, codespace),
 		ak:               ak,
@@ -207,13 +207,13 @@ func (keeper BaseSendKeeper) InputOutputCoins(ctx cTypes.Context, inputs []bankT
 	if err := bankTypes.ValidateInputsOutputs(inputs, outputs); err != nil {
 		return err
 	}
-	
+
 	for _, in := range inputs {
 		_, err := keeper.SubtractCoins(ctx, in.Address, in.Coins)
 		if err != nil {
 			return err
 		}
-		
+
 		ctx.EventManager().EmitEvent(
 			cTypes.NewEvent(
 				cTypes.EventTypeMessage,
@@ -221,13 +221,13 @@ func (keeper BaseSendKeeper) InputOutputCoins(ctx cTypes.Context, inputs []bankT
 			),
 		)
 	}
-	
+
 	for _, out := range outputs {
 		_, err := keeper.AddCoins(ctx, out.Address, out.Coins)
 		if err != nil {
 			return err
 		}
-		
+
 		ctx.EventManager().EmitEvent(
 			cTypes.NewEvent(
 				bankTypes.EventTypeTransfer,
@@ -235,23 +235,23 @@ func (keeper BaseSendKeeper) InputOutputCoins(ctx cTypes.Context, inputs []bankT
 			),
 		)
 	}
-	
+
 	return nil
 }
 
 // SendCoins moves coins from one account to another
 func (keeper BaseSendKeeper) SendCoins(ctx cTypes.Context, fromAddr cTypes.AccAddress, toAddr cTypes.AccAddress, amt cTypes.Coins) cTypes.Error {
-	
+
 	_, err := keeper.SubtractCoins(ctx, fromAddr, amt)
 	if err != nil {
 		return err
 	}
-	
+
 	_, err = keeper.AddCoins(ctx, toAddr, amt)
 	if err != nil {
 		return err
 	}
-	
+
 	ctx.EventManager().EmitEvents(cTypes.Events{
 		cTypes.NewEvent(
 			bankTypes.EventTypeTransfer,
@@ -262,7 +262,7 @@ func (keeper BaseSendKeeper) SendCoins(ctx cTypes.Context, fromAddr cTypes.AccAd
 			cTypes.NewAttribute(bankTypes.AttributeKeySender, fromAddr.String()),
 		),
 	})
-	
+
 	return nil
 }
 
@@ -270,19 +270,19 @@ func (keeper BaseSendKeeper) SendCoins(ctx cTypes.Context, fromAddr cTypes.AccAd
 //
 // CONTRACT: If the account is a vesting account, the amount has to be spendable.
 func (keeper BaseSendKeeper) SubtractCoins(ctx cTypes.Context, addr cTypes.AccAddress, amt cTypes.Coins) (cTypes.Coins, cTypes.Error) {
-	
+
 	if !amt.IsValid() {
 		return nil, cTypes.ErrInvalidCoins(amt.String())
 	}
-	
+
 	oldCoins, spendableCoins := cTypes.NewCoins(), cTypes.NewCoins()
-	
+
 	acc := keeper.ak.GetAccount(ctx, addr)
 	if acc != nil {
 		oldCoins = acc.GetCoins()
 		spendableCoins = acc.SpendableCoins(ctx.BlockHeader().Time)
 	}
-	
+
 	// For non-vesting accounts, spendable coins will simply be the original coins.
 	// So the check here is sufficient instead of subtracting from oldCoins.
 	_, hasNeg := spendableCoins.SafeSub(amt)
@@ -291,50 +291,50 @@ func (keeper BaseSendKeeper) SubtractCoins(ctx cTypes.Context, addr cTypes.AccAd
 			fmt.Sprintf("insufficient account funds; %s < %s", spendableCoins, amt),
 		)
 	}
-	
+
 	newCoins := oldCoins.Sub(amt) // should not panic as spendable coins was already checked
 	err := keeper.SetCoins(ctx, addr, newCoins)
-	
+
 	return newCoins, err
 }
 
 // AddCoins adds amt to the coins at the addr.
 func (keeper BaseSendKeeper) AddCoins(ctx cTypes.Context, addr cTypes.AccAddress, amt cTypes.Coins) (cTypes.Coins, cTypes.Error) {
-	
+
 	if !amt.IsValid() {
 		return nil, cTypes.ErrInvalidCoins(amt.String())
 	}
-	
+
 	oldCoins := keeper.GetCoins(ctx, addr)
 	newCoins := oldCoins.Add(amt)
-	
+
 	if newCoins.IsAnyNegative() {
 		return amt, cTypes.ErrInsufficientCoins(
 			fmt.Sprintf("insufficient account funds; %s < %s", oldCoins, amt),
 		)
 	}
-	
+
 	err := keeper.SetCoins(ctx, addr, newCoins)
 	return newCoins, err
 }
 
 // SetCoins sets the coins at the addr.
 func (keeper BaseSendKeeper) SetCoins(ctx cTypes.Context, addr cTypes.AccAddress, amt cTypes.Coins) cTypes.Error {
-	
+
 	if !amt.IsValid() {
 		return cTypes.ErrInvalidCoins(amt.String())
 	}
-	
+
 	acc := keeper.ak.GetAccount(ctx, addr)
 	if acc == nil {
 		acc = keeper.ak.NewAccountWithAddress(ctx, addr)
 	}
-	
+
 	err := acc.SetCoins(amt)
 	if err != nil {
 		panic(err)
 	}
-	
+
 	keeper.ak.SetAccount(ctx, acc)
 	return nil
 }
@@ -359,7 +359,7 @@ var _ ViewKeeper = (*BaseViewKeeper)(nil)
 type ViewKeeper interface {
 	GetCoins(ctx cTypes.Context, addr cTypes.AccAddress) cTypes.Coins
 	HasCoins(ctx cTypes.Context, addr cTypes.AccAddress, amt cTypes.Coins) bool
-	
+
 	Codespace() cTypes.CodespaceType
 }
 
@@ -406,7 +406,7 @@ func trackDelegation(acc exported.Account, blockTime time.Time, amt cTypes.Coins
 		vacc.TrackDelegation(blockTime, amt)
 		return nil
 	}
-	
+
 	return acc.SetCoins(acc.GetCoins().Sub(amt))
 }
 
@@ -418,7 +418,7 @@ func trackUndelegation(acc exported.Account, amt cTypes.Coins) error {
 		vacc.TrackUndelegation(amt)
 		return nil
 	}
-	
+
 	return acc.SetCoins(acc.GetCoins().Add(amt))
 }
 
@@ -463,7 +463,7 @@ func setFiatWallet(ctx cTypes.Context, keeper BaseSendKeeper, addr cTypes.AccAdd
 func (keeper BaseSendKeeper) IssueAssetsToWallets(ctx cTypes.Context, issueAsset bankTypes.IssueAsset) cTypes.Error {
 	var _acl acl.ACL
 	var err cTypes.Error
-	
+
 	moderated := issueAsset.AssetPeg.GetModerated()
 	if moderated {
 		_acl, err = keeper.aclKeeper.CheckZoneAndGetACL(ctx, issueAsset.IssuerAddress, issueAsset.ToAddress)
@@ -484,9 +484,9 @@ func (keeper BaseSendKeeper) IssueAssetsToWallets(ctx cTypes.Context, issueAsset
 	if err != nil {
 		return nil
 	}
-	
+
 	return nil
-	
+
 }
 
 func instantiateAndAssignAsset(ctx cTypes.Context, issuerAddress cTypes.AccAddress, toAddress cTypes.AccAddress, assetPeg types.AssetPeg, keeper BaseSendKeeper) cTypes.Error {
@@ -496,7 +496,7 @@ func instantiateAndAssignAsset(ctx cTypes.Context, issuerAddress cTypes.AccAddre
 	receiverAssetPegWallet := getAssetWallet(ctx, keeper, toAddress)
 	receiverAssetPegWallet = types.AddAssetPegToWallet(assetPeg, receiverAssetPegWallet)
 	_ = setAssetWallet(ctx, keeper, toAddress, receiverAssetPegWallet)
-	
+
 	ctx.EventManager().EmitEvent(
 		cTypes.NewEvent(
 			bankTypes.EventTypeIssueAsset,
@@ -512,11 +512,11 @@ func (keeper BaseSendKeeper) IssueFiatsToWallets(ctx cTypes.Context, issueFiat b
 	if err != nil {
 		return err
 	}
-	
+
 	if !_acl.IssueFiat {
 		return cTypes.ErrInternal(fmt.Sprintf("Fiats can't be issued to account %v.", issueFiat.ToAddress.String()))
 	}
-	
+
 	err = instantiateAndAssignFiat(ctx, keeper, issueFiat.IssuerAddress, issueFiat.ToAddress, issueFiat.FiatPeg)
 	if err != nil {
 		return err
@@ -526,14 +526,14 @@ func (keeper BaseSendKeeper) IssueFiatsToWallets(ctx cTypes.Context, issueFiat b
 
 func instantiateAndAssignFiat(ctx cTypes.Context, keeper BaseSendKeeper, issuerAddress cTypes.AccAddress,
 	toAddress cTypes.AccAddress, fiatPeg types.FiatPeg) cTypes.Error {
-	
+
 	pegHash, _ := types.GetFiatPegHashHex(fmt.Sprintf("%x", strconv.Itoa(keeper.ak.GetNextFiatPegHash(ctx))))
 	_ = fiatPeg.SetPegHash(pegHash)
 	receiverFiatPegWallet := getFiatWallet(ctx, keeper, toAddress)
 	receiverFiatPegWallet = types.AddFiatPegToWallet(receiverFiatPegWallet, []types.BaseFiatPeg{types.ToBaseFiatPeg(fiatPeg)})
-	
+
 	_ = setFiatWallet(ctx, keeper, toAddress, receiverFiatPegWallet)
-	
+
 	ctx.EventManager().EmitEvent(cTypes.NewEvent(
 		bankTypes.EventTypeIssueFiat,
 		cTypes.NewAttribute("recipient", toAddress.String()),
@@ -544,7 +544,7 @@ func instantiateAndAssignFiat(ctx cTypes.Context, keeper BaseSendKeeper, issuerA
 }
 
 func (keeper BaseSendKeeper) RedeemAssetsFromWallets(ctx cTypes.Context, redeemAsset bankTypes.RedeemAsset) cTypes.Error {
-	
+
 	_acl, err := keeper.aclKeeper.CheckZoneAndGetACL(ctx, redeemAsset.IssuerAddress, redeemAsset.RedeemerAddress)
 	if err != nil {
 		return err
@@ -561,7 +561,7 @@ func (keeper BaseSendKeeper) RedeemAssetsFromWallets(ctx cTypes.Context, redeemA
 
 func instantiateAndRedeemAsset(ctx cTypes.Context, keeper BaseSendKeeper, issuerAddress cTypes.AccAddress,
 	redeemerAddress cTypes.AccAddress, pegHash types.PegHash) cTypes.Error {
-	
+
 	redeemerPegHashWallet := getAssetWallet(ctx, keeper, redeemerAddress)
 	issuerPegHashWallet := getAssetWallet(ctx, keeper, issuerAddress)
 	var assetPeg types.AssetPeg
@@ -580,7 +580,7 @@ func instantiateAndRedeemAsset(ctx cTypes.Context, keeper BaseSendKeeper, issuer
 	if err == nil {
 		err = setAssetWallet(ctx, keeper, issuerAddress, issuerPegHashWallet)
 	}
-	
+
 	ctx.EventManager().EmitEvent(cTypes.NewEvent(
 		bankTypes.EventTypeRedeemAsset,
 		cTypes.NewAttribute("redeemer", redeemerAddress.String()),
@@ -606,19 +606,19 @@ func (keeper BaseSendKeeper) RedeemFiatsFromWallets(ctx cTypes.Context, redeemFi
 }
 func instantiateAndRedeemFiat(ctx cTypes.Context, keeper BaseSendKeeper, issuerAddress cTypes.AccAddress,
 	redeemerAddress cTypes.AccAddress, amount int64) cTypes.Error {
-	
+
 	fromOldFiatWallet := getFiatWallet(ctx, keeper, redeemerAddress)
-	
+
 	emptiedFiatPegWallet, redeemerFiatPegWallet := types.RedeemAmountFromWallet(amount, fromOldFiatWallet)
 	if len(redeemerFiatPegWallet) == 0 && len(emptiedFiatPegWallet) == 0 {
 		return cTypes.ErrInsufficientCoins(fmt.Sprintf("Redeemed amount higher than the account balance"))
 	}
-	
+
 	err := setFiatWallet(ctx, keeper, redeemerAddress, redeemerFiatPegWallet)
 	if err != nil {
 		return err
 	}
-	
+
 	ctx.EventManager().EmitEvent(cTypes.NewEvent(
 		bankTypes.EventTypeRedeemFiat,
 		cTypes.NewAttribute("redeemer", redeemerAddress.String()),
@@ -645,7 +645,7 @@ func (keeper BaseSendKeeper) SendAssetsToWallets(ctx cTypes.Context, sendAsset b
 
 func sendAssetToOrder(ctx cTypes.Context, keeper BaseSendKeeper, fromAddress cTypes.AccAddress, toAddress cTypes.AccAddress,
 	pegHash types.PegHash) cTypes.Error {
-	
+
 	_negotiation, err := keeper.nk.GetNegotiationDetails(ctx, toAddress, fromAddress, pegHash)
 	if err != nil {
 		return err
@@ -657,7 +657,7 @@ func sendAssetToOrder(ctx cTypes.Context, keeper BaseSendKeeper, fromAddress cTy
 	if _negotiation.GetSellerSignature() == nil || _negotiation.GetBuyerSignature() == nil {
 		return cTypes.ErrInternal("Signatures are not present")
 	}
-	
+
 	fromOldAssetWallet := getAssetWallet(ctx, keeper, fromAddress)
 	sentAsset, fromNewAssetPegWallet := types.SubtractAssetPegFromWallet(pegHash, fromOldAssetWallet)
 	if sentAsset == nil {
@@ -670,19 +670,19 @@ func sendAssetToOrder(ctx cTypes.Context, keeper BaseSendKeeper, fromAddress cTy
 	if err == nil {
 		err = setAssetWallet(ctx, keeper, fromAddress, fromNewAssetPegWallet)
 	}
-	
+
 	ctx.EventManager().EmitEvent(cTypes.NewEvent(
 		bankTypes.EventTypeSendAsset,
 		cTypes.NewAttribute("recipient", toAddress.String()),
 		cTypes.NewAttribute("sender", fromAddress.String()),
 		cTypes.NewAttribute("asset", sentAsset.GetPegHash().String()),
 	))
-	
+
 	return err
 }
 
 func (keeper BaseSendKeeper) SendFiatsToWallets(ctx cTypes.Context, sendFiat bankTypes.SendFiat) cTypes.Error {
-	
+
 	_acl, err := keeper.aclKeeper.GetAccountACLDetails(ctx, sendFiat.FromAddress)
 	if err != nil {
 		return cTypes.ErrInternal("Unauthorized transaction")
@@ -695,14 +695,14 @@ func (keeper BaseSendKeeper) SendFiatsToWallets(ctx cTypes.Context, sendFiat ban
 	if err != nil {
 		return err
 	}
-	
+
 	keeper.reputationKeeper.SetSendFiatsPositiveTx(ctx, sendFiat.FromAddress)
 	return nil
 }
 
 func sendFiatToOrder(ctx cTypes.Context, keeper BaseSendKeeper, fromAddress cTypes.AccAddress, toAddress cTypes.AccAddress,
 	pegHash types.PegHash, amount int64) cTypes.Error {
-	
+
 	_negotiation, err := keeper.nk.GetNegotiationDetails(ctx, fromAddress, toAddress, pegHash)
 	if err != nil {
 		return err
@@ -714,37 +714,37 @@ func sendFiatToOrder(ctx cTypes.Context, keeper BaseSendKeeper, fromAddress cTyp
 	if _negotiation.GetSellerSignature() == nil || _negotiation.GetBuyerSignature() == nil {
 		return cTypes.ErrInternal("Signatures are not present")
 	}
-	
+
 	fromOldFiatWallet := getFiatWallet(ctx, keeper, fromAddress)
 	sentFiatPegWallet, oldFiatPegWallet := types.SubtractAmountFromWallet(amount, fromOldFiatWallet)
 	if len(sentFiatPegWallet) == 0 && len(oldFiatPegWallet) == 0 {
 		return cTypes.ErrInsufficientCoins(fmt.Sprintf("Insufficient funds"))
 	}
-	
+
 	err = keeper.orderKeeper.SendFiatsToOrder(ctx, fromAddress, toAddress, pegHash, sentFiatPegWallet)
 	if err == nil {
 		err = setFiatWallet(ctx, keeper, fromAddress, oldFiatPegWallet)
 	}
-	
+
 	ctx.EventManager().EmitEvent(cTypes.NewEvent(
 		bankTypes.EventTypeSendFiat,
 		cTypes.NewAttribute("recipient", toAddress.String()),
 		cTypes.NewAttribute("sender", fromAddress.String()),
 	))
-	
+
 	return nil
 }
 
 func (keeper BaseSendKeeper) BuyerExecuteTradeOrder(ctx cTypes.Context, buyerExecuteOrder bankTypes.BuyerExecuteOrder) (
 	cTypes.Error, []types.FiatPegWallet) {
-	
+
 	var fiatPegWallets []types.FiatPegWallet
 	var _acl acl.ACL
 	var err cTypes.Error
-	
+
 	_, assetWallet, _, _, _ := keeper.orderKeeper.GetOrderDetails(ctx, buyerExecuteOrder.BuyerAddress,
 		buyerExecuteOrder.SellerAddress, buyerExecuteOrder.PegHash)
-	
+
 	if len(assetWallet) == 0 {
 		return cTypes.ErrInsufficientCoins("Asset token not found!"), fiatPegWallets
 	}
@@ -769,7 +769,7 @@ func (keeper BaseSendKeeper) BuyerExecuteTradeOrder(ctx cTypes.Context, buyerExe
 			err, fiatPegWallet, _ := privateExchangeOrderTokens(ctx, keeper, buyerExecuteOrder.MediatorAddress,
 				buyerExecuteOrder.BuyerAddress, buyerExecuteOrder.SellerAddress, buyerExecuteOrder.PegHash,
 				buyerExecuteOrder.FiatProofHash, "")
-			
+
 			if err != nil {
 				return err, fiatPegWallets
 			}
@@ -779,17 +779,17 @@ func (keeper BaseSendKeeper) BuyerExecuteTradeOrder(ctx cTypes.Context, buyerExe
 		_acl, err = keeper.aclKeeper.CheckZoneAndGetACL(ctx, buyerExecuteOrder.MediatorAddress, buyerExecuteOrder.BuyerAddress)
 		if err != nil {
 			return err, fiatPegWallets
-			
+
 		}
 	}
 	if !_acl.BuyerExecuteOrder {
 		return cTypes.ErrInternal(fmt.Sprintf("Trade cannot be executed for account %v. Access Denied.",
 			buyerExecuteOrder.BuyerAddress.String())), fiatPegWallets
 	}
-	
+
 	err, fiatPegWallet, _ := exchangeOrderTokens(ctx, keeper, buyerExecuteOrder.MediatorAddress,
 		buyerExecuteOrder.BuyerAddress, buyerExecuteOrder.SellerAddress, buyerExecuteOrder.PegHash, buyerExecuteOrder.FiatProofHash, "")
-	
+
 	if err != nil {
 		return err, fiatPegWallets
 	}
@@ -800,24 +800,34 @@ func (keeper BaseSendKeeper) BuyerExecuteTradeOrder(ctx cTypes.Context, buyerExe
 func privateExchangeOrderTokens(ctx cTypes.Context, keeper BaseSendKeeper, mediatorAddress cTypes.AccAddress,
 	buyerAddress cTypes.AccAddress, sellerAddress cTypes.AccAddress, pegHash types.PegHash, fiatProofHash string,
 	awbProofHash string) (cTypes.Error, types.FiatPegWallet, types.AssetPegWallet) {
-	
+
+	var reverseOrder bool
+	var executed bool
+
 	err, assetPegWallet, fiatPegWallet, orderFiatProofHash, orderAWBProofHash := keeper.orderKeeper.GetOrderDetails(ctx,
 		buyerAddress, sellerAddress, pegHash)
-	
+
 	if err != nil {
 		return err, fiatPegWallet, assetPegWallet
 	}
-	negotiationID := negotiation.NegotiationID(append(append(buyerAddress.Bytes(), sellerAddress.Bytes()...), pegHash.Bytes()...))
+
+	negotiationID := types.NegotiationID(append(append(buyerAddress.Bytes(), sellerAddress.Bytes()...), pegHash.Bytes()...))
 	_negotiation, err := keeper.nk.GetNegotiation(ctx, negotiationID)
 	if err != nil {
 		return err, fiatPegWallet, assetPegWallet
 	}
-	
-	var reverseOrder bool
-	var executed bool
-	
+
+	if len(assetPegWallet) != 1 || assetPegWallet[0].GetPegHash().String() != pegHash.String() {
+		if _negotiation.GetTime() < ctx.BlockHeight() {
+			return cTypes.ErrInsufficientCoins("Asset token not found!"), fiatPegWallet, assetPegWallet
+		}
+		reverseOrder = true
+		keeper.reputationKeeper.SetSellerExecuteOrderNegativeTx(ctx, sellerAddress)
+
+	}
+
 	buyerAssetWallet := getAssetWallet(ctx, keeper, buyerAddress)
-	
+
 	if orderFiatProofHash == "" && fiatProofHash != "" {
 		keeper.orderKeeper.SetOrderFiatProofHash(ctx, buyerAddress, sellerAddress, pegHash, fiatProofHash)
 	}
@@ -832,10 +842,10 @@ func privateExchangeOrderTokens(ctx cTypes.Context, keeper BaseSendKeeper, media
 		executed = true
 		keeper.reputationKeeper.SetSellerExecuteOrderPositiveTx(ctx, sellerAddress)
 		keeper.reputationKeeper.SetBuyerExecuteOrderPositiveTx(ctx, buyerAddress)
-		
+
 		buyerAssetWallet = types.AddAssetPegToWallet(&assetPegWallet[0], buyerAssetWallet)
 		assetPegWallet = keeper.orderKeeper.SendAssetFromOrder(ctx, buyerAddress, sellerAddress, &assetPegWallet[0])
-		
+
 		_ = setAssetWallet(ctx, keeper, buyerAddress, buyerAssetWallet)
 	}
 	if orderAWBProofHash == "" && orderFiatProofHash == "" {
@@ -844,7 +854,7 @@ func privateExchangeOrderTokens(ctx cTypes.Context, keeper BaseSendKeeper, media
 	if executed == true || reverseOrder == true {
 		buyerFiatWallet := getFiatWallet(ctx, keeper, buyerAddress)
 		sellerAssetWallet := getAssetWallet(ctx, keeper, sellerAddress)
-		
+
 		if len(fiatPegWallet) != 0 {
 			buyerFiatWallet = types.AddFiatPegToWallet(buyerFiatWallet, fiatPegWallet)
 			keeper.orderKeeper.SendFiatsFromOrder(ctx, buyerAddress, sellerAddress, pegHash, fiatPegWallet)
@@ -853,11 +863,11 @@ func privateExchangeOrderTokens(ctx cTypes.Context, keeper BaseSendKeeper, media
 			sellerAssetWallet = types.AddAssetPegToWallet(&assetPegWallet[0], sellerAssetWallet)
 			keeper.orderKeeper.SendAssetFromOrder(ctx, buyerAddress, sellerAddress, &assetPegWallet[0])
 		}
-		
+
 		_ = setFiatWallet(ctx, keeper, buyerAddress, buyerFiatWallet)
 		_ = setAssetWallet(ctx, keeper, sellerAddress, sellerAssetWallet)
 	}
-	
+
 	ctx.EventManager().EmitEvent(cTypes.NewEvent(
 		bankTypes.EventTypeExecuteOrder,
 		cTypes.NewAttribute("buyer", buyerAddress.String()),
@@ -867,26 +877,26 @@ func privateExchangeOrderTokens(ctx cTypes.Context, keeper BaseSendKeeper, media
 		cTypes.NewAttribute("assetPrice", strconv.FormatInt(_negotiation.GetBid(), 10)),
 		cTypes.NewAttribute("reversed", strconv.FormatBool(reverseOrder)),
 	))
-	
+
 	return nil, fiatPegWallet, assetPegWallet
-	
+
 }
 
 func exchangeOrderTokens(ctx cTypes.Context, keeper BaseSendKeeper, mediatorAddress cTypes.AccAddress,
 	buyerAddress cTypes.AccAddress, sellerAddress cTypes.AccAddress, pegHash types.PegHash, fiatProofHash string,
 	awbProofHash string) (cTypes.Error, types.FiatPegWallet, types.AssetPegWallet) {
-	
+
 	err, assetPegWallet, fiatPegWallet, orderFiatProofHash, orderAWBProofHash := keeper.orderKeeper.GetOrderDetails(ctx, buyerAddress, sellerAddress, pegHash)
 	if err != nil {
 		return err, fiatPegWallet, assetPegWallet
 	}
-	
-	negotiationID := negotiation.NegotiationID(append(append(buyerAddress.Bytes(), sellerAddress.Bytes()...), pegHash.Bytes()...))
+
+	negotiationID := types.NegotiationID(append(append(buyerAddress.Bytes(), sellerAddress.Bytes()...), pegHash.Bytes()...))
 	_negotiation, err := keeper.nk.GetNegotiation(ctx, negotiationID)
 	if err != nil {
 		return err, fiatPegWallet, assetPegWallet
 	}
-	
+
 	var reverseOrder bool
 	var oldFiatPegWallet types.FiatPegWallet
 	if len(fiatPegWallet) == 0 || _negotiation.GetBid() > types.GetFiatPegWalletBalance(fiatPegWallet) {
@@ -902,7 +912,7 @@ func exchangeOrderTokens(ctx cTypes.Context, keeper BaseSendKeeper, mediatorAddr
 		}
 		reverseOrder = true
 		keeper.reputationKeeper.SetSellerExecuteOrderNegativeTx(ctx, sellerAddress)
-		
+
 	}
 	buyerTime := _negotiation.GetTime() + _negotiation.GetBuyerBlockHeight()
 	sellerTime := _negotiation.GetTime() + _negotiation.GetSellerBlockHeight()
@@ -910,7 +920,7 @@ func exchangeOrderTokens(ctx cTypes.Context, keeper BaseSendKeeper, mediatorAddr
 	if _time > buyerTime || _time > sellerTime {
 		reverseOrder = true
 	}
-	
+
 	if _negotiation.GetBid() < types.GetFiatPegWalletBalance(fiatPegWallet) {
 		fiatPegWallet, oldFiatPegWallet = types.SubtractAmountFromWallet(_negotiation.GetBid(), fiatPegWallet)
 	}
@@ -918,7 +928,7 @@ func exchangeOrderTokens(ctx cTypes.Context, keeper BaseSendKeeper, mediatorAddr
 	if !reverseOrder {
 		sellerFiatWallet := getFiatWallet(ctx, keeper, sellerAddress)
 		buyerAssetWallet := getAssetWallet(ctx, keeper, buyerAddress)
-		
+
 		if orderFiatProofHash == "" && fiatProofHash != "" {
 			keeper.orderKeeper.SetOrderFiatProofHash(ctx, buyerAddress, sellerAddress, pegHash, fiatProofHash)
 		}
@@ -927,7 +937,7 @@ func exchangeOrderTokens(ctx cTypes.Context, keeper BaseSendKeeper, mediatorAddr
 		}
 		err, _, _, orderFiatProofHash, orderAWBProofHash = keeper.orderKeeper.GetOrderDetails(ctx, buyerAddress,
 			sellerAddress, pegHash)
-		
+
 		if err != nil {
 			return err, nil, nil
 		}
@@ -935,26 +945,26 @@ func exchangeOrderTokens(ctx cTypes.Context, keeper BaseSendKeeper, mediatorAddr
 			executed = true
 			keeper.reputationKeeper.SetSellerExecuteOrderPositiveTx(ctx, sellerAddress)
 			keeper.reputationKeeper.SetBuyerExecuteOrderPositiveTx(ctx, buyerAddress)
-			
+
 			buyerAssetWallet = types.AddAssetPegToWallet(&assetPegWallet[0], buyerAssetWallet)
 			sellerFiatWallet = types.AddFiatPegToWallet(sellerFiatWallet, fiatPegWallet)
-			
+
 			fiatPegWallet = keeper.orderKeeper.SendFiatsFromOrder(ctx, buyerAddress, sellerAddress, pegHash, fiatPegWallet)
 			assetPegWallet = keeper.orderKeeper.SendAssetFromOrder(ctx, buyerAddress, sellerAddress, &assetPegWallet[0])
 		}
-		
+
 		_ = setFiatWallet(ctx, keeper, sellerAddress, sellerFiatWallet)
 		_ = setAssetWallet(ctx, keeper, buyerAddress, buyerAssetWallet)
-		
+
 	}
-	
+
 	if executed == true || reverseOrder == true {
 		buyerFiatWallet := getFiatWallet(ctx, keeper, buyerAddress)
 		sellerAssetWallet := getAssetWallet(ctx, keeper, sellerAddress)
 		if len(oldFiatPegWallet) != 0 {
 			buyerFiatWallet = types.AddFiatPegToWallet(buyerFiatWallet, oldFiatPegWallet)
 		}
-		
+
 		if len(fiatPegWallet) != 0 {
 			buyerFiatWallet = types.AddFiatPegToWallet(buyerFiatWallet, fiatPegWallet)
 			keeper.orderKeeper.SendFiatsFromOrder(ctx, buyerAddress, sellerAddress, pegHash, fiatPegWallet)
@@ -963,11 +973,11 @@ func exchangeOrderTokens(ctx cTypes.Context, keeper BaseSendKeeper, mediatorAddr
 			sellerAssetWallet = types.AddAssetPegToWallet(&assetPegWallet[0], sellerAssetWallet)
 			keeper.orderKeeper.SendAssetFromOrder(ctx, buyerAddress, sellerAddress, &assetPegWallet[0])
 		}
-		
+
 		_ = setFiatWallet(ctx, keeper, buyerAddress, buyerFiatWallet)
 		_ = setAssetWallet(ctx, keeper, sellerAddress, sellerAssetWallet)
 	}
-	
+
 	ctx.EventManager().EmitEvent(cTypes.NewEvent(
 		bankTypes.EventTypeExecuteOrder,
 		cTypes.NewAttribute("buyer", buyerAddress.String()),
@@ -977,21 +987,21 @@ func exchangeOrderTokens(ctx cTypes.Context, keeper BaseSendKeeper, mediatorAddr
 		cTypes.NewAttribute("assetPrice", strconv.FormatInt(_negotiation.GetBid(), 10)),
 		cTypes.NewAttribute("reversed", strconv.FormatBool(reverseOrder)),
 	))
-	
+
 	return nil, fiatPegWallet, assetPegWallet
 }
 
 func (keeper BaseSendKeeper) SellerExecuteTradeOrder(ctx cTypes.Context, sellerExecuteOrder bankTypes.SellerExecuteOrder) (
 	cTypes.Error, []types.AssetPegWallet) {
-	
+
 	var assetPegWallets []types.AssetPegWallet
 	var _acl acl.ACL
 	var err cTypes.Error
 	var assetPegWallet types.AssetPegWallet
-	
+
 	_, assetWallet, _, _, _ := keeper.orderKeeper.GetOrderDetails(ctx, sellerExecuteOrder.BuyerAddress,
 		sellerExecuteOrder.SellerAddress, sellerExecuteOrder.PegHash)
-	
+
 	if len(assetWallet) == 0 {
 		return cTypes.ErrInsufficientCoins("Asset token not found!"), assetPegWallets
 	}
@@ -1016,7 +1026,7 @@ func (keeper BaseSendKeeper) SellerExecuteTradeOrder(ctx cTypes.Context, sellerE
 			err, _, assetPegWallet := privateExchangeOrderTokens(ctx, keeper,
 				sellerExecuteOrder.MediatorAddress, sellerExecuteOrder.BuyerAddress, sellerExecuteOrder.SellerAddress,
 				sellerExecuteOrder.PegHash, "", sellerExecuteOrder.AWBProofHash)
-			
+
 			if err != nil {
 				return err, assetPegWallets
 			}
@@ -1026,19 +1036,19 @@ func (keeper BaseSendKeeper) SellerExecuteTradeOrder(ctx cTypes.Context, sellerE
 		_acl, err = keeper.aclKeeper.CheckZoneAndGetACL(ctx, sellerExecuteOrder.MediatorAddress, sellerExecuteOrder.SellerAddress)
 		if err != nil {
 			return err, assetPegWallets
-			
+
 		}
 	}
-	
+
 	if !_acl.SellerExecuteOrder {
 		return cTypes.ErrInternal(fmt.Sprintf("Trade cannot be executed for account %v. Access Denied.",
 			sellerExecuteOrder.SellerAddress.String())), assetPegWallets
 	}
-	
+
 	err, _, assetPegWallet = exchangeOrderTokens(ctx, keeper, sellerExecuteOrder.MediatorAddress,
 		sellerExecuteOrder.BuyerAddress, sellerExecuteOrder.SellerAddress, sellerExecuteOrder.PegHash,
 		"", sellerExecuteOrder.AWBProofHash)
-	
+
 	if err != nil {
 		return err, assetPegWallets
 	}
@@ -1047,7 +1057,7 @@ func (keeper BaseSendKeeper) SellerExecuteTradeOrder(ctx cTypes.Context, sellerE
 }
 
 func (keeper BaseSendKeeper) ReleaseLockedAssets(ctx cTypes.Context, releaseAsset bankTypes.ReleaseAsset) cTypes.Error {
-	
+
 	_acl, err := keeper.aclKeeper.CheckZoneAndGetACL(ctx, releaseAsset.ZoneAddress, releaseAsset.OwnerAddress)
 	if err != nil {
 		return err
@@ -1056,7 +1066,7 @@ func (keeper BaseSendKeeper) ReleaseLockedAssets(ctx cTypes.Context, releaseAsse
 		return cTypes.ErrInternal(fmt.Sprintf("Assets cannot be released for account %v. Access Denied.",
 			releaseAsset.OwnerAddress.String()))
 	}
-	
+
 	err = releaseAssets(ctx, keeper, releaseAsset.ZoneAddress, releaseAsset.OwnerAddress, releaseAsset.PegHash)
 	if err != nil {
 		return err
@@ -1066,20 +1076,20 @@ func (keeper BaseSendKeeper) ReleaseLockedAssets(ctx cTypes.Context, releaseAsse
 
 func releaseAssets(ctx cTypes.Context, keeper BaseSendKeeper, zoneAddress cTypes.AccAddress, ownerAddress cTypes.AccAddress,
 	pegHash types.PegHash) cTypes.Error {
-	
+
 	ownerAssetWallet := getAssetWallet(ctx, keeper, ownerAddress)
 	if !types.ReleaseAssetPegInWallet(ownerAssetWallet, pegHash) {
 		return cTypes.ErrInternal("Asset peg not found.")
 	}
 	_ = setAssetWallet(ctx, keeper, ownerAddress, ownerAssetWallet)
-	
+
 	ctx.EventManager().EmitEvent(cTypes.NewEvent(
 		bankTypes.EventTypeReleaseAsset,
 		cTypes.NewAttribute("zone", zoneAddress.String()),
 		cTypes.NewAttribute("owner", ownerAddress.String()),
 		cTypes.NewAttribute("asset", pegHash.String()),
 	))
-	
+
 	return nil
 }
 
@@ -1088,7 +1098,7 @@ func (keeper BaseSendKeeper) DefineZones(ctx cTypes.Context, defineZone bankType
 		return cTypes.ErrInternal(fmt.Sprintf("Account %v is not the genesis account. Zones can only be"+
 			" defined by the genesis account.", defineZone.From.String()))
 	}
-	
+
 	err := keeper.aclKeeper.DefineZoneAddress(ctx, defineZone.To, defineZone.ZoneID)
 	if err != nil {
 		return err
@@ -1103,7 +1113,7 @@ func (keeper BaseSendKeeper) DefineOrganizations(ctx cTypes.Context, defineOrgan
 	}
 	err := keeper.aclKeeper.DefineOrganizationAddress(ctx, defineOrganization.To,
 		defineOrganization.OrganizationID, defineOrganization.ZoneID)
-	
+
 	if err != nil {
 		return err
 	}
@@ -1115,13 +1125,13 @@ func (keeper BaseSendKeeper) DefineACLs(ctx cTypes.Context, defineACL bankTypes.
 		if !keeper.aclKeeper.CheckValidZoneAddress(ctx, defineACL.ACLAccount.GetZoneID(), defineACL.From) {
 			if !keeper.aclKeeper.CheckValidOrganizationAddress(ctx, defineACL.ACLAccount.GetZoneID(),
 				defineACL.ACLAccount.GetOrganizationID(), defineACL.From) {
-				
+
 				return cTypes.ErrInternal(fmt.Sprintf("Account %v does not have access to define acl "+
 					"for account %v.", defineACL.From.String(), defineACL.To.String()))
 			}
 		}
 	}
-	
+
 	err := keeper.aclKeeper.DefineACLAccount(ctx, defineACL.To, defineACL.ACLAccount)
 	if err != nil {
 		return err

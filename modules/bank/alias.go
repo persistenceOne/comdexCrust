@@ -30,7 +30,7 @@ var (
 	NewInput               = types.NewInput
 	NewOutput              = types.NewOutput
 	ParamKeyTable          = types.ParamKeyTable
-	
+
 	// variable aliases
 	ModuleCdc                = types.ModuleCdc
 	ParamStoreKeySendEnabled = types.ParamStoreKeySendEnabled

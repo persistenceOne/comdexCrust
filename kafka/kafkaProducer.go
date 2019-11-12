@@ -2,7 +2,7 @@ package kafka
 
 import (
 	"github.com/Shopify/sarama"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 )
 
@@ -17,7 +17,7 @@ func NewProducer(kafkaPorts []string) sarama.SyncProducer {
 
 // KafkaProducerDeliverMessage : delivers messages to kafka
 func KafkaProducerDeliverMessage(msg KafkaMsg, topic string, producer sarama.SyncProducer, cdc *codec.Codec) error {
-	
+
 	kafkaStoreBytes, err := cdc.MarshalJSON(msg)
 	if err != nil {
 		panic(err)

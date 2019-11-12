@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"sort"
-	
+
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/libs/common"
 )
@@ -16,31 +16,31 @@ type PegHash = common.HexBytes
 type AssetPeg interface {
 	GetPegHash() PegHash
 	SetPegHash(PegHash) error
-	
+
 	GetDocumentHash() string
 	SetDocumentHash(string) error
-	
+
 	GetAssetType() string
 	SetAssetType(string) error
-	
+
 	GetAssetQuantity() int64
 	SetAssetQuantity(int64) error
-	
+
 	GetAssetPrice() int64
 	SetAssetPrice(int64) error
-	
+
 	GetQuantityUnit() string
 	SetQuantityUnit(string) error
-	
+
 	GetOwnerAddress() cTypes.AccAddress
 	SetOwnerAddress(cTypes.AccAddress) error
-	
+
 	GetLocked() bool
 	SetLocked(bool) error
-	
+
 	GetModerated() bool
 	SetModerated(bool) error
-	
+
 	GetTakerAddress() cTypes.AccAddress
 	SetTakerAddress(cTypes.AccAddress) error
 }
@@ -234,7 +234,7 @@ func SubtractAssetPegFromWallet(pegHash PegHash, assetPegWallet AssetPegWallet) 
 		return &assetPeg, assetPegWallet
 	}
 	return nil, assetPegWallet
-	
+
 }
 
 // AddAssetPegToWallet : add asset peg to wallet
@@ -246,7 +246,7 @@ func AddAssetPegToWallet(assetPeg AssetPeg, assetPegWallet AssetPegWallet) Asset
 	assetPegWallet = append(assetPegWallet, ToBaseAssetPeg(assetPeg))
 	assetPegWallet = assetPegWallet.Sort()
 	return assetPegWallet
-	
+
 }
 
 // IssueAssetPeg : issues asset peg from the zones wallet to the provided wallet

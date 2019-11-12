@@ -13,7 +13,7 @@ func InitGenesis(ctx cTypes.Context, keeper Keeper, data GenesisState) (err erro
 	_ = keeper.SetOrganization(ctx, GetOrganizationKey(DefaultOrganizationID), Organization{})
 
 	for _, acl := range data.Accounts {
-		_ = keeper.SetACLAccount(ctx, acl)
+		_ = keeper.SetACLAccount(ctx, &acl)
 	}
 
 	return nil

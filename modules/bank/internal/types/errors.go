@@ -7,7 +7,7 @@ import (
 // Bank errors reserve 100 ~ 199.
 const (
 	DefaultCodespace cTypes.CodespaceType = ModuleName
-	
+
 	CodeSendDisabled         cTypes.CodeType = 101
 	CodeInvalidInputsOutputs cTypes.CodeType = 102
 	CodeNegativeAmount       cTypes.CodeType = 103

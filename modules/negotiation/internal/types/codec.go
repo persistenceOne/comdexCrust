@@ -1,10 +1,13 @@
 package types
 
-import "github.com/commitHub/commitBlockchain/codec"
+import (
+	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/commitHub/commitBlockchain/types"
+)
 
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterInterface((*Negotiation)(nil), nil)
-	cdc.RegisterConcrete(&BaseNegotiation{}, "commit-blockchain/Negotiation", nil)
+	cdc.RegisterInterface((*types.Negotiation)(nil), nil)
+	cdc.RegisterConcrete(&types.BaseNegotiation{}, "commit-blockchain/Negotiation", nil)
 	cdc.RegisterConcrete(MsgChangeBuyerBids{}, "commit-blockchain/MsgChangeBuyerBids", nil)
 	cdc.RegisterConcrete(MsgChangeSellerBids{}, "commit-blockchain/MsgChangeSellerBids", nil)
 	cdc.RegisterConcrete(MsgConfirmBuyerBids{}, "commit-blockchain/MsgConfirmBuyerBids", nil)

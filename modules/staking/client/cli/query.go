@@ -3,16 +3,16 @@ package cli
 import (
 	"fmt"
 	"strings"
-	
+
 	"github.com/spf13/cobra"
-	
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/staking/types"
 )
 
@@ -39,9 +39,9 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		GetCmdQueryValidatorRedelegations(queryRoute, cdc),
 		GetCmdQueryParams(queryRoute, cdc),
 		GetCmdQueryPool(queryRoute, cdc))...)
-	
+
 	return stakingQueryCmd
-	
+
 }
 
 // GetCmdQueryValidator implements the validator query command.
@@ -61,21 +61,21 @@ $ %s query staking validator cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhff
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			addr, err := sdk.ValAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
-			
+
 			res, _, err := cliCtx.QueryStore(types.GetValidatorKey(addr), storeName)
 			if err != nil {
 				return err
 			}
-			
+
 			if len(res) == 0 {
 				return fmt.Errorf("No validator found with address %s", addr)
 			}
-			
+
 			return cliCtx.PrintOutput(types.MustUnmarshalValidator(cdc, res))
 		},
 	}
@@ -98,17 +98,17 @@ $ %s query staking validators
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			resKVs, _, err := cliCtx.QuerySubspace(types.ValidatorsKey, storeName)
 			if err != nil {
 				return err
 			}
-			
+
 			var validators types.Validators
 			for _, kv := range resKVs {
 				validators = append(validators, types.MustUnmarshalValidator(cdc, kv.Value))
 			}
-			
+
 			return cliCtx.PrintOutput(validators)
 		},
 	}
@@ -131,23 +131,23 @@ $ %s query staking unbonding-delegations-from cosmosvaloper1gghjut3ccd8ay0zduzj6
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			valAddr, err := sdk.ValAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
-			
+
 			bz, err := cdc.MarshalJSON(types.NewQueryValidatorParams(valAddr))
 			if err != nil {
 				return err
 			}
-			
+
 			route := fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryValidatorUnbondingDelegations)
 			res, _, err := cliCtx.QueryWithData(route, bz)
 			if err != nil {
 				return err
 			}
-			
+
 			var ubds types.UnbondingDelegations
 			cdc.MustUnmarshalJSON(res, &ubds)
 			return cliCtx.PrintOutput(ubds)
@@ -173,28 +173,28 @@ $ %s query staking redelegations-from cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fx
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			valSrcAddr, err := sdk.ValAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
-			
+
 			bz, err := cdc.MarshalJSON(types.QueryRedelegationParams{SrcValidatorAddr: valSrcAddr})
 			if err != nil {
 				return err
 			}
-			
+
 			route := fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryRedelegations)
 			res, _, err := cliCtx.QueryWithData(route, bz)
 			if err != nil {
 				return err
 			}
-			
+
 			var resp types.RedelegationResponses
 			if err := cdc.UnmarshalJSON(res, &resp); err != nil {
 				return err
 			}
-			
+
 			return cliCtx.PrintOutput(resp)
 		},
 	}
@@ -217,33 +217,33 @@ $ %s query staking delegation cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p cosm
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			delAddr, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
-			
+
 			valAddr, err := sdk.ValAddressFromBech32(args[1])
 			if err != nil {
 				return err
 			}
-			
+
 			bz, err := cdc.MarshalJSON(types.NewQueryBondsParams(delAddr, valAddr))
 			if err != nil {
 				return err
 			}
-			
+
 			route := fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryDelegation)
 			res, _, err := cliCtx.QueryWithData(route, bz)
 			if err != nil {
 				return err
 			}
-			
+
 			var resp types.DelegationResponse
 			if err := cdc.UnmarshalJSON(res, &resp); err != nil {
 				return err
 			}
-			
+
 			return cliCtx.PrintOutput(resp)
 		},
 	}
@@ -267,28 +267,28 @@ $ %s query staking delegations cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			delAddr, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
-			
+
 			bz, err := cdc.MarshalJSON(types.NewQueryDelegatorParams(delAddr))
 			if err != nil {
 				return err
 			}
-			
+
 			route := fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryDelegatorDelegations)
 			res, _, err := cliCtx.QueryWithData(route, bz)
 			if err != nil {
 				return err
 			}
-			
+
 			var resp types.DelegationResponses
 			if err := cdc.UnmarshalJSON(res, &resp); err != nil {
 				return err
 			}
-			
+
 			return cliCtx.PrintOutput(resp)
 		},
 	}
@@ -312,28 +312,28 @@ $ %s query staking delegations-to cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ld
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			valAddr, err := sdk.ValAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
-			
+
 			bz, err := cdc.MarshalJSON(types.NewQueryValidatorParams(valAddr))
 			if err != nil {
 				return err
 			}
-			
+
 			route := fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryValidatorDelegations)
 			res, _, err := cliCtx.QueryWithData(route, bz)
 			if err != nil {
 				return err
 			}
-			
+
 			var resp types.DelegationResponses
 			if err := cdc.UnmarshalJSON(res, &resp); err != nil {
 				return err
 			}
-			
+
 			return cliCtx.PrintOutput(resp)
 		},
 	}
@@ -357,28 +357,28 @@ $ %s query staking unbonding-delegation cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld7
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			valAddr, err := sdk.ValAddressFromBech32(args[1])
 			if err != nil {
 				return err
 			}
-			
+
 			delAddr, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
-			
+
 			bz, err := cdc.MarshalJSON(types.NewQueryBondsParams(delAddr, valAddr))
 			if err != nil {
 				return err
 			}
-			
+
 			route := fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryUnbondingDelegation)
 			res, _, err := cliCtx.QueryWithData(route, bz)
 			if err != nil {
 				return err
 			}
-			
+
 			return cliCtx.PrintOutput(types.MustUnmarshalUBD(cdc, res))
 		},
 	}
@@ -402,28 +402,28 @@ $ %s query staking unbonding-delegation cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld7
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			delegatorAddr, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
-			
+
 			bz, err := cdc.MarshalJSON(types.NewQueryDelegatorParams(delegatorAddr))
 			if err != nil {
 				return err
 			}
-			
+
 			route := fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryDelegatorUnbondingDelegations)
 			res, _, err := cliCtx.QueryWithData(route, bz)
 			if err != nil {
 				return err
 			}
-			
+
 			var ubds types.UnbondingDelegations
 			if err = cdc.UnmarshalJSON(res, &ubds); err != nil {
 				return err
 			}
-			
+
 			return cliCtx.PrintOutput(ubds)
 		},
 	}
@@ -447,38 +447,38 @@ $ %s query staking redelegation cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p co
 		Args: cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			delAddr, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
-			
+
 			valSrcAddr, err := sdk.ValAddressFromBech32(args[1])
 			if err != nil {
 				return err
 			}
-			
+
 			valDstAddr, err := sdk.ValAddressFromBech32(args[2])
 			if err != nil {
 				return err
 			}
-			
+
 			bz, err := cdc.MarshalJSON(types.NewQueryRedelegationParams(delAddr, valSrcAddr, valDstAddr))
 			if err != nil {
 				return err
 			}
-			
+
 			route := fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryRedelegations)
 			res, _, err := cliCtx.QueryWithData(route, bz)
 			if err != nil {
 				return err
 			}
-			
+
 			var resp types.RedelegationResponses
 			if err := cdc.UnmarshalJSON(res, &resp); err != nil {
 				return err
 			}
-			
+
 			return cliCtx.PrintOutput(resp)
 		},
 	}
@@ -502,28 +502,28 @@ $ %s query staking redelegation cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			delAddr, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
-			
+
 			bz, err := cdc.MarshalJSON(types.QueryRedelegationParams{DelegatorAddr: delAddr})
 			if err != nil {
 				return err
 			}
-			
+
 			route := fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryRedelegations)
 			res, _, err := cliCtx.QueryWithData(route, bz)
 			if err != nil {
 				return err
 			}
-			
+
 			var resp types.RedelegationResponses
 			if err := cdc.UnmarshalJSON(res, &resp); err != nil {
 				return err
 			}
-			
+
 			return cliCtx.PrintOutput(resp)
 		},
 	}
@@ -546,17 +546,17 @@ $ %s query staking pool
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			bz, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/pool", storeName), nil)
 			if err != nil {
 				return err
 			}
-			
+
 			var pool types.Pool
 			if err := cdc.UnmarshalJSON(bz, &pool); err != nil {
 				return err
 			}
-			
+
 			return cliCtx.PrintOutput(pool)
 		},
 	}
@@ -579,13 +579,13 @@ $ %s query staking params
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			route := fmt.Sprintf("custom/%s/%s", storeName, types.QueryParameters)
 			bz, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
 				return err
 			}
-			
+
 			var params types.Params
 			cdc.MustUnmarshalJSON(bz, &params)
 			return cliCtx.PrintOutput(params)

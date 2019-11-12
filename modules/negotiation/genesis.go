@@ -12,6 +12,6 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 
 func ExportGenesis(ctx sdk.Context, keeper Keeper) (data GenesisState) {
 	negotiations := keeper.GetNegotiations(ctx)
-	
+
 	return GenesisState{negotiations}
 }

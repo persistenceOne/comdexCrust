@@ -2,7 +2,7 @@ package crisis
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/crisis/internal/keeper"
 	"github.com/commitHub/commitBlockchain/modules/crisis/internal/types"
 )

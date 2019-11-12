@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/input"
@@ -14,7 +14,7 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 	authTypes "github.com/commitHub/commitBlockchain/modules/auth/types"
 )
@@ -36,7 +36,7 @@ func GenerateOrBroadcastMsgs(cliCtx context.CLIContext, txBldr authTypes.TxBuild
 	if cliCtx.GenerateOnly {
 		return PrintUnsignedStdTx(txBldr, cliCtx, msgs)
 	}
-	
+
 	return CompleteAndBroadcastTxCLI(txBldr, cliCtx, msgs)
 }
 
@@ -50,29 +50,29 @@ func CompleteAndBroadcastTxCLI(txBldr authTypes.TxBuilder, cliCtx context.CLICon
 	if err != nil {
 		return err
 	}
-	
+
 	fromName := cliCtx.GetFromName()
-	
+
 	if txBldr.SimulateAndExecute() || cliCtx.Simulate {
 		txBldr, err = EnrichWithGas(txBldr, cliCtx, msgs)
 		if err != nil {
 			return err
 		}
-		
+
 		gasEst := GasEstimateResponse{GasEstimate: txBldr.Gas()}
 		_, _ = fmt.Fprintf(os.Stderr, "%s\n", gasEst.String())
 	}
-	
+
 	if cliCtx.Simulate {
 		return nil
 	}
-	
+
 	if !cliCtx.SkipConfirm {
 		stdSignMsg, err := txBldr.BuildSignMsg(msgs)
 		if err != nil {
 			return err
 		}
-		
+
 		var json []byte
 		if viper.GetBool(flags.FlagIndentResponse) {
 			json, err = cliCtx.Codec.MarshalJSONIndent(stdSignMsg, "", "  ")
@@ -82,9 +82,9 @@ func CompleteAndBroadcastTxCLI(txBldr authTypes.TxBuilder, cliCtx context.CLICon
 		} else {
 			json = cliCtx.Codec.MustMarshalJSON(stdSignMsg)
 		}
-		
+
 		_, _ = fmt.Fprintf(os.Stderr, "%s\n\n", json)
-		
+
 		buf := bufio.NewReader(os.Stdin)
 		ok, err := input.GetConfirmation("confirm transaction before signing and broadcasting", buf)
 		if err != nil || !ok {
@@ -92,24 +92,24 @@ func CompleteAndBroadcastTxCLI(txBldr authTypes.TxBuilder, cliCtx context.CLICon
 			return err
 		}
 	}
-	
+
 	passphrase, err := keys.GetPassphrase(fromName)
 	if err != nil {
 		return err
 	}
-	
+
 	// build and sign the transaction
 	txBytes, err := txBldr.BuildAndSign(fromName, passphrase, msgs)
 	if err != nil {
 		return err
 	}
-	
+
 	// broadcast to a Tendermint node
 	res, err := cliCtx.BroadcastTx(txBytes)
 	if err != nil {
 		return err
 	}
-	
+
 	return cliCtx.PrintOutput(res)
 }
 
@@ -120,7 +120,7 @@ func EnrichWithGas(txBldr authTypes.TxBuilder, cliCtx context.CLIContext, msgs [
 	if err != nil {
 		return txBldr, err
 	}
-	
+
 	return txBldr.WithGas(adjusted), nil
 }
 
@@ -130,19 +130,19 @@ func CalculateGas(
 	queryFunc func(string, []byte) ([]byte, int64, error), cdc *codec.Codec,
 	txBytes []byte, adjustment float64,
 ) (estimate, adjusted uint64, err error) {
-	
+
 	// run a simulation (via /app/simulate query) to
 	// estimate gas and update TxBuilder accordingly
 	rawRes, _, err := queryFunc("/app/simulate", txBytes)
 	if err != nil {
 		return estimate, adjusted, err
 	}
-	
+
 	estimate, err = parseQueryResponse(cdc, rawRes)
 	if err != nil {
 		return
 	}
-	
+
 	adjusted = adjustGasEstimate(estimate, adjustment)
 	return estimate, adjusted, nil
 }
@@ -153,12 +153,12 @@ func PrintUnsignedStdTx(txBldr authTypes.TxBuilder, cliCtx context.CLIContext, m
 	if err != nil {
 		return err
 	}
-	
+
 	json, err := cliCtx.Codec.MarshalJSON(stdTx)
 	if err != nil {
 		return err
 	}
-	
+
 	_, _ = fmt.Fprintf(cliCtx.Output, "%s\n", json)
 	return nil
 }
@@ -170,33 +170,33 @@ func SignStdTx(
 	txBldr authTypes.TxBuilder, cliCtx context.CLIContext, name string,
 	stdTx authTypes.StdTx, appendSig bool, offline bool,
 ) (authTypes.StdTx, error) {
-	
+
 	var signedStdTx authTypes.StdTx
-	
+
 	info, err := txBldr.Keybase().Get(name)
 	if err != nil {
 		return signedStdTx, err
 	}
-	
+
 	addr := info.GetPubKey().Address()
-	
+
 	// check whether the address is a signer
 	if !isTxSigner(cTypes.AccAddress(addr), stdTx.GetSigners()) {
 		return signedStdTx, fmt.Errorf("%s: %s", errInvalidSigner, name)
 	}
-	
+
 	if !offline {
 		txBldr, err = populateAccountFromState(txBldr, cliCtx, cTypes.AccAddress(addr))
 		if err != nil {
 			return signedStdTx, err
 		}
 	}
-	
+
 	passphrase, err := keys.GetPassphrase(name)
 	if err != nil {
 		return signedStdTx, err
 	}
-	
+
 	return txBldr.SignStdTx(name, passphrase, stdTx, appendSig)
 }
 
@@ -206,57 +206,57 @@ func SignStdTx(
 func SignStdTxWithSignerAddress(txBldr authTypes.TxBuilder, cliCtx context.CLIContext,
 	addr cTypes.AccAddress, name string, stdTx authTypes.StdTx,
 	offline bool) (signedStdTx authTypes.StdTx, err error) {
-	
+
 	// check whether the address is a signer
 	if !isTxSigner(addr, stdTx.GetSigners()) {
 		return signedStdTx, fmt.Errorf("%s: %s", errInvalidSigner, name)
 	}
-	
+
 	if !offline {
 		txBldr, err = populateAccountFromState(txBldr, cliCtx, addr)
 		if err != nil {
 			return signedStdTx, err
 		}
 	}
-	
+
 	passphrase, err := keys.GetPassphrase(name)
 	if err != nil {
 		return signedStdTx, err
 	}
-	
+
 	return txBldr.SignStdTx(name, passphrase, stdTx, false)
 }
 
 // Read and decode a StdTx from the given filename.  Can pass "-" to read from stdin.
 func ReadStdTxFromFile(cdc *codec.Codec, filename string) (stdTx authTypes.StdTx, err error) {
 	var bytes []byte
-	
+
 	if filename == "-" {
 		bytes, err = ioutil.ReadAll(os.Stdin)
 	} else {
 		bytes, err = ioutil.ReadFile(filename)
 	}
-	
+
 	if err != nil {
 		return
 	}
-	
+
 	if err = cdc.UnmarshalJSON(bytes, &stdTx); err != nil {
 		return
 	}
-	
+
 	return
 }
 
 func populateAccountFromState(
 	txBldr authTypes.TxBuilder, cliCtx context.CLIContext, addr cTypes.AccAddress,
 ) (authTypes.TxBuilder, error) {
-	
+
 	num, seq, err := authTypes.NewAccountRetriever(cliCtx).GetAccountNumberSequence(addr)
 	if err != nil {
 		return txBldr, err
 	}
-	
+
 	return txBldr.WithAccountNumber(num).WithSequence(seq), nil
 }
 
@@ -267,7 +267,7 @@ func GetTxEncoder(cdc *codec.Codec) (encoder cTypes.TxEncoder) {
 	if encoder == nil {
 		encoder = authTypes.DefaultTxEncoder(cdc)
 	}
-	
+
 	return encoder
 }
 
@@ -278,7 +278,7 @@ func simulateMsgs(txBldr authTypes.TxBuilder, cliCtx context.CLIContext, msgs []
 	if err != nil {
 		return
 	}
-	
+
 	estimated, adjusted, err = CalculateGas(cliCtx.QueryWithData, cliCtx.Codec, txBytes, txBldr.GasAdjustment())
 	return
 }
@@ -292,19 +292,19 @@ func parseQueryResponse(cdc *codec.Codec, rawRes []byte) (uint64, error) {
 	if err := cdc.UnmarshalBinaryLengthPrefixed(rawRes, &simulationResult); err != nil {
 		return 0, err
 	}
-	
+
 	return simulationResult.GasUsed, nil
 }
 
 // PrepareTxBuilder populates a TxBuilder in preparation for the build of a Tx.
 func PrepareTxBuilder(txBldr authTypes.TxBuilder, cliCtx context.CLIContext) (authTypes.TxBuilder, error) {
 	from := cliCtx.GetFromAddress()
-	
+
 	accGetter := authTypes.NewAccountRetriever(cliCtx)
 	if err := accGetter.EnsureExists(from); err != nil {
 		return txBldr, err
 	}
-	
+
 	txbldrAccNum, txbldrAccSeq := txBldr.AccountNumber(), txBldr.Sequence()
 	// TODO: (ref #1903) Allow for user supplied account number without
 	// automatically doing a manual lookup.
@@ -313,7 +313,7 @@ func PrepareTxBuilder(txBldr authTypes.TxBuilder, cliCtx context.CLIContext) (au
 		if err != nil {
 			return txBldr, err
 		}
-		
+
 		if txbldrAccNum == 0 {
 			txBldr = txBldr.WithAccountNumber(num)
 		}
@@ -321,7 +321,7 @@ func PrepareTxBuilder(txBldr authTypes.TxBuilder, cliCtx context.CLIContext) (au
 			txBldr = txBldr.WithSequence(seq)
 		}
 	}
-	
+
 	return txBldr, nil
 }
 
@@ -330,20 +330,20 @@ func buildUnsignedStdTxOffline(txBldr authTypes.TxBuilder, cliCtx context.CLICon
 		if cliCtx.GenerateOnly {
 			return stdTx, errors.New("cannot estimate gas with generate-only")
 		}
-		
+
 		txBldr, err = EnrichWithGas(txBldr, cliCtx, msgs)
 		if err != nil {
 			return stdTx, err
 		}
-		
+
 		_, _ = fmt.Fprintf(os.Stderr, "estimated gas = %v\n", txBldr.Gas())
 	}
-	
+
 	stdSignMsg, err := txBldr.BuildSignMsg(msgs)
 	if err != nil {
 		return stdTx, nil
 	}
-	
+
 	return authTypes.NewStdTx(stdSignMsg.Msgs, stdSignMsg.Fee, nil, stdSignMsg.Memo), nil
 }
 
@@ -353,6 +353,6 @@ func isTxSigner(user cTypes.AccAddress, signers []cTypes.AccAddress) bool {
 			return true
 		}
 	}
-	
+
 	return false
 }

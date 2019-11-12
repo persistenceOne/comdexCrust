@@ -5,7 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	dbm "github.com/tendermint/tendermint/libs/db"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -24,7 +24,7 @@ type KafkaMsg struct {
 
 // NewKafkaMsgFromRest : makes a msg to send to kafka queue
 func NewKafkaMsgFromRest(msg sdk.Msg, ticketID Ticket, baseRequest rest.BaseReq, cliCtx context.CLIContext, mode string, password string) KafkaMsg {
-	
+
 	kafkaCli := KafkaCliCtx{
 		OutputFormat:  cliCtx.OutputFormat,
 		Height:        cliCtx.Height,
@@ -41,7 +41,7 @@ func NewKafkaMsgFromRest(msg sdk.Msg, ticketID Ticket, baseRequest rest.BaseReq,
 		Indent:        cliCtx.Indent,
 		SkipConfirm:   cliCtx.SkipConfirm,
 	}
-	
+
 	return KafkaMsg{
 		Msg:         msg,
 		TicketID:    ticketID,
@@ -50,12 +50,12 @@ func NewKafkaMsgFromRest(msg sdk.Msg, ticketID Ticket, baseRequest rest.BaseReq,
 		Mode:        mode,
 		Password:    password,
 	}
-	
+
 }
 
 // CliCtxFromKafkaMsg : sets the txctx and clictx again to consume
 func CliCtxFromKafkaMsg(msg KafkaMsg, cliCtx context.CLIContext) (context.CLIContext) {
-	
+
 	cliCtx.OutputFormat = msg.KafkaCli.OutputFormat
 	cliCtx.Height = msg.KafkaCli.Height
 	cliCtx.NodeURI = msg.KafkaCli.NodeURI
@@ -70,7 +70,7 @@ func CliCtxFromKafkaMsg(msg KafkaMsg, cliCtx context.CLIContext) (context.CLICon
 	cliCtx.FromName = msg.KafkaCli.FromName
 	cliCtx.Indent = msg.KafkaCli.Indent
 	cliCtx.SkipConfirm = msg.KafkaCli.SkipConfirm
-	
+
 	return cliCtx
 }
 
@@ -114,12 +114,12 @@ func NewKafkaState(kafkaPorts []string) KafkaState {
 	producer := NewProducer(kafkaPorts)
 	consumer := NewConsumer(kafkaPorts)
 	var consumers = make(map[string]sarama.PartitionConsumer)
-	
+
 	for _, topic := range Topics {
 		partitionConsumer := PartitionConsumers(consumer, topic)
 		consumers[topic] = partitionConsumer
 	}
-	
+
 	return KafkaState{
 		KafkaDB:   kafkaDB,
 		Admin:     admin,

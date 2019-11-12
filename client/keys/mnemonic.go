@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"crypto/sha256"
 	"fmt"
-	
+
 	"github.com/bartekn/go-bip39"
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/spf13/cobra"
@@ -12,7 +12,7 @@ import (
 
 const (
 	flagUserEntropy = "unsafe-entropy"
-	
+
 	mnemonicEntropySize = 256
 )
 
@@ -29,11 +29,11 @@ func mnemonicKeyCommand() *cobra.Command {
 
 func runMnemonicCmd(cmd *cobra.Command, args []string) error {
 	flags := cmd.Flags()
-	
+
 	userEntropy, _ := flags.GetBool(flagUserEntropy)
-	
+
 	var entropySeed []byte
-	
+
 	if userEntropy {
 		// prompt the user to enter some entropy
 		buf := bufio.NewReader(cmd.InOrStdin())
@@ -51,7 +51,7 @@ func runMnemonicCmd(cmd *cobra.Command, args []string) error {
 		if !conf {
 			return nil
 		}
-		
+
 		// hash input entropy to get entropy seed
 		hashedEntropy := sha256.Sum256([]byte(inputEntropy))
 		entropySeed = hashedEntropy[:]
@@ -63,12 +63,12 @@ func runMnemonicCmd(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	}
-	
+
 	mnemonic, err := bip39.NewMnemonic(entropySeed[:])
 	if err != nil {
 		return err
 	}
 	cmd.Println(mnemonic)
-	
+
 	return nil
 }

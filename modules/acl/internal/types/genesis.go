@@ -5,16 +5,16 @@ import (
 )
 
 type GenesisState struct {
-	Accounts     []ACLAccount        `json:"accounts"`
-	ZoneID       []cTypes.AccAddress `json:"zone_id"`
+	Accounts     []BaseACLAccount    `json:"accounts"`
+	ZoneID       []cTypes.AccAddress `json:"zoneID"`
 	Organization []Organization      `json:"organization"`
 }
 
-func NewGenesisState(accounts []ACLAccount, zoneID cTypes.AccAddress, organization Organization) GenesisState {
+func NewGenesisState(accounts []BaseACLAccount, zoneID cTypes.AccAddress, organizations []Organization) GenesisState {
 	return GenesisState{
 		Accounts:     accounts,
 		ZoneID:       []cTypes.AccAddress{zoneID},
-		Organization: []Organization{organization},
+		Organization: organizations,
 	}
 }
 

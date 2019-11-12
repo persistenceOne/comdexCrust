@@ -100,7 +100,7 @@ var (
 	NewValidatorCurrentRewards                 = types.NewValidatorCurrentRewards
 	InitialValidatorAccumulatedCommission      = types.InitialValidatorAccumulatedCommission
 	NewValidatorSlashEvent                     = types.NewValidatorSlashEvent
-	
+
 	// variable aliases
 	FeePoolKey                           = keeper.FeePoolKey
 	ProposerKey                          = keeper.ProposerKey

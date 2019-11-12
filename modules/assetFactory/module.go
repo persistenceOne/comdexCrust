@@ -2,19 +2,19 @@ package assetFactory
 
 import (
 	"encoding/json"
-	
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/kafka"
 	"github.com/commitHub/commitBlockchain/types/module"
-	
+
 	abciTypes "github.com/tendermint/tendermint/abci/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/assetFactory/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/assetFactory/client/rest"
 	"github.com/commitHub/commitBlockchain/modules/assetFactory/internal/types"
@@ -55,14 +55,14 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	
+
 	assetTxCmd.AddCommand(client.PostCommands(
 		cli.IssueAssetCmd(cdc),
 		cli.SendAssetCmd(cdc),
 		cli.ExecuteAssetCmd(cdc),
 		cli.RedeemAssetCmd(cdc),
 	)...)
-	
+
 	return assetTxCmd
 }
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
@@ -73,11 +73,11 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	
+
 	assetQueryCmd.AddCommand(client.GetCommands(
 		cli.QueryAssetCmd(),
 	)...)
-	
+
 	return assetQueryCmd
 }
 

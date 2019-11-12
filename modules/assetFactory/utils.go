@@ -2,14 +2,14 @@ package assetFactory
 
 import (
 	"fmt"
-	
+
 	cTypes "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/types"
 )
 
 func instantiateAndAssignAsset(ctx cTypes.Context, k Keeper, issueAsset IssueAsset) cTypes.Error {
-	
+
 	asset, err := k.GetAssetPeg(ctx, issueAsset.AssetPeg.GetPegHash())
 	if err != nil {
 		return err
@@ -20,7 +20,7 @@ func instantiateAndAssignAsset(ctx cTypes.Context, k Keeper, issueAsset IssueAss
 	_ = issueAsset.AssetPeg.SetPegHash(asset.GetPegHash())
 	_ = issueAsset.AssetPeg.SetOwnerAddress(issueAsset.ToAddress)
 	_ = k.SetAssetPeg(ctx, issueAsset.AssetPeg)
-	
+
 	ctx.EventManager().EmitEvent(
 		cTypes.NewEvent(
 			EventTypeAssetFactoryIssueAsset,
@@ -28,25 +28,25 @@ func instantiateAndAssignAsset(ctx cTypes.Context, k Keeper, issueAsset IssueAss
 			cTypes.NewAttribute("issuer", issueAsset.IssuerAddress.String()),
 			cTypes.NewAttribute("asset", issueAsset.AssetPeg.GetPegHash().String()),
 		))
-	
+
 	return nil
 }
 
 func instantiateAndRedeemAsset(ctx cTypes.Context, keeper Keeper, ownerAddress cTypes.AccAddress,
 	toAddress cTypes.AccAddress, peghash types.PegHash) cTypes.Error {
-	
+
 	asset, err := keeper.GetAssetPeg(ctx, peghash)
 	if err != nil {
 		return err
 	}
-	
+
 	if !asset.GetOwnerAddress().Equals(ownerAddress) {
 		return cTypes.ErrInvalidAddress(ownerAddress.String())
 	}
 	unsetAssetPeg := types.NewBaseAssetPegWithPegHash(peghash)
 	_ = unsetAssetPeg.SetOwnerAddress(toAddress)
 	_ = keeper.SetAssetPeg(ctx, &unsetAssetPeg)
-	
+
 	ctx.EventManager().EmitEvent(
 		cTypes.NewEvent(
 			EventTypeAssetFactoryRedeemAsset,
@@ -54,13 +54,13 @@ func instantiateAndRedeemAsset(ctx cTypes.Context, keeper Keeper, ownerAddress c
 			cTypes.NewAttribute("lastOwner", ownerAddress.String()),
 			cTypes.NewAttribute("asset", asset.GetPegHash().String()),
 		))
-	
+
 	return nil
 }
 
 func sendAssetToOrder(ctx cTypes.Context, keeper Keeper, fromAddress cTypes.AccAddress,
 	toAddress cTypes.AccAddress, peghash types.PegHash) cTypes.Error {
-	
+
 	asset, err := keeper.GetAssetPeg(ctx, peghash)
 	if err != nil {
 		return err
@@ -70,7 +70,7 @@ func sendAssetToOrder(ctx cTypes.Context, keeper Keeper, fromAddress cTypes.AccA
 	}
 	_ = asset.SetOwnerAddress(cTypes.AccAddress(append(append(toAddress.Bytes(), fromAddress.Bytes()...), peghash.Bytes()...)))
 	_ = keeper.SetAssetPeg(ctx, asset)
-	
+
 	ctx.EventManager().EmitEvent(
 		cTypes.NewEvent(
 			EventTypeAssetFactorySendAsset,
@@ -78,25 +78,25 @@ func sendAssetToOrder(ctx cTypes.Context, keeper Keeper, fromAddress cTypes.AccA
 			cTypes.NewAttribute("sender", fromAddress.String()),
 			cTypes.NewAttribute("asset", peghash.String()),
 		))
-	
+
 	return nil
 }
 
 func sendAssetFromOrder(ctx cTypes.Context, keeper Keeper, fromAddress cTypes.AccAddress,
 	toAddress cTypes.AccAddress, peghash types.PegHash) cTypes.Error {
-	
+
 	asset, err := keeper.GetAssetPeg(ctx, peghash)
 	if err != nil {
 		return err
 	}
-	
+
 	if !asset.GetOwnerAddress().Equals(cTypes.AccAddress(append(append(toAddress.Bytes(), fromAddress.Bytes()...), peghash.Bytes()...))) {
 		return cTypes.ErrInvalidAddress(fromAddress.String())
 	}
-	
+
 	_ = asset.SetOwnerAddress(toAddress)
 	_ = keeper.SetAssetPeg(ctx, asset)
-	
+
 	ctx.EventManager().EmitEvent(
 		cTypes.NewEvent(
 			EventTypeAssetFactoryExecuteAsset,
@@ -104,6 +104,6 @@ func sendAssetFromOrder(ctx cTypes.Context, keeper Keeper, fromAddress cTypes.Ac
 			cTypes.NewAttribute("sender", fromAddress.String()),
 			cTypes.NewAttribute("asset", peghash.String()),
 		))
-	
+
 	return nil
 }

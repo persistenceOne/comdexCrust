@@ -1,6 +1,7 @@
 package keys
 
 import (
+	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
@@ -34,7 +35,10 @@ func Commands() *cobra.Command {
 }
 
 // RegisterRoutes : resgister REST routes
-func RegisterRoutes(r *mux.Router) {
+func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc("/keys", QueryKeysRequestHandler).Methods("GET")
 	r.HandleFunc("/keys", AddNewKeyRequstHandler).Methods("POST")
+	r.HandleFunc("/updatePassword/{name}", UpdateKeyRequestHandler(cliCtx)).Methods("PUT")
+	r.HandleFunc("/forgotPassword/{name}", ForgotPasswordRequestHandler(cliCtx)).Methods("POST")
+
 }

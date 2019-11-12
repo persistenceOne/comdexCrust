@@ -2,11 +2,11 @@ package client
 
 import (
 	"github.com/spf13/cobra"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/gov/client/rest"
 )
 

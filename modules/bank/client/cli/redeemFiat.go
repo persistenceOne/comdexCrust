@@ -5,7 +5,7 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
@@ -17,21 +17,21 @@ func RedeemFiatCmd(cdc *codec.Codec) *cobra.Command {
 		Use:   "redeemFiat",
 		Short: "Redeem fiat with the given details and returns some/total amount to the issuer address",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			
+
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			toStr := viper.GetString(FlagTo)
-			
+
 			to, err := cTypes.AccAddressFromBech32(toStr)
 			if err != nil {
 				return nil
 			}
-			
+
 			amount := viper.GetInt64(FlagAmount)
-			
+
 			msg := client.BuildRedeemFiatMsg(cliCtx.GetFromAddress(), to, amount)
-			
+
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []cTypes.Msg{msg})
 		},
 	}

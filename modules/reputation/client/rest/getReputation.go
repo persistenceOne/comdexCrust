@@ -36,7 +36,7 @@ func QueryReputationRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc
 			return
 		}
 
-		var reputation reputationTypes.AccountReputation
+		var reputation types.AccountReputation
 		cliCtx.Codec.MustUnmarshalJSON(res, &reputation)
 
 		rest.PostProcessResponse(w, cliCtx, reputation)

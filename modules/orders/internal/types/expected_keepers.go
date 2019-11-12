@@ -2,14 +2,14 @@ package types
 
 import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/acl"
 	"github.com/commitHub/commitBlockchain/modules/auth/exported"
-	"github.com/commitHub/commitBlockchain/modules/negotiation"
+	"github.com/commitHub/commitBlockchain/types"
 )
 
 type NegotiationKeeper interface {
-	GetNegotiation(ctx cTypes.Context, id negotiation.NegotiationID) (negotiation.Negotiation, cTypes.Error)
+	GetNegotiation(ctx cTypes.Context, id types.NegotiationID) (types.Negotiation, cTypes.Error)
 }
 
 type ACLKeeper interface {

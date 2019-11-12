@@ -2,14 +2,14 @@ package types
 
 import (
 	"fmt"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Param module codespace constants
 const (
 	DefaultCodespace sdk.CodespaceType = "params"
-	
+
 	CodeUnknownSubspace  sdk.CodeType = 1
 	CodeSettingParameter sdk.CodeType = 2
 	CodeEmptyData        sdk.CodeType = 3

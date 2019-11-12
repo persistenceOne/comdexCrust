@@ -1,7 +1,11 @@
 package types
 
+import (
+	"github.com/commitHub/commitBlockchain/types"
+)
+
 type GenesisState struct {
-	Orders []Order `json:"orders"`
+	Orders []types.Order `json:"orders"`
 }
 
 func DefaultGenesisState() GenesisState {

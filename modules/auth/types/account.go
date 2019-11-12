@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	
+
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/crypto"
 	"gopkg.in/yaml.v2"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/auth/exported"
 	"github.com/commitHub/commitBlockchain/types"
 )
@@ -35,7 +35,7 @@ type BaseAccount struct {
 // NewBaseAccount creates a new BaseAccount object
 func NewBaseAccount(address cTypes.AccAddress, coins cTypes.Coins,
 	pubKey crypto.PubKey, accountNumber uint64, sequence uint64) *BaseAccount {
-	
+
 	return &BaseAccount{
 		Address:       address,
 		Coins:         coins,
@@ -48,11 +48,11 @@ func NewBaseAccount(address cTypes.AccAddress, coins cTypes.Coins,
 // String implements fmt.Stringer
 func (acc BaseAccount) String() string {
 	var pubkey string
-	
+
 	if acc.PubKey != nil {
 		pubkey = cTypes.MustBech32ifyAccPub(acc.PubKey)
 	}
-	
+
 	return fmt.Sprintf(`Account:
   Address:       %s
   Pubkey:        %s
@@ -166,14 +166,14 @@ func (acc BaseAccount) MarshalYAML() (interface{}, error) {
 	var bs []byte
 	var err error
 	var pubkey string
-	
+
 	if acc.PubKey != nil {
 		pubkey, err = cTypes.Bech32ifyAccPub(acc.PubKey)
 		if err != nil {
 			return nil, err
 		}
 	}
-	
+
 	bs, err = yaml.Marshal(struct {
 		Address       cTypes.AccAddress
 		Coins         cTypes.Coins
@@ -190,7 +190,7 @@ func (acc BaseAccount) MarshalYAML() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return string(bs), err
 }
 
@@ -201,18 +201,18 @@ func (acc BaseAccount) MarshalYAML() (interface{}, error) {
 // the necessary fields needed for any vesting account implementation.
 type BaseVestingAccount struct {
 	*BaseAccount
-	
+
 	OriginalVesting  cTypes.Coins `json:"original_vesting"`  // coins in account upon initialization
 	DelegatedFree    cTypes.Coins `json:"delegated_free"`    // coins that are vested and delegated
 	DelegatedVesting cTypes.Coins `json:"delegated_vesting"` // coins that vesting and delegated
-	
+
 	EndTime int64 `json:"end_time"` // when the coins become unlocked
 }
 
 // NewBaseVestingAccount creates a new BaseVestingAccount object
 func NewBaseVestingAccount(baseAccount *BaseAccount, originalVesting cTypes.Coins,
 	delegatedFree cTypes.Coins, delegatedVesting cTypes.Coins, endTime int64) *BaseVestingAccount {
-	
+
 	return &BaseVestingAccount{
 		BaseAccount:      baseAccount,
 		OriginalVesting:  originalVesting,
@@ -225,11 +225,11 @@ func NewBaseVestingAccount(baseAccount *BaseAccount, originalVesting cTypes.Coin
 // String implements fmt.Stringer
 func (bva BaseVestingAccount) String() string {
 	var pubkey string
-	
+
 	if bva.PubKey != nil {
 		pubkey = cTypes.MustBech32ifyAccPub(bva.PubKey)
 	}
-	
+
 	return fmt.Sprintf(`Vesting Account:
   Address:          %s
   Pubkey:           %s
@@ -253,22 +253,22 @@ func (bva BaseVestingAccount) String() string {
 func (bva BaseVestingAccount) spendableCoins(vestingCoins cTypes.Coins) cTypes.Coins {
 	var spendableCoins cTypes.Coins
 	bc := bva.GetCoins()
-	
+
 	for _, coin := range bc {
 		// zip/lineup all coins by their denomination to provide O(n) time
 		baseAmt := coin.Amount
 		vestingAmt := vestingCoins.AmountOf(coin.Denom)
 		delVestingAmt := bva.DelegatedVesting.AmountOf(coin.Denom)
-		
+
 		// compute min((BC + DV) - V, BC) per the specification
 		min := cTypes.MinInt(baseAmt.Add(delVestingAmt).Sub(vestingAmt), baseAmt)
 		spendableCoin := cTypes.NewCoin(coin.Denom, min)
-		
+
 		if !spendableCoin.IsZero() {
 			spendableCoins = spendableCoins.Add(cTypes.Coins{spendableCoin})
 		}
 	}
-	
+
 	return spendableCoins
 }
 
@@ -280,36 +280,36 @@ func (bva BaseVestingAccount) spendableCoins(vestingCoins cTypes.Coins) cTypes.C
 // vesting coins must be sorted.
 func (bva *BaseVestingAccount) trackDelegation(vestingCoins, amount cTypes.Coins) {
 	bc := bva.GetCoins()
-	
+
 	for _, coin := range amount {
 		// zip/lineup all coins by their denomination to provide O(n) time
-		
+
 		baseAmt := bc.AmountOf(coin.Denom)
 		vestingAmt := vestingCoins.AmountOf(coin.Denom)
 		delVestingAmt := bva.DelegatedVesting.AmountOf(coin.Denom)
-		
+
 		// Panic if the delegation amount is zero or if the base coins does not
 		// exceed the desired delegation amount.
 		if coin.Amount.IsZero() || baseAmt.LT(coin.Amount) {
 			panic("delegation attempt with zero coins or insufficient funds")
 		}
-		
+
 		// compute x and y per the specification, where:
 		// X := min(max(V - DV, 0), D)
 		// Y := D - X
 		x := cTypes.MinInt(cTypes.MaxInt(vestingAmt.Sub(delVestingAmt), cTypes.ZeroInt()), coin.Amount)
 		y := coin.Amount.Sub(x)
-		
+
 		if !x.IsZero() {
 			xCoin := cTypes.NewCoin(coin.Denom, x)
 			bva.DelegatedVesting = bva.DelegatedVesting.Add(cTypes.Coins{xCoin})
 		}
-		
+
 		if !y.IsZero() {
 			yCoin := cTypes.NewCoin(coin.Denom, y)
 			bva.DelegatedFree = bva.DelegatedFree.Add(cTypes.Coins{yCoin})
 		}
-		
+
 		bva.Coins = bva.Coins.Sub(cTypes.Coins{coin})
 	}
 }
@@ -333,23 +333,23 @@ func (bva *BaseVestingAccount) TrackUndelegation(amount cTypes.Coins) {
 		}
 		delegatedFree := bva.DelegatedFree.AmountOf(coin.Denom)
 		delegatedVesting := bva.DelegatedVesting.AmountOf(coin.Denom)
-		
+
 		// compute x and y per the specification, where:
 		// X := min(DF, D)
 		// Y := min(DV, D - X)
 		x := cTypes.MinInt(delegatedFree, coin.Amount)
 		y := cTypes.MinInt(delegatedVesting, coin.Amount.Sub(x))
-		
+
 		if !x.IsZero() {
 			xCoin := cTypes.NewCoin(coin.Denom, x)
 			bva.DelegatedFree = bva.DelegatedFree.Sub(cTypes.Coins{xCoin})
 		}
-		
+
 		if !y.IsZero() {
 			yCoin := cTypes.NewCoin(coin.Denom, y)
 			bva.DelegatedVesting = bva.DelegatedVesting.Sub(cTypes.Coins{yCoin})
 		}
-		
+
 		bva.Coins = bva.Coins.Add(cTypes.Coins{coin})
 	}
 }
@@ -380,14 +380,14 @@ var _ exported.VestingAccount = (*ContinuousVestingAccount)(nil)
 // continuously vests by unlocking coins linearly with respect to time.
 type ContinuousVestingAccount struct {
 	*BaseVestingAccount
-	
+
 	StartTime int64 `json:"start_time"` // when the coins start to vest
 }
 
 // NewContinuousVestingAccountRaw creates a new ContinuousVestingAccount object from BaseVestingAccount
 func NewContinuousVestingAccountRaw(bva *BaseVestingAccount,
 	startTime int64) *ContinuousVestingAccount {
-	
+
 	return &ContinuousVestingAccount{
 		BaseVestingAccount: bva,
 		StartTime:          startTime,
@@ -398,13 +398,13 @@ func NewContinuousVestingAccountRaw(bva *BaseVestingAccount,
 func NewContinuousVestingAccount(
 	baseAcc *BaseAccount, StartTime, EndTime int64,
 ) *ContinuousVestingAccount {
-	
+
 	baseVestingAcc := &BaseVestingAccount{
 		BaseAccount:     baseAcc,
 		OriginalVesting: baseAcc.Coins,
 		EndTime:         EndTime,
 	}
-	
+
 	return &ContinuousVestingAccount{
 		StartTime:          StartTime,
 		BaseVestingAccount: baseVestingAcc,
@@ -413,11 +413,11 @@ func NewContinuousVestingAccount(
 
 func (cva ContinuousVestingAccount) String() string {
 	var pubkey string
-	
+
 	if cva.PubKey != nil {
 		pubkey = cTypes.MustBech32ifyAccPub(cva.PubKey)
 	}
-	
+
 	return fmt.Sprintf(`Continuous Vesting Account:
   Address:          %s
   Pubkey:           %s
@@ -439,7 +439,7 @@ func (cva ContinuousVestingAccount) String() string {
 // nil is returned.
 func (cva ContinuousVestingAccount) GetVestedCoins(blockTime time.Time) cTypes.Coins {
 	var vestedCoins cTypes.Coins
-	
+
 	// We must handle the case where the start time for a vesting account has
 	// been set into the future or when the start of the chain is not exactly
 	// known.
@@ -448,17 +448,17 @@ func (cva ContinuousVestingAccount) GetVestedCoins(blockTime time.Time) cTypes.C
 	} else if blockTime.Unix() >= cva.EndTime {
 		return cva.OriginalVesting
 	}
-	
+
 	// calculate the vesting scalar
 	x := blockTime.Unix() - cva.StartTime
 	y := cva.EndTime - cva.StartTime
 	s := cTypes.NewDec(x).Quo(cTypes.NewDec(y))
-	
+
 	for _, ovc := range cva.OriginalVesting {
 		vestedAmt := ovc.Amount.ToDec().Mul(s).RoundInt()
 		vestedCoins = append(vestedCoins, cTypes.NewCoin(ovc.Denom, vestedAmt))
 	}
-	
+
 	return vestedCoins
 }
 
@@ -518,7 +518,7 @@ func NewDelayedVestingAccount(baseAcc *BaseAccount, EndTime int64) *DelayedVesti
 		OriginalVesting: baseAcc.Coins,
 		EndTime:         EndTime,
 	}
-	
+
 	return &DelayedVestingAccount{baseVestingAcc}
 }
 
@@ -528,7 +528,7 @@ func (dva DelayedVestingAccount) GetVestedCoins(blockTime time.Time) cTypes.Coin
 	if blockTime.Unix() >= dva.EndTime {
 		return dva.OriginalVesting
 	}
-	
+
 	return nil
 }
 

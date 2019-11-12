@@ -7,7 +7,7 @@ import (
 
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc("/fiat/{peg-hash}", QueryAssetRequestHandlerFn(cliCtx)).Methods("GET")
-	
+
 	r.HandleFunc("/asset/issue", IssueAssetHandlerFunction(cliCtx)).Methods("POST")
 	r.HandleFunc("/asset/send", SendAssetHandlerFunction(cliCtx)).Methods("POST")
 	r.HandleFunc("/asset/execute", ExecuteAssetHandlerFunction(cliCtx)).Methods("POST")

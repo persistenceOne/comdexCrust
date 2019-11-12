@@ -179,7 +179,7 @@ var (
 	MustUnmarshalValidator             = types.MustUnmarshalValidator
 	UnmarshalValidator                 = types.UnmarshalValidator
 	NewDescription                     = types.NewDescription
-	
+
 	// variable aliases
 	ModuleCdc                        = types.ModuleCdc
 	LastValidatorPowerKey            = types.LastValidatorPowerKey

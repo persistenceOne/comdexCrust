@@ -3,7 +3,7 @@ package keys
 import (
 	"bufio"
 	"errors"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/spf13/cobra"
@@ -28,7 +28,7 @@ private keys stored in a ledger device cannot be deleted with the CLI.
 		RunE: runDeleteCmd,
 		Args: cobra.ExactArgs(1),
 	}
-	
+
 	cmd.Flags().BoolP(flagYes, "y", false,
 		"Skip confirmation prompt when deleting offline or ledger key references")
 	cmd.Flags().BoolP(flagForce, "f", false,
@@ -38,17 +38,17 @@ private keys stored in a ledger device cannot be deleted with the CLI.
 
 func runDeleteCmd(cmd *cobra.Command, args []string) error {
 	name := args[0]
-	
+
 	kb, err := NewKeyBaseFromHomeFlag()
 	if err != nil {
 		return err
 	}
-	
+
 	info, err := kb.Get(name)
 	if err != nil {
 		return err
 	}
-	
+
 	buf := bufio.NewReader(cmd.InOrStdin())
 	if info.GetType() == keys.TypeLedger || info.GetType() == keys.TypeOffline {
 		if !viper.GetBool(flagYes) {
@@ -62,7 +62,7 @@ func runDeleteCmd(cmd *cobra.Command, args []string) error {
 		cmd.PrintErrln("Public key reference deleted")
 		return nil
 	}
-	
+
 	// skip passphrase check if run with --force
 	skipPass := viper.GetBool(flagForce)
 	var oldpass string
@@ -72,7 +72,7 @@ func runDeleteCmd(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	}
-	
+
 	err = kb.Delete(name, oldpass, skipPass)
 	if err != nil {
 		return err

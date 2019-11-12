@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/crypto/multisig"
 	"github.com/tendermint/tendermint/libs/cli"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
 	"github.com/commitHub/commitBlockchain/modules/auth/types"
@@ -48,11 +48,11 @@ recommended to set such parameters manually.
 		RunE: makeMultiSignCmd(cdc),
 		Args: cobra.MinimumNArgs(3),
 	}
-	
+
 	cmd.Flags().Bool(flagSigOnly, false, "Print only the generated signature, then exit")
 	cmd.Flags().Bool(flagOffline, false, "Offline mode. Do not query a full node")
 	cmd.Flags().String(flagOutfile, "", "The document will be written to the given file instead of STDOUT")
-	
+
 	// Add the flags here and return the command
 	return flags.PostCommands(cmd)[0]
 }
@@ -63,12 +63,12 @@ func makeMultiSignCmd(cdc *codec.Codec) func(cmd *cobra.Command, args []string) 
 		if err != nil {
 			return
 		}
-		
+
 		keybase, err := keys.NewKeyBaseFromDir(viper.GetString(cli.HomeFlag))
 		if err != nil {
 			return
 		}
-		
+
 		multisigInfo, err := keybase.Get(args[1])
 		if err != nil {
 			return
@@ -76,28 +76,28 @@ func makeMultiSignCmd(cdc *codec.Codec) func(cmd *cobra.Command, args []string) 
 		if multisigInfo.GetType() != crKeys.TypeMulti {
 			return fmt.Errorf("%q must be of type %s: %s", args[1], crKeys.TypeMulti, multisigInfo.GetType())
 		}
-		
+
 		multisigPub := multisigInfo.GetPubKey().(multisig.PubKeyMultisigThreshold)
 		multisigSig := multisig.NewMultisig(len(multisigPub.PubKeys))
 		cliCtx := context.NewCLIContext().WithCodec(cdc)
 		txBldr := types.NewTxBuilderFromCLI()
-		
+
 		if !viper.GetBool(flagOffline) {
 			accnum, seq, err := types.NewAccountRetriever(cliCtx).GetAccountNumberSequence(multisigInfo.GetAddress())
 			if err != nil {
 				return err
 			}
-			
+
 			txBldr = txBldr.WithAccountNumber(accnum).WithSequence(seq)
 		}
-		
+
 		// read each signature and add it to the multisig if valid
 		for i := 2; i < len(args); i++ {
 			stdSig, err := readAndUnmarshalStdSignature(cdc, args[i])
 			if err != nil {
 				return err
 			}
-			
+
 			// Validate each signature
 			sigBytes := types.StdSignBytes(
 				txBldr.ChainID(), txBldr.AccountNumber(), txBldr.Sequence(),
@@ -110,10 +110,10 @@ func makeMultiSignCmd(cdc *codec.Codec) func(cmd *cobra.Command, args []string) 
 				return err
 			}
 		}
-		
+
 		newStdSig := types.StdSignature{Signature: cdc.MustMarshalBinaryBare(multisigSig), PubKey: multisigPub}
 		newTx := types.NewStdTx(stdTx.GetMsgs(), stdTx.Fee, []types.StdSignature{newStdSig}, stdTx.GetMemo())
-		
+
 		sigOnly := viper.GetBool(flagSigOnly)
 		var json []byte
 		switch {
@@ -129,12 +129,12 @@ func makeMultiSignCmd(cdc *codec.Codec) func(cmd *cobra.Command, args []string) 
 		if err != nil {
 			return err
 		}
-		
+
 		if viper.GetString(flagOutfile) == "" {
 			fmt.Printf("%s\n", json)
 			return
 		}
-		
+
 		fp, err := os.OpenFile(
 			viper.GetString(flagOutfile), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644,
 		)
@@ -142,9 +142,9 @@ func makeMultiSignCmd(cdc *codec.Codec) func(cmd *cobra.Command, args []string) 
 			return err
 		}
 		defer fp.Close()
-		
+
 		fmt.Fprintf(fp, "%s\n", json)
-		
+
 		return
 	}
 }

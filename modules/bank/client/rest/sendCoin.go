@@ -61,7 +61,7 @@ func SendRequestHandlerFn(cliCtx context.CLIContext, kafkaBool bool, kafkaState 
 		} else {
 			output, err := rest2.SignAndBroadcast(req.BaseReq, cliCtx, req.Mode, req.Password, []cTypes.Msg{msg})
 			if err != nil {
-				rest2.WriteErrorResponse(w, err)
+				rest2.WriteError(w, err)
 				return
 			}
 			w.Header().Set("Content-Type", "application/json")

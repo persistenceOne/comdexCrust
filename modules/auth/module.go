@@ -2,18 +2,18 @@ package auth
 
 import (
 	"encoding/json"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-	
+
 	abciTypes "github.com/tendermint/tendermint/abci/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/kafka"
 	"github.com/commitHub/commitBlockchain/types/module"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/auth/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/auth/client/rest"
 	"github.com/commitHub/commitBlockchain/modules/auth/types"

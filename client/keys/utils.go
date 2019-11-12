@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
@@ -18,7 +18,7 @@ import (
 const (
 	OutputFormatText = "text"
 	OutputFormatJSON = "json"
-	
+
 	// defaultKeyDBName is the client's subdirectory where keys are stored.
 	defaultKeyDBName = "keys"
 )
@@ -32,7 +32,7 @@ func GetKeyInfo(name string) (keys.Info, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return keybase.Get(name)
 }
 
@@ -42,12 +42,12 @@ func GetKeyInfo(name string) (keys.Info, error) {
 // the key info cannot be fetched or reading from STDIN fails.
 func GetPassphrase(name string) (string, error) {
 	var passphrase string
-	
+
 	keyInfo, err := GetKeyInfo(name)
 	if err != nil {
 		return passphrase, err
 	}
-	
+
 	// we only need a passphrase for locally stored keys
 	// TODO: (ref: #864) address security concerns
 	if keyInfo.GetType() == keys.TypeLocal {
@@ -56,7 +56,7 @@ func GetPassphrase(name string) (string, error) {
 			return passphrase, err
 		}
 	}
-	
+
 	return passphrase, nil
 }
 
@@ -65,12 +65,12 @@ func GetPassphrase(name string) (string, error) {
 func ReadPassphraseFromStdin(name string) (string, error) {
 	buf := bufio.NewReader(os.Stdin)
 	prompt := fmt.Sprintf("Password to sign with '%s':", name)
-	
+
 	passphrase, err := input.GetPassword(prompt, buf)
 	if err != nil {
 		return passphrase, fmt.Errorf("Error reading passphrase: %v", err)
 	}
-	
+
 	return passphrase, nil
 }
 
@@ -97,11 +97,11 @@ func printKeyInfo(keyInfo keys.Info, bechKeyOut bechKeyOutFn) {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	switch viper.Get(cli.OutputFlag) {
 	case OutputFormatText:
 		printTextInfos([]keys.KeyOutput{ko})
-	
+
 	case OutputFormatJSON:
 		var out []byte
 		var err error
@@ -113,7 +113,7 @@ func printKeyInfo(keyInfo keys.Info, bechKeyOut bechKeyOutFn) {
 		if err != nil {
 			panic(err)
 		}
-		
+
 		fmt.Println(string(out))
 	}
 }
@@ -123,21 +123,21 @@ func printInfos(infos []keys.Info) {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	switch viper.Get(cli.OutputFlag) {
 	case OutputFormatText:
 		printTextInfos(kos)
-	
+
 	case OutputFormatJSON:
 		var out []byte
 		var err error
-		
+
 		if viper.GetBool(flags.FlagIndentResponse) {
 			out, err = cdc.MarshalJSONIndent(kos, "", "  ")
 		} else {
 			out, err = cdc.MarshalJSON(kos)
 		}
-		
+
 		if err != nil {
 			panic(err)
 		}
@@ -158,7 +158,7 @@ func printKeyAddress(info keys.Info, bechKeyOut bechKeyOutFn) {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	fmt.Println(ko.Address)
 }
 
@@ -167,6 +167,6 @@ func printPubKey(info keys.Info, bechKeyOut bechKeyOutFn) {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	fmt.Println(ko.PubKey)
 }

@@ -1,7 +1,11 @@
 package types
 
+import (
+	"github.com/commitHub/commitBlockchain/types"
+)
+
 type GenesisState struct {
-	Negotiations []Negotiation `json:"negotiations"`
+	Negotiations []types.Negotiation `json:"negotiations"`
 }
 
 func DefaultGenesisState() GenesisState {

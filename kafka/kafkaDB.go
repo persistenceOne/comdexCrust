@@ -3,22 +3,22 @@ package kafka
 import (
 	"fmt"
 	"net/http"
-	
+
 	"github.com/gorilla/mux"
-	
+
 	dbm "github.com/tendermint/tendermint/libs/db"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 )
 
 // SetTicketIDtoDB : initiates ticketid in Database
 func SetTicketIDtoDB(ticketID Ticket, kafkaDB *dbm.GoLevelDB, cdc *codec.Codec, msg []byte) {
-	
+
 	ticketid, err := cdc.MarshalJSON(ticketID)
 	if err != nil {
 		panic(err)
 	}
-	
+
 	kafkaDB.Set(ticketid, msg)
 	return
 }
@@ -39,7 +39,7 @@ func GetResponseFromDB(ticketID Ticket, kafkaDB *dbm.GoLevelDB, cdc *codec.Codec
 	if err != nil {
 		panic(err)
 	}
-	
+
 	return kafkaDB.Get(ticketid)
 }
 
@@ -48,7 +48,7 @@ func QueryDB(cdc *codec.Codec, r *mux.Router, kafkaDB *dbm.GoLevelDB) http.Handl
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		vars := mux.Vars(r)
-		
+
 		iDByte, err := cdc.MarshalJSON(vars["ticketid"])
 		if err != nil {
 			panic(err)
@@ -67,7 +67,7 @@ func QueryDB(cdc *codec.Codec, r *mux.Router, kafkaDB *dbm.GoLevelDB) http.Handl
 			w.Write(output)
 			return
 		}
-		
+
 		w.WriteHeader(http.StatusAccepted)
 		w.Write(response)
 		return

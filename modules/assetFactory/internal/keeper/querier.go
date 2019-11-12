@@ -2,10 +2,10 @@ package keeper
 
 import (
 	"fmt"
-	
+
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	abciTypes "github.com/tendermint/tendermint/abci/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/types"
 )
@@ -30,7 +30,7 @@ func queryAsset(ctx cTypes.Context, path []string, k Keeper) ([]byte, cTypes.Err
 	if err != nil {
 		return nil, cTypes.ErrInternal(fmt.Sprintf("failed to parse the pegHash %s", err))
 	}
-	
+
 	assetPeg, err := k.GetAssetPeg(ctx, pegHashHex)
 	if err != nil {
 		return nil, cTypes.ErrInternal(fmt.Sprintf("%s", err))

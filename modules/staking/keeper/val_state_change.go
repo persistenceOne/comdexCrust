@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"sort"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/staking/types"
 )
 
@@ -25,39 +25,39 @@ import (
 // at the previous block height or were removed from the validator set entirely
 // are returned to Tendermint.
 func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx sdk.Context) (updates []abci.ValidatorUpdate) {
-	
+
 	store := ctx.KVStore(k.storeKey)
 	maxValidators := k.GetParams(ctx).MaxValidators
 	totalPower := sdk.ZeroInt()
 	amtFromBondedToNotBonded, amtFromNotBondedToBonded := sdk.ZeroInt(), sdk.ZeroInt()
-	
+
 	// Retrieve the last validator set.
 	// The persistent set is updated later in this function.
 	// (see LastValidatorPowerKey).
 	last := k.getLastValidatorsByAddr(ctx)
-	
+
 	// Iterate over validators, highest power to lowest.
 	iterator := sdk.KVStoreReversePrefixIterator(store, types.ValidatorsByPowerIndexKey)
 	defer iterator.Close()
 	for count := 0; iterator.Valid() && count < int(maxValidators); iterator.Next() {
-		
+
 		// everything that is iterated in this loop is becoming or already a
 		// part of the bonded validator set
-		
+
 		// fetch the validator
 		valAddr := sdk.ValAddress(iterator.Value())
 		validator := k.mustGetValidator(ctx, valAddr)
-		
+
 		if validator.Jailed {
 			panic("should never retrieve a jailed validator from the power store")
 		}
-		
+
 		// if we get to a zero-power validator (which we don't bond),
 		// there are no more possible bonded validators
 		if validator.PotentialConsensusPower() == 0 {
 			break
 		}
-		
+
 		// apply the appropriate state change if necessary
 		switch {
 		case validator.IsUnbonded():
@@ -71,52 +71,52 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx sdk.Context) (updates []ab
 		default:
 			panic("unexpected validator status")
 		}
-		
+
 		// fetch the old power bytes
 		var valAddrBytes [sdk.AddrLen]byte
 		copy(valAddrBytes[:], valAddr[:])
 		oldPowerBytes, found := last[valAddrBytes]
-		
+
 		// calculate the new power bytes
 		newPower := validator.ConsensusPower()
 		newPowerBytes := k.cdc.MustMarshalBinaryLengthPrefixed(newPower)
-		
+
 		// update the validator set if power has changed
 		if !found || !bytes.Equal(oldPowerBytes, newPowerBytes) {
 			updates = append(updates, validator.ABCIValidatorUpdate())
-			
+
 			// set validator power on lookup index
 			k.SetLastValidatorPower(ctx, valAddr, newPower)
 		}
-		
+
 		// validator still in the validator set, so delete from the copy
 		delete(last, valAddrBytes)
-		
+
 		// keep count
 		count++
 		totalPower = totalPower.Add(sdk.NewInt(newPower))
 	}
-	
+
 	// sort the no-longer-bonded validators
 	noLongerBonded := sortNoLongerBonded(last)
-	
+
 	// iterate through the sorted no-longer-bonded validators
 	for _, valAddrBytes := range noLongerBonded {
-		
+
 		// fetch the validator
 		validator := k.mustGetValidator(ctx, sdk.ValAddress(valAddrBytes))
-		
+
 		// bonded to unbonding
 		validator = k.bondedToUnbonding(ctx, validator)
 		amtFromBondedToNotBonded = amtFromBondedToNotBonded.Add(validator.GetTokens())
-		
+
 		// delete from the bonded validator index
 		k.DeleteLastValidatorPower(ctx, validator.GetOperator())
-		
+
 		// update the validator set
 		updates = append(updates, validator.ABCIValidatorUpdateZero())
 	}
-	
+
 	// Update the pools based on the recent updates in the validator set:
 	// - The tokens from the non-bonded candidates that enter the new validator set need to be transferred
 	// to the Bonded pool.
@@ -132,12 +132,12 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx sdk.Context) (updates []ab
 	default:
 		// equal amounts of tokens; no update required
 	}
-	
+
 	// set total power on lookup index if there are any updates
 	if len(updates) > 0 {
 		k.SetLastTotalPower(ctx, totalPower)
 	}
-	
+
 	return updates
 }
 
@@ -177,7 +177,7 @@ func (k Keeper) jailValidator(ctx sdk.Context, validator types.Validator) {
 	if validator.Jailed {
 		panic(fmt.Sprintf("cannot jail already jailed validator, validator: %v\n", validator))
 	}
-	
+
 	validator.Jailed = true
 	k.SetValidator(ctx, validator)
 	k.DeleteValidatorByPowerIndex(ctx, validator)
@@ -188,7 +188,7 @@ func (k Keeper) unjailValidator(ctx sdk.Context, validator types.Validator) {
 	if !validator.Jailed {
 		panic(fmt.Sprintf("cannot unjail already unjailed validator, validator: %v\n", validator))
 	}
-	
+
 	validator.Jailed = false
 	k.SetValidator(ctx, validator)
 	k.SetValidatorByPowerIndex(ctx, validator)
@@ -196,56 +196,56 @@ func (k Keeper) unjailValidator(ctx sdk.Context, validator types.Validator) {
 
 // perform all the store operations for when a validator status becomes bonded
 func (k Keeper) bondValidator(ctx sdk.Context, validator types.Validator) types.Validator {
-	
+
 	// delete the validator by power index, as the key will change
 	k.DeleteValidatorByPowerIndex(ctx, validator)
-	
+
 	// set the status
 	validator = validator.UpdateStatus(sdk.Bonded)
-	
+
 	// save the now bonded validator record to the two referenced stores
 	k.SetValidator(ctx, validator)
 	k.SetValidatorByPowerIndex(ctx, validator)
-	
+
 	// delete from queue if present
 	k.DeleteValidatorQueue(ctx, validator)
-	
+
 	// trigger hook
 	k.AfterValidatorBonded(ctx, validator.ConsAddress(), validator.OperatorAddress)
-	
+
 	return validator
 }
 
 // perform all the store operations for when a validator begins unbonding
 func (k Keeper) beginUnbondingValidator(ctx sdk.Context, validator types.Validator) types.Validator {
-	
+
 	params := k.GetParams(ctx)
-	
+
 	// delete the validator by power index, as the key will change
 	k.DeleteValidatorByPowerIndex(ctx, validator)
-	
+
 	// sanity check
 	if validator.Status != sdk.Bonded {
 		panic(fmt.Sprintf("should not already be unbonded or unbonding, validator: %v\n", validator))
 	}
-	
+
 	// set the status
 	validator = validator.UpdateStatus(sdk.Unbonding)
-	
+
 	// set the unbonding completion time and completion height appropriately
 	validator.UnbondingCompletionTime = ctx.BlockHeader().Time.Add(params.UnbondingTime)
 	validator.UnbondingHeight = ctx.BlockHeader().Height
-	
+
 	// save the now unbonded validator record and power index
 	k.SetValidator(ctx, validator)
 	k.SetValidatorByPowerIndex(ctx, validator)
-	
+
 	// Adds to unbonding validator queue
 	k.InsertValidatorQueue(ctx, validator)
-	
+
 	// trigger hook
 	k.AfterValidatorBeginUnbonding(ctx, validator.ConsAddress(), validator.OperatorAddress)
-	
+
 	return validator
 }
 

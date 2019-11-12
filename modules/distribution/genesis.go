@@ -2,22 +2,22 @@ package distribution
 
 import (
 	"fmt"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/distribution/types"
 )
 
 // InitGenesis sets distribution information for genesis
 func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper types.SupplyKeeper, data types.GenesisState) {
 	var moduleHoldings sdk.DecCoins
-	
+
 	keeper.SetFeePool(ctx, data.FeePool)
 	keeper.SetCommunityTax(ctx, data.CommunityTax)
 	keeper.SetBaseProposerReward(ctx, data.BaseProposerReward)
 	keeper.SetBonusProposerReward(ctx, data.BonusProposerReward)
 	keeper.SetWithdrawAddrEnabled(ctx, data.WithdrawAddrEnabled)
-	
+
 	for _, dwi := range data.DelegatorWithdrawInfos {
 		keeper.SetDelegatorWithdrawAddr(ctx, dwi.DelegatorAddress, dwi.WithdrawAddress)
 	}
@@ -41,16 +41,16 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper types.SupplyKeeper
 	for _, evt := range data.ValidatorSlashEvents {
 		keeper.SetValidatorSlashEvent(ctx, evt.ValidatorAddress, evt.Height, evt.Period, evt.Event)
 	}
-	
+
 	moduleHoldings = moduleHoldings.Add(data.FeePool.CommunityPool)
 	moduleHoldingsInt, _ := moduleHoldings.TruncateDecimal()
-	
+
 	// check if the module account exists
 	moduleAcc := keeper.GetDistributionAccount(ctx)
 	if moduleAcc == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
-	
+
 	if moduleAcc.GetCoins().IsZero() {
 		if err := moduleAcc.SetCoins(moduleHoldingsInt); err != nil {
 			panic(err)

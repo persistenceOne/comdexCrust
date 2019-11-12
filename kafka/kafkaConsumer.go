@@ -2,7 +2,7 @@ package kafka
 
 import (
 	"github.com/Shopify/sarama"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 )
 
@@ -28,9 +28,9 @@ func PartitionConsumers(consumer sarama.Consumer, topic string) sarama.Partition
 
 // KafkaTopicConsumer : Takes a consumer and makes it consume a topic message at a time
 func KafkaTopicConsumer(topic string, consumers map[string]sarama.PartitionConsumer, cdc *codec.Codec) KafkaMsg {
-	
+
 	partitionConsumer := consumers[topic]
-	
+
 	if len(partitionConsumer.Messages()) == 0 {
 		var kafkaStore = KafkaMsg{Msg: nil}
 		return kafkaStore

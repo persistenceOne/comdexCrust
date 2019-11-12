@@ -2,11 +2,11 @@ package types
 
 import (
 	"fmt"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/crypto"
 	"gopkg.in/yaml.v2"
-	
+
 	authTypes "github.com/commitHub/commitBlockchain/modules/auth/types"
 	"github.com/commitHub/commitBlockchain/modules/supply/exported"
 )
@@ -28,11 +28,11 @@ func NewModuleAddress(name string) sdk.AccAddress {
 func NewEmptyModuleAccount(name string, permissions ...string) *ModuleAccount {
 	moduleAddress := NewModuleAddress(name)
 	baseAcc := authTypes.NewBaseAccountWithAddress(moduleAddress)
-	
+
 	if err := validatePermissions(permissions...); err != nil {
 		panic(err)
 	}
-	
+
 	return &ModuleAccount{
 		BaseAccount: &baseAcc,
 		Name:        name,
@@ -43,11 +43,11 @@ func NewEmptyModuleAccount(name string, permissions ...string) *ModuleAccount {
 // NewModuleAccount creates a new ModuleAccount instance
 func NewModuleAccount(ba *authTypes.BaseAccount,
 	name string, permissions ...string) *ModuleAccount {
-	
+
 	if err := validatePermissions(permissions...); err != nil {
 		panic(err)
 	}
-	
+
 	return &ModuleAccount{
 		BaseAccount: ba,
 		Name:        name,
@@ -131,10 +131,10 @@ func (ma ModuleAccount) MarshalYAML() (interface{}, error) {
 		Name:          ma.Name,
 		Permissions:   ma.Permissions,
 	})
-	
+
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return string(bs), nil
 }

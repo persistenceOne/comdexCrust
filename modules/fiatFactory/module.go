@@ -2,16 +2,16 @@ package fiatFactory
 
 import (
 	"encoding/json"
-	
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 	abciTypes "github.com/tendermint/tendermint/abci/types"
-	
+
 	"github.com/commitHub/commitBlockchain/kafka"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/modules/fiatFactory/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/fiatFactory/client/rest"
@@ -55,19 +55,19 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	
+
 	fiatTxCmd.AddCommand(client.PostCommands(
 		cli.IssueFiatCmd(cdc),
 		cli.SendFiatCmd(cdc),
 		cli.ExecuteFiatCmd(cdc),
 		cli.RedeemFiatCmd(cdc),
 	)...)
-	
+
 	return fiatTxCmd
 }
 
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	
+
 	fiatQueryCmd := &cobra.Command{
 		Use:                        ModuleName,
 		Short:                      "fiat query sub commands",
@@ -75,11 +75,11 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	
+
 	fiatQueryCmd.AddCommand(client.GetCommands(
 		cli.QueryFiatCmd(),
 	)...)
-	
+
 	return fiatQueryCmd
 }
 

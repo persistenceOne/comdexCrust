@@ -23,7 +23,7 @@ type confirmSellerBidReq struct {
 	Bid                int64        `json:"bid" valid:"required~Enter the Bid,matches(^[1-9]{1}[0-9]*$)~Enter valid Bid"`
 	Time               int64        `json:"time" valid:"required~Enter the Time,matches(^[1-9]{1}[0-9]*$)~Enter valid Time"`
 	PegHash            string       `json:"pegHash" valid:"required~Enter the Time,matches(^[1-9]{1}[0-9]*$)~Enter valid Time"`
-	SellerContractHash string       `json:"sellerContractHash" valid:"matches(^[A-Za-z0-9]+$)~Invalid SellerContractHash"`
+	SellerContractHash string       `json:"sellerContractHash" valid:"required~Enter the SellerContractHash,matches(^.*$)~Invalid SellerContractHash,length(1|1000)~SellerContractHash length should be 1 to 1000"`
 	Password           string       `json:"password" valid:"required~Enter the Password"`
 	Mode               string       `json:"mode"`
 }
@@ -88,7 +88,7 @@ func ConfirmSellerBidRequestHandlerFn(cliCtx context.CLIContext, kafkaBool bool,
 			return
 		}
 
-		negotiationID := negotiationTypes.NegotiationID(append(append(to.Bytes(), fromAddr.Bytes()...), pegHashHex.Bytes()...))
+		negotiationID := types.NegotiationID(append(append(to.Bytes(), fromAddr.Bytes()...), pegHashHex.Bytes()...))
 		kb, err := keys.NewKeyBaseFromHomeFlag()
 		if err != nil {
 			rest2.WriteErrorResponse(w, types.ErrKeyBase(negotiationTypes.DefaultCodeSpace))
@@ -102,7 +102,7 @@ func ConfirmSellerBidRequestHandlerFn(cliCtx context.CLIContext, kafkaBool bool,
 			return
 		}
 
-		proposedNegotiation := &negotiationTypes.BaseNegotiation{
+		proposedNegotiation := &types.BaseNegotiation{
 			NegotiationID:      negotiationID,
 			BuyerAddress:       to,
 			SellerAddress:      fromAddr,

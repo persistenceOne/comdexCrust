@@ -30,8 +30,8 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(&types.BaseAssetPeg{}, "commit-blockchain/AssetPeg", nil)
 	cdc.RegisterInterface((*types.FiatPeg)(nil), nil)
 	cdc.RegisterConcrete(&types.BaseFiatPeg{}, "commit-blockchain/FiatPeg", nil)
-	cdc.RegisterInterface((*reputation.AccountReputation)(nil), nil)
-	cdc.RegisterConcrete(&reputation.BaseAccountReputation{}, "commit-blockchain/AccountReputation", nil)
+	cdc.RegisterInterface((*types.AccountReputation)(nil), nil)
+	cdc.RegisterConcrete(&types.BaseAccountReputation{}, "commit-blockchain/AccountReputation", nil)
 	cdc.RegisterConcrete(reputation.MsgBuyerFeedbacks{}, "commit-blockchain/MsgBuyerFeedbacks", nil)
 	cdc.RegisterConcrete(reputation.MsgSellerFeedbacks{}, "commit-blockchain/MsgSellerFeedbacks", nil)
 }

@@ -15,9 +15,9 @@ const (
 var (
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
-	
+
 	AssetPegHashStoreKey = types.AssetPegHashStoreKey
-	
+
 	DefaultGenesisState               = types.DefaultGenesisState
 	ValidateGenesis                   = types.ValidateGenesis
 	EventTypeAssetFactoryIssueAsset   = types.EventTypeAssetFactoryIssueAsset
@@ -29,12 +29,12 @@ var (
 type (
 	GenesisState = types.GenesisState
 	Keeper       = keeper.Keeper
-	
+
 	AccountKeeper           = types.AccountKeeper
 	MsgFactoryIssueAssets   = types.MsgFactoryIssueAssets
 	MsgFactoryRedeemAssets  = types.MsgFactoryRedeemAssets
 	MsgFactorySendAssets    = types.MsgFactorySendAssets
 	MsgFactoryExecuteAssets = types.MsgFactoryExecuteAssets
-	
+
 	IssueAsset = types.IssueAsset
 )

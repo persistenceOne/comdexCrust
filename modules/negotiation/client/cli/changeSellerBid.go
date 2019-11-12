@@ -5,7 +5,7 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
@@ -20,21 +20,21 @@ func ChangeSellerBidCmd(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			toStr := viper.GetString(FlagTo)
-			
+
 			to, err := cTypes.AccAddressFromBech32(toStr)
 			if err != nil {
 				return nil
 			}
-			
+
 			bid := viper.GetInt64(FlagBid)
 			time := viper.GetInt64(FlagTime)
 			hashStr := viper.GetString(FlagPegHash)
 			pegHashHex, err := types.GetAssetPegHashHex(hashStr)
-			negotiationID := negotiationTypes.NegotiationID(append(append(to.Bytes(), cliCtx.GetFromAddress().Bytes()...), pegHashHex...))
-			
-			proposedNegotiation := &negotiationTypes.BaseNegotiation{
+			negotiationID := types.NegotiationID(append(append(to.Bytes(), cliCtx.GetFromAddress().Bytes()...), pegHashHex...))
+
+			proposedNegotiation := &types.BaseNegotiation{
 				NegotiationID: negotiationID,
 				BuyerAddress:  to,
 				SellerAddress: cliCtx.GetFromAddress(),
@@ -42,7 +42,7 @@ func ChangeSellerBidCmd(cdc *codec.Codec) *cobra.Command {
 				Bid:           bid,
 				Time:          time,
 			}
-			
+
 			msg := negotiationTypes.BuildMsgChangeSellerBid(proposedNegotiation)
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []cTypes.Msg{msg})
 		},

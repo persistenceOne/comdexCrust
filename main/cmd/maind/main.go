@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"io"
-	
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	cServer "github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/store"
@@ -15,7 +15,7 @@ import (
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
 	tmTypes "github.com/tendermint/tendermint/types"
-	
+
 	"github.com/commitHub/commitBlockchain/main/app"
 	"github.com/commitHub/commitBlockchain/modules/genaccounts"
 	genAccsCli "github.com/commitHub/commitBlockchain/modules/genaccounts/client/cli"
@@ -35,17 +35,17 @@ var (
 
 func main() {
 	cobra.EnableCommandSorting = false
-	
+
 	cdc := app.MakeCodec()
-	
+
 	config := cTypes.GetConfig()
 	config.SetBech32PrefixForAccount(types.Bech32PrefixAccAddr, types.Bech32PrefixAccPub)
 	config.SetBech32PrefixForValidator(types.Bech32PrefixValAddr, types.Bech32PrefixValPub)
 	config.SetBech32PrefixForConsensusNode(types.Bech32PrefixConsAddr, types.Bech32PrefixConsPub)
 	config.Seal()
-	
+
 	ctx := cServer.NewDefaultContext()
-	
+
 	rootCmd := &cobra.Command{
 		Use:               "maind",
 		Short:             "Main  Daemon (server)",
@@ -62,9 +62,9 @@ func main() {
 	)
 	rootCmd.PersistentFlags().UintVar(&invCheckPeriod, flagInvCheckPeriod,
 		0, "Assert registered invariants every N blocks")
-	
+
 	server.AddCommands(ctx, cdc, rootCmd, newApp, exportAppStateAndTMValidators)
-	
+
 	// prepare and add flags
 	executor := cli.PrepareBaseCmd(rootCmd, "CM", app.DefaultNodeHome)
 	err := executor.Execute()
@@ -82,7 +82,7 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abciTypes.Applic
 func exportAppStateAndTMValidators(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, height int64, forZeroHeight bool, jailWhiteList []string,
 ) (json.RawMessage, []tmTypes.GenesisValidator, error) {
-	
+
 	if height != -1 {
 		nsApp := app.NewMainApp(logger, db, traceStore, false, uint(2))
 		err := nsApp.LoadHeight(height)
@@ -91,8 +91,8 @@ func exportAppStateAndTMValidators(
 		}
 		return nsApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 	}
-	
+
 	nsApp := app.NewMainApp(logger, db, traceStore, true, uint(2))
-	
+
 	return nsApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 }

@@ -3,6 +3,9 @@ package rest
 import (
 	"bytes"
 	"fmt"
+	"github.com/commitHub/commitBlockchain/modules/acl"
+	bankTypes "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
+
 	"net/http"
 	"strconv"
 
@@ -13,8 +16,6 @@ import (
 
 	rest2 "github.com/commitHub/commitBlockchain/client/rest"
 	"github.com/commitHub/commitBlockchain/kafka"
-	"github.com/commitHub/commitBlockchain/modules/acl"
-	bankTypes "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
 	"github.com/commitHub/commitBlockchain/types"
 )
 
@@ -53,7 +54,7 @@ func DefineACLHandler(cliCtx context.CLIContext, kafkaBool bool, kafkaState kafk
 
 		_, err := govalidator.ValidateStruct(req)
 		if err != nil {
-			rest2.WriteErrorResponse(w, cTypes.NewError(bankTypes.DefaultCodespace, http.StatusBadRequest, err.Error()))
+			rest2.WriteErrorResponse(w, cTypes.NewError(acl.DefaultCodeSpace, http.StatusBadRequest, err.Error()))
 			return
 		}
 
@@ -64,7 +65,7 @@ func DefineACLHandler(cliCtx context.CLIContext, kafkaBool bool, kafkaState kafk
 
 		fromAddr, name, err := context.GetFromFields(req.BaseReq.From, false)
 		if err != nil {
-			rest2.WriteErrorResponse(w, types.ErrFromName(bankTypes.DefaultCodespace))
+			rest2.WriteErrorResponse(w, types.ErrFromName(acl.DefaultCodeSpace))
 			return
 		}
 
@@ -73,13 +74,13 @@ func DefineACLHandler(cliCtx context.CLIContext, kafkaBool bool, kafkaState kafk
 
 		zoneID, err := acl.GetZoneIDFromString(req.ZoneID)
 		if err != nil {
-			rest2.WriteErrorResponse(w, types.ErrZoneIDFromString(bankTypes.DefaultCodespace, req.ZoneID))
+			rest2.WriteErrorResponse(w, types.ErrZoneIDFromString(acl.DefaultCodeSpace, req.ZoneID))
 			return
 		}
 
 		to, err := cTypes.AccAddressFromBech32(req.ACLAddress)
 		if err != nil {
-			rest2.WriteErrorResponse(w, types.ErrAccAddressFromBech32(bankTypes.DefaultCodespace, req.ACLAddress))
+			rest2.WriteErrorResponse(w, types.ErrAccAddressFromBech32(acl.DefaultCodeSpace, req.ACLAddress))
 			return
 		}
 
@@ -94,7 +95,7 @@ func DefineACLHandler(cliCtx context.CLIContext, kafkaBool bool, kafkaState kafk
 		Bytes, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", acl.QuerierRoute, "queryOrganization",
 			organizationID), nil)
 		if Bytes == nil {
-			rest2.WriteErrorResponse(w, types.ErrQueryResponseLengthZero(bankTypes.DefaultCodespace, "organization"))
+			rest2.WriteErrorResponse(w, types.ErrQueryResponseLengthZero(acl.DefaultCodeSpace, "organization"))
 			return
 		}
 
@@ -102,7 +103,7 @@ func DefineACLHandler(cliCtx context.CLIContext, kafkaBool bool, kafkaState kafk
 		cliCtx.Codec.MustUnmarshalJSON(Bytes, &rawMsg)
 
 		if bytes.Compare(rawMsg.ZoneID, zoneID) != 0 {
-			rest2.WriteErrorResponse(w, types.ErrInvalidOrganizationWithZone(bankTypes.DefaultCodespace))
+			rest2.WriteErrorResponse(w, types.ErrInvalidOrganizationWithZone(acl.DefaultCodeSpace))
 			return
 		}
 
@@ -112,7 +113,6 @@ func DefineACLHandler(cliCtx context.CLIContext, kafkaBool bool, kafkaState kafk
 			OrganizationID: organizationID,
 			ACL:            ACLReq,
 		}
-
 		msg := bankTypes.BuildMsgDefineACL(fromAddr, to, aclAccount)
 
 		if kafkaBool == true {

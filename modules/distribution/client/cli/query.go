@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	
+
 	"github.com/spf13/cobra"
-	
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/distribution/client/common"
 	"github.com/commitHub/commitBlockchain/modules/distribution/types"
 )
@@ -27,7 +27,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	
+
 	distQueryCmd.AddCommand(client.GetCommands(
 		GetCmdQueryParams(queryRoute, cdc),
 		GetCmdQueryValidatorOutstandingRewards(queryRoute, cdc),
@@ -36,7 +36,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		GetCmdQueryDelegatorRewards(queryRoute, cdc),
 		GetCmdQueryCommunityPool(queryRoute, cdc),
 	)...)
-	
+
 	return distQueryCmd
 }
 
@@ -75,18 +75,18 @@ $ %s query distr validator-outstanding-rewards cosmosvaloper1lwjmdnks33xwnmfayc6
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			valAddr, err := sdk.ValAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
-			
+
 			params := types.NewQueryValidatorOutstandingRewardsParams(valAddr)
 			bz, err := cdc.MarshalJSON(params)
 			if err != nil {
 				return err
 			}
-			
+
 			resp, _, err := cliCtx.QueryWithData(
 				fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryValidatorOutstandingRewards),
 				bz,
@@ -94,12 +94,12 @@ $ %s query distr validator-outstanding-rewards cosmosvaloper1lwjmdnks33xwnmfayc6
 			if err != nil {
 				return err
 			}
-			
+
 			var outstandingRewards types.ValidatorOutstandingRewards
 			if err := cdc.UnmarshalJSON(resp, &outstandingRewards); err != nil {
 				return err
 			}
-			
+
 			return cliCtx.PrintOutput(outstandingRewards)
 		},
 	}
@@ -122,17 +122,17 @@ $ %s query distr commission cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			validatorAddr, err := sdk.ValAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
-			
+
 			res, err := common.QueryValidatorCommission(cliCtx, queryRoute, validatorAddr)
 			if err != nil {
 				return err
 			}
-			
+
 			var valCom types.ValidatorAccumulatedCommission
 			cdc.MustUnmarshalJSON(res, &valCom)
 			return cliCtx.PrintOutput(valCom)
@@ -157,33 +157,33 @@ $ %s query distr slashes cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj 0 
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			validatorAddr, err := sdk.ValAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
-			
+
 			startHeight, err := strconv.ParseUint(args[1], 10, 64)
 			if err != nil {
 				return fmt.Errorf("start-height %s not a valid uint, please input a valid start-height", args[1])
 			}
-			
+
 			endHeight, err := strconv.ParseUint(args[2], 10, 64)
 			if err != nil {
 				return fmt.Errorf("end-height %s not a valid uint, please input a valid end-height", args[2])
 			}
-			
+
 			params := types.NewQueryValidatorSlashesParams(validatorAddr, startHeight, endHeight)
 			bz, err := cdc.MarshalJSON(params)
 			if err != nil {
 				return err
 			}
-			
+
 			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/validator_slashes", queryRoute), bz)
 			if err != nil {
 				return err
 			}
-			
+
 			var slashes types.ValidatorSlashEvents
 			cdc.MustUnmarshalJSON(res, &slashes)
 			return cliCtx.PrintOutput(slashes)
@@ -209,25 +209,25 @@ $ %s query distr rewards cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p cosmosval
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			if len(args) == 2 {
 				// query for rewards from a particular delegation
 				resp, err := common.QueryDelegationRewards(cliCtx, queryRoute, args[0], args[1])
 				if err != nil {
 					return err
 				}
-				
+
 				var result sdk.DecCoins
 				cdc.MustUnmarshalJSON(resp, &result)
 				return cliCtx.PrintOutput(result)
 			}
-			
+
 			// query for delegator total rewards
 			resp, err := common.QueryDelegatorTotalRewards(cliCtx, queryRoute, args[0])
 			if err != nil {
 				return err
 			}
-			
+
 			var result types.QueryDelegatorTotalRewardsResponse
 			cdc.MustUnmarshalJSON(resp, &result)
 			return cliCtx.PrintOutput(result)
@@ -252,12 +252,12 @@ $ %s query distr community-pool
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/community_pool", queryRoute), nil)
 			if err != nil {
 				return err
 			}
-			
+
 			var result sdk.DecCoins
 			cdc.MustUnmarshalJSON(res, &result)
 			return cliCtx.PrintOutput(result)

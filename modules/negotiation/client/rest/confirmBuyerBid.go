@@ -23,7 +23,7 @@ type confirmBuyerBidReq struct {
 	Bid               int64        `json:"bid" valid:"required~Enter the Bid,matches(^[1-9]{1}[0-9]*$)~Enter valid Bid"`
 	Time              int64        `json:"time" valid:"required~Enter the Time,matches(^[1-9]{1}[0-9]*$)~Enter valid Time"`
 	PegHash           string       `json:"pegHash" valid:"required~Enter the Time,matches(^[1-9]{1}[0-9]*$)~Enter valid Time"`
-	BuyerContractHash string       `json:"buyerContractHash" valid:"required~Enter the BuyerContractHash, matches(^[A-Za-z0-9]+$)~Invalid BuyerContractHash"`
+	BuyerContractHash string       `json:"buyerContractHash" valid:"required~Enter the BuyerContractHash,matches(^.*$)~Invalid BuyerContractHash,length(1|1000)~BuyerContractHash length should be 1 to 1000"`
 	Password          string       `json:"password" valid:"required~Enter the Password"`
 	Mode              string       `json:"mode"`
 }
@@ -88,7 +88,7 @@ func ConfirmBuyerBidRequestHandlerFn(cliCtx context.CLIContext, kafkaBool bool, 
 			return
 		}
 
-		negotiationID := negotiationTypes.NegotiationID(append(append(fromAddr.Bytes(), to.Bytes()...), pegHashHex.Bytes()...))
+		negotiationID := types.NegotiationID(append(append(fromAddr.Bytes(), to.Bytes()...), pegHashHex.Bytes()...))
 
 		kb, err := keys.NewKeyBaseFromHomeFlag()
 		if err != nil {
@@ -103,7 +103,7 @@ func ConfirmBuyerBidRequestHandlerFn(cliCtx context.CLIContext, kafkaBool bool, 
 			return
 		}
 
-		proposedNegotiation := &negotiationTypes.BaseNegotiation{
+		proposedNegotiation := &types.BaseNegotiation{
 			NegotiationID:     negotiationID,
 			BuyerAddress:      fromAddr,
 			SellerAddress:     to,

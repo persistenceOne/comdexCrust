@@ -1,5 +1,9 @@
 package types
 
+import (
+	"github.com/commitHub/commitBlockchain/types"
+)
+
 const (
 	ModuleName   = "negotiation"
 	StoreKey     = ModuleName
@@ -11,6 +15,6 @@ var (
 	NegotiationKey = []byte{0x01}
 )
 
-func GetNegotiationKey(id NegotiationID) NegotiationID {
+func GetNegotiationKey(id types.NegotiationID) types.NegotiationID {
 	return append(NegotiationKey, id.Bytes()...)
 }

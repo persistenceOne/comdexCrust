@@ -18,16 +18,16 @@ const (
 var (
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
-	
+
 	DefaultGenesisState = types.DefaultGenesisState
 	ValidateGenesis     = types.ValidateGenesis
 	FiatPegHashStoreKey = types.FiatPegHashStoreKey
-	
+
 	EventTypeFiatFactoryAssignFiat  = types.EventTypeFiatFactoryAssignFiat
 	EventTypeFiatFactoryRedeemFiat  = types.EventTypeFiatFactoryRedeemFiat
 	EventTypeFiatFactorySendFiat    = types.EventTypeFiatFactorySendFiat
 	EventTypeFiatFactoryExecuteFiat = types.EventTypeFiatFactoryExecuteFiat
-	
+
 	ErrNoInputs       = types.ErrNoInputs
 	ErrInvalidPegHash = types.ErrInvalidPegHash
 )
@@ -35,7 +35,7 @@ var (
 type (
 	GenesisState = types.GenesisState
 	Keeper       = keeper.Keeper
-	
+
 	MsgFactoryIssueFiats   = types.MsgFactoryIssueFiats
 	MsgFactoryRedeemFiats  = types.MsgFactoryRedeemFiats
 	MsgFactorySendFiats    = types.MsgFactorySendFiats

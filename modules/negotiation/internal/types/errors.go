@@ -6,7 +6,7 @@ type CodeType cTypes.CodeType
 
 const (
 	DefaultCodeSpace cTypes.CodespaceType = ModuleName
-	
+
 	CodeInvalidNegotiation   cTypes.CodeType = 600
 	CodeInvalidSignature     cTypes.CodeType = 601
 	CodeInvalidBid           cTypes.CodeType = 602

@@ -20,7 +20,7 @@ func QueryNegotiationRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFun
 		cliCtx := cliCtx
 		vars := mux.Vars(r)
 
-		negotiationID, err := negotiationTypes.GetNegotiationIDFromString(vars["negotiation-id"])
+		negotiationID, err := types.GetNegotiationIDFromString(vars["negotiation-id"])
 		if err != nil {
 			rest2.WriteErrorResponse(w, types.ErrNegotiationIDFromString(negotiationTypes.DefaultCodeSpace, vars["negotiation-id"]))
 			return
@@ -37,7 +37,7 @@ func QueryNegotiationRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFun
 			return
 		}
 
-		var _negotiation negotiationTypes.Negotiation
+		var _negotiation types.Negotiation
 		cliCtx.Codec.MustUnmarshalJSON(res, &_negotiation)
 
 		rest.PostProcessResponse(w, cliCtx, _negotiation)
@@ -70,7 +70,7 @@ func GetNegotiationIDHandlerFn() http.HandlerFunc {
 			rest2.WriteErrorResponse(w, types.ErrPegHashHex(negotiationTypes.DefaultCodeSpace, pegHash))
 			return
 		}
-		negotiation := negotiationTypes.NegotiationID(append(append(buyerAddress.Bytes(), sellerAddress.Bytes()...), pegHashHex.Bytes()...))
+		negotiation := types.NegotiationID(append(append(buyerAddress.Bytes(), sellerAddress.Bytes()...), pegHashHex.Bytes()...))
 
 		output, err := json.Marshal(struct {
 			NegotiationID string `json:"negotiationID"`

@@ -3,7 +3,7 @@ package kafka
 import (
 	"os"
 	"time"
-	
+
 	"github.com/Shopify/sarama"
 )
 
