@@ -38,7 +38,7 @@ func Commands() *cobra.Command {
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc("/keys", QueryKeysRequestHandler).Methods("GET")
 	r.HandleFunc("/keys", AddNewKeyRequstHandler).Methods("POST")
-	r.HandleFunc("/updatePassword/{name}", UpdateKeyRequestHandler(cliCtx)).Methods("PUT")
+	r.HandleFunc("/updatePassword/{name}", UpdateKeyRequestHandler(cliCtx)).Methods("POST")
 	r.HandleFunc("/forgotPassword/{name}", ForgotPasswordRequestHandler(cliCtx)).Methods("POST")
 
 }
