@@ -1099,9 +1099,15 @@ func (keeper BaseSendKeeper) DefineZones(ctx cTypes.Context, defineZone bankType
 			" defined by the genesis account.", defineZone.From.String()))
 	}
 
-	err := keeper.aclKeeper.DefineZoneAddress(ctx, defineZone.To, defineZone.ZoneID)
-	if err != nil {
-		return err
+	acc := keeper.ak.GetAccount(ctx, defineZone.To)
+	if acc == nil {
+		acc = keeper.ak.NewAccountWithAddress(ctx, defineZone.To)
+		keeper.ak.SetAccount(ctx, acc)
+	}
+
+	cTypesError := keeper.aclKeeper.DefineZoneAddress(ctx, defineZone.To, defineZone.ZoneID)
+	if cTypesError != nil {
+		return cTypesError
 	}
 	return nil
 }
