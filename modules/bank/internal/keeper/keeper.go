@@ -1105,9 +1105,9 @@ func (keeper BaseSendKeeper) DefineZones(ctx cTypes.Context, defineZone bankType
 		keeper.ak.SetAccount(ctx, acc)
 	}
 
-	cTypesError := keeper.aclKeeper.DefineZoneAddress(ctx, defineZone.To, defineZone.ZoneID)
-	if cTypesError != nil {
-		return cTypesError
+	err := keeper.aclKeeper.DefineZoneAddress(ctx, defineZone.To, defineZone.ZoneID)
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -1117,8 +1117,14 @@ func (keeper BaseSendKeeper) DefineOrganizations(ctx cTypes.Context, defineOrgan
 		return cTypes.ErrInternal(fmt.Sprintf("Account %v is not the zone account. Organizations can only "+
 			"be defined by the zone account.", defineOrganization.From.String()))
 	}
-	err := keeper.aclKeeper.DefineOrganizationAddress(ctx, defineOrganization.To,
-		defineOrganization.OrganizationID, defineOrganization.ZoneID)
+
+	acc := keeper.ak.GetAccount(ctx, defineOrganization.To)
+	if acc == nil {
+		acc = keeper.ak.NewAccountWithAddress(ctx, defineOrganization.To)
+		keeper.ak.SetAccount(ctx, acc)
+	}
+
+	err := keeper.aclKeeper.DefineOrganizationAddress(ctx, defineOrganization.To, defineOrganization.OrganizationID, defineOrganization.ZoneID)
 
 	if err != nil {
 		return err
