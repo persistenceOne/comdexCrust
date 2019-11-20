@@ -1099,6 +1099,12 @@ func (keeper BaseSendKeeper) DefineZones(ctx cTypes.Context, defineZone bankType
 			" defined by the genesis account.", defineZone.From.String()))
 	}
 
+	acc := keeper.ak.GetAccount(ctx, defineZone.To)
+	if acc == nil {
+		acc = keeper.ak.NewAccountWithAddress(ctx, defineZone.To)
+		keeper.ak.SetAccount(ctx, acc)
+	}
+
 	err := keeper.aclKeeper.DefineZoneAddress(ctx, defineZone.To, defineZone.ZoneID)
 	if err != nil {
 		return err
@@ -1111,8 +1117,14 @@ func (keeper BaseSendKeeper) DefineOrganizations(ctx cTypes.Context, defineOrgan
 		return cTypes.ErrInternal(fmt.Sprintf("Account %v is not the zone account. Organizations can only "+
 			"be defined by the zone account.", defineOrganization.From.String()))
 	}
-	err := keeper.aclKeeper.DefineOrganizationAddress(ctx, defineOrganization.To,
-		defineOrganization.OrganizationID, defineOrganization.ZoneID)
+
+	acc := keeper.ak.GetAccount(ctx, defineOrganization.To)
+	if acc == nil {
+		acc = keeper.ak.NewAccountWithAddress(ctx, defineOrganization.To)
+		keeper.ak.SetAccount(ctx, acc)
+	}
+
+	err := keeper.aclKeeper.DefineOrganizationAddress(ctx, defineOrganization.To, defineOrganization.OrganizationID, defineOrganization.ZoneID)
 
 	if err != nil {
 		return err
@@ -1130,6 +1142,12 @@ func (keeper BaseSendKeeper) DefineACLs(ctx cTypes.Context, defineACL bankTypes.
 					"for account %v.", defineACL.From.String(), defineACL.To.String()))
 			}
 		}
+	}
+
+	acc := keeper.ak.GetAccount(ctx, defineACL.To)
+	if acc == nil {
+		acc = keeper.ak.NewAccountWithAddress(ctx, defineACL.To)
+		keeper.ak.SetAccount(ctx, acc)
 	}
 
 	err := keeper.aclKeeper.DefineACLAccount(ctx, defineACL.To, defineACL.ACLAccount)
