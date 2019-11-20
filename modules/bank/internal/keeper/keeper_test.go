@@ -88,7 +88,7 @@ func TestBaseSendKeeper_DelegateCoins(t *testing.T) {
 	require.Equal(t, delCoins, vacc.GetCoins())
 }
 
-func TestUndelegateCoins(t *testing.T) {
+func TestBaseSendKeeper_UndelegateCoins2(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
 	ak := app.AccountKeeper
 	now := tmtime.Now()
@@ -150,7 +150,7 @@ func TestUndelegateCoins(t *testing.T) {
 	require.True(t, macc.GetCoins().Empty())
 }
 
-func TestBaseSendKeeper_InputOutputCoins(t *testing.T) {
+func TestBaseSendKeeper_InputOutputCoins2(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
 
 	addr1 := cTypes.AccAddress([]byte("addr1"))
@@ -171,7 +171,7 @@ func TestBaseSendKeeper_InputOutputCoins(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestBaseSendKeeper_SendCoins(t *testing.T) {
+func TestBaseSendKeeper_SendCoins2(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
 	ak := app.AccountKeeper
 
@@ -209,7 +209,7 @@ func TestBaseSendKeeper_SetEnabled(t *testing.T) {
 	require.True(t, enabled)
 }
 
-func TestBaseSendKeeper_DefineZones(t *testing.T) {
+func TestBaseSendKeeper_DefineZones2(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
 	ak := app.AccountKeeper
 
@@ -231,44 +231,45 @@ func TestBaseSendKeeper_DefineZones(t *testing.T) {
 	require.Error(t, err, "zone with this given id already exist")
 }
 
-func TestBaseSendKeeper_DefineOrganizations(t *testing.T) {
+func TestBaseSendKeeper_DefineOrganizations2(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
-	ak := app.AccountKeeper
 
-	genesisAccount := getGenesisAccount(ctx, ak)
 	zone := cTypes.AccAddress([]byte("zone"))
-	defineZone := bankTypes.NewDefineZone(genesisAccount.GetAddress(), zone, acl.DefaultZoneID)
-	app.BankKeeper.DefineZones(ctx, defineZone)
+	app.ACLKeeper.SetZoneAddress(ctx, acl.DefaultZoneID, zone)
 
 	organization := cTypes.AccAddress([]byte("organization"))
 	addr1 := cTypes.AccAddress([]byte("addr1"))
 	app.AccountKeeper.SetAccount(ctx, app.AccountKeeper.NewAccountWithAddress(ctx, addr1))
 
-	defineOrganization := bankTypes.NewDefineOrganization(addr1, organization, acl.DefaultOrganizationID, defineZone.ZoneID)
+	defineOrganization := bankTypes.NewDefineOrganization(addr1, organization, acl.DefaultOrganizationID, acl.DefaultZoneID)
 	err := app.BankKeeper.DefineOrganizations(ctx, defineOrganization)
 	require.Error(t, err, "Account"+addr1.String()+" is not the zone account. Organizations can only be defined by the zone account.")
 
-	defineOrganization = bankTypes.NewDefineOrganization(zone, organization, acl.DefaultOrganizationID, defineZone.ZoneID)
+	defineOrganization = bankTypes.NewDefineOrganization(zone, organization, acl.DefaultOrganizationID, acl.DefaultZoneID)
 	err = app.BankKeeper.DefineOrganizations(ctx, defineOrganization)
 	require.NoError(t, err)
 
-	defineOrganization = bankTypes.NewDefineOrganization(zone, addr1, acl.DefaultOrganizationID, defineZone.ZoneID)
+	defineOrganization = bankTypes.NewDefineOrganization(zone, addr1, acl.DefaultOrganizationID, acl.DefaultZoneID)
 	err = app.BankKeeper.DefineOrganizations(ctx, defineOrganization)
 	require.Error(t, err, "organization with this given id already exist")
 }
 
-func TestBaseSendKeeper_DefineACLs(t *testing.T) {
+func TestBaseSendKeeper_DefineACLs2(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
-	ak := app.AccountKeeper
 
-	genesisAccount := getGenesisAccount(ctx, ak)
 	zone := cTypes.AccAddress([]byte("zone"))
-	defineZone := bankTypes.NewDefineZone(genesisAccount.GetAddress(), zone, acl.DefaultZoneID)
-	app.BankKeeper.DefineZones(ctx, defineZone)
+	app.ACLKeeper.SetZoneAddress(ctx, acl.DefaultZoneID, zone)
+	zoneAccount := app.AccountKeeper.NewAccountWithAddress(ctx, zone)
+	app.AccountKeeper.SetAccount(ctx, zoneAccount)
 
 	organization := cTypes.AccAddress([]byte("organization"))
-	defineOrganization := bankTypes.NewDefineOrganization(zone, organization, acl.DefaultOrganizationID, defineZone.ZoneID)
-	app.BankKeeper.DefineOrganizations(ctx, defineOrganization)
+	aclOrganization := acl.Organization{
+		Address: organization,
+		ZoneID:  acl.DefaultZoneID,
+	}
+	app.ACLKeeper.SetOrganization(ctx, acl.DefaultOrganizationID, aclOrganization)
+	organizationAccount := app.AccountKeeper.NewAccountWithAddress(ctx, organization)
+	app.AccountKeeper.SetAccount(ctx, organizationAccount)
 
 	addr1 := cTypes.AccAddress([]byte("addr1"))
 	app.AccountKeeper.SetAccount(ctx, app.AccountKeeper.NewAccountWithAddress(ctx, addr1))
@@ -276,33 +277,27 @@ func TestBaseSendKeeper_DefineACLs(t *testing.T) {
 	trader := cTypes.AccAddress([]byte("trader"))
 	aclAccount := acl.BaseACLAccount{
 		Address:        trader,
-		ZoneID:         defineOrganization.ZoneID,
-		OrganizationID: defineOrganization.OrganizationID,
-		ACL:            acl.ACL{IssueAsset: true, IssueFiat: true, SendAsset: true, SendFiat: true, BuyerExecuteOrder: true, SellerExecuteOrder: true, ChangeBuyerBid: true, ChangeSellerBid: true, ConfirmBuyerBid: true, ConfirmSellerBid: true, Negotiation: true, ReleaseAsset: true, RedeemFiat: true, RedeemAsset: true},
+		ZoneID:         acl.DefaultZoneID,
+		OrganizationID: acl.DefaultOrganizationID,
+		ACL:            acl.ACL{IssueAsset: true},
 	}
 
 	defineACL := bankTypes.NewDefineACL(addr1, trader, &aclAccount)
 	err := app.BankKeeper.DefineACLs(ctx, defineACL)
 	require.Error(t, err, "Account "+addr1.String()+" does not have access to define acl for account "+trader.String()+".")
 
-	defineACL = bankTypes.NewDefineACL(organization, trader, &aclAccount)
+	defineACL = bankTypes.NewDefineACL(zone, trader, &aclAccount)
 	err = app.BankKeeper.DefineACLs(ctx, defineACL)
 	require.NoError(t, err)
 }
 
-func TestBaseSendKeeper_IssueAssetsToWallets(t *testing.T) {
+func TestBaseSendKeeper_IssueAssetsToWallets2(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
-	ak := app.AccountKeeper
 
-	genesisAccount := getGenesisAccount(ctx, ak)
-	addr1 := cTypes.AccAddress([]byte("addr1"))
 	zone := cTypes.AccAddress([]byte("zone"))
-	defineZone := bankTypes.NewDefineZone(genesisAccount.GetAddress(), zone, acl.DefaultZoneID)
-	app.BankKeeper.DefineZones(ctx, defineZone)
+	app.ACLKeeper.SetZoneAddress(ctx, acl.DefaultZoneID, zone)
 
-	organization := cTypes.AccAddress([]byte("organization"))
-	defineOrganization := bankTypes.NewDefineOrganization(zone, organization, acl.DefaultOrganizationID, defineZone.ZoneID)
-	app.BankKeeper.DefineOrganizations(ctx, defineOrganization)
+	addr1 := cTypes.AccAddress([]byte("addr1"))
 
 	trader := cTypes.AccAddress([]byte("trader"))
 	assetPeg := types.BaseAssetPeg{
@@ -320,21 +315,19 @@ func TestBaseSendKeeper_IssueAssetsToWallets(t *testing.T) {
 
 	aclAccount := acl.BaseACLAccount{
 		Address:        trader,
-		ZoneID:         defineOrganization.ZoneID,
-		OrganizationID: defineOrganization.OrganizationID,
+		ZoneID:         acl.DefaultZoneID,
+		OrganizationID: acl.DefaultOrganizationID,
 		ACL:            acl.ACL{IssueAsset: false},
 	}
 
-	defineACL := bankTypes.NewDefineACL(zone, trader, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	issueAsset = bankTypes.NewIssueAsset(trader, trader, &assetPeg)
 	err = app.BankKeeper.IssueAssetsToWallets(ctx, issueAsset)
 	require.Error(t, err, "Assets cant be issued to account "+trader.String()+".")
 
 	aclAccount.SetACL(acl.ACL{IssueAsset: true})
-	defineACL = bankTypes.NewDefineACL(zone, trader, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	issueAsset = bankTypes.NewIssueAsset(trader, trader, &assetPeg)
 	err = app.BankKeeper.IssueAssetsToWallets(ctx, issueAsset)
@@ -351,25 +344,19 @@ func TestBaseSendKeeper_IssueAssetsToWallets(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestBaseSendKeeper_IssueFiatsToWallets(t *testing.T) {
+func TestBaseSendKeeper_IssueFiatsToWallets2(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
-	ak := app.AccountKeeper
 
-	genesisAccount := getGenesisAccount(ctx, ak)
-	addr1 := cTypes.AccAddress([]byte("addr1"))
 	zone := cTypes.AccAddress([]byte("zone"))
-	defineZone := bankTypes.NewDefineZone(genesisAccount.GetAddress(), zone, acl.DefaultZoneID)
-	app.BankKeeper.DefineZones(ctx, defineZone)
+	app.ACLKeeper.SetZoneAddress(ctx, acl.DefaultZoneID, zone)
 
-	organization := cTypes.AccAddress([]byte("organization"))
-	defineOrganization := bankTypes.NewDefineOrganization(zone, organization, acl.DefaultOrganizationID, defineZone.ZoneID)
-	app.BankKeeper.DefineOrganizations(ctx, defineOrganization)
+	addr1 := cTypes.AccAddress([]byte("addr1"))
 
 	trader := cTypes.AccAddress([]byte("trader"))
 	aclAccount := acl.BaseACLAccount{
 		Address:        trader,
-		ZoneID:         defineOrganization.ZoneID,
-		OrganizationID: defineOrganization.OrganizationID,
+		ZoneID:         acl.DefaultZoneID,
+		OrganizationID: acl.DefaultOrganizationID,
 		ACL:            acl.ACL{IssueFiat: false},
 	}
 
@@ -381,52 +368,45 @@ func TestBaseSendKeeper_IssueFiatsToWallets(t *testing.T) {
 	err := app.BankKeeper.IssueFiatsToWallets(ctx, issueFiat)
 	require.Error(t, err, "Unauthorised transaction.")
 
-	defineACL := bankTypes.NewDefineACL(zone, trader, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	issueFiat = bankTypes.NewIssueFiat(zone, trader, &fiatPeg)
 	err = app.BankKeeper.IssueFiatsToWallets(ctx, issueFiat)
 	require.Error(t, err, "Fiats can't be issued to account "+trader.String()+".")
 
 	aclAccount.SetACL(acl.ACL{IssueFiat: true})
-	defineACL = bankTypes.NewDefineACL(zone, trader, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	issueFiat = bankTypes.NewIssueFiat(zone, trader, &fiatPeg)
 	err = app.BankKeeper.IssueFiatsToWallets(ctx, issueFiat)
 	require.NoError(t, err)
 }
 
-func TestBaseSendKeeper_ReleasedLockedAssets(t *testing.T) {
+func TestBaseSendKeeper_ReleaseLockedAssets2(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
 	ak := app.AccountKeeper
 
-	genesisAccount := getGenesisAccount(ctx, ak)
 	zone := cTypes.AccAddress([]byte("zone"))
-	defineZone := bankTypes.NewDefineZone(genesisAccount.GetAddress(), zone, acl.DefaultZoneID)
-	app.BankKeeper.DefineZones(ctx, defineZone)
-
-	organization := cTypes.AccAddress([]byte("organization"))
-	defineOrganization := bankTypes.NewDefineOrganization(zone, organization, acl.DefaultOrganizationID, defineZone.ZoneID)
-	app.BankKeeper.DefineOrganizations(ctx, defineOrganization)
+	app.ACLKeeper.SetZoneAddress(ctx, acl.DefaultZoneID, zone)
 
 	trader := cTypes.AccAddress([]byte("trader"))
-	ak.SetAccount(ctx, ak.NewAccountWithAddress(ctx, trader))
+	traderAccount := ak.NewAccountWithAddress(ctx, trader)
+	ak.SetAccount(ctx, traderAccount)
 	aclAccount := acl.BaseACLAccount{
 		Address:        trader,
-		ZoneID:         defineOrganization.ZoneID,
-		OrganizationID: defineOrganization.OrganizationID,
-		ACL:            acl.ACL{IssueAsset: true, ReleaseAsset: false},
+		ZoneID:         acl.DefaultZoneID,
+		OrganizationID: acl.DefaultOrganizationID,
+		ACL:            acl.ACL{ReleaseAsset: false},
 	}
 
 	releaseAsset := bankTypes.NewReleaseAsset(zone, trader, []byte(""))
 	err := app.BankKeeper.ReleaseLockedAssets(ctx, releaseAsset)
 	require.Error(t, err, "To account acl not defined.")
 
-	defineACL := bankTypes.NewDefineACL(zone, trader, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	assetPeg := types.BaseAssetPeg{
+		PegHash:       []byte("30"),
 		DocumentHash:  "DEFAULT",
 		AssetType:     "DEFAULT",
 		AssetQuantity: 0,
@@ -435,16 +415,15 @@ func TestBaseSendKeeper_ReleasedLockedAssets(t *testing.T) {
 		Moderated:     true,
 		Locked:        true,
 	}
-	issueAsset := bankTypes.NewIssueAsset(zone, trader, &assetPeg)
-	app.BankKeeper.IssueAssetsToWallets(ctx, issueAsset)
+	traderAccount.SetAssetPegWallet(types.AssetPegWallet{assetPeg})
+	ak.SetAccount(ctx, traderAccount)
 
 	releaseAsset = bankTypes.NewReleaseAsset(zone, trader, ak.GetAccount(ctx, trader).GetAssetPegWallet()[0].GetPegHash())
 	err = app.BankKeeper.ReleaseLockedAssets(ctx, releaseAsset)
 	require.Error(t, err, "Assets cannot be released for account "+trader.String()+". Access Denied.")
 
-	aclAccount.SetACL(acl.ACL{IssueAsset: true, ReleaseAsset: true})
-	defineACL = bankTypes.NewDefineACL(zone, trader, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	aclAccount.SetACL(acl.ACL{ReleaseAsset: true})
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	releaseAsset = bankTypes.NewReleaseAsset(zone, trader, []byte("PegHash"))
 	err = app.BankKeeper.ReleaseLockedAssets(ctx, releaseAsset)
@@ -456,31 +435,21 @@ func TestBaseSendKeeper_ReleasedLockedAssets(t *testing.T) {
 
 }
 
-func TestBaseSendKeeper_SendAssetsToWallets(t *testing.T) {
+func TestBaseSendKeeper_SendAssetsToWallets2(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
-	ak := app.AccountKeeper
-
-	genesisAccount := getGenesisAccount(ctx, ak)
-	zone := cTypes.AccAddress([]byte("zone"))
-	defineZone := bankTypes.NewDefineZone(genesisAccount.GetAddress(), zone, acl.DefaultZoneID)
-	app.BankKeeper.DefineZones(ctx, defineZone)
-
-	organization := cTypes.AccAddress([]byte("organization"))
-	defineOrganization := bankTypes.NewDefineOrganization(zone, organization, acl.DefaultOrganizationID, defineZone.ZoneID)
-	app.BankKeeper.DefineOrganizations(ctx, defineOrganization)
 
 	buyer := cTypes.AccAddress([]byte("buyer"))
 	seller := cTypes.AccAddress([]byte("seller"))
 	aclAccount := acl.BaseACLAccount{
 		Address:        seller,
-		ZoneID:         defineOrganization.ZoneID,
-		OrganizationID: defineOrganization.OrganizationID,
-		ACL:            acl.ACL{IssueAsset: true, SendAsset: false, ReleaseAsset: true},
+		ZoneID:         acl.DefaultZoneID,
+		OrganizationID: acl.DefaultOrganizationID,
+		ACL:            acl.ACL{SendAsset: false},
 	}
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
-	defineACL := bankTypes.NewDefineACL(zone, seller, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
 	assetPeg := types.BaseAssetPeg{
+		PegHash:       []byte("30"),
 		DocumentHash:  "DEFAULT",
 		AssetType:     "DEFAULT",
 		AssetQuantity: 0,
@@ -489,9 +458,10 @@ func TestBaseSendKeeper_SendAssetsToWallets(t *testing.T) {
 		Moderated:     true,
 		Locked:        true,
 	}
-	issueAsset := bankTypes.NewIssueAsset(zone, seller, &assetPeg)
-	app.BankKeeper.IssueAssetsToWallets(ctx, issueAsset)
-	assetPegHash := ak.GetAccount(ctx, seller).GetAssetPegWallet()[0].GetPegHash()
+	assetPegHash := assetPeg.GetPegHash()
+	sellerAccount := app.AccountKeeper.NewAccountWithAddress(ctx, seller)
+	sellerAccount.SetAssetPegWallet(types.AssetPegWallet{assetPeg})
+	app.AccountKeeper.SetAccount(ctx, sellerAccount)
 
 	sendAsset := bankTypes.NewSendAsset(buyer, buyer, assetPegHash)
 	err := app.BankKeeper.SendAssetsToWallets(ctx, sendAsset)
@@ -501,9 +471,8 @@ func TestBaseSendKeeper_SendAssetsToWallets(t *testing.T) {
 	err = app.BankKeeper.SendAssetsToWallets(ctx, sendAsset)
 	require.Error(t, err, "Unauthorised transaction.")
 
-	aclAccount.SetACL(acl.ACL{IssueAsset: true, SendAsset: true, ReleaseAsset: true})
-	defineACL = bankTypes.NewDefineACL(zone, seller, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	aclAccount.SetACL(acl.ACL{SendAsset: true})
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	sendAsset = bankTypes.NewSendAsset(seller, buyer, assetPegHash)
 	err = app.BankKeeper.SendAssetsToWallets(ctx, sendAsset)
@@ -537,69 +506,40 @@ func TestBaseSendKeeper_SendAssetsToWallets(t *testing.T) {
 	err = app.BankKeeper.SendAssetsToWallets(ctx, sendAsset)
 	require.Error(t, err, "Asset locked.")
 
-	releaseAsset := bankTypes.NewReleaseAsset(zone, seller, assetPegHash)
-	app.BankKeeper.ReleaseLockedAssets(ctx, releaseAsset)
+	assetPeg.SetLocked(false)
+	sellerAccount.SetAssetPegWallet(types.AssetPegWallet{assetPeg})
+	app.AccountKeeper.SetAccount(ctx, sellerAccount)
 
 	sendAsset = bankTypes.NewSendAsset(seller, buyer, assetPegHash)
 	err = app.BankKeeper.SendAssetsToWallets(ctx, sendAsset)
 	require.NoError(t, err)
 }
 
-func TestBaseSendKeeper_SendFiatsToWallets(t *testing.T) {
+func TestBaseSendKeeper_SendFiatsToWallets2(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
-	ak := app.AccountKeeper
-
-	genesisAccount := getGenesisAccount(ctx, ak)
-	zone := cTypes.AccAddress([]byte("zone"))
-	defineZone := bankTypes.NewDefineZone(genesisAccount.GetAddress(), zone, acl.DefaultZoneID)
-	app.BankKeeper.DefineZones(ctx, defineZone)
-
-	organization := cTypes.AccAddress([]byte("organization"))
-	defineOrganization := bankTypes.NewDefineOrganization(zone, organization, acl.DefaultOrganizationID, defineZone.ZoneID)
-	app.BankKeeper.DefineOrganizations(ctx, defineOrganization)
 
 	addr1 := cTypes.AccAddress([]byte("addr1"))
 	seller := cTypes.AccAddress([]byte("seller"))
-	aclAccount := acl.BaseACLAccount{
-		Address:        seller,
-		ZoneID:         defineOrganization.ZoneID,
-		OrganizationID: defineOrganization.OrganizationID,
-		ACL:            acl.ACL{IssueAsset: true, IssueFiat: true, SendAsset: true, SendFiat: true, BuyerExecuteOrder: true, SellerExecuteOrder: true, ChangeBuyerBid: true, ChangeSellerBid: true, ConfirmBuyerBid: true, ConfirmSellerBid: true, Negotiation: true, ReleaseAsset: true, RedeemFiat: true, RedeemAsset: true},
-	}
-	defineACL := bankTypes.NewDefineACL(zone, seller, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
-	assetPeg := types.BaseAssetPeg{
-		DocumentHash:  "DEFAULT",
-		AssetType:     "DEFAULT",
-		AssetQuantity: 0,
-		AssetPrice:    0,
-		QuantityUnit:  "DEFAULT",
-		Moderated:     true,
-		Locked:        true,
-	}
-	issueAsset := bankTypes.NewIssueAsset(zone, seller, &assetPeg)
-	app.BankKeeper.IssueAssetsToWallets(ctx, issueAsset)
-	assetPegHash := ak.GetAccount(ctx, seller).GetAssetPegWallet()[0].GetPegHash()
-	releaseAsset := bankTypes.NewReleaseAsset(zone, seller, assetPegHash)
-	app.BankKeeper.ReleaseLockedAssets(ctx, releaseAsset)
+	assetPegHash := []byte("30")
 
 	buyer := cTypes.AccAddress([]byte("buyer"))
-	aclAccount = acl.BaseACLAccount{
+	aclAccount := acl.BaseACLAccount{
 		Address:        buyer,
-		ZoneID:         defineOrganization.ZoneID,
-		OrganizationID: defineOrganization.OrganizationID,
-		ACL:            acl.ACL{IssueAsset: true, IssueFiat: true, SendFiat: false, ReleaseAsset: true},
+		ZoneID:         acl.DefaultZoneID,
+		OrganizationID: acl.DefaultOrganizationID,
+		ACL:            acl.ACL{SendFiat: false},
 	}
-	defineACL = bankTypes.NewDefineACL(zone, buyer, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	fiatPeg := types.BaseFiatPeg{
+		PegHash:           []byte("30"),
 		TransactionID:     "DEFAULT",
 		TransactionAmount: 1000,
 	}
-	issueFiat := bankTypes.NewIssueFiat(zone, buyer, &fiatPeg)
-	app.BankKeeper.IssueFiatsToWallets(ctx, issueFiat)
-	fiatPegHash := ak.GetAccount(ctx, buyer).GetFiatPegWallet()[0].GetPegHash()
+	buyerAccount := app.AccountKeeper.NewAccountWithAddress(ctx, buyer)
+	buyerAccount.SetFiatPegWallet(types.FiatPegWallet{fiatPeg})
+	app.AccountKeeper.SetAccount(ctx, buyerAccount)
+	fiatPegHash := fiatPeg.GetPegHash()
 
 	sendFiat := bankTypes.NewSendFiat(addr1, seller, fiatPegHash, 500)
 	err := app.BankKeeper.SendFiatsToWallets(ctx, sendFiat)
@@ -609,8 +549,8 @@ func TestBaseSendKeeper_SendFiatsToWallets(t *testing.T) {
 	err = app.BankKeeper.SendFiatsToWallets(ctx, sendFiat)
 	require.Error(t, err, "Unauthorised transaction.")
 
-	aclAccount.SetACL(acl.ACL{IssueAsset: true, IssueFiat: true, SendFiat: true, ReleaseAsset: true})
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	aclAccount.SetACL(acl.ACL{SendFiat: true})
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	sendFiat = bankTypes.NewSendFiat(buyer, seller, fiatPegHash, 500)
 	err = app.BankKeeper.SendFiatsToWallets(ctx, sendFiat)
@@ -646,28 +586,21 @@ func TestBaseSendKeeper_SendFiatsToWallets(t *testing.T) {
 
 func TestBaseSendKeeper_BuyerExecuteOrder(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
-	ak := app.AccountKeeper
 
-	genesisAccount := getGenesisAccount(ctx, ak)
 	zone := cTypes.AccAddress([]byte("zone"))
-	defineZone := bankTypes.NewDefineZone(genesisAccount.GetAddress(), zone, acl.DefaultZoneID)
-	app.BankKeeper.DefineZones(ctx, defineZone)
-
-	organization := cTypes.AccAddress([]byte("organization"))
-	defineOrganization := bankTypes.NewDefineOrganization(zone, organization, acl.DefaultOrganizationID, defineZone.ZoneID)
-	app.BankKeeper.DefineOrganizations(ctx, defineOrganization)
+	app.ACLKeeper.SetZoneAddress(ctx, acl.DefaultZoneID, zone)
 
 	addr1 := cTypes.AccAddress([]byte("addr1"))
 	seller := cTypes.AccAddress([]byte("seller"))
 	aclAccount := acl.BaseACLAccount{
 		Address:        seller,
-		ZoneID:         defineOrganization.ZoneID,
-		OrganizationID: defineOrganization.OrganizationID,
-		ACL:            acl.ACL{IssueAsset: true, IssueFiat: true, SendAsset: true, SendFiat: true, BuyerExecuteOrder: true, SellerExecuteOrder: true, ChangeBuyerBid: true, ChangeSellerBid: true, ConfirmBuyerBid: true, ConfirmSellerBid: true, Negotiation: true, ReleaseAsset: true, RedeemFiat: true, RedeemAsset: true},
+		ZoneID:         acl.DefaultZoneID,
+		OrganizationID: acl.DefaultOrganizationID,
+		ACL:            acl.ACL{BuyerExecuteOrder: false, SellerExecuteOrder: true},
 	}
-	defineACL := bankTypes.NewDefineACL(zone, seller, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 	assetPeg := types.BaseAssetPeg{
+		PegHash:       []byte("30"),
 		DocumentHash:  "DEFAULT",
 		AssetType:     "DEFAULT",
 		AssetQuantity: 0,
@@ -676,28 +609,11 @@ func TestBaseSendKeeper_BuyerExecuteOrder(t *testing.T) {
 		Moderated:     true,
 		Locked:        true,
 	}
-	issueAsset := bankTypes.NewIssueAsset(zone, seller, &assetPeg)
-	app.BankKeeper.IssueAssetsToWallets(ctx, issueAsset)
-	assetPegHash := ak.GetAccount(ctx, seller).GetAssetPegWallet()[0].GetPegHash()
-	releaseAsset := bankTypes.NewReleaseAsset(zone, seller, assetPegHash)
-	app.BankKeeper.ReleaseLockedAssets(ctx, releaseAsset)
+	assetPegHash := assetPeg.GetPegHash()
 
 	buyer := cTypes.AccAddress([]byte("buyer"))
-	aclAccount = acl.BaseACLAccount{
-		Address:        buyer,
-		ZoneID:         defineOrganization.ZoneID,
-		OrganizationID: defineOrganization.OrganizationID,
-		ACL:            acl.ACL{IssueAsset: true, IssueFiat: true, SendAsset: true, SendFiat: true, BuyerExecuteOrder: false, SellerExecuteOrder: true, ChangeBuyerBid: true, ChangeSellerBid: true, ConfirmBuyerBid: true, ConfirmSellerBid: true, Negotiation: true, ReleaseAsset: true, RedeemFiat: true, RedeemAsset: true},
-	}
-	defineACL = bankTypes.NewDefineACL(zone, buyer, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
-
-	fiatPeg := types.BaseFiatPeg{
-		TransactionID:     "DEFAULT",
-		TransactionAmount: 1000,
-	}
-	issueFiat := bankTypes.NewIssueFiat(zone, buyer, &fiatPeg)
-	app.BankKeeper.IssueFiatsToWallets(ctx, issueFiat)
+	aclAccount.SetAddress(buyer)
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	negotiation := getNegotiation(ctx, buyer, seller, assetPegHash, 500, 10000)
 	app.NegotiationKeeper.SetNegotiation(ctx, negotiation)
@@ -706,8 +622,9 @@ func TestBaseSendKeeper_BuyerExecuteOrder(t *testing.T) {
 	err, _ := app.BankKeeper.BuyerExecuteTradeOrder(ctx, buyerExecuteOrder)
 	require.Error(t, err, "Asset token not found!")
 
-	sendAsset := bankTypes.NewSendAsset(seller, buyer, assetPegHash)
-	app.BankKeeper.SendAssetsToWallets(ctx, sendAsset)
+	order := app.OrderKeeper.NewOrder(buyer, seller, assetPegHash)
+	order.SetAssetPegWallet(types.AssetPegWallet{assetPeg})
+	app.OrderKeeper.SetOrder(ctx, order)
 
 	buyerExecuteOrder = bankTypes.NewBuyerExecuteOrder(addr1, buyer, seller, assetPegHash, "fiatProofHash")
 	err, _ = app.BankKeeper.BuyerExecuteTradeOrder(ctx, buyerExecuteOrder)
@@ -717,9 +634,8 @@ func TestBaseSendKeeper_BuyerExecuteOrder(t *testing.T) {
 	err, _ = app.BankKeeper.BuyerExecuteTradeOrder(ctx, buyerExecuteOrder)
 	require.Error(t, err, "Trade cannot be executed for account "+buyer.String()+". Access Denied.")
 
-	aclAccount.SetACL(acl.ACL{IssueAsset: true, IssueFiat: true, SendAsset: true, SendFiat: true, BuyerExecuteOrder: true, SellerExecuteOrder: true, ChangeBuyerBid: true, ChangeSellerBid: true, ConfirmBuyerBid: true, ConfirmSellerBid: true, Negotiation: true, ReleaseAsset: true, RedeemFiat: true, RedeemAsset: true})
-	defineACL = bankTypes.NewDefineACL(zone, buyer, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	aclAccount.SetACL(acl.ACL{BuyerExecuteOrder: true, SellerExecuteOrder: true})
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	buyerExecuteOrder = bankTypes.NewBuyerExecuteOrder(zone, buyer, seller, assetPegHash, "fiatProofHash")
 	err, _ = app.BankKeeper.BuyerExecuteTradeOrder(ctx, buyerExecuteOrder)
@@ -727,6 +643,7 @@ func TestBaseSendKeeper_BuyerExecuteOrder(t *testing.T) {
 
 	//Unmoderated
 	assetPeg = types.BaseAssetPeg{
+		PegHash:       []byte("31"),
 		DocumentHash:  "DEFAULT",
 		AssetType:     "DEFAULT",
 		AssetQuantity: 0,
@@ -735,20 +652,16 @@ func TestBaseSendKeeper_BuyerExecuteOrder(t *testing.T) {
 		Moderated:     false,
 		Locked:        true,
 	}
-	issueAsset = bankTypes.NewIssueAsset(seller, seller, &assetPeg)
-	app.BankKeeper.IssueAssetsToWallets(ctx, issueAsset)
-	assetPegWallet := ak.GetAccount(ctx, seller).GetAssetPegWallet()
-	assetPegHash = ak.GetAccount(ctx, seller).GetAssetPegWallet()[1].GetPegHash()
-	releaseAsset = bankTypes.NewReleaseAsset(zone, seller, assetPegHash)
-	app.BankKeeper.ReleaseLockedAssets(ctx, releaseAsset)
+	assetPegHash = assetPeg.GetPegHash()
 	negotiation = getNegotiation(ctx, buyer, seller, assetPegHash, 500, 10000)
 	app.NegotiationKeeper.SetNegotiation(ctx, negotiation)
-	sendAsset = bankTypes.NewSendAsset(seller, buyer, assetPegHash)
-	app.BankKeeper.SendAssetsToWallets(ctx, sendAsset)
-
-	order := app.OrderKeeper.NewOrder(addr1, seller, assetPegHash)
-	order.SetAssetPegWallet(assetPegWallet)
+	order = app.OrderKeeper.NewOrder(buyer, seller, assetPegHash)
+	order.SetAssetPegWallet(types.AssetPegWallet{assetPeg})
 	app.OrderKeeper.SetOrder(ctx, order)
+
+	order2 := app.OrderKeeper.NewOrder(addr1, seller, assetPegHash)
+	order2.SetAssetPegWallet(order.GetAssetPegWallet())
+	app.OrderKeeper.SetOrder(ctx, order2)
 	buyerExecuteOrder = bankTypes.NewBuyerExecuteOrder(buyer, addr1, seller, assetPegHash, "fiatProofHash")
 	err, _ = app.BankKeeper.BuyerExecuteTradeOrder(ctx, buyerExecuteOrder)
 	require.Error(t, err, "To account acl not defined.")
@@ -757,17 +670,15 @@ func TestBaseSendKeeper_BuyerExecuteOrder(t *testing.T) {
 	err, _ = app.BankKeeper.BuyerExecuteTradeOrder(ctx, buyerExecuteOrder)
 	require.Error(t, err, "Trade cannot be executed for account %v."+buyer.String()+" Access Denied.")
 
-	aclAccount.SetACL(acl.ACL{IssueAsset: true, IssueFiat: true, SendAsset: true, SendFiat: true, BuyerExecuteOrder: false, SellerExecuteOrder: true, ChangeBuyerBid: true, ChangeSellerBid: true, ConfirmBuyerBid: true, ConfirmSellerBid: true, Negotiation: true, ReleaseAsset: true, RedeemFiat: true, RedeemAsset: true})
-	defineACL = bankTypes.NewDefineACL(zone, buyer, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	aclAccount.SetACL(acl.ACL{BuyerExecuteOrder: false, SellerExecuteOrder: true})
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	buyerExecuteOrder = bankTypes.NewBuyerExecuteOrder(buyer, buyer, seller, assetPegHash, "fiatProofHash")
 	err, _ = app.BankKeeper.BuyerExecuteTradeOrder(ctx, buyerExecuteOrder)
 	require.Error(t, err, "Trade cannot be executed for account %v."+buyer.String()+" Access Denied.")
 
-	aclAccount.SetACL(acl.ACL{IssueAsset: true, IssueFiat: true, SendAsset: true, SendFiat: true, BuyerExecuteOrder: true, SellerExecuteOrder: true, ChangeBuyerBid: true, ChangeSellerBid: true, ConfirmBuyerBid: true, ConfirmSellerBid: true, Negotiation: true, ReleaseAsset: true, RedeemFiat: true, RedeemAsset: true})
-	defineACL = bankTypes.NewDefineACL(zone, buyer, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	aclAccount.SetACL(acl.ACL{BuyerExecuteOrder: true, SellerExecuteOrder: true})
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	buyerExecuteOrder = bankTypes.NewBuyerExecuteOrder(buyer, buyer, seller, assetPegHash, "fiatProofHash")
 	err, _ = app.BankKeeper.BuyerExecuteTradeOrder(ctx, buyerExecuteOrder)
@@ -777,27 +688,21 @@ func TestBaseSendKeeper_BuyerExecuteOrder(t *testing.T) {
 
 func TestBaseSendKeeper_SellerExecuteOrder(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
-	ak := app.AccountKeeper
 
-	genesisAccount := getGenesisAccount(ctx, ak)
 	zone := cTypes.AccAddress([]byte("zone"))
-	defineZone := bankTypes.NewDefineZone(genesisAccount.GetAddress(), zone, acl.DefaultZoneID)
-	app.BankKeeper.DefineZones(ctx, defineZone)
-
-	organization := cTypes.AccAddress([]byte("organization"))
-	defineOrganization := bankTypes.NewDefineOrganization(zone, organization, acl.DefaultOrganizationID, defineZone.ZoneID)
-	app.BankKeeper.DefineOrganizations(ctx, defineOrganization)
+	app.ACLKeeper.SetZoneAddress(ctx, acl.DefaultZoneID, zone)
 
 	addr1 := cTypes.AccAddress([]byte("addr1"))
 	seller := cTypes.AccAddress([]byte("seller"))
+	sellerAccount := app.AccountKeeper.NewAccountWithAddress(ctx, seller)
 	aclAccount := acl.BaseACLAccount{
 		Address:        seller,
-		ZoneID:         defineOrganization.ZoneID,
-		OrganizationID: defineOrganization.OrganizationID,
+		ZoneID:         acl.DefaultZoneID,
+		OrganizationID: acl.DefaultOrganizationID,
 		ACL:            acl.ACL{IssueAsset: true, IssueFiat: true, SendAsset: true, SendFiat: true, BuyerExecuteOrder: true, SellerExecuteOrder: false, ChangeBuyerBid: true, ChangeSellerBid: true, ConfirmBuyerBid: true, ConfirmSellerBid: true, Negotiation: true, ReleaseAsset: true, RedeemFiat: true, RedeemAsset: true},
 	}
-	defineACL := bankTypes.NewDefineACL(zone, seller, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
+
 	assetPeg := types.BaseAssetPeg{
 		DocumentHash:  "DEFAULT",
 		AssetType:     "DEFAULT",
@@ -805,31 +710,25 @@ func TestBaseSendKeeper_SellerExecuteOrder(t *testing.T) {
 		AssetPrice:    0,
 		QuantityUnit:  "DEFAULT",
 		Moderated:     true,
-		Locked:        true,
+		Locked:        false,
 	}
-	issueAsset := bankTypes.NewIssueAsset(zone, seller, &assetPeg)
-	app.BankKeeper.IssueAssetsToWallets(ctx, issueAsset)
-	assetPegHash := ak.GetAccount(ctx, seller).GetAssetPegWallet()[0].GetPegHash()
-	releaseAsset := bankTypes.NewReleaseAsset(zone, seller, assetPegHash)
-	app.BankKeeper.ReleaseLockedAssets(ctx, releaseAsset)
+	assetPegHash := assetPeg.PegHash
+	sellerAccount.SetAssetPegWallet(types.AssetPegWallet{assetPeg})
+	app.AccountKeeper.SetAccount(ctx, sellerAccount)
 
 	buyer := cTypes.AccAddress([]byte("buyer"))
-	aclAccount = acl.BaseACLAccount{
-		Address:        buyer,
-		ZoneID:         defineOrganization.ZoneID,
-		OrganizationID: defineOrganization.OrganizationID,
-		ACL:            acl.ACL{IssueAsset: true, IssueFiat: true, SendAsset: true, SendFiat: true, BuyerExecuteOrder: true, SellerExecuteOrder: false, ChangeBuyerBid: true, ChangeSellerBid: true, ConfirmBuyerBid: true, ConfirmSellerBid: true, Negotiation: true, ReleaseAsset: true, RedeemFiat: true, RedeemAsset: true},
-	}
-	defineACL = bankTypes.NewDefineACL(zone, buyer, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	aclAccount.SetAddress(buyer)
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	fiatPeg := types.BaseFiatPeg{
+		PegHash:           []byte("30"),
 		TransactionID:     "DEFAULT",
 		TransactionAmount: 1000,
 	}
-	issueFiat := bankTypes.NewIssueFiat(zone, buyer, &fiatPeg)
-	app.BankKeeper.IssueFiatsToWallets(ctx, issueFiat)
-	fiatPegHash := ak.GetAccount(ctx, buyer).GetFiatPegWallet()[0].GetPegHash()
+	fiatPegHash := fiatPeg.GetPegHash()
+	buyerAccount := app.AccountKeeper.NewAccountWithAddress(ctx, buyer)
+	buyerAccount.SetFiatPegWallet(types.FiatPegWallet{fiatPeg})
+	app.AccountKeeper.SetAccount(ctx, buyerAccount)
 
 	negotiation := getNegotiation(ctx, buyer, seller, assetPegHash, 500, 10000)
 	app.NegotiationKeeper.SetNegotiation(ctx, negotiation)
@@ -850,9 +749,8 @@ func TestBaseSendKeeper_SellerExecuteOrder(t *testing.T) {
 	require.Error(t, err, "Trade cannot be executed for account "+seller.String()+". Access Denied.")
 
 	aclAccount.SetAddress(seller)
-	aclAccount.SetACL(acl.ACL{IssueAsset: true, IssueFiat: true, SendAsset: true, SendFiat: true, BuyerExecuteOrder: true, SellerExecuteOrder: true, ChangeBuyerBid: true, ChangeSellerBid: true, ConfirmBuyerBid: true, ConfirmSellerBid: true, Negotiation: true, ReleaseAsset: true, RedeemFiat: true, RedeemAsset: true})
-	defineACL = bankTypes.NewDefineACL(zone, seller, &aclAccount)
-	err = app.BankKeeper.DefineACLs(ctx, defineACL)
+	aclAccount.SetACL(acl.ACL{SellerExecuteOrder: true})
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	sendFiat := bankTypes.NewSendFiat(buyer, seller, fiatPegHash, negotiation.GetBid())
 	app.BankKeeper.SendFiatsToWallets(ctx, sendFiat)
@@ -863,7 +761,7 @@ func TestBaseSendKeeper_SellerExecuteOrder(t *testing.T) {
 
 	//Unmoderated
 	seller2 := cTypes.AccAddress([]byte("seller2"))
-	assetPegHash = []byte("DEFAULT")
+	assetPegHash = []byte("30")
 	assetPeg = types.BaseAssetPeg{
 		PegHash:       assetPegHash,
 		DocumentHash:  "DEFAULT",
@@ -887,12 +785,11 @@ func TestBaseSendKeeper_SellerExecuteOrder(t *testing.T) {
 
 	aclAccount = acl.BaseACLAccount{
 		Address:        seller2,
-		ZoneID:         defineOrganization.ZoneID,
-		OrganizationID: defineOrganization.OrganizationID,
-		ACL:            acl.ACL{IssueAsset: true, IssueFiat: true, SendAsset: true, SendFiat: true, BuyerExecuteOrder: true, SellerExecuteOrder: false, ChangeBuyerBid: true, ChangeSellerBid: true, ConfirmBuyerBid: true, ConfirmSellerBid: true, Negotiation: true, ReleaseAsset: true, RedeemFiat: true, RedeemAsset: true},
+		ZoneID:         acl.DefaultZoneID,
+		OrganizationID: acl.DefaultOrganizationID,
+		ACL:            acl.ACL{SellerExecuteOrder: false},
 	}
-	defineACL = bankTypes.NewDefineACL(zone, seller2, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	sellerExecuteOrder = bankTypes.NewSellerExecuteOrder(addr1, buyer, seller2, assetPegHash, "awbProofHash")
 	err, _ = app.BankKeeper.SellerExecuteTradeOrder(ctx, sellerExecuteOrder)
@@ -902,9 +799,8 @@ func TestBaseSendKeeper_SellerExecuteOrder(t *testing.T) {
 	err, _ = app.BankKeeper.SellerExecuteTradeOrder(ctx, sellerExecuteOrder)
 	require.Error(t, err, "Trade cannot be executed for account "+seller2.String()+". Access Denied.")
 
-	aclAccount.SetACL(acl.ACL{IssueAsset: true, IssueFiat: true, SendAsset: true, SendFiat: true, BuyerExecuteOrder: true, SellerExecuteOrder: true, ChangeBuyerBid: true, ChangeSellerBid: true, ConfirmBuyerBid: true, ConfirmSellerBid: true, Negotiation: true, ReleaseAsset: true, RedeemFiat: true, RedeemAsset: true})
-	defineACL = bankTypes.NewDefineACL(zone, seller2, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	aclAccount.SetACL(acl.ACL{SellerExecuteOrder: true})
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	sellerExecuteOrder = bankTypes.NewSellerExecuteOrder(seller2, buyer, seller2, assetPegHash, "awbProofHash")
 	err, _ = app.BankKeeper.SellerExecuteTradeOrder(ctx, sellerExecuteOrder)
@@ -914,38 +810,33 @@ func TestBaseSendKeeper_SellerExecuteOrder(t *testing.T) {
 
 func TestBaseSendKeeper_RedeemAsset(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
-	ak := app.AccountKeeper
 
-	genesisAccount := getGenesisAccount(ctx, ak)
 	zone := cTypes.AccAddress([]byte("zone"))
-	defineZone := bankTypes.NewDefineZone(genesisAccount.GetAddress(), zone, acl.DefaultZoneID)
-	app.BankKeeper.DefineZones(ctx, defineZone)
-
-	organization := cTypes.AccAddress([]byte("organization"))
-	defineOrganization := bankTypes.NewDefineOrganization(zone, organization, acl.DefaultOrganizationID, defineZone.ZoneID)
-	app.BankKeeper.DefineOrganizations(ctx, defineOrganization)
+	app.ACLKeeper.SetZoneAddress(ctx, acl.DefaultZoneID, zone)
 
 	buyer := cTypes.AccAddress([]byte("buyer"))
 	seller := cTypes.AccAddress([]byte("seller"))
+	sellerAccount := app.AccountKeeper.NewAccountWithAddress(ctx, seller)
 	aclAccount := acl.BaseACLAccount{
 		Address:        seller,
-		ZoneID:         defineOrganization.ZoneID,
-		OrganizationID: defineOrganization.OrganizationID,
-		ACL:            acl.ACL{IssueAsset: true, ReleaseAsset: true, RedeemAsset: false},
+		ZoneID:         acl.DefaultZoneID,
+		OrganizationID: acl.DefaultOrganizationID,
+		ACL:            acl.ACL{RedeemAsset: false},
 	}
-	defineACL := bankTypes.NewDefineACL(zone, seller, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
+
 	assetPeg := types.BaseAssetPeg{
+		PegHash:       []byte("30"),
 		DocumentHash:  "DEFAULT",
 		AssetType:     "DEFAULT",
 		AssetQuantity: 0,
 		AssetPrice:    0,
 		QuantityUnit:  "DEFAULT",
 		Moderated:     true,
-		Locked:        true,
+		Locked:        false,
 	}
 
-	assetPegHash := []byte("PegHash")
+	assetPegHash := assetPeg.PegHash
 
 	redeemAsset := bankTypes.NewRedeemAsset(buyer, seller, assetPegHash)
 	err := app.BankKeeper.RedeemAssetsFromWallets(ctx, redeemAsset)
@@ -955,18 +846,15 @@ func TestBaseSendKeeper_RedeemAsset(t *testing.T) {
 	err = app.BankKeeper.RedeemAssetsFromWallets(ctx, redeemAsset)
 	require.Error(t, err, "Assets can't be redeemed from account "+seller.String()+".")
 
-	aclAccount.SetACL(acl.ACL{IssueAsset: true, ReleaseAsset: true, RedeemAsset: true})
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	aclAccount.SetACL(acl.ACL{RedeemAsset: true})
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	redeemAsset = bankTypes.NewRedeemAsset(zone, seller, assetPegHash)
 	err = app.BankKeeper.RedeemAssetsFromWallets(ctx, redeemAsset)
 	require.Error(t, err, "No Assets Found!")
 
-	issueAsset := bankTypes.NewIssueAsset(zone, seller, &assetPeg)
-	app.BankKeeper.IssueAssetsToWallets(ctx, issueAsset)
-	assetPegHash = ak.GetAccount(ctx, seller).GetAssetPegWallet()[0].GetPegHash()
-	releaseAsset := bankTypes.NewReleaseAsset(zone, seller, assetPegHash)
-	app.BankKeeper.ReleaseLockedAssets(ctx, releaseAsset)
+	sellerAccount.SetAssetPegWallet(types.AssetPegWallet{assetPeg})
+	app.AccountKeeper.SetAccount(ctx, sellerAccount)
 
 	redeemAsset = bankTypes.NewRedeemAsset(zone, seller, []byte("PegHash"))
 	err = app.BankKeeper.RedeemAssetsFromWallets(ctx, redeemAsset)
@@ -979,34 +867,28 @@ func TestBaseSendKeeper_RedeemAsset(t *testing.T) {
 
 func TestBaseSendKeeper_RedeemFiat(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
-	ak := app.AccountKeeper
 
-	genesisAccount := getGenesisAccount(ctx, ak)
 	zone := cTypes.AccAddress([]byte("zone"))
-	defineZone := bankTypes.NewDefineZone(genesisAccount.GetAddress(), zone, acl.DefaultZoneID)
-	app.BankKeeper.DefineZones(ctx, defineZone)
+	app.ACLKeeper.SetZoneAddress(ctx, acl.DefaultZoneID, zone)
 
-	organization := cTypes.AccAddress([]byte("organization"))
-	defineOrganization := bankTypes.NewDefineOrganization(zone, organization, acl.DefaultOrganizationID, defineZone.ZoneID)
-	app.BankKeeper.DefineOrganizations(ctx, defineOrganization)
-
+	addr1 := cTypes.AccAddress([]byte("addr1"))
 	buyer := cTypes.AccAddress([]byte("buyer"))
-	seller := cTypes.AccAddress([]byte("seller"))
+	buyerAccount := app.AccountKeeper.NewAccountWithAddress(ctx, buyer)
 	aclAccount := acl.BaseACLAccount{
 		Address:        buyer,
-		ZoneID:         defineOrganization.ZoneID,
-		OrganizationID: defineOrganization.OrganizationID,
-		ACL:            acl.ACL{IssueFiat: true, SendFiat: true, RedeemFiat: false},
+		ZoneID:         acl.DefaultZoneID,
+		OrganizationID: acl.DefaultOrganizationID,
+		ACL:            acl.ACL{RedeemFiat: false},
 	}
-	defineACL := bankTypes.NewDefineACL(zone, buyer, &aclAccount)
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
 	fiatPeg := types.BaseFiatPeg{
+		PegHash:           []byte("30"),
 		TransactionID:     "DEFAULT",
 		TransactionAmount: 1000,
 	}
 
-	redeemFiat := bankTypes.NewRedeemFiat(seller, zone, 500)
+	redeemFiat := bankTypes.NewRedeemFiat(addr1, zone, 500)
 	err := app.BankKeeper.RedeemFiatsFromWallets(ctx, redeemFiat)
 	require.Error(t, err, "To account acl not defined.")
 
@@ -1014,11 +896,11 @@ func TestBaseSendKeeper_RedeemFiat(t *testing.T) {
 	err = app.BankKeeper.RedeemFiatsFromWallets(ctx, redeemFiat)
 	require.Error(t, err, "Fiats can't be redeemed from account "+buyer.String()+".")
 
-	aclAccount.SetACL(acl.ACL{IssueFiat: true, SendFiat: true, RedeemFiat: true})
-	app.BankKeeper.DefineACLs(ctx, defineACL)
+	aclAccount.SetACL(acl.ACL{RedeemFiat: true})
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 
-	issueFiat := bankTypes.NewIssueFiat(zone, buyer, &fiatPeg)
-	app.BankKeeper.IssueFiatsToWallets(ctx, issueFiat)
+	buyerAccount.SetFiatPegWallet(types.FiatPegWallet{fiatPeg})
+	app.AccountKeeper.SetAccount(ctx, buyerAccount)
 
 	redeemFiat = bankTypes.NewRedeemFiat(buyer, zone, 50000)
 	err = app.BankKeeper.RedeemFiatsFromWallets(ctx, redeemFiat)
@@ -1029,7 +911,7 @@ func TestBaseSendKeeper_RedeemFiat(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestBaseSendKeeper_PrivateExecuteOrder(t *testing.T) {
+func TestBaseSendKeeper_PrivateExchangeOrderTokens(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
 
 	buyer := cTypes.AccAddress([]byte("buyer"))
@@ -1040,7 +922,7 @@ func TestBaseSendKeeper_PrivateExecuteOrder(t *testing.T) {
 		Address:        buyer,
 		ZoneID:         acl.DefaultZoneID,
 		OrganizationID: acl.DefaultOrganizationID,
-		ACL:            acl.ACL{IssueAsset: true, IssueFiat: true, SendAsset: true, SendFiat: true, BuyerExecuteOrder: true, SellerExecuteOrder: true, ChangeBuyerBid: true, ChangeSellerBid: true, ConfirmBuyerBid: true, ConfirmSellerBid: true, Negotiation: true, ReleaseAsset: true, RedeemFiat: true, RedeemAsset: true},
+		ACL:            acl.ACL{BuyerExecuteOrder: true, SellerExecuteOrder: true},
 	}
 	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 	aclAccount.SetAddress(seller)
@@ -1095,6 +977,7 @@ func TestBaseSendKeeper_PrivateExecuteOrder(t *testing.T) {
 
 	sellerExecuteOrder = bankTypes.NewSellerExecuteOrder(seller, buyer, seller, assetPegHash, "awbProofHash")
 	err, _ = app.BankKeeper.SellerExecuteTradeOrder(ctx, sellerExecuteOrder)
+	require.NoError(t, err)
 
 	assetPegHash = []byte("30")
 	assetPeg.SetPegHash(assetPegHash)
@@ -1105,6 +988,7 @@ func TestBaseSendKeeper_PrivateExecuteOrder(t *testing.T) {
 	err, _ = app.BankKeeper.SellerExecuteTradeOrder(ctx, sellerExecuteOrder)
 	require.NoError(t, err)
 
+	//Above test reverses the order
 	order.SetAssetPegWallet(types.AssetPegWallet{assetPeg})
 	order.SetFiatPegWallet(types.FiatPegWallet{fiatPeg})
 	app.OrderKeeper.SetOrder(ctx, order)
@@ -1114,6 +998,122 @@ func TestBaseSendKeeper_PrivateExecuteOrder(t *testing.T) {
 	require.NoError(t, err)
 
 	buyerExecuteOrder = bankTypes.NewBuyerExecuteOrder(buyer, buyer, seller, assetPegHash, "fiatProofHash")
+	err, _ = app.BankKeeper.BuyerExecuteTradeOrder(ctx, buyerExecuteOrder)
+	require.NoError(t, err)
+}
+
+func TestBaseSendKeeper_ExchangeOrderTokens(t *testing.T) {
+	app, ctx := simApp.CreateTestApp(false)
+
+	zone := cTypes.AccAddress([]byte("zone"))
+	app.ACLKeeper.SetZoneAddress(ctx, acl.DefaultZoneID, zone)
+
+	buyer := cTypes.AccAddress([]byte("buyer"))
+	app.AccountKeeper.SetAccount(ctx, app.AccountKeeper.NewAccountWithAddress(ctx, buyer))
+	seller := cTypes.AccAddress([]byte("seller"))
+	app.AccountKeeper.SetAccount(ctx, app.AccountKeeper.NewAccountWithAddress(ctx, seller))
+	aclAccount := acl.BaseACLAccount{
+		Address:        buyer,
+		ZoneID:         acl.DefaultZoneID,
+		OrganizationID: acl.DefaultOrganizationID,
+		ACL:            acl.ACL{BuyerExecuteOrder: true, SellerExecuteOrder: true},
+	}
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
+	aclAccount.SetAddress(seller)
+	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
+
+	assetPegHash := []byte("30")
+	assetPeg := types.BaseAssetPeg{
+		PegHash:       assetPegHash,
+		DocumentHash:  "DEFAULT",
+		AssetType:     "DEFAULT",
+		AssetQuantity: 0,
+		AssetPrice:    0,
+		QuantityUnit:  "DEFAULT",
+		Moderated:     true,
+		Locked:        false,
+	}
+
+	order := app.OrderKeeper.NewOrder(buyer, seller, assetPegHash)
+	order.SetAssetPegWallet(types.AssetPegWallet{assetPeg})
+
+	fiatPegHash := []byte("fiatPegHash")
+	fiatPeg := types.BaseFiatPeg{
+		PegHash:           fiatPegHash,
+		TransactionID:     "DEFAULT",
+		TransactionAmount: 1000,
+	}
+	app.OrderKeeper.SetOrder(ctx, order)
+
+	buyerExecuteOrder := bankTypes.NewBuyerExecuteOrder(zone, buyer, seller, assetPegHash, "fiatProofHash")
+	err, _ := app.BankKeeper.BuyerExecuteTradeOrder(ctx, buyerExecuteOrder)
+	require.Error(t, err, "negotiation not found.")
+
+	sellerExecuteOrder := bankTypes.NewSellerExecuteOrder(zone, buyer, seller, assetPegHash, "awbProofHash")
+	err, _ = app.BankKeeper.SellerExecuteTradeOrder(ctx, sellerExecuteOrder)
+	require.Error(t, err, "negotiation not found.")
+
+	negotiation := getNegotiation(ctx, buyer, seller, assetPegHash, 500, ctx.BlockHeight()-1)
+	app.NegotiationKeeper.SetNegotiation(ctx, negotiation)
+
+	sellerExecuteOrder = bankTypes.NewSellerExecuteOrder(zone, buyer, seller, assetPegHash, "awbProofHash")
+	err, _ = app.BankKeeper.SellerExecuteTradeOrder(ctx, sellerExecuteOrder)
+	require.Error(t, err, "Fiat tokens not found!")
+
+	order.SetFiatPegWallet(types.FiatPegWallet{fiatPeg})
+	app.OrderKeeper.SetOrder(ctx, order)
+
+	assetPeg.SetPegHash([]byte("31"))
+	order.SetAssetPegWallet(types.AddAssetPegToWallet(&assetPeg, order.GetAssetPegWallet()))
+	app.OrderKeeper.SetOrder(ctx, order)
+
+	sellerExecuteOrder = bankTypes.NewSellerExecuteOrder(zone, buyer, seller, assetPegHash, "awbProofHash")
+	err, _ = app.BankKeeper.SellerExecuteTradeOrder(ctx, sellerExecuteOrder)
+	require.Error(t, err, "Asset token not found!")
+
+	negotiation = getNegotiation(ctx, buyer, seller, assetPegHash, 500, ctx.BlockHeight()+1)
+	app.NegotiationKeeper.SetNegotiation(ctx, negotiation)
+
+	sellerExecuteOrder = bankTypes.NewSellerExecuteOrder(zone, buyer, seller, assetPegHash, "awbProofHash")
+	err, _ = app.BankKeeper.SellerExecuteTradeOrder(ctx, sellerExecuteOrder)
+	require.NoError(t, err)
+
+	assetPegHash = []byte("30")
+	assetPeg.SetPegHash(assetPegHash)
+	order.SetAssetPegWallet(types.AssetPegWallet{assetPeg})
+	app.OrderKeeper.SetOrder(ctx, order)
+
+	sellerExecuteOrder = bankTypes.NewSellerExecuteOrder(zone, buyer, seller, assetPegHash, "")
+	err, _ = app.BankKeeper.SellerExecuteTradeOrder(ctx, sellerExecuteOrder)
+	require.NoError(t, err)
+
+	//Above test reverses the order
+	order.SetAssetPegWallet(types.AssetPegWallet{assetPeg})
+	order.SetFiatPegWallet(types.FiatPegWallet{fiatPeg})
+	app.OrderKeeper.SetOrder(ctx, order)
+
+	negotiation.SetBuyerBlockHeight(ctx.BlockHeight() - 1)
+	negotiation.SetTime(ctx.BlockHeight() - 1)
+	app.NegotiationKeeper.SetNegotiation(ctx, negotiation)
+
+	sellerExecuteOrder = bankTypes.NewSellerExecuteOrder(zone, buyer, seller, assetPegHash, "awbProofHash")
+	err, _ = app.BankKeeper.SellerExecuteTradeOrder(ctx, sellerExecuteOrder)
+	require.NoError(t, err)
+
+	//Above test reverses the order
+	order.SetAssetPegWallet(types.AssetPegWallet{assetPeg})
+	order.SetFiatPegWallet(types.FiatPegWallet{fiatPeg})
+	app.OrderKeeper.SetOrder(ctx, order)
+
+	negotiation.SetBuyerBlockHeight(ctx.BlockHeight() + 1)
+	negotiation.SetTime(ctx.BlockHeight() + 1)
+	app.NegotiationKeeper.SetNegotiation(ctx, negotiation)
+
+	sellerExecuteOrder = bankTypes.NewSellerExecuteOrder(zone, buyer, seller, assetPegHash, "awbProofHash")
+	err, _ = app.BankKeeper.SellerExecuteTradeOrder(ctx, sellerExecuteOrder)
+	require.NoError(t, err)
+
+	buyerExecuteOrder = bankTypes.NewBuyerExecuteOrder(zone, buyer, seller, assetPegHash, "fiatProofHash")
 	err, _ = app.BankKeeper.BuyerExecuteTradeOrder(ctx, buyerExecuteOrder)
 	require.NoError(t, err)
 }
