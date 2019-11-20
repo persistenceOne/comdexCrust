@@ -1,6 +1,8 @@
 package keeper_test
 
 import (
+	"fmt"
+	"reflect"
 	"testing"
 	"time"
 
@@ -8,13 +10,14 @@ import (
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/auth/exported"
 	bankTypes "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
-	tmtime "github.com/tendermint/tendermint/types/time"
-
 	"github.com/commitHub/commitBlockchain/simApp"
 	"github.com/commitHub/commitBlockchain/types"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+	tmtime "github.com/tendermint/tendermint/types/time"
 )
+
+type prerequisites func()
 
 func getGenesisAccount(ctx cTypes.Context, ak auth.AccountKeeper) exported.Account {
 	allAccounts := ak.GetAllAccounts(ctx)
@@ -40,7 +43,7 @@ func getNegotiation(ctx cTypes.Context, buyer, seller cTypes.AccAddress, assetPe
 	return negotiation
 }
 
-func TestBaseSendKeeper_DelegateCoins(t *testing.T) {
+func TestBaseKeeper_DelegateCoins(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
 	ak := app.AccountKeeper
 	now := tmtime.Now()
@@ -67,28 +70,37 @@ func TestBaseSendKeeper_DelegateCoins(t *testing.T) {
 
 	ctx = ctx.WithBlockTime(now.Add(12 * time.Hour))
 
-	// Negative Cases
-	err := app.BankKeeper.DelegateCoins(ctx, addr3, addrModule, delCoins)
-	require.Error(t, err, "account "+addr3.String()+" does not exist")
-	err = app.BankKeeper.DelegateCoins(ctx, addr2, addr4, delCoins)
-	require.Error(t, err, "module account "+addr4.String()+" does not exist")
+	type args struct {
+		ctx           cTypes.Context
+		delegatorAddr cTypes.AccAddress
+		moduleAccAddr cTypes.AccAddress
+		amt           cTypes.Coins
+	}
+	arg1 := args{ctx, addr3, addrModule, delCoins}
+	arg2 := args{ctx, addr2, addr4, delCoins}
+	arg3 := args{ctx, addr2, addrModule, delCoins}
+	arg4 := args{ctx, addr1, addrModule, delCoins}
 
-	// require the ability for a non-vesting account to delegate
-	err = app.BankKeeper.DelegateCoins(ctx, addr2, addrModule, delCoins)
-	acc = ak.GetAccount(ctx, addr2)
-	macc = ak.GetAccount(ctx, addrModule)
-	require.NoError(t, err)
-	require.Equal(t, origCoins.Sub(delCoins), acc.GetCoins())
-	require.Equal(t, delCoins, macc.GetCoins())
-
-	// require the ability for a vesting account to delegate
-	err = app.BankKeeper.DelegateCoins(ctx, addr1, addrModule, delCoins)
-	vacc = ak.GetAccount(ctx, addr1).(*auth.ContinuousVestingAccount)
-	require.NoError(t, err)
-	require.Equal(t, delCoins, vacc.GetCoins())
+	tests := []struct {
+		name string
+		args args
+		want cTypes.Error
+	}{
+		{"Account does not exist.", arg1, cTypes.ErrUnknownAddress(fmt.Sprintf("account %s does not exist", arg1.delegatorAddr))},
+		{"Module account is absent.", arg2, cTypes.ErrUnknownAddress(fmt.Sprintf("module account %s does not exist", arg2.moduleAccAddr))},
+		{"Require the ability for a non-vesting account to delegate.", arg3, nil},
+		{"Require the ability for a vesting account to delegate.", arg4, nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := app.BankKeeper.DelegateCoins(tt.args.ctx, tt.args.delegatorAddr, tt.args.moduleAccAddr, tt.args.amt); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("BaseKeeper.DelegateCoins() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
-func TestBaseSendKeeper_UndelegateCoins2(t *testing.T) {
+func TestBaseKeeper_UndelegateCoins(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
 	ak := app.AccountKeeper
 	now := tmtime.Now()
@@ -113,44 +125,36 @@ func TestBaseSendKeeper_UndelegateCoins2(t *testing.T) {
 
 	ctx = ctx.WithBlockTime(now.Add(12 * time.Hour))
 
-	// require the ability for a non-vesting account to delegate
-	err := app.BankKeeper.DelegateCoins(ctx, addr2, addrModule, delCoins)
-	require.NoError(t, err)
+	app.BankKeeper.DelegateCoins(ctx, addr2, addrModule, delCoins)
 
-	acc = ak.GetAccount(ctx, addr2)
-	macc = ak.GetAccount(ctx, addrModule)
-	require.Equal(t, origCoins.Sub(delCoins), acc.GetCoins())
-	require.Equal(t, delCoins, macc.GetCoins())
+	app.BankKeeper.DelegateCoins(ctx, addr1, addrModule, delCoins)
 
-	// require the ability for a non-vesting account to undelegate
-	err = app.BankKeeper.UndelegateCoins(ctx, addrModule, addr2, delCoins)
-	require.NoError(t, err)
-
-	acc = ak.GetAccount(ctx, addr2)
-	macc = ak.GetAccount(ctx, addrModule)
-	require.Equal(t, origCoins, acc.GetCoins())
-	require.True(t, macc.GetCoins().Empty())
-
-	// require the ability for a vesting account to delegate
-	err = app.BankKeeper.DelegateCoins(ctx, addr1, addrModule, delCoins)
-	require.NoError(t, err)
-
-	vacc = ak.GetAccount(ctx, addr1).(*auth.ContinuousVestingAccount)
-	macc = ak.GetAccount(ctx, addrModule)
-	require.Equal(t, origCoins.Sub(delCoins), vacc.GetCoins())
-	require.Equal(t, delCoins, macc.GetCoins())
-
-	// require the ability for a vesting account to undelegate
-	err = app.BankKeeper.UndelegateCoins(ctx, addrModule, addr1, delCoins)
-	require.NoError(t, err)
-
-	vacc = ak.GetAccount(ctx, addr1).(*auth.ContinuousVestingAccount)
-	macc = ak.GetAccount(ctx, addrModule)
-	require.Equal(t, origCoins, vacc.GetCoins())
-	require.True(t, macc.GetCoins().Empty())
+	type args struct {
+		ctx           cTypes.Context
+		moduleAccAddr cTypes.AccAddress
+		delegatorAddr cTypes.AccAddress
+		amt           cTypes.Coins
+	}
+	arg1 := args{ctx, addrModule, addr2, delCoins}
+	arg2 := args{ctx, addrModule, addr1, delCoins}
+	tests := []struct {
+		name string
+		args args
+		want cTypes.Error
+	}{
+		{"Require the ability for a non-vesting account to undelegate.", arg1, nil},
+		{"Require the ability for a vesting account to undelegate.", arg2, nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := app.BankKeeper.UndelegateCoins(tt.args.ctx, tt.args.moduleAccAddr, tt.args.delegatorAddr, tt.args.amt); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("BaseKeeper.UndelegateCoins() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
-func TestBaseSendKeeper_InputOutputCoins2(t *testing.T) {
+func TestBaseSendKeeper_InputOutputCoins(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
 
 	addr1 := cTypes.AccAddress([]byte("addr1"))
@@ -167,11 +171,29 @@ func TestBaseSendKeeper_InputOutputCoins2(t *testing.T) {
 	inputs := []bankTypes.Input{bankTypes.NewInput(addr1, inputCoins)}
 	outputs := []bankTypes.Output{bankTypes.NewOutput(addr2, outputCoins)}
 
-	err := app.BankKeeper.InputOutputCoins(ctx, inputs, outputs)
-	require.NoError(t, err)
+	type args struct {
+		ctx     cTypes.Context
+		inputs  []bankTypes.Input
+		outputs []bankTypes.Output
+	}
+	arg := args{ctx, inputs, outputs}
+	tests := []struct {
+		name string
+		args args
+		want cTypes.Error
+	}{
+		{"Adding and subtracting coins.", arg, nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := app.BankKeeper.InputOutputCoins(tt.args.ctx, tt.args.inputs, tt.args.outputs); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("BaseSendKeeper.InputOutputCoins() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
-func TestBaseSendKeeper_SendCoins2(t *testing.T) {
+func TestBaseSendKeeper_SendCoins(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
 	ak := app.AccountKeeper
 
@@ -185,28 +207,73 @@ func TestBaseSendKeeper_SendCoins2(t *testing.T) {
 
 	app.BankKeeper.SetCoins(ctx, addr1, coins1)
 	app.BankKeeper.SetCoins(ctx, addr2, coins2)
-	err := app.BankKeeper.SendCoins(ctx, addr1, addr2, sendCoin2)
-	require.Error(t, err, "insufficient account funds; 100foo < 200foo")
 
-	err = app.BankKeeper.SendCoins(ctx, addr1, addr2, sendCoin1)
+	type args struct {
+		ctx      cTypes.Context
+		fromAddr cTypes.AccAddress
+		toAddr   cTypes.AccAddress
+		amt      cTypes.Coins
+	}
+	arg1 := args{ctx, addr1, addr2, sendCoin2}
+	arg2 := args{ctx, addr1, addr2, sendCoin1}
 
-	require.NoError(t, err)
-	require.Equal(t, cTypes.NewCoins(cTypes.NewInt64Coin("foo", 50)), ak.GetAccount(ctx, addr1).GetCoins())
-	require.Equal(t, cTypes.NewCoins(cTypes.NewInt64Coin("foo", 150)), ak.GetAccount(ctx, addr2).GetCoins())
-
+	tests := []struct {
+		name string
+		args args
+		want cTypes.Error
+	}{
+		{"Insufficient coins.", arg1, cTypes.ErrInsufficientCoins(fmt.Sprintf("insufficient account funds; %s < %s", ak.GetAccount(ctx, arg1.fromAddr).SpendableCoins(ctx.BlockHeader().Time), arg1.amt))},
+		{"Sending coins.", arg2, nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := app.BankKeeper.SendCoins(tt.args.ctx, tt.args.fromAddr, tt.args.toAddr, tt.args.amt); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("BaseSendKeeper.SendCoins() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
-func TestBaseSendKeeper_GetEnabled(t *testing.T) {
+func TestBaseSendKeeper_GetSendEnabled(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
-	enabled := app.BankKeeper.GetSendEnabled(ctx)
-	require.True(t, enabled)
+
+	type args struct {
+		ctx cTypes.Context
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{"Send Enabled", args{ctx}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := app.BankKeeper.GetSendEnabled(tt.args.ctx); got != tt.want {
+				t.Errorf("BaseSendKeeper.GetSendEnabled() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
-func TestBaseSendKeeper_SetEnabled(t *testing.T) {
+func TestBaseSendKeeper_SetSendEnabled(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
-	app.BankKeeper.SetSendEnabled(ctx, true)
-	enabled := app.BankKeeper.GetSendEnabled(ctx)
-	require.True(t, enabled)
+
+	type args struct {
+		ctx     cTypes.Context
+		enabled bool
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"Set Send Enabled", args{ctx, true}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			app.BankKeeper.SetSendEnabled(tt.args.ctx, tt.args.enabled)
+		})
+	}
 }
 
 func TestBaseSendKeeper_DefineZones2(t *testing.T) {
