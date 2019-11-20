@@ -280,6 +280,11 @@ func (app *SimApp) ModuleAccountAddrs() map[string]bool {
 	return modAccAddrs
 }
 
+// GetCDC gives CDC
+func (app *SimApp) GetCDC() *codec.Codec {
+	return app.cdc
+}
+
 func (app *SimApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhiteList []string,
 ) (appState json.RawMessage, validators []tmTypes.GenesisValidator, err error) {
 
