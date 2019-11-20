@@ -1144,6 +1144,12 @@ func (keeper BaseSendKeeper) DefineACLs(ctx cTypes.Context, defineACL bankTypes.
 		}
 	}
 
+	acc := keeper.ak.GetAccount(ctx, defineACL.To)
+	if acc == nil {
+		acc = keeper.ak.NewAccountWithAddress(ctx, defineACL.To)
+		keeper.ak.SetAccount(ctx, acc)
+	}
+
 	err := keeper.aclKeeper.DefineACLAccount(ctx, defineACL.To, defineACL.ACLAccount)
 	if err != nil {
 		return err
