@@ -86,10 +86,21 @@ func TestBaseKeeper_DelegateCoins(t *testing.T) {
 		args args
 		want cTypes.Error
 	}{
-		{"Account does not exist.", arg1, cTypes.ErrUnknownAddress(fmt.Sprintf("account %s does not exist", arg1.delegatorAddr))},
-		{"Module account is absent.", arg2, cTypes.ErrUnknownAddress(fmt.Sprintf("module account %s does not exist", arg2.moduleAccAddr))},
-		{"Require the ability for a non-vesting account to delegate.", arg3, nil},
-		{"Require the ability for a vesting account to delegate.", arg4, nil},
+		{"Account does not exist.",
+			arg1,
+			cTypes.ErrUnknownAddress(fmt.Sprintf("account %s does not exist", arg1.delegatorAddr))},
+
+		{"Module account is absent.",
+			arg2,
+			cTypes.ErrUnknownAddress(fmt.Sprintf("module account %s does not exist", arg2.moduleAccAddr))},
+
+		{"Require the ability for a non-vesting account to delegate.",
+			arg3,
+			nil},
+
+		{"Require the ability for a vesting account to delegate.",
+			arg4,
+			nil},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -142,8 +153,12 @@ func TestBaseKeeper_UndelegateCoins(t *testing.T) {
 		args args
 		want cTypes.Error
 	}{
-		{"Require the ability for a non-vesting account to undelegate.", arg1, nil},
-		{"Require the ability for a vesting account to undelegate.", arg2, nil},
+		{"Require the ability for a non-vesting account to undelegate.",
+			arg1,
+			nil},
+		{"Require the ability for a vesting account to undelegate.",
+			arg2,
+			nil},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -182,7 +197,9 @@ func TestBaseSendKeeper_InputOutputCoins(t *testing.T) {
 		args args
 		want cTypes.Error
 	}{
-		{"Adding and subtracting coins.", arg, nil},
+		{"Adding and subtracting coins.",
+			arg,
+			nil},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -222,8 +239,13 @@ func TestBaseSendKeeper_SendCoins(t *testing.T) {
 		args args
 		want cTypes.Error
 	}{
-		{"Insufficient coins.", arg1, cTypes.ErrInsufficientCoins(fmt.Sprintf("insufficient account funds; %s < %s", ak.GetAccount(ctx, arg1.fromAddr).SpendableCoins(ctx.BlockHeader().Time), arg1.amt))},
-		{"Sending coins.", arg2, nil},
+		{"Insufficient coins.",
+			arg1,
+			cTypes.ErrInsufficientCoins(fmt.Sprintf("insufficient account funds; %s < %s", ak.GetAccount(ctx, arg1.fromAddr).SpendableCoins(ctx.BlockHeader().Time), arg1.amt))},
+
+		{"Sending coins.",
+			arg2,
+			nil},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -245,7 +267,8 @@ func TestBaseSendKeeper_GetSendEnabled(t *testing.T) {
 		args args
 		want bool
 	}{
-		{"Send Enabled", args{ctx}, true},
+		{"Send Enabled",
+			args{ctx}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -267,7 +290,8 @@ func TestBaseSendKeeper_SetSendEnabled(t *testing.T) {
 		name string
 		args args
 	}{
-		{"Set Send Enabled", args{ctx, true}},
+		{"Set Send Enabled",
+			args{ctx, true}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -276,29 +300,52 @@ func TestBaseSendKeeper_SetSendEnabled(t *testing.T) {
 	}
 }
 
-func TestBaseSendKeeper_DefineZones2(t *testing.T) {
+func TestBaseSendKeeper_DefineZones(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
-	ak := app.AccountKeeper
 
-	genesisAccount := getGenesisAccount(ctx, ak)
+	genesisAccount := getGenesisAccount(ctx, app.AccountKeeper)
 	addr1 := cTypes.AccAddress([]byte("addr1"))
 	app.AccountKeeper.SetAccount(ctx, app.AccountKeeper.NewAccountWithAddress(ctx, addr1))
 	zone := cTypes.AccAddress([]byte("zone"))
 
-	defineZone := bankTypes.NewDefineZone(addr1, zone, acl.DefaultZoneID)
-	err := app.BankKeeper.DefineZones(ctx, defineZone)
-	require.Error(t, err, "Account "+addr1.String()+" is not the genesis account. Zones can only be defined by the genesis account.")
+	defineZone1 := bankTypes.NewDefineZone(addr1, zone, acl.DefaultZoneID)
+	defineZone2 := bankTypes.NewDefineZone(genesisAccount.GetAddress(), zone, acl.DefaultZoneID)
+	defineZone3 := bankTypes.NewDefineZone(genesisAccount.GetAddress(), addr1, acl.DefaultZoneID)
 
-	defineZone = bankTypes.NewDefineZone(genesisAccount.GetAddress(), zone, acl.DefaultZoneID)
-	err = app.BankKeeper.DefineZones(ctx, defineZone)
-	require.NoError(t, err)
+	type args struct {
+		ctx        cTypes.Context
+		defineZone bankTypes.DefineZone
+	}
+	arg1 := args{ctx, defineZone1}
+	arg2 := args{ctx, defineZone2}
+	arg3 := args{ctx, defineZone3}
+	tests := []struct {
+		name string
+		args args
+		want cTypes.Error
+	}{
+		{"From account is not Genesis.",
+			arg1,
+			cTypes.ErrInternal(fmt.Sprintf("Account %v is not the genesis account. Zones can only be defined by the genesis account.", arg1.defineZone.From.String()))},
 
-	defineZone = bankTypes.NewDefineZone(genesisAccount.GetAddress(), addr1, acl.DefaultZoneID)
-	err = app.BankKeeper.DefineZones(ctx, defineZone)
-	require.Error(t, err, "zone with this given id already exist")
+		{"Add Zone",
+			arg2,
+			nil},
+
+		{"Zone ID already exists",
+			arg3,
+			cTypes.NewError(cTypes.CodespaceType("acl"), 102, "zone with this given id already exist")},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := app.BankKeeper.DefineZones(tt.args.ctx, tt.args.defineZone); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("BaseSendKeeper.DefineZones() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
-func TestBaseSendKeeper_DefineOrganizations2(t *testing.T) {
+func TestBaseSendKeeper_DefineOrganizations(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
 
 	zone := cTypes.AccAddress([]byte("zone"))
@@ -308,20 +355,45 @@ func TestBaseSendKeeper_DefineOrganizations2(t *testing.T) {
 	addr1 := cTypes.AccAddress([]byte("addr1"))
 	app.AccountKeeper.SetAccount(ctx, app.AccountKeeper.NewAccountWithAddress(ctx, addr1))
 
-	defineOrganization := bankTypes.NewDefineOrganization(addr1, organization, acl.DefaultOrganizationID, acl.DefaultZoneID)
-	err := app.BankKeeper.DefineOrganizations(ctx, defineOrganization)
-	require.Error(t, err, "Account"+addr1.String()+" is not the zone account. Organizations can only be defined by the zone account.")
+	defineOrganization1 := bankTypes.NewDefineOrganization(addr1, organization, acl.DefaultOrganizationID, acl.DefaultZoneID)
+	defineOrganization2 := bankTypes.NewDefineOrganization(zone, organization, acl.DefaultOrganizationID, acl.DefaultZoneID)
+	defineOrganization3 := bankTypes.NewDefineOrganization(zone, addr1, acl.DefaultOrganizationID, acl.DefaultZoneID)
 
-	defineOrganization = bankTypes.NewDefineOrganization(zone, organization, acl.DefaultOrganizationID, acl.DefaultZoneID)
-	err = app.BankKeeper.DefineOrganizations(ctx, defineOrganization)
-	require.NoError(t, err)
+	type args struct {
+		ctx                cTypes.Context
+		defineOrganization bankTypes.DefineOrganization
+	}
+	arg1 := args{ctx, defineOrganization1}
+	arg2 := args{ctx, defineOrganization2}
+	arg3 := args{ctx, defineOrganization3}
 
-	defineOrganization = bankTypes.NewDefineOrganization(zone, addr1, acl.DefaultOrganizationID, acl.DefaultZoneID)
-	err = app.BankKeeper.DefineOrganizations(ctx, defineOrganization)
-	require.Error(t, err, "organization with this given id already exist")
+	tests := []struct {
+		name string
+		args args
+		want cTypes.Error
+	}{
+		{"From account is not zone.",
+			arg1,
+			cTypes.ErrInternal(fmt.Sprintf("Account %v is not the zone account. Organizations can only be defined by the zone account.", arg1.defineOrganization.From.String()))},
+
+		{"Add Organization",
+			arg2,
+			nil},
+
+		{"Organization Id already exists.",
+			arg3,
+			cTypes.NewError("acl", 102, "organization with given id already exist")},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := app.BankKeeper.DefineOrganizations(tt.args.ctx, tt.args.defineOrganization); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("BaseSendKeeper.DefineOrganizations() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
-func TestBaseSendKeeper_DefineACLs2(t *testing.T) {
+func TestBaseSendKeeper_DefineACLs(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
 
 	zone := cTypes.AccAddress([]byte("zone"))
@@ -349,16 +421,38 @@ func TestBaseSendKeeper_DefineACLs2(t *testing.T) {
 		ACL:            acl.ACL{IssueAsset: true},
 	}
 
-	defineACL := bankTypes.NewDefineACL(addr1, trader, &aclAccount)
-	err := app.BankKeeper.DefineACLs(ctx, defineACL)
-	require.Error(t, err, "Account "+addr1.String()+" does not have access to define acl for account "+trader.String()+".")
+	defineACL1 := bankTypes.NewDefineACL(addr1, trader, &aclAccount)
+	defineACL2 := bankTypes.NewDefineACL(zone, trader, &aclAccount)
 
-	defineACL = bankTypes.NewDefineACL(zone, trader, &aclAccount)
-	err = app.BankKeeper.DefineACLs(ctx, defineACL)
-	require.NoError(t, err)
+	type args struct {
+		ctx       cTypes.Context
+		defineACL bankTypes.DefineACL
+	}
+	arg1 := args{ctx, defineACL1}
+	arg2 := args{ctx, defineACL2}
+	tests := []struct {
+		name string
+		args args
+		want cTypes.Error
+	}{
+		{"From account does not have permission",
+			arg1,
+			cTypes.ErrInternal(fmt.Sprintf("Account %v does not have access to define acl for account %v.", arg1.defineACL.From.String(), arg1.defineACL.To.String()))},
+
+		{"Define ACL",
+			arg2,
+			nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := app.BankKeeper.DefineACLs(tt.args.ctx, tt.args.defineACL); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("BaseSendKeeper.DefineACLs() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
-func TestBaseSendKeeper_IssueAssetsToWallets2(t *testing.T) {
+func TestBaseSendKeeper_IssueAssetsToWallets(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
 
 	zone := cTypes.AccAddress([]byte("zone"))
@@ -376,9 +470,7 @@ func TestBaseSendKeeper_IssueAssetsToWallets2(t *testing.T) {
 		Moderated:     false,
 	}
 
-	issueAsset := bankTypes.NewIssueAsset(trader, trader, &assetPeg)
-	err := app.BankKeeper.IssueAssetsToWallets(ctx, issueAsset)
-	require.Error(t, err, "acl for this account not defined")
+	issueAsset1 := bankTypes.NewIssueAsset(trader, trader, &assetPeg)
 
 	aclAccount := acl.BaseACLAccount{
 		Address:        trader,
@@ -387,31 +479,69 @@ func TestBaseSendKeeper_IssueAssetsToWallets2(t *testing.T) {
 		ACL:            acl.ACL{IssueAsset: false},
 	}
 
-	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
+	issueAsset2 := bankTypes.NewIssueAsset(trader, trader, &assetPeg)
+	issueAsset3 := bankTypes.NewIssueAsset(trader, trader, &assetPeg)
+	issueAsset4 := bankTypes.NewIssueAsset(addr1, trader, &assetPeg)
+	issueAsset5 := bankTypes.NewIssueAsset(zone, trader, &assetPeg)
 
-	issueAsset = bankTypes.NewIssueAsset(trader, trader, &assetPeg)
-	err = app.BankKeeper.IssueAssetsToWallets(ctx, issueAsset)
-	require.Error(t, err, "Assets cant be issued to account "+trader.String()+".")
+	type args struct {
+		ctx        cTypes.Context
+		issueAsset bankTypes.IssueAsset
+	}
+	arg1 := args{ctx, issueAsset1}
+	arg2 := args{ctx, issueAsset2}
+	arg3 := args{ctx, issueAsset3}
+	arg4 := args{ctx, issueAsset4}
+	arg5 := args{ctx, issueAsset5}
+	tests := []struct {
+		name string
+		args args
+		pre  prerequisites
+		want cTypes.Error
+	}{
+		{"ACL account not defined.",
+			arg1,
+			func() {},
+			cTypes.NewError("acl", 102, "acl for this account not defined")},
 
-	aclAccount.SetACL(acl.ACL{IssueAsset: true})
-	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
+		{"Moderated is false and IssueAsset of ACL set to false.",
+			arg2,
+			func() {
+				app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
+			},
+			cTypes.ErrInternal(fmt.Sprintf("Assets cant be issued to account %v.", arg2.issueAsset.ToAddress.String()))},
 
-	issueAsset = bankTypes.NewIssueAsset(trader, trader, &assetPeg)
-	err = app.BankKeeper.IssueAssetsToWallets(ctx, issueAsset)
-	require.NoError(t, err)
+		{"Moderated is false and IssueAsset of ACL set to true. Asset is issued.",
+			arg3,
+			func() {
+				aclAccount.SetACL(acl.ACL{IssueAsset: true})
+				app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
+			},
+			nil},
 
-	assetPeg.SetModerated(true)
+		{"Moderated is true, from address is not zone address.",
+			arg4,
+			func() {
+				assetPeg.SetModerated(true)
+			},
+			cTypes.ErrInternal("Unauthorised transaction.")},
 
-	issueAsset = bankTypes.NewIssueAsset(addr1, trader, &assetPeg)
-	err = app.BankKeeper.IssueAssetsToWallets(ctx, issueAsset)
-	require.Error(t, err, "Unauthorised transaction.")
-
-	issueAsset = bankTypes.NewIssueAsset(zone, trader, &assetPeg)
-	err = app.BankKeeper.IssueAssetsToWallets(ctx, issueAsset)
-	require.NoError(t, err)
+		{"Moderated is true, from address is not zone address.",
+			arg5,
+			func() {},
+			nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.pre()
+			if got := app.BankKeeper.IssueAssetsToWallets(tt.args.ctx, tt.args.issueAsset); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("BaseSendKeeper.IssueAssetsToWallets() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
-func TestBaseSendKeeper_IssueFiatsToWallets2(t *testing.T) {
+func TestBaseSendKeeper_IssueFiatsToWallets(t *testing.T) {
 	app, ctx := simApp.CreateTestApp(false)
 
 	zone := cTypes.AccAddress([]byte("zone"))
@@ -431,22 +561,49 @@ func TestBaseSendKeeper_IssueFiatsToWallets2(t *testing.T) {
 		TransactionID:     "DEFAULT",
 		TransactionAmount: 1000,
 	}
-	issueFiat := bankTypes.NewIssueFiat(addr1, trader, &fiatPeg)
-	err := app.BankKeeper.IssueFiatsToWallets(ctx, issueFiat)
-	require.Error(t, err, "Unauthorised transaction.")
+	issueFiat1 := bankTypes.NewIssueFiat(addr1, trader, &fiatPeg)
+	issueFiat2 := bankTypes.NewIssueFiat(zone, trader, &fiatPeg)
+	issueFiat3 := bankTypes.NewIssueFiat(zone, trader, &fiatPeg)
 
-	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
-
-	issueFiat = bankTypes.NewIssueFiat(zone, trader, &fiatPeg)
-	err = app.BankKeeper.IssueFiatsToWallets(ctx, issueFiat)
-	require.Error(t, err, "Fiats can't be issued to account "+trader.String()+".")
-
-	aclAccount.SetACL(acl.ACL{IssueFiat: true})
-	app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
-
-	issueFiat = bankTypes.NewIssueFiat(zone, trader, &fiatPeg)
-	err = app.BankKeeper.IssueFiatsToWallets(ctx, issueFiat)
-	require.NoError(t, err)
+	type args struct {
+		ctx       cTypes.Context
+		issueFiat bankTypes.IssueFiat
+	}
+	arg1 := args{ctx, issueFiat1}
+	arg2 := args{ctx, issueFiat2}
+	arg3 := args{ctx, issueFiat3}
+	tests := []struct {
+		name string
+		args args
+		pre  prerequisites
+		want cTypes.Error
+	}{
+		{"ACL Account not set",
+			arg1,
+			func() {},
+			cTypes.ErrInternal("To account acl not defined.")},
+		{"Issue Fiat of ACL set to false",
+			arg2,
+			func() {
+				app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
+			},
+			cTypes.ErrInternal(fmt.Sprintf("Fiats can't be issued to account %v.", arg2.issueFiat.ToAddress.String()))},
+		{"Fiat issued.",
+			arg3,
+			func() {
+				aclAccount.SetACL(acl.ACL{IssueFiat: true})
+				app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
+			},
+			nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.pre()
+			if got := app.BankKeeper.IssueFiatsToWallets(tt.args.ctx, tt.args.issueFiat); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("BaseSendKeeper.IssueFiatsToWallets() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
 func TestBaseSendKeeper_ReleaseLockedAssets2(t *testing.T) {
