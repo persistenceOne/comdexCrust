@@ -175,7 +175,7 @@ func (baseAccountReputation *BaseAccountReputation) SetTraderFeedbackHistory(tra
 // hasTraderFeedback : gets rating
 func (baseAccountReputation BaseAccountReputation) hasTraderFeedback(traderFeedback TraderFeedback) bool {
 	index := baseAccountReputation.TraderFeedbackHistory.Search(traderFeedback)
-	return index < baseAccountReputation.TraderFeedbackHistory.Len() && bytes.Compare(baseAccountReputation.TraderFeedbackHistory[index].GenerateNegotiationID(), traderFeedback.GenerateNegotiationID()) != 0
+	return index < baseAccountReputation.TraderFeedbackHistory.Len() && bytes.Compare(baseAccountReputation.TraderFeedbackHistory[index].GenerateNegotiationID(), traderFeedback.GenerateNegotiationID()) == 0
 }
 
 // AddTraderFeedback : sets rating

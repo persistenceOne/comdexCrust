@@ -35,6 +35,9 @@ import (
 	"github.com/commitHub/commitBlockchain/modules/supply"
 	"github.com/commitHub/commitBlockchain/types/module"
 	"github.com/commitHub/commitBlockchain/version"
+
+	"github.com/commitHub/commitBlockchain/modules/assetFactory"
+	"github.com/commitHub/commitBlockchain/modules/fiatFactory"
 )
 
 const (
@@ -104,6 +107,9 @@ type SimApp struct {
 	keyNegotiation *cTypes.KVStoreKey
 	keyReputation  *cTypes.KVStoreKey
 
+	keyAsset *cTypes.KVStoreKey
+	keyFiat  *cTypes.KVStoreKey
+
 	tkeyStaking      *cTypes.TransientStoreKey
 	tkeyDistribution *cTypes.TransientStoreKey
 	tkeyParams       *cTypes.TransientStoreKey
@@ -123,6 +129,9 @@ type SimApp struct {
 	OrderKeeper       orders.Keeper
 	NegotiationKeeper negotiation.Keeper
 	ReputationKeeper  reputation.Keeper
+
+	AssetKeeper assetFactory.Keeper
+	FiatKeeper  fiatFactory.Keeper
 
 	mm *module.Manager
 }
@@ -159,6 +168,9 @@ func NewSimApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bo
 		keyNegotiation: cTypes.NewKVStoreKey(negotiation.ModuleName),
 		keyOrder:       cTypes.NewKVStoreKey(orders.ModuleName),
 		keyReputation:  cTypes.NewKVStoreKey(reputation.ModuleName),
+
+		keyAsset: cTypes.NewKVStoreKey(assetFactory.ModuleName),
+		keyFiat:  cTypes.NewKVStoreKey(fiatFactory.ModuleName),
 	}
 
 	app.ParamsKeeper = params.NewKeeper(app.cdc, app.keyParams, app.tkeyParams, params.DefaultCodespace)
@@ -200,6 +212,9 @@ func NewSimApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bo
 	app.StakingKeeper = *StakingKeeper.SetHooks(
 		staking.NewMultiStakingHooks(app.DistributionKeeper.Hooks(), app.SlashingKeeper.Hooks()))
 
+	app.AssetKeeper = assetFactory.NewKeeper(app.keyAsset, app.AccountKeeper, app.cdc)
+	app.FiatKeeper = fiatFactory.NewKeeper(app.keyFiat, app.AccountKeeper, app.cdc)
+
 	app.mm = module.NewManager(
 		genaccounts.NewAppModule(app.AccountKeeper),
 		genutil.NewAppModule(app.AccountKeeper, app.StakingKeeper, app.BaseApp.DeliverTx),
@@ -217,6 +232,8 @@ func NewSimApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bo
 		orders.NewAppModule(app.OrderKeeper),
 		negotiation.NewAppModule(app.NegotiationKeeper),
 		reputation.NewAppModule(app.ReputationKeeper),
+		assetFactory.NewModule(app.AssetKeeper, app.AccountKeeper),
+		fiatFactory.NewModule(app.FiatKeeper, app.AccountKeeper),
 	)
 
 	app.mm.SetOrderBeginBlockers(mint.ModuleName, distr.ModuleName, slashing.ModuleName)
@@ -232,7 +249,8 @@ func NewSimApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bo
 
 	app.MountStores(app.keyMain, app.keyAccount, app.keySupply, app.keyStaking,
 		app.keyMint, app.keyDistribution, app.keySlashing, app.keyGov, app.keyParams,
-		app.tkeyParams, app.tkeyStaking, app.tkeyDistribution, app.keyACL, app.keyOrder, app.keyNegotiation, app.keyReputation)
+		app.tkeyParams, app.tkeyStaking, app.tkeyDistribution, app.keyACL, app.keyOrder, app.keyNegotiation, app.keyReputation,
+		app.keyAsset, app.keyFiat)
 
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)

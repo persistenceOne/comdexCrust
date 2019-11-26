@@ -30,6 +30,7 @@ var (
 
 	ErrNoInputs       = types.ErrNoInputs
 	ErrInvalidPegHash = types.ErrInvalidPegHash
+	NewKeeper         = keeper.NewKeeper
 )
 
 type (

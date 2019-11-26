@@ -20,6 +20,7 @@ var (
 
 	DefaultGenesisState               = types.DefaultGenesisState
 	ValidateGenesis                   = types.ValidateGenesis
+	NewKeeper                         = keeper.NewKeeper
 	EventTypeAssetFactoryIssueAsset   = types.EventTypeAssetFactoryIssueAsset
 	EventTypeAssetFactoryRedeemAsset  = types.EventTypeAssetFactoryRedeemAsset
 	EventTypeAssetFactorySendAsset    = types.EventTypeAssetFactorySendAsset
