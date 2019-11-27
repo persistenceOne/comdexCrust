@@ -81,7 +81,7 @@ func TestKeeper_ChangeNegotiationBidWithACL(t *testing.T) {
 				app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 			},
 			cTypes.ErrInternal("Unauthorized transaction")},
-		{"Seller has no asset.",
+		{"Seller does not have given asset peg.",
 			arg1,
 			func() {
 				aclAccount.SetAddress(seller)
@@ -90,7 +90,7 @@ func TestKeeper_ChangeNegotiationBidWithACL(t *testing.T) {
 				aclAccount.SetAddress(buyer)
 				app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 			},
-			nil}, //Should not be nil
+			cTypes.ErrInvalidCoins("Asset peg not found!")},
 		{"Buyer address is not taker address.",
 			arg1,
 			func() {
@@ -229,7 +229,7 @@ func TestKeeper_ConfirmNegotiationBidWithACL(t *testing.T) {
 				app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 			},
 			cTypes.ErrInternal("Unauthorized transaction")},
-		{"Buyer address is not taker address.",
+		{"Seller does not have given asset peg.",
 			arg1,
 			func() {
 				aclAccount.SetAddress(seller)
@@ -237,7 +237,11 @@ func TestKeeper_ConfirmNegotiationBidWithACL(t *testing.T) {
 				app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
 				aclAccount.SetAddress(buyer)
 				app.ACLKeeper.SetACLAccount(ctx, &aclAccount)
-
+			},
+			cTypes.ErrInvalidCoins("Asset peg not found!")},
+		{"Buyer address is not taker address.",
+			arg1,
+			func() {
 				sellerAccount.SetAssetPegWallet(types.AssetPegWallet{assetPeg})
 				app.AccountKeeper.SetAccount(ctx, sellerAccount)
 			},

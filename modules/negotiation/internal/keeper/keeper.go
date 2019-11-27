@@ -164,7 +164,7 @@ func CheckTakerAddress(ctx cTypes.Context, k Keeper, sellerAddress cTypes.AccAdd
 	if i < len(assetPegWallet) && assetPegWallet[i].GetPegHash().String() == pegHash.String() {
 		assetPeg = assetPegWallet[i]
 	} else {
-		return nil
+		return cTypes.ErrInvalidCoins("Asset peg not found!")
 	}
 	takerAddress := assetPeg.GetTakerAddress()
 	if takerAddress != nil && takerAddress.String() != buyerAddress.String() {
