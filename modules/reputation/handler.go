@@ -22,19 +22,25 @@ func NewHandler(k Keeper) cTypes.Handler {
 }
 
 func handleMsgBuyerFeedback(ctx cTypes.Context, k Keeper, msg MsgBuyerFeedbacks) cTypes.Result {
-	err := k.SetBuyerRatingToFeedback(ctx, msg)
-	if err != nil {
-		return err.Result()
+	for _, submitTraderFeedback := range msg.SubmitTraderFeedbacks {
+		err := k.SetBuyerRatingToFeedback(ctx, submitTraderFeedback)
+		if err != nil {
+			return err.Result()
+		}
 	}
+
 	return cTypes.Result{
 		Events: ctx.EventManager().Events(),
 	}
 }
 
 func handleMsgSellerFeedback(ctx cTypes.Context, k Keeper, msg MsgSellerFeedbacks) cTypes.Result {
-	err := k.SetSellerRatingToFeedback(ctx, msg)
-	if err != nil {
-		return err.Result()
+
+	for _, submitTraderFeedback := range msg.SubmitTraderFeedbacks {
+		err := k.SetSellerRatingToFeedback(ctx, submitTraderFeedback)
+		if err != nil {
+			return err.Result()
+		}
 	}
 	return cTypes.Result{
 		Events: ctx.EventManager().Events(),

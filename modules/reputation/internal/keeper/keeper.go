@@ -270,60 +270,56 @@ func (k Keeper) SetFeedback(ctx cTypes.Context, addr cTypes.AccAddress, traderFe
 	return nil
 }
 
-func (k Keeper) SetBuyerRatingToFeedback(ctx cTypes.Context, msgFeedback reputationTypes.MsgBuyerFeedbacks) cTypes.Error {
+func (k Keeper) SetBuyerRatingToFeedback(ctx cTypes.Context, submitTraderFeedback reputationTypes.SubmitTraderFeedback) cTypes.Error {
 
-	for _, submitTraderFeedback := range msgFeedback.SubmitTraderFeedbacks {
-		traderFeedback := submitTraderFeedback.TraderFeedback
+	traderFeedback := submitTraderFeedback.TraderFeedback
 
-		err, _, _, fiatProofHash, assetProofHash := k.OrderKeeper.GetOrderDetails(ctx, traderFeedback.BuyerAddress, traderFeedback.SellerAddress, traderFeedback.PegHash)
+	err, _, _, fiatProofHash, assetProofHash := k.OrderKeeper.GetOrderDetails(ctx, traderFeedback.BuyerAddress, traderFeedback.SellerAddress, traderFeedback.PegHash)
 
-		if fiatProofHash == "" || assetProofHash == "" {
-			return types.ErrFeedbackCannotRegister("you have not completed the transaction to give feedback")
-		}
-
-		err = k.SetFeedback(ctx, traderFeedback.SellerAddress, traderFeedback)
-		if err != nil {
-			return err
-		}
-
-		ctx.EventManager().EmitEvent(
-			cTypes.NewEvent(
-				reputationTypes.EventTypeSetBuyerRatingToFeedback,
-				cTypes.NewAttribute(reputationTypes.AttributeKeyFrom, traderFeedback.BuyerAddress.String()),
-				cTypes.NewAttribute(reputationTypes.AttributeKeyTo, traderFeedback.SellerAddress.String()),
-				cTypes.NewAttribute(reputationTypes.AttributeKeyPegHash, traderFeedback.PegHash.String()),
-				cTypes.NewAttribute(reputationTypes.AttributeKeyRating, strconv.FormatInt(traderFeedback.Rating, 10)),
-			))
+	if fiatProofHash == "" || assetProofHash == "" {
+		return types.ErrFeedbackCannotRegister("you have not completed the transaction to give feedback")
 	}
+
+	err = k.SetFeedback(ctx, traderFeedback.SellerAddress, traderFeedback)
+	if err != nil {
+		return err
+	}
+
+	ctx.EventManager().EmitEvent(
+		cTypes.NewEvent(
+			reputationTypes.EventTypeSetBuyerRatingToFeedback,
+			cTypes.NewAttribute(reputationTypes.AttributeKeyFrom, traderFeedback.BuyerAddress.String()),
+			cTypes.NewAttribute(reputationTypes.AttributeKeyTo, traderFeedback.SellerAddress.String()),
+			cTypes.NewAttribute(reputationTypes.AttributeKeyPegHash, traderFeedback.PegHash.String()),
+			cTypes.NewAttribute(reputationTypes.AttributeKeyRating, strconv.FormatInt(traderFeedback.Rating, 10)),
+		))
 
 	return nil
 }
 
-func (k Keeper) SetSellerRatingToFeedback(ctx cTypes.Context, msgFeedback reputationTypes.MsgSellerFeedbacks) cTypes.Error {
+func (k Keeper) SetSellerRatingToFeedback(ctx cTypes.Context, submitTraderFeedback reputationTypes.SubmitTraderFeedback) cTypes.Error {
 
-	for _, submitTraderFeedback := range msgFeedback.SubmitTraderFeedbacks {
-		traderFeedback := submitTraderFeedback.TraderFeedback
+	traderFeedback := submitTraderFeedback.TraderFeedback
 
-		err, _, _, fiatProofHash, assetProofHash := k.OrderKeeper.GetOrderDetails(ctx, traderFeedback.BuyerAddress, traderFeedback.SellerAddress, traderFeedback.PegHash)
+	err, _, _, fiatProofHash, assetProofHash := k.OrderKeeper.GetOrderDetails(ctx, traderFeedback.BuyerAddress, traderFeedback.SellerAddress, traderFeedback.PegHash)
 
-		if fiatProofHash == "" || assetProofHash == "" {
-			return types.ErrFeedbackCannotRegister("you have not completed the transaction to give feedback")
-		}
-
-		err = k.SetFeedback(ctx, traderFeedback.BuyerAddress, traderFeedback)
-		if err != nil {
-			return err
-		}
-
-		ctx.EventManager().EmitEvent(
-			cTypes.NewEvent(
-				reputationTypes.EventTypeSetSellerRatingToFeedback,
-				cTypes.NewAttribute(reputationTypes.AttributeKeyFrom, traderFeedback.SellerAddress.String()),
-				cTypes.NewAttribute(reputationTypes.AttributeKeyTo, traderFeedback.BuyerAddress.String()),
-				cTypes.NewAttribute(reputationTypes.AttributeKeyPegHash, traderFeedback.PegHash.String()),
-				cTypes.NewAttribute(reputationTypes.AttributeKeyRating, strconv.FormatInt(traderFeedback.Rating, 10)),
-			))
+	if fiatProofHash == "" || assetProofHash == "" {
+		return types.ErrFeedbackCannotRegister("you have not completed the transaction to give feedback")
 	}
+
+	err = k.SetFeedback(ctx, traderFeedback.BuyerAddress, traderFeedback)
+	if err != nil {
+		return err
+	}
+
+	ctx.EventManager().EmitEvent(
+		cTypes.NewEvent(
+			reputationTypes.EventTypeSetSellerRatingToFeedback,
+			cTypes.NewAttribute(reputationTypes.AttributeKeyFrom, traderFeedback.SellerAddress.String()),
+			cTypes.NewAttribute(reputationTypes.AttributeKeyTo, traderFeedback.BuyerAddress.String()),
+			cTypes.NewAttribute(reputationTypes.AttributeKeyPegHash, traderFeedback.PegHash.String()),
+			cTypes.NewAttribute(reputationTypes.AttributeKeyRating, strconv.FormatInt(traderFeedback.Rating, 10)),
+		))
 
 	return nil
 }
