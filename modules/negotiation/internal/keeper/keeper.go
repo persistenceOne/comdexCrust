@@ -164,7 +164,7 @@ func CheckTakerAddress(ctx cTypes.Context, k Keeper, sellerAddress cTypes.AccAdd
 	if i < len(assetPegWallet) && assetPegWallet[i].GetPegHash().String() == pegHash.String() {
 		assetPeg = assetPegWallet[i]
 	} else {
-		return nil
+		return cTypes.ErrInvalidCoins("Asset peg not found!")
 	}
 	takerAddress := assetPeg.GetTakerAddress()
 	if takerAddress != nil && takerAddress.String() != buyerAddress.String() {
@@ -240,7 +240,7 @@ func confirmNegotiationBid(ctx cTypes.Context, negotiationKeeper Keeper, negotia
 		account := negotiationKeeper.GetNegotiatorAccount(ctx, negotiation.GetBuyerAddress())
 
 		if !VerifySignature(account.GetPubKey(), negotiation.GetBuyerSignature(), signBytes) {
-			return negotiationTypes.ErrVerifySignature(negotiationTypes.DefaultCodeSpace, "Seller signature verification failed")
+			return negotiationTypes.ErrVerifySignature(negotiationTypes.DefaultCodeSpace, "Buyer signature verification failed")
 		}
 		oldNegotiation.SetBuyerSignature(negotiation.GetBuyerSignature())
 	}
