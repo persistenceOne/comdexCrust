@@ -518,11 +518,11 @@ func TestKeeper_SetBuyerRatingToFeedback(t *testing.T) {
 	pegHash := types.PegHash([]byte("30"))
 
 	traderFeedback := types.NewTraderFeedback(buyer, seller, pegHash, 50)
-	reputationMsg := reputationTypes.NewMsgBuyerFeedbacks([]reputationTypes.SubmitTraderFeedback{reputationTypes.NewSubmitTraderFeedback(traderFeedback)})
+	reputationMsg := reputationTypes.NewSubmitTraderFeedback(traderFeedback)
 
 	type args struct {
-		ctx         cTypes.Context
-		msgFeedback reputationTypes.MsgBuyerFeedbacks
+		ctx                  cTypes.Context
+		submitTraderFeedback reputationTypes.SubmitTraderFeedback
 	}
 	tests := []struct {
 		name string
@@ -551,7 +551,7 @@ func TestKeeper_SetBuyerRatingToFeedback(t *testing.T) {
 	for _, tt := range tests {
 		tt.pre()
 		t.Run(tt.name, func(t *testing.T) {
-			if got := app.ReputationKeeper.SetBuyerRatingToFeedback(tt.args.ctx, tt.args.msgFeedback); !reflect.DeepEqual(got, tt.want) {
+			if got := app.ReputationKeeper.SetBuyerRatingToFeedback(tt.args.ctx, tt.args.submitTraderFeedback); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Keeper.SetBuyerRatingToFeedback() = %v, want %v", got, tt.want)
 			}
 		})
@@ -566,11 +566,11 @@ func TestKeeper_SetSellerRatingToFeedback(t *testing.T) {
 	pegHash := types.PegHash([]byte("30"))
 
 	traderFeedback := types.NewTraderFeedback(buyer, seller, pegHash, 50)
-	reputationMsg := reputationTypes.NewMsgSellerFeedbacks([]reputationTypes.SubmitTraderFeedback{reputationTypes.NewSubmitTraderFeedback(traderFeedback)})
+	reputationMsg := reputationTypes.NewSubmitTraderFeedback(traderFeedback)
 
 	type args struct {
-		ctx         cTypes.Context
-		msgFeedback reputationTypes.MsgSellerFeedbacks
+		ctx                  cTypes.Context
+		submitTraderFeedback reputationTypes.SubmitTraderFeedback
 	}
 	tests := []struct {
 		name string
@@ -599,7 +599,7 @@ func TestKeeper_SetSellerRatingToFeedback(t *testing.T) {
 	for _, tt := range tests {
 		tt.pre()
 		t.Run(tt.name, func(t *testing.T) {
-			if got := app.ReputationKeeper.SetSellerRatingToFeedback(tt.args.ctx, tt.args.msgFeedback); !reflect.DeepEqual(got, tt.want) {
+			if got := app.ReputationKeeper.SetSellerRatingToFeedback(tt.args.ctx, tt.args.submitTraderFeedback); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Keeper.SetSellerRatingToFeedback() = %v, want %v", got, tt.want)
 			}
 		})
