@@ -278,7 +278,7 @@ func TestKeeper_ConfirmNegotiationBidWithACL(t *testing.T) {
 				negotiation.SetSellerSignature(sellerSign)
 				app.NegotiationKeeper.SetNegotiation(ctx, negotiation)
 			},
-			negotiationTypes.ErrVerifySignature(negotiationTypes.DefaultCodeSpace, "Seller signature verification failed")},
+			negotiationTypes.ErrVerifySignature(negotiationTypes.DefaultCodeSpace, "Buyer signature verification failed")},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
