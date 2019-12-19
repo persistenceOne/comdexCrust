@@ -6,19 +6,21 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	commitContext "github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/modules/auth"
+	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
+	ibcclient "github.com/commitHub/commitBlockchain/modules/ibc/02-client"
+	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/types/tendermint"
+	cutils "github.com/commitHub/commitBlockchain/modules/ibc/04-channel/client/utils"
+	"github.com/commitHub/commitBlockchain/modules/ibc/20-transfer/types"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	commitTypes "github.com/commitHub/commitBlockchain/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
-	ibcclient "github.com/cosmos/cosmos-sdk/x/ibc/02-client"
-	"github.com/cosmos/cosmos-sdk/x/ibc/02-client/types/tendermint"
-	cutils "github.com/cosmos/cosmos-sdk/x/ibc/04-channel/client/utils"
-	"github.com/cosmos/cosmos-sdk/x/ibc/20-transfer/types"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
 )
 
 // IBC transfer flags
@@ -99,7 +101,7 @@ func GetMsgRecvPacketCmd(cdc *codec.Codec) *cobra.Command {
 			node2 := viper.GetString(FlagNode2)
 			cid1 := viper.GetString(flags.FlagChainID)
 			cid2 := viper.GetString(FlagChainId2)
-			cliCtx2 := context.NewCLIContextIBC(cliCtx.GetFromAddress().String(), cid2, node2).WithCodec(cdc).WithBroadcastMode(flags.BroadcastBlock)
+			cliCtx2 := commitContext.NewCLIContextIBC(cliCtx.GetFromAddress().String(), cid2, node2).WithCodec(cdc).WithBroadcastMode(flags.BroadcastBlock)
 
 			header, err := tendermint.GetHeader(cliCtx2)
 			if err != nil {
@@ -117,7 +119,7 @@ func GetMsgRecvPacketCmd(cdc *codec.Codec) *cobra.Command {
 			msgUpdateClient := ibcclient.NewMsgUpdateClient(clientid, header, cliCtx.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid2, msgUpdateClient.Type())
 			res, err := utils.CompleteAndBroadcastTx(txBldr, cliCtx, []sdk.Msg{msgUpdateClient}, passphrase)
-			if err != nil || !res.IsOK() {
+			if err != nil || !commitTypes.IsOK(res) {
 				fmt.Println(res)
 				return err
 			}

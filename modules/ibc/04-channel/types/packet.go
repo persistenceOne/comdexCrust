@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/04-channel/exported"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/24-host"
+	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/exported"
+	host "github.com/commitHub/commitBlockchain/modules/ibc/24-host"
 )
 
 var _ exported.PacketI = Packet{}

@@ -8,16 +8,16 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/commitHub/commitBlockchain/modules/auth"
+	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
+	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
+	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
-	"github.com/cosmos/cosmos-sdk/x/ibc/02-client/exported"
-	"github.com/cosmos/cosmos-sdk/x/ibc/02-client/types"
 )
 
 // GetTxCmd returns the transaction commands for IBC Clients
@@ -32,6 +32,7 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 	ics02ClientTxCmd.AddCommand(client.PostCommands(
 		GetCmdCreateClient(cdc),
 		GetCmdUpdateClient(cdc),
+		GetCmdSubmitMisbehaviour(cdc),
 	)...)
 
 	return ics02ClientTxCmd

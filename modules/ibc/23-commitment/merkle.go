@@ -2,11 +2,12 @@ package commitment
 
 import (
 	"errors"
+	"net/url"
 
 	"github.com/tendermint/tendermint/crypto/merkle"
 
+	host "github.com/commitHub/commitBlockchain/modules/ibc/24-host"
 	"github.com/cosmos/cosmos-sdk/store/rootmulti"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/24-host"
 )
 
 // ICS 023 Merkle Types Implementation
@@ -93,6 +94,15 @@ func (Path) GetCommitmentType() Type {
 // String implements fmt.Stringer
 func (p Path) String() string {
 	return p.KeyPath.String()
+}
+
+// Pretty returns the unescaped path of the URL string.
+func (p Path) Pretty() string {
+	path, err := url.PathUnescape(p.KeyPath.String())
+	if err != nil {
+		panic(err)
+	}
+	return path
 }
 
 // ApplyPrefix constructs a new commitment path from the arguments. It interprets

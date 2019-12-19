@@ -8,17 +8,18 @@ import (
 
 	abci "github.com/tendermint/tendermint/abci/types"
 
+	"github.com/commitHub/commitBlockchain/kafka"
+	client "github.com/commitHub/commitBlockchain/modules/ibc/02-client"
+	connection "github.com/commitHub/commitBlockchain/modules/ibc/03-connection"
+	channel "github.com/commitHub/commitBlockchain/modules/ibc/04-channel"
+	transfer "github.com/commitHub/commitBlockchain/modules/ibc/20-transfer"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	"github.com/commitHub/commitBlockchain/modules/ibc/client/cli"
+	"github.com/commitHub/commitBlockchain/modules/ibc/types"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
-	client "github.com/cosmos/cosmos-sdk/x/ibc/02-client"
-	connection "github.com/cosmos/cosmos-sdk/x/ibc/03-connection"
-	channel "github.com/cosmos/cosmos-sdk/x/ibc/04-channel"
-	transfer "github.com/cosmos/cosmos-sdk/x/ibc/20-transfer"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
-	"github.com/cosmos/cosmos-sdk/x/ibc/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/ibc/types"
+	"github.com/commitHub/commitBlockchain/types/module"
 )
 
 // TODO: AppModuleSimulation
@@ -58,7 +59,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 }
 
 // RegisterRESTRoutes registers the REST routes for the staking module.
-func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
+func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router, kafkaBool bool, kafkaState kafka.KafkaState) {
 	/// TODO:
 }
 

@@ -8,10 +8,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/03-connection/types"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/24-host"
-	ibctypes "github.com/cosmos/cosmos-sdk/x/ibc/types"
+	"github.com/commitHub/commitBlockchain/modules/ibc/03-connection/types"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	host "github.com/commitHub/commitBlockchain/modules/ibc/24-host"
+	ibctypes "github.com/commitHub/commitBlockchain/modules/ibc/types"
 )
 
 // Keeper defines the IBC connection keeper

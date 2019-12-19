@@ -1,16 +1,16 @@
 package connection
 
 import (
+	"github.com/commitHub/commitBlockchain/modules/ibc/03-connection/keeper"
+	"github.com/commitHub/commitBlockchain/modules/ibc/03-connection/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/03-connection/keeper"
-	"github.com/cosmos/cosmos-sdk/x/ibc/03-connection/types"
 )
 
 // HandleMsgConnectionOpenInit defines the sdk.Handler for MsgConnectionOpenInit
 func HandleMsgConnectionOpenInit(ctx sdk.Context, k keeper.Keeper, msg types.MsgConnectionOpenInit) sdk.Result {
 	err := k.ConnOpenInit(ctx, msg.ConnectionID, msg.ClientID, msg.Counterparty)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return sdk.NewError(DefaultCodespace, CodeConnectionNotFound, err.Error()).Result()
 	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{
@@ -35,7 +35,7 @@ func HandleMsgConnectionOpenTry(ctx sdk.Context, k keeper.Keeper, msg types.MsgC
 		ctx, msg.ConnectionID, msg.Counterparty, msg.ClientID,
 		msg.CounterpartyVersions, msg.ProofInit, msg.ProofConsensus, msg.ProofHeight, msg.ConsensusHeight)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return sdk.NewError(DefaultCodespace, CodeConnectionNotFound, err.Error()).Result()
 	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{
@@ -61,7 +61,7 @@ func HandleMsgConnectionOpenAck(ctx sdk.Context, k keeper.Keeper, msg types.MsgC
 		msg.ProofHeight, msg.ConsensusHeight,
 	)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return sdk.NewError(DefaultCodespace, CodeConnectionNotFound, err.Error()).Result()
 	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{
@@ -83,7 +83,7 @@ func HandleMsgConnectionOpenAck(ctx sdk.Context, k keeper.Keeper, msg types.MsgC
 func HandleMsgConnectionOpenConfirm(ctx sdk.Context, k keeper.Keeper, msg types.MsgConnectionOpenConfirm) sdk.Result {
 	err := k.ConnOpenConfirm(ctx, msg.ConnectionID, msg.ProofAck, msg.ProofHeight)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return sdk.NewError(DefaultCodespace, CodeConnectionNotFound, err.Error()).Result()
 	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{

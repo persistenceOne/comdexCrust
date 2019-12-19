@@ -6,7 +6,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/03-connection/types"
+	"github.com/commitHub/commitBlockchain/modules/ibc/03-connection/types"
 )
 
 // QuerierConnection defines the sdk.Querier to query a connection end

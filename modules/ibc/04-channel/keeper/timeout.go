@@ -5,11 +5,12 @@ import (
 	"errors"
 	"fmt"
 
+	connection "github.com/commitHub/commitBlockchain/modules/ibc/03-connection"
+	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/exported"
+	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/types"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	commitTypes "github.com/commitHub/commitBlockchain/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	connection "github.com/cosmos/cosmos-sdk/x/ibc/03-connection"
-	"github.com/cosmos/cosmos-sdk/x/ibc/04-channel/exported"
-	"github.com/cosmos/cosmos-sdk/x/ibc/04-channel/types"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
 )
 
 // TimeoutPacket is called by a module which originally attempted to send a
@@ -23,7 +24,7 @@ func (k Keeper) TimeoutPacket(
 	proof commitment.ProofI,
 	proofHeight uint64,
 	nextSequenceRecv uint64,
-	portCapability sdk.CapabilityKey,
+	portCapability commitTypes.CapabilityKey,
 ) (exported.PacketI, error) {
 	channel, found := k.GetChannel(ctx, packet.GetSourcePort(), packet.GetSourceChannel())
 	if !found {
@@ -118,7 +119,7 @@ func (k Keeper) TimeoutOnClose(
 	proofNonMembership,
 	proofClosed commitment.ProofI,
 	proofHeight uint64,
-	portCapability sdk.CapabilityKey,
+	portCapability commitTypes.CapabilityKey,
 ) (exported.PacketI, error) {
 	channel, found := k.GetChannel(ctx, packet.GetSourcePort(), packet.GetSourceChannel())
 	if !found {

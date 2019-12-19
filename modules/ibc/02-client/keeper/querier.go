@@ -6,7 +6,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/02-client/types"
+	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/types"
 )
 
 // QuerierClientState defines the sdk.Querier to query the IBC client state

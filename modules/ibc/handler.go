@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	client "github.com/cosmos/cosmos-sdk/x/ibc/02-client"
-	connection "github.com/cosmos/cosmos-sdk/x/ibc/03-connection"
-	channel "github.com/cosmos/cosmos-sdk/x/ibc/04-channel"
-	transfer "github.com/cosmos/cosmos-sdk/x/ibc/20-transfer"
+	client "github.com/commitHub/commitBlockchain/modules/ibc/02-client"
+	connection "github.com/commitHub/commitBlockchain/modules/ibc/03-connection"
+	channel "github.com/commitHub/commitBlockchain/modules/ibc/04-channel"
+	transfer "github.com/commitHub/commitBlockchain/modules/ibc/20-transfer"
 )
 
 // NewHandler defines the IBC handler

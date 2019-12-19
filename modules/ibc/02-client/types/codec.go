@@ -1,9 +1,9 @@
 package types
 
 import (
+	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
+	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/types/tendermint"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/x/ibc/02-client/exported"
-	"github.com/cosmos/cosmos-sdk/x/ibc/02-client/types/tendermint"
 )
 
 var SubModuleCdc *codec.Codec
@@ -18,9 +18,14 @@ func RegisterCodec(cdc *codec.Codec) {
 
 	cdc.RegisterConcrete(MsgCreateClient{}, "ibc/client/MsgCreateClient", nil)
 	cdc.RegisterConcrete(MsgUpdateClient{}, "ibc/client/MsgUpdateClient", nil)
+	cdc.RegisterConcrete(MsgSubmitMisbehaviour{}, "ibc/client/MsgSubmitMisbehaviour", nil)
 
 	cdc.RegisterConcrete(tendermint.ConsensusState{}, "ibc/client/tendermint/ConsensusState", nil)
 	cdc.RegisterConcrete(tendermint.Header{}, "ibc/client/tendermint/Header", nil)
 
+	SetSubModuleCodec(cdc)
+}
+
+func SetSubModuleCodec(cdc *codec.Codec) {
 	SubModuleCdc = cdc
 }

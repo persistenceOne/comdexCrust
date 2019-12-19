@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	channelexported "github.com/cosmos/cosmos-sdk/x/ibc/04-channel/exported"
-	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/04-channel/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/20-transfer/types"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
+	channelexported "github.com/commitHub/commitBlockchain/modules/ibc/04-channel/exported"
+	channeltypes "github.com/commitHub/commitBlockchain/modules/ibc/04-channel/types"
+	"github.com/commitHub/commitBlockchain/modules/ibc/20-transfer/types"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
 )
 
 // SendTransfer handles transfer sending logic

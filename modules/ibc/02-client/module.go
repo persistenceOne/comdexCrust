@@ -8,7 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/x/ibc/02-client/client/cli"
+	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/client/cli"
 )
 
 // Name returns the IBC client name

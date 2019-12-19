@@ -7,9 +7,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/20-transfer/types"
-	ibctypes "github.com/cosmos/cosmos-sdk/x/ibc/types"
-	supplyexported "github.com/cosmos/cosmos-sdk/x/supply/exported"
+	"github.com/commitHub/commitBlockchain/modules/ibc/20-transfer/types"
+	ibctypes "github.com/commitHub/commitBlockchain/modules/ibc/types"
+	supplyexported "github.com/commitHub/commitBlockchain/modules/supply/exported"
 )
 
 // DefaultPacketTimeout is the default packet timeout relative to the current block height

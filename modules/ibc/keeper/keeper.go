@@ -3,11 +3,11 @@ package keeper
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	client "github.com/cosmos/cosmos-sdk/x/ibc/02-client"
-	connection "github.com/cosmos/cosmos-sdk/x/ibc/03-connection"
-	channel "github.com/cosmos/cosmos-sdk/x/ibc/04-channel"
-	port "github.com/cosmos/cosmos-sdk/x/ibc/05-port"
-	transfer "github.com/cosmos/cosmos-sdk/x/ibc/20-transfer"
+	client "github.com/commitHub/commitBlockchain/modules/ibc/02-client"
+	connection "github.com/commitHub/commitBlockchain/modules/ibc/03-connection"
+	channel "github.com/commitHub/commitBlockchain/modules/ibc/04-channel"
+	port "github.com/commitHub/commitBlockchain/modules/ibc/05-port"
+	transfer "github.com/commitHub/commitBlockchain/modules/ibc/20-transfer"
 )
 
 // Keeper defines each ICS keeper for IBC

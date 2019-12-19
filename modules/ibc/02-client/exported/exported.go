@@ -6,7 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
 )
 
 // Blockchain is consensus algorithm which generates valid Headers. It generates

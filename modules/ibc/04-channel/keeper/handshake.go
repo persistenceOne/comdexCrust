@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	connection "github.com/cosmos/cosmos-sdk/x/ibc/03-connection"
-	"github.com/cosmos/cosmos-sdk/x/ibc/04-channel/types"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
+	connection "github.com/commitHub/commitBlockchain/modules/ibc/03-connection"
+	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/types"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
 )
 
 // CounterpartyHops returns the connection hops of the counterparty channel.

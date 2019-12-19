@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/commitHub/commitBlockchain/modules/ibc/03-connection/types"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	commitErrors "github.com/commitHub/commitBlockchain/types/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/ibc/03-connection/types"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
 )
 
 // ConnOpenInit initialises a connection attempt on chain A.
@@ -21,7 +21,7 @@ func (k Keeper) ConnOpenInit(
 ) error {
 	_, found := k.GetConnection(ctx, connectionID)
 	if found {
-		return sdkerrors.Wrap(types.ErrConnectionExists(k.codespace, connectionID), "cannot initialize connection")
+		return commitErrors.Wrap(types.ErrConnectionExists(k.codespace, connectionID), "cannot initialize connection")
 	}
 
 	// connection defines chain A's ConnectionEnd
@@ -30,7 +30,7 @@ func (k Keeper) ConnOpenInit(
 
 	err := k.addConnectionToClient(ctx, clientID, connectionID)
 	if err != nil {
-		sdkerrors.Wrap(err, "cannot initialize connection")
+		commitErrors.Wrap(err, "cannot initialize connection")
 	}
 
 	k.Logger(ctx).Info(fmt.Sprintf("connection %s state updated: NONE -> INIT", connectionID))
@@ -88,7 +88,6 @@ func (k Keeper) ConnOpenTry(
 		types.ConnectionPath(counterparty.ConnectionID), expConnBz,
 	)
 	if !ok {
-		fmt.Sprintf("couldn't verify connection membership on counterparty's client\n")
 		return errors.New("couldn't verify connection membership on counterparty's client") // TODO: sdk.Error
 	}
 
@@ -112,13 +111,13 @@ func (k Keeper) ConnOpenTry(
 
 	_, found := k.GetConnection(ctx, connectionID)
 	if found {
-		return sdkerrors.Wrap(types.ErrConnectionExists(k.codespace, connectionID), "cannot relay connection attempt")
+		return commitErrors.Wrap(types.ErrConnectionExists(k.codespace, connectionID), "cannot relay connection attempt")
 	}
 
 	connection.State = types.TRYOPEN
 	err = k.addConnectionToClient(ctx, clientID, connectionID)
 	if err != nil {
-		return sdkerrors.Wrap(err, "cannot relay connection attempt")
+		return commitErrors.Wrap(err, "cannot relay connection attempt")
 	}
 
 	k.SetConnection(ctx, connectionID, connection)
@@ -147,7 +146,7 @@ func (k Keeper) ConnOpenAck(
 	*/
 	connection, found := k.GetConnection(ctx, connectionID)
 	if !found {
-		return sdkerrors.Wrap(types.ErrConnectionNotFound(k.codespace, connectionID), "cannot relay ACK of open attempt")
+		return commitErrors.Wrap(types.ErrConnectionNotFound(k.codespace, connectionID), "cannot relay ACK of open attempt")
 	}
 
 	if connection.State != types.INIT {
@@ -223,7 +222,7 @@ func (k Keeper) ConnOpenConfirm(
 ) error {
 	connection, found := k.GetConnection(ctx, connectionID)
 	if !found {
-		return sdkerrors.Wrap(types.ErrConnectionNotFound(k.codespace, connectionID), "cannot relay ACK of open attempt")
+		return commitErrors.Wrap(types.ErrConnectionNotFound(k.codespace, connectionID), "cannot relay ACK of open attempt")
 	}
 
 	if connection.State != types.TRYOPEN {

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	host "github.com/commitHub/commitBlockchain/modules/ibc/24-host"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/24-host"
 )
 
 // ICS03 - Connection Data Structures as defined in https://github.com/cosmos/ics/tree/master/spec/ics-003-connection-semantics#data-structures
@@ -57,10 +57,10 @@ func NewCounterparty(clientID, connectionID string, prefix commitment.PrefixI) C
 // ValidateBasic performs a basic validation check of the identifiers and prefix
 func (c Counterparty) ValidateBasic() sdk.Error {
 	if err := host.DefaultConnectionIdentifierValidator(c.ConnectionID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid counterparty connection ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid counterparty connection ID: %s", err.Error()))
 	}
 	if err := host.DefaultClientIdentifierValidator(c.ClientID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid counterparty client ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid counterparty client ID: %s", err.Error()))
 	}
 	if c.Prefix == nil || len(c.Prefix.Bytes()) == 0 {
 		return ErrInvalidCounterparty(DefaultCodespace, "invalid counterparty prefix")

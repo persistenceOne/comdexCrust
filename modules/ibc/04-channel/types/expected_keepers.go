@@ -1,10 +1,11 @@
 package types
 
 import (
+	clientexported "github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
+	connection "github.com/commitHub/commitBlockchain/modules/ibc/03-connection"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	commitTypes "github.com/commitHub/commitBlockchain/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	clientexported "github.com/cosmos/cosmos-sdk/x/ibc/02-client/exported"
-	connection "github.com/cosmos/cosmos-sdk/x/ibc/03-connection"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
 )
 
 // ClientKeeper expected account IBC client keeper
@@ -27,5 +28,5 @@ type ConnectionKeeper interface {
 
 // PortKeeper expected account IBC port keeper
 type PortKeeper interface {
-	Authenticate(key sdk.CapabilityKey, portID string) bool
+	Authenticate(key commitTypes.CapabilityKey, portID string) bool
 }

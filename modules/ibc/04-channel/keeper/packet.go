@@ -5,12 +5,13 @@ import (
 	"errors"
 	"fmt"
 
+	client "github.com/commitHub/commitBlockchain/modules/ibc/02-client"
+	connection "github.com/commitHub/commitBlockchain/modules/ibc/03-connection"
+	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/exported"
+	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/types"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	commitTypes "github.com/commitHub/commitBlockchain/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	client "github.com/cosmos/cosmos-sdk/x/ibc/02-client"
-	connection "github.com/cosmos/cosmos-sdk/x/ibc/03-connection"
-	"github.com/cosmos/cosmos-sdk/x/ibc/04-channel/exported"
-	"github.com/cosmos/cosmos-sdk/x/ibc/04-channel/types"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
 )
 
 // CleanupPacket is called by a module to remove a received packet commitment
@@ -30,7 +31,7 @@ func (k Keeper) CleanupPacket(
 	proofHeight,
 	nextSequenceRecv uint64,
 	acknowledgement []byte,
-	portCapability sdk.CapabilityKey,
+	portCapability commitTypes.CapabilityKey,
 ) (exported.PacketI, error) {
 	channel, found := k.GetChannel(ctx, packet.GetSourcePort(), packet.GetSourceChannel())
 	if !found {
@@ -116,7 +117,7 @@ func (k Keeper) CleanupPacket(
 func (k Keeper) SendPacket(
 	ctx sdk.Context,
 	packet exported.PacketI,
-	portCapability sdk.CapabilityKey,
+	portCapability commitTypes.CapabilityKey,
 ) error {
 	if err := packet.ValidateBasic(); err != nil {
 		return err
@@ -203,7 +204,7 @@ func (k Keeper) RecvPacket(
 	proof commitment.ProofI,
 	proofHeight uint64,
 	acknowledgement []byte,
-	portCapability sdk.CapabilityKey,
+	portCapability commitTypes.CapabilityKey,
 ) (exported.PacketI, error) {
 
 	channel, found := k.GetChannel(ctx, packet.GetDestPort(), packet.GetDestChannel())
@@ -303,7 +304,7 @@ func (k Keeper) AcknowledgePacket(
 	acknowledgement []byte,
 	proof commitment.ProofI,
 	proofHeight uint64,
-	portCapability sdk.CapabilityKey,
+	portCapability commitTypes.CapabilityKey,
 ) (exported.PacketI, error) {
 	channel, found := k.GetChannel(ctx, packet.GetSourcePort(), packet.GetSourceChannel())
 	if !found {

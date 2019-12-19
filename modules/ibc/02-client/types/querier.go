@@ -3,8 +3,8 @@ package types
 import (
 	"strings"
 
-	tmtypes "github.com/cosmos/cosmos-sdk/x/ibc/02-client/types/tendermint"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
+	tmtypes "github.com/commitHub/commitBlockchain/modules/ibc/02-client/types/tendermint"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
 	"github.com/tendermint/tendermint/crypto/merkle"
 )
 

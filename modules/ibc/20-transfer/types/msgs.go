@@ -3,12 +3,12 @@ package types
 import (
 	"fmt"
 
+	host "github.com/commitHub/commitBlockchain/modules/ibc/24-host"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/24-host"
 
-	channelexported "github.com/cosmos/cosmos-sdk/x/ibc/04-channel/exported"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
-	ibctypes "github.com/cosmos/cosmos-sdk/x/ibc/types"
+	channelexported "github.com/commitHub/commitBlockchain/modules/ibc/04-channel/exported"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	ibctypes "github.com/commitHub/commitBlockchain/modules/ibc/types"
 )
 
 type MsgTransfer struct {
@@ -47,10 +47,10 @@ func (MsgTransfer) Type() string {
 // ValidateBasic implements sdk.Msg
 func (msg MsgTransfer) ValidateBasic() sdk.Error {
 	if err := host.DefaultPortIdentifierValidator(msg.SourcePort); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid port ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid port ID: %s", err.Error()))
 	}
 	if err := host.DefaultPortIdentifierValidator(msg.SourceChannel); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid channel ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid channel ID: %s", err.Error()))
 	}
 	if !msg.Amount.IsValid() {
 		return sdk.ErrInvalidCoins("transfer amount is invalid")

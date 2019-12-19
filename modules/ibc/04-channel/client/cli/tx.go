@@ -11,6 +11,14 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	commitContext "github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/modules/auth"
+	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
+	ibcclient "github.com/commitHub/commitBlockchain/modules/ibc/02-client/types"
+	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/types/tendermint"
+	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/types"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	commitTypes "github.com/commitHub/commitBlockchain/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -18,12 +26,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
-	ibcclient "github.com/cosmos/cosmos-sdk/x/ibc/02-client/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/02-client/types/tendermint"
-	"github.com/cosmos/cosmos-sdk/x/ibc/04-channel/types"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -344,13 +346,13 @@ $ %s tx ibc channel handshake [client-id] [port-id] [chan-id] [conn-id] [cp-clie
 			// Create txbldr, clictx, querier for cid1
 			viper.Set(flags.FlagChainID, cid1)
 			txBldr1 := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-			ctx1 := context.NewCLIContextIBC(from1, cid1, node1).WithCodec(cdc).
+			ctx1 := commitContext.NewCLIContextIBC(from1, cid1, node1).WithCodec(cdc).
 				WithBroadcastMode(flags.BroadcastBlock)
 
 			// Create txbldr, clictx, querier for cid2
 			viper.Set(flags.FlagChainID, cid2)
 			txBldr2 := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-			ctx2 := context.NewCLIContextIBC(from2, cid2, node2).WithCodec(cdc).
+			ctx2 := commitContext.NewCLIContextIBC(from2, cid2, node2).WithCodec(cdc).
 				WithBroadcastMode(flags.BroadcastBlock)
 
 			// get passphrase for key from1
@@ -370,7 +372,7 @@ $ %s tx ibc channel handshake [client-id] [port-id] [chan-id] [conn-id] [cp-clie
 			msgOpenInit := types.NewMsgChannelOpenInit(portid1, chanid1, "v1.0.0", channelOrder(), []string{connid1}, portid2, chanid2, ctx1.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid1, msgOpenInit.Type())
 			res, err := utils.CompleteAndBroadcastTx(txBldr1, ctx1, []sdk.Msg{msgOpenInit}, passphrase1)
-			if err != nil || !res.IsOK() {
+			if err != nil || !commitTypes.IsOK(res) {
 				fmt.Println(res)
 				return err
 			}
@@ -389,7 +391,7 @@ $ %s tx ibc channel handshake [client-id] [port-id] [chan-id] [conn-id] [cp-clie
 			msgUpdateClient := ibcclient.NewMsgUpdateClient(clientid2, header, ctx2.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid2, msgUpdateClient.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr2, ctx2, []sdk.Msg{msgUpdateClient}, passphrase2)
-			if err != nil || !res.IsOK() {
+			if err != nil || !commitTypes.IsOK(res) {
 				fmt.Println(res)
 				return err
 			}
@@ -404,7 +406,7 @@ $ %s tx ibc channel handshake [client-id] [port-id] [chan-id] [conn-id] [cp-clie
 			msgOpenTry := types.NewMsgChannelOpenTry(portid2, chanid2, "v1.0.0", channelOrder(), []string{connid2}, portid1, chanid1, "v1.0.0", proofs.Proof, uint64(header.Height), ctx2.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid2, msgOpenTry.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr2, ctx2, []sdk.Msg{msgOpenTry}, passphrase2)
-			if err != nil || !res.IsOK() {
+			if err != nil || !commitTypes.IsOK(res) {
 				fmt.Println(res)
 				return err
 			}
@@ -423,7 +425,7 @@ $ %s tx ibc channel handshake [client-id] [port-id] [chan-id] [conn-id] [cp-clie
 			msgUpdateClient = ibcclient.NewMsgUpdateClient(clientid1, header, ctx1.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid1, msgUpdateClient.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr1, ctx1, []sdk.Msg{msgUpdateClient}, passphrase1)
-			if err != nil || !res.IsOK() {
+			if err != nil || !commitTypes.IsOK(res) {
 				fmt.Println(res)
 				return err
 			}
@@ -439,7 +441,7 @@ $ %s tx ibc channel handshake [client-id] [port-id] [chan-id] [conn-id] [cp-clie
 			msgOpenAck := types.NewMsgChannelOpenAck(portid1, chanid1, "v1.0.0", proofs.Proof, uint64(header.Height), ctx1.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid1, msgOpenAck.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr1, ctx1, []sdk.Msg{msgOpenAck}, passphrase1)
-			if err != nil || !res.IsOK() {
+			if err != nil || !commitTypes.IsOK(res) {
 				fmt.Println(res)
 				return err
 			}
@@ -458,7 +460,7 @@ $ %s tx ibc channel handshake [client-id] [port-id] [chan-id] [conn-id] [cp-clie
 			msgUpdateClient = ibcclient.NewMsgUpdateClient(clientid2, header, ctx2.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid2, msgUpdateClient.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr2, ctx2, []sdk.Msg{msgUpdateClient}, passphrase2)
-			if err != nil || !res.IsOK() {
+			if err != nil || !commitTypes.IsOK(res) {
 				fmt.Println(res)
 				return err
 			}
@@ -473,7 +475,7 @@ $ %s tx ibc channel handshake [client-id] [port-id] [chan-id] [conn-id] [cp-clie
 			msgOpenConfirm := types.NewMsgChannelOpenConfirm(portid2, chanid2, proofs.Proof, uint64(header.Height), ctx2.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid2, msgOpenConfirm.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr2, ctx2, []sdk.Msg{msgOpenConfirm}, passphrase2)
-			if err != nil || !res.IsOK() {
+			if err != nil || !commitTypes.IsOK(res) {
 				fmt.Println(res)
 				return err
 			}
@@ -505,7 +507,7 @@ func queryProofs(ctx client.CLIContext, portID string, channelID string, queryRo
 		Prove: true,
 	}
 
-	res, err := ctx.QueryABCI(req)
+	res, err := commitContext.QueryABCI(ctx, req)
 	if res.Value == nil || err != nil {
 		return connRes, err
 	}

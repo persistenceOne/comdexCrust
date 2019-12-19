@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/20-transfer/types"
+	"github.com/commitHub/commitBlockchain/modules/ibc/20-transfer/types"
 )
 
 // InitGenesis sets distribution information for genesis

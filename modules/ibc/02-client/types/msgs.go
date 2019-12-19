@@ -3,10 +3,10 @@ package types
 import (
 	"fmt"
 
+	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
+	host "github.com/commitHub/commitBlockchain/modules/ibc/24-host"
+	ibctypes "github.com/commitHub/commitBlockchain/modules/ibc/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/02-client/exported"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/24-host"
-	ibctypes "github.com/cosmos/cosmos-sdk/x/ibc/types"
 )
 
 var _ sdk.Msg = MsgCreateClient{}
@@ -42,7 +42,7 @@ func (msg MsgCreateClient) Type() string {
 // ValidateBasic implements sdk.Msg
 func (msg MsgCreateClient) ValidateBasic() sdk.Error {
 	if err := host.DefaultClientIdentifierValidator(msg.ClientID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid client ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid client ID: %s", err.Error()))
 	}
 	if _, err := exported.ClientTypeFromString(msg.ClientType); err != nil {
 		return ErrInvalidClientType(DefaultCodespace, err.Error())
@@ -97,7 +97,7 @@ func (msg MsgUpdateClient) Type() string {
 // ValidateBasic implements sdk.Msg
 func (msg MsgUpdateClient) ValidateBasic() sdk.Error {
 	if err := host.DefaultClientIdentifierValidator(msg.ClientID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid client ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid client ID: %s", err.Error()))
 	}
 	if msg.Header == nil {
 		return ErrInvalidHeader(DefaultCodespace)
@@ -147,7 +147,7 @@ func (msg MsgSubmitMisbehaviour) Type() string {
 // ValidateBasic implements sdk.Msg
 func (msg MsgSubmitMisbehaviour) ValidateBasic() sdk.Error {
 	if err := host.DefaultClientIdentifierValidator(msg.ClientID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid client ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid client ID: %s", err.Error()))
 	}
 	if msg.Evidence == nil {
 		return ErrInvalidEvidence(DefaultCodespace)

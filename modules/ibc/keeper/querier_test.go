@@ -5,9 +5,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	client "github.com/cosmos/cosmos-sdk/x/ibc/02-client"
-	connection "github.com/cosmos/cosmos-sdk/x/ibc/03-connection"
-	channel "github.com/cosmos/cosmos-sdk/x/ibc/04-channel"
+	client "github.com/commitHub/commitBlockchain/modules/ibc/02-client"
+	connection "github.com/commitHub/commitBlockchain/modules/ibc/03-connection"
+	channel "github.com/commitHub/commitBlockchain/modules/ibc/04-channel"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 )

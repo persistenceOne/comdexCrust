@@ -9,12 +9,13 @@ import (
 
 	abci "github.com/tendermint/tendermint/abci/types"
 
+	commitContext "github.com/commitHub/commitBlockchain/client/context"
+	commitFlags "github.com/commitHub/commitBlockchain/client/flags"
+	"github.com/commitHub/commitBlockchain/modules/ibc/03-connection/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/ibc/03-connection/types"
 )
 
 // GetQueryCmd returns the query commands for IBC connections
@@ -28,6 +29,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 
 	ics03ConnectionQueryCmd.AddCommand(client.GetCommands(
 		GetCmdQueryConnection(queryRoute, cdc),
+		GetCmdQueryClientConnections(queryRoute, cdc),
 	)...)
 	return ics03ConnectionQueryCmd
 }
@@ -56,10 +58,10 @@ $ %s query ibc connection end [connection-id]
 			req := abci.RequestQuery{
 				Path:  fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryConnection),
 				Data:  bz,
-				Prove: viper.GetBool(flags.FlagProve),
+				Prove: viper.GetBool(commitFlags.FlagProve),
 			}
 
-			res, err := cliCtx.QueryABCI(req)
+			res, err := commitContext.QueryABCI(cliCtx, req)
 			if err != nil {
 				return err
 			}
@@ -70,14 +72,14 @@ $ %s query ibc connection end [connection-id]
 			}
 
 			if res.Proof == nil {
-				return cliCtx.PrintOutput(connection)
+				return commitContext.PrintOutput(cliCtx, connection)
 			}
 
 			connRes := types.NewConnectionResponse(connectionID, connection, res.Proof, res.Height)
-			return cliCtx.PrintOutput(connRes)
+			return commitContext.PrintOutput(cliCtx, connRes)
 		},
 	}
-	cmd.Flags().Bool(flags.FlagProve, true, "show proofs for the query results")
+	cmd.Flags().Bool(commitFlags.FlagProve, true, "show proofs for the query results")
 
 	return cmd
 }
@@ -106,10 +108,10 @@ $ %s query ibc connection client [client-id]
 			req := abci.RequestQuery{
 				Path:  fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryClientConnections),
 				Data:  bz,
-				Prove: viper.GetBool(flags.FlagProve),
+				Prove: viper.GetBool(commitFlags.FlagProve),
 			}
 
-			res, err := cliCtx.QueryABCI(req)
+			res, err := commitContext.QueryABCI(cliCtx, req)
 			if err != nil {
 				return err
 			}
@@ -120,11 +122,11 @@ $ %s query ibc connection client [client-id]
 			}
 
 			if res.Proof == nil {
-				return cliCtx.PrintOutput(connectionPaths)
+				return commitContext.PrintOutput(cliCtx, connectionPaths)
 			}
 
 			connPathsRes := types.NewClientConnectionsResponse(clientID, connectionPaths, res.Proof, res.Height)
-			return cliCtx.PrintOutput(connPathsRes)
+			return commitContext.PrintOutput(cliCtx, connPathsRes)
 		},
 	}
 }

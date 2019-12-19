@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	host "github.com/commitHub/commitBlockchain/modules/ibc/24-host"
+	ibctypes "github.com/commitHub/commitBlockchain/modules/ibc/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/24-host"
-	ibctypes "github.com/cosmos/cosmos-sdk/x/ibc/types"
 )
 
 var _ sdk.Msg = MsgConnectionOpenInit{}
@@ -49,10 +49,10 @@ func (msg MsgConnectionOpenInit) Type() string {
 // ValidateBasic implements sdk.Msg
 func (msg MsgConnectionOpenInit) ValidateBasic() sdk.Error {
 	if err := host.DefaultConnectionIdentifierValidator(msg.ConnectionID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid connection ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid connection ID: %s", err.Error()))
 	}
 	if err := host.DefaultClientIdentifierValidator(msg.ClientID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid client ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid client ID: %s", err.Error()))
 	}
 	if msg.Signer.Empty() {
 		return sdk.ErrInvalidAddress("missing signer address")
@@ -120,10 +120,10 @@ func (msg MsgConnectionOpenTry) Type() string {
 // ValidateBasic implements sdk.Msg
 func (msg MsgConnectionOpenTry) ValidateBasic() sdk.Error {
 	if err := host.DefaultConnectionIdentifierValidator(msg.ConnectionID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid connection ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid connection ID: %s", err.Error()))
 	}
 	if err := host.DefaultClientIdentifierValidator(msg.ClientID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid client ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid client ID: %s", err.Error()))
 	}
 	if len(msg.CounterpartyVersions) == 0 {
 		return ErrInvalidVersion(DefaultCodespace, "missing counterparty versions")
@@ -205,7 +205,7 @@ func (msg MsgConnectionOpenAck) Type() string {
 // ValidateBasic implements sdk.Msg
 func (msg MsgConnectionOpenAck) ValidateBasic() sdk.Error {
 	if err := host.DefaultConnectionIdentifierValidator(msg.ConnectionID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid connection ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid connection ID: %s", err.Error()))
 	}
 	if strings.TrimSpace(msg.Version) == "" {
 		return ErrInvalidVersion(DefaultCodespace, "version can't be blank")
@@ -274,7 +274,7 @@ func (msg MsgConnectionOpenConfirm) Type() string {
 // ValidateBasic implements sdk.Msg
 func (msg MsgConnectionOpenConfirm) ValidateBasic() sdk.Error {
 	if err := host.DefaultConnectionIdentifierValidator(msg.ConnectionID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid connection ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid connection ID: %s", err.Error()))
 	}
 	if msg.ProofAck == nil {
 		return ErrInvalidConnectionProof(DefaultCodespace, "proof ack cannot be nil")

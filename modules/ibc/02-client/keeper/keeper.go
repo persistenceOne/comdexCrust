@@ -8,11 +8,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/ibc/02-client/exported"
-	"github.com/cosmos/cosmos-sdk/x/ibc/02-client/types"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
-	ibctypes "github.com/cosmos/cosmos-sdk/x/ibc/types"
+	commitErrors "github.com/commitHub/commitBlockchain/types/errors"
+	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
+	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/types"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	ibctypes "github.com/commitHub/commitBlockchain/modules/ibc/types"
 )
 
 // Keeper represents a type that grants read and write permissions to any client
@@ -134,7 +134,7 @@ func (k Keeper) checkMisbehaviour(ctx sdk.Context, evidence exported.Evidence) e
 	// 	var tmEvidence tendermint.Evidence
 	// 	_, ok := evidence.(tendermint.Evidence)
 	// 	if !ok {
-	// 		return sdkerrors.Wrap(types.ErrInvalidClientType(k.codespace), "consensus type is not Tendermint")
+	// 		return commitErrors.Wrap(types.ErrInvalidClientType(k.codespace), "consensus type is not Tendermint")
 	// 	}
 	// 	// TODO: pass past consensus states
 	// 	return tendermint.CheckMisbehaviour(tmEvidence)
@@ -147,7 +147,7 @@ func (k Keeper) checkMisbehaviour(ctx sdk.Context, evidence exported.Evidence) e
 // freeze updates the state of the client in the event of a misbehaviour
 func (k Keeper) freeze(ctx sdk.Context, clientState types.State) (types.State, error) {
 	if clientState.Frozen {
-		return types.State{}, sdkerrors.Wrap(types.ErrClientFrozen(k.codespace, clientState.ID()), "already frozen")
+		return types.State{}, commitErrors.Wrap(types.ErrClientFrozen(k.codespace, clientState.ID()), "already frozen")
 	}
 
 	clientState.Frozen = true

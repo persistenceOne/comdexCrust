@@ -3,7 +3,7 @@ package types
 import (
 	"strings"
 
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
 	"github.com/tendermint/tendermint/crypto/merkle"
 )
 

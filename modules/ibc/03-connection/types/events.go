@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 
-	ibctypes "github.com/cosmos/cosmos-sdk/x/ibc/types"
+	ibctypes "github.com/commitHub/commitBlockchain/modules/ibc/types"
 )
 
 // IBC connection events

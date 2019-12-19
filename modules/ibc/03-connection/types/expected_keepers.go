@@ -2,9 +2,9 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	client "github.com/cosmos/cosmos-sdk/x/ibc/02-client"
-	clientexported "github.com/cosmos/cosmos-sdk/x/ibc/02-client/exported"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
+	client "github.com/commitHub/commitBlockchain/modules/ibc/02-client"
+	clientexported "github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
 )
 
 // ClientKeeper expected account IBC client keeper

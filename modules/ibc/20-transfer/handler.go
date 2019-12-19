@@ -1,15 +1,15 @@
 package transfer
 
 import (
+	"github.com/commitHub/commitBlockchain/modules/ibc/20-transfer/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/20-transfer/types"
 )
 
 // HandleMsgTransfer defines the sdk.Handler for MsgTransfer
 func HandleMsgTransfer(ctx sdk.Context, k Keeper, msg MsgTransfer) (res sdk.Result) {
 	err := k.SendTransfer(ctx, msg.SourcePort, msg.SourceChannel, msg.Amount, msg.Sender, msg.Receiver, msg.Source)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return sdk.NewError(DefaultCodespace, CodeErrSendPacket, err.Error()).Result()
 	}
 
 	ctx.EventManager().EmitEvent(
@@ -28,7 +28,7 @@ func HandleMsgTransfer(ctx sdk.Context, k Keeper, msg MsgTransfer) (res sdk.Resu
 func HandleMsgRecvPacket(ctx sdk.Context, k Keeper, msg MsgRecvPacket) (res sdk.Result) {
 	err := k.ReceivePacket(ctx, msg.Packet, msg.Proofs[0], msg.Height)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return sdk.NewError(DefaultCodespace, CodeErrSendPacket, err.Error()).Result()
 	}
 
 	ctx.EventManager().EmitEvent(

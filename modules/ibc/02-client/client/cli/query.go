@@ -10,14 +10,15 @@ import (
 
 	tmtypes "github.com/tendermint/tendermint/types"
 
+	commitContext "github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
+	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/types"
+	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/types/tendermint"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/ibc/02-client/exported"
-	"github.com/cosmos/cosmos-sdk/x/ibc/02-client/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/02-client/types/tendermint"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
 )
 
 // GetQueryCmd returns the query commands for IBC clients
@@ -76,7 +77,7 @@ $ %s query ibc client state [client-id]
 				return err
 			}
 
-			return cliCtx.PrintOutput(clientState)
+			return commitContext.PrintOutput(cliCtx, clientState)
 		},
 	}
 }
@@ -121,7 +122,7 @@ $ %s query ibc client root [client-id] [height]
 				return err
 			}
 
-			return cliCtx.PrintOutput(root)
+			return commitContext.PrintOutput(cliCtx, root)
 		},
 	}
 }
@@ -162,7 +163,7 @@ $ %s query ibc client consensus-state [client-id]
 				return err
 			}
 
-			return cliCtx.PrintOutput(consensusState)
+			return commitContext.PrintOutput(cliCtx, consensusState)
 		},
 	}
 }
@@ -216,7 +217,7 @@ $ %s query ibc client header
 				NextValidatorSet: tmtypes.NewValidatorSet(nextValidators.Validators),
 			}
 
-			return cliCtx.PrintOutput(header)
+			return commitContext.PrintOutput(cliCtx, header)
 		},
 	}
 }
@@ -269,7 +270,7 @@ $ %s query ibc client node-state
 				NextValidatorSet: tmtypes.NewValidatorSet(validators.Validators),
 			}
 
-			return cliCtx.PrintOutput(state)
+			return commitContext.PrintOutput(cliCtx, state)
 		},
 	}
 }
@@ -281,7 +282,7 @@ func GetCmdQueryPath(storeName string, cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.NewCLIContext().WithCodec(cdc)
 			path := commitment.NewPrefix([]byte("ibc"))
-			return ctx.PrintOutput(path)
+			return commitContext.PrintOutput(ctx, path)
 		},
 	}
 }

@@ -2,8 +2,8 @@ package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
-	channel "github.com/cosmos/cosmos-sdk/x/ibc/04-channel"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
+	channel "github.com/commitHub/commitBlockchain/modules/ibc/04-channel"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
 )
 
 func RegisterCodec(cdc *codec.Codec) {

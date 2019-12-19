@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/04-channel/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/20-transfer/types"
+	channeltypes "github.com/commitHub/commitBlockchain/modules/ibc/04-channel/types"
+	"github.com/commitHub/commitBlockchain/modules/ibc/20-transfer/types"
 )
 
 // nolint: unused

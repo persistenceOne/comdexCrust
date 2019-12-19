@@ -1,9 +1,9 @@
 package channel
 
 import (
+	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/keeper"
+	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/04-channel/keeper"
-	"github.com/cosmos/cosmos-sdk/x/ibc/04-channel/types"
 )
 
 // HandleMsgChannelOpenInit defines the sdk.Handler for MsgChannelOpenInit
@@ -13,7 +13,7 @@ func HandleMsgChannelOpenInit(ctx sdk.Context, k keeper.Keeper, msg types.MsgCha
 		msg.Channel.Counterparty, msg.Channel.Version,
 	)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return sdk.NewError(DefaultCodespace, CodeInvalidChannel, err.Error()).Result()
 	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{
@@ -38,7 +38,7 @@ func HandleMsgChannelOpenTry(ctx sdk.Context, k keeper.Keeper, msg types.MsgChan
 		msg.Channel.Counterparty, msg.Channel.Version, msg.CounterpartyVersion, msg.ProofInit, msg.ProofHeight,
 	)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return sdk.NewError(DefaultCodespace, CodeInvalidChannel, err.Error()).Result()
 	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{
@@ -64,7 +64,7 @@ func HandleMsgChannelOpenAck(ctx sdk.Context, k keeper.Keeper, msg types.MsgChan
 		ctx, msg.PortID, msg.ChannelID, msg.CounterpartyVersion, msg.ProofTry, msg.ProofHeight,
 	)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return sdk.NewError(DefaultCodespace, CodeInvalidChannel, err.Error()).Result()
 	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{
@@ -87,7 +87,7 @@ func HandleMsgChannelOpenAck(ctx sdk.Context, k keeper.Keeper, msg types.MsgChan
 func HandleMsgChannelOpenConfirm(ctx sdk.Context, k keeper.Keeper, msg types.MsgChannelOpenConfirm) sdk.Result {
 	err := k.ChanOpenConfirm(ctx, msg.PortID, msg.ChannelID, msg.ProofAck, msg.ProofHeight)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return sdk.NewError(DefaultCodespace, CodeInvalidChannel, err.Error()).Result()
 	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{
@@ -110,7 +110,7 @@ func HandleMsgChannelOpenConfirm(ctx sdk.Context, k keeper.Keeper, msg types.Msg
 func HandleMsgChannelCloseInit(ctx sdk.Context, k keeper.Keeper, msg types.MsgChannelCloseInit) sdk.Result {
 	err := k.ChanCloseInit(ctx, msg.PortID, msg.ChannelID)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return sdk.NewError(DefaultCodespace, CodeInvalidChannel, err.Error()).Result()
 	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{
@@ -133,7 +133,7 @@ func HandleMsgChannelCloseInit(ctx sdk.Context, k keeper.Keeper, msg types.MsgCh
 func HandleMsgChannelCloseConfirm(ctx sdk.Context, k keeper.Keeper, msg types.MsgChannelCloseConfirm) sdk.Result {
 	err := k.ChanCloseConfirm(ctx, msg.PortID, msg.ChannelID, msg.ProofInit, msg.ProofHeight)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return sdk.NewError(DefaultCodespace, CodeInvalidChannel, err.Error()).Result()
 	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{

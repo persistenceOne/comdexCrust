@@ -1,21 +1,21 @@
 package client
 
 import (
+	exported "github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	exported "github.com/cosmos/cosmos-sdk/x/ibc/02-client/exported"
 )
 
 // HandleMsgCreateClient defines the sdk.Handler for MsgCreateClient
 func HandleMsgCreateClient(ctx sdk.Context, k Keeper, msg MsgCreateClient) sdk.Result {
 	clientType, err := exported.ClientTypeFromString(msg.ClientType)
 	if err != nil {
-		return sdk.ResultFromError(ErrInvalidClientType(DefaultCodespace, err.Error()))
+		return sdk.NewError(DefaultCodespace, CodeInvalidClientType, err.Error()).Result()
 	}
 
 	// TODO: should we create an event with the new client state id ?
 	_, err = k.CreateClient(ctx, msg.ClientID, clientType, msg.ConsensusState)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return sdk.NewError(DefaultCodespace, CodeInvalidClientType, err.Error()).Result()
 	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{
@@ -37,7 +37,7 @@ func HandleMsgCreateClient(ctx sdk.Context, k Keeper, msg MsgCreateClient) sdk.R
 func HandleMsgUpdateClient(ctx sdk.Context, k Keeper, msg MsgUpdateClient) sdk.Result {
 	err := k.UpdateClient(ctx, msg.ClientID, msg.Header)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return sdk.NewError(DefaultCodespace, CodeInvalidClientType, err.Error()).Result()
 	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{
@@ -59,7 +59,7 @@ func HandleMsgUpdateClient(ctx sdk.Context, k Keeper, msg MsgUpdateClient) sdk.R
 func HandleMsgSubmitMisbehaviour(ctx sdk.Context, k Keeper, msg MsgSubmitMisbehaviour) sdk.Result {
 	err := k.CheckMisbehaviourAndUpdateState(ctx, msg.ClientID, msg.Evidence)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return sdk.NewError(DefaultCodespace, CodeInvalidClientType, err.Error()).Result()
 	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{

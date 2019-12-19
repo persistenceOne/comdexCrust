@@ -7,11 +7,12 @@ import (
 
 	"github.com/spf13/cobra"
 
+	commitContext "github.com/commitHub/commitBlockchain/client/context"
+	commitFlags "github.com/commitHub/commitBlockchain/client/flags"
+	channel "github.com/commitHub/commitBlockchain/modules/ibc/04-channel"
 	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/version"
-	channel "github.com/cosmos/cosmos-sdk/x/ibc/04-channel"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -52,17 +53,17 @@ $ %s query ibc channel next-recv [port-id] [channel-id]
 				Prove: true,
 			}
 
-			res, err := cliCtx.QueryABCI(req)
+			res, err := commitContext.QueryABCI(cliCtx, req)
 			if err != nil {
 				return err
 			}
 
 			sequence := binary.BigEndian.Uint64(res.Value)
 
-			return cliCtx.PrintOutput(sequence)
+			return commitContext.PrintOutput(cliCtx, sequence)
 		},
 	}
-	cmd.Flags().Bool(flags.FlagProve, true, "show proofs for the query results")
+	cmd.Flags().Bool(commitFlags.FlagProve, true, "show proofs for the query results")
 
 	return cmd
 }

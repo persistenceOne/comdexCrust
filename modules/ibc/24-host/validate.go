@@ -1,10 +1,9 @@
 package host
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
-
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // ICS 024 Identifier and Path Validation Implementation
@@ -25,15 +24,15 @@ type ValidateFn func(string) error
 func defaultIdentifierValidator(id string, min, max int) error {
 	// valid id MUST NOT contain "/" separator
 	if strings.Contains(id, "/") {
-		return sdkerrors.Wrap(ErrInvalidID, "identifier cannot contain separator: /")
+		return ErrInvalidID(DefaultCodespace, fmt.Sprintf("%s identifier cannot contain separator: /", id))
 	}
 	// valid id must be between 10 and 20 characters
 	if len(id) < min || len(id) > max {
-		return sdkerrors.Wrapf(ErrInvalidID, "identifier has invalid length: %d, must be between %d-%d characters", len(id), min, max)
+		return ErrInvalidID(DefaultCodespace, fmt.Sprintf("%s identifier has invalid length: %d, must be between %d-%d characters", id, len(id), min, max))
 	}
 	// valid id must contain only lower alphabetic characters
 	if !isAlphaLower(id) {
-		return sdkerrors.Wrap(ErrInvalidID, "identifier must contain only lowercase alphabetic characters")
+		return ErrInvalidID(DefaultCodespace, fmt.Sprintf("%s identifier must contain only lowercase alphabetic characters", id))
 	}
 	return nil
 }
@@ -76,7 +75,7 @@ func NewPathValidator(idValidator ValidateFn) ValidateFn {
 			// Each path element must either be valid identifier or alphanumeric
 			err := idValidator(p)
 			if err != nil && !isAlphaNumeric(p) {
-				return sdkerrors.Wrapf(ErrInvalidPath, "path contains invalid identifier or non-alphanumeric path element: %s", p)
+				return ErrInvalidPath(DefaultCodespace, fmt.Sprintf("%s: path contains invalid identifier or non-alphanumeric path element: %s", path, p))
 			}
 		}
 		return nil
@@ -88,10 +87,15 @@ func NewPathValidator(idValidator ValidateFn) ValidateFn {
 // checking that all path elements are alphanumeric
 func DefaultPathValidator(path string) error {
 	pathArr := strings.Split(path, "/")
+
+	if pathArr[0] == path {
+		return ErrInvalidPath(DefaultCodespace, fmt.Sprintf("%s: path doesn't contain any separator '/'", path))
+	}
+
 	for _, p := range pathArr {
 		// Each path element must either be alphanumeric
 		if !isAlphaNumeric(p) {
-			return sdkerrors.Wrapf(ErrInvalidPath, "invalid path element containing non-alphanumeric characters: %s", p)
+			return ErrInvalidPath(DefaultCodespace, fmt.Sprintf("%s: invalid path element containing non-alphanumeric characters: '%s'", path, p))
 		}
 	}
 	return nil

@@ -10,6 +10,15 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	commitContext "github.com/commitHub/commitBlockchain/client/context"
+	commitFlags "github.com/commitHub/commitBlockchain/client/flags"
+	"github.com/commitHub/commitBlockchain/modules/auth"
+	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
+	ibcclient "github.com/commitHub/commitBlockchain/modules/ibc/02-client/types"
+	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/types/tendermint"
+	"github.com/commitHub/commitBlockchain/modules/ibc/03-connection/types"
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	commitTypes "github.com/commitHub/commitBlockchain/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -17,12 +26,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
-	ibcclient "github.com/cosmos/cosmos-sdk/x/ibc/02-client/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/02-client/types/tendermint"
-	"github.com/cosmos/cosmos-sdk/x/ibc/03-connection/types"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -282,7 +285,7 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			viper.Set(flags.FlagProve, true)
+			viper.Set(commitFlags.FlagProve, true)
 
 			// --chain-id values for each chain
 			cid1 := viper.GetString(flags.FlagChainID)
@@ -310,13 +313,13 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 			// Create txbldr, clictx, querier for cid1
 			viper.Set(flags.FlagChainID, cid1)
 			txBldr1 := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-			ctx1 := context.NewCLIContextIBC(from1, cid1, rpc1).WithCodec(cdc).
+			ctx1 := commitContext.NewCLIContextIBC(from1, cid1, rpc1).WithCodec(cdc).
 				WithBroadcastMode(flags.BroadcastBlock)
 
 			// Create txbldr, clictx, querier for cid1
 			viper.Set(flags.FlagChainID, cid2)
 			txBldr2 := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-			ctx2 := context.NewCLIContextIBC(from2, cid2, rpc2).WithCodec(cdc).
+			ctx2 := commitContext.NewCLIContextIBC(from2, cid2, rpc2).WithCodec(cdc).
 				WithBroadcastMode(flags.BroadcastBlock)
 
 			// read in path for cid1
@@ -351,7 +354,7 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 
 			fmt.Printf("%v <- %-23v", cid1, msgOpenInit.Type())
 			res, err := utils.CompleteAndBroadcastTx(txBldr1, ctx1, []sdk.Msg{msgOpenInit}, passphrase1)
-			if err != nil || !res.IsOK() {
+			if err != nil || !commitTypes.IsOK(res) {
 				return err
 			}
 
@@ -373,7 +376,7 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 			msgUpdateClient := ibcclient.NewMsgUpdateClient(clientID2, header, ctx2.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid2, msgUpdateClient.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr2, ctx2, []sdk.Msg{msgUpdateClient}, passphrase2)
-			if err != nil || !res.IsOK() {
+			if err != nil || !commitTypes.IsOK(res) {
 				return err
 			}
 			fmt.Printf(" [OK] txid(%v) client(%v)\n", res.TxHash, clientID1)
@@ -396,7 +399,7 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 
 			fmt.Printf("%v <- %-23v", cid2, msgOpenTry.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr2, ctx2, []sdk.Msg{msgOpenTry}, passphrase2)
-			if err != nil || !res.IsOK() {
+			if err != nil || !commitTypes.IsOK(res) {
 				return err
 			}
 
@@ -418,7 +421,7 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 			msgUpdateClient = ibcclient.NewMsgUpdateClient(clientID1, header, ctx1.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid1, msgUpdateClient.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr1, ctx1, []sdk.Msg{msgUpdateClient}, passphrase1)
-			if err != nil || !res.IsOK() {
+			if err != nil || !commitTypes.IsOK(res) {
 				return err
 			}
 			fmt.Printf(" [OK] txid(%v) client(%v)\n", res.TxHash, clientID2)
@@ -440,7 +443,7 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 			msgOpenAck := types.NewMsgConnectionOpenAck(connID1, proofs.Proof, csProof.Proof, uint64(header.Height), uint64(header.Height), version, ctx1.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid1, msgOpenAck.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr1, ctx1, []sdk.Msg{msgOpenAck}, passphrase1)
-			if err != nil || !res.IsOK() {
+			if err != nil || !commitTypes.IsOK(res) {
 				return err
 			}
 			fmt.Printf(" [OK] txid(%v) connection(%v)\n", res.TxHash, connID1)
@@ -461,7 +464,7 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 			msgUpdateClient = ibcclient.NewMsgUpdateClient(clientID2, header, ctx2.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid2, msgUpdateClient.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr2, ctx2, []sdk.Msg{msgUpdateClient}, passphrase2)
-			if err != nil || !res.IsOK() {
+			if err != nil || !commitTypes.IsOK(res) {
 				return err
 			}
 			fmt.Printf(" [OK] txid(%v) client(%v)\n", res.TxHash, clientID1)
@@ -478,7 +481,7 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 			msgOpenConfirm := types.NewMsgConnectionOpenConfirm(connID2, proofs.Proof, uint64(header.Height), ctx2.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid1, msgOpenConfirm.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr2, ctx2, []sdk.Msg{msgOpenConfirm}, passphrase2)
-			if err != nil || !res.IsOK() {
+			if err != nil || !commitTypes.IsOK(res) {
 				return err
 			}
 			fmt.Printf(" [OK] txid(%v) connection(%v)\n", res.TxHash, connID2)
@@ -511,7 +514,7 @@ func queryProofs(ctx client.CLIContext, connectionID string, queryRoute string) 
 		Data:  []byte(fmt.Sprintf("connections/%s", connectionID)),
 		Prove: true,
 	}
-	res, err := ctx.QueryABCI(req)
+	res, err := commitContext.QueryABCI(ctx, req)
 	if err != nil {
 		return connRes, err
 	}
@@ -530,7 +533,7 @@ func queryConsensusStateProof(ctx client.CLIContext, clientID string) (ibcclient
 		Data:  []byte(fmt.Sprintf("clients/%s/consensusState", clientID)),
 		Prove: true,
 	}
-	res, err := ctx.QueryABCI(req)
+	res, err := commitContext.QueryABCI(ctx, req)
 	if err != nil {
 		return csRes, err
 	}

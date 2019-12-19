@@ -6,11 +6,12 @@ import (
 
 	"github.com/spf13/cobra"
 
+	commitContext "github.com/commitHub/commitBlockchain/client/context"
+	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/client/utils"
 	cli "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/ibc/04-channel/client/utils"
 )
 
 // GetQueryCmd returns the query commands for IBC channels
@@ -48,7 +49,7 @@ $ %s query ibc channel end [port-id] [channel-id]
 				return err
 			}
 
-			return cliCtx.PrintOutput(ch)
+			return commitContext.PrintOutput(cliCtx, ch)
 		},
 	}
 	return cmd

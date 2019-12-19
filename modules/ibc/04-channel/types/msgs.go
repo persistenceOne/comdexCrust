@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
+	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	host "github.com/commitHub/commitBlockchain/modules/ibc/24-host"
+	ibctypes "github.com/commitHub/commitBlockchain/modules/ibc/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	commitment "github.com/cosmos/cosmos-sdk/x/ibc/23-commitment"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/24-host"
-	ibctypes "github.com/cosmos/cosmos-sdk/x/ibc/types"
 )
 
 var _ sdk.Msg = MsgChannelOpenInit{}
@@ -47,10 +47,10 @@ func (msg MsgChannelOpenInit) Type() string {
 // ValidateBasic implements sdk.Msg
 func (msg MsgChannelOpenInit) ValidateBasic() sdk.Error {
 	if err := host.DefaultPortIdentifierValidator(msg.PortID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid port ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid port ID: %s", err.Error()))
 	}
 	if err := host.DefaultChannelIdentifierValidator(msg.ChannelID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid channel ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid channel ID: %s", err.Error()))
 	}
 	// Signer can be empty
 	return msg.Channel.ValidateBasic()
@@ -110,10 +110,10 @@ func (msg MsgChannelOpenTry) Type() string {
 // ValidateBasic implements sdk.Msg
 func (msg MsgChannelOpenTry) ValidateBasic() sdk.Error {
 	if err := host.DefaultPortIdentifierValidator(msg.PortID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid port ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid port ID: %s", err.Error()))
 	}
 	if err := host.DefaultChannelIdentifierValidator(msg.ChannelID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid channel ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid channel ID: %s", err.Error()))
 	}
 	if strings.TrimSpace(msg.CounterpartyVersion) == "" {
 		return ErrInvalidCounterpartyChannel(DefaultCodespace, "counterparty version cannot be blank")
@@ -177,10 +177,10 @@ func (msg MsgChannelOpenAck) Type() string {
 // ValidateBasic implements sdk.Msg
 func (msg MsgChannelOpenAck) ValidateBasic() sdk.Error {
 	if err := host.DefaultPortIdentifierValidator(msg.PortID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid port ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid port ID: %s", err.Error()))
 	}
 	if err := host.DefaultChannelIdentifierValidator(msg.ChannelID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid channel ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid channel ID: %s", err.Error()))
 	}
 	if strings.TrimSpace(msg.CounterpartyVersion) == "" {
 		return ErrInvalidCounterpartyChannel(DefaultCodespace, "counterparty version cannot be blank")
@@ -242,10 +242,10 @@ func (msg MsgChannelOpenConfirm) Type() string {
 // ValidateBasic implements sdk.Msg
 func (msg MsgChannelOpenConfirm) ValidateBasic() sdk.Error {
 	if err := host.DefaultPortIdentifierValidator(msg.PortID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid port ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid port ID: %s", err.Error()))
 	}
 	if err := host.DefaultChannelIdentifierValidator(msg.ChannelID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid channel ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid channel ID: %s", err.Error()))
 	}
 	if msg.ProofAck == nil {
 		return ErrInvalidChannelProof(DefaultCodespace, "cannot submit an empty proof")
@@ -297,10 +297,10 @@ func (msg MsgChannelCloseInit) Type() string {
 // ValidateBasic implements sdk.Msg
 func (msg MsgChannelCloseInit) ValidateBasic() sdk.Error {
 	if err := host.DefaultPortIdentifierValidator(msg.PortID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid port ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid port ID: %s", err.Error()))
 	}
 	if err := host.DefaultChannelIdentifierValidator(msg.ChannelID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid channel ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid channel ID: %s", err.Error()))
 	}
 	// Signer can be empty
 	return nil
@@ -353,10 +353,10 @@ func (msg MsgChannelCloseConfirm) Type() string {
 // ValidateBasic implements sdk.Msg
 func (msg MsgChannelCloseConfirm) ValidateBasic() sdk.Error {
 	if err := host.DefaultPortIdentifierValidator(msg.PortID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid port ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid port ID: %s", err.Error()))
 	}
 	if err := host.DefaultChannelIdentifierValidator(msg.ChannelID); err != nil {
-		return sdk.NewError(host.IBCCodeSpace, 1, fmt.Sprintf("invalid channel ID: %s", err.Error()))
+		return sdk.NewError(host.DefaultCodespace, 1, fmt.Sprintf("invalid channel ID: %s", err.Error()))
 	}
 	if msg.ProofInit == nil {
 		return ErrInvalidChannelProof(DefaultCodespace, "cannot submit an empty proof")
