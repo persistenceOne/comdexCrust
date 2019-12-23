@@ -1,14 +1,11 @@
 package keeper
 
 import (
-	"fmt"
-	"strings"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	channelexported "github.com/commitHub/commitBlockchain/modules/ibc/04-channel/exported"
 	channeltypes "github.com/commitHub/commitBlockchain/modules/ibc/04-channel/types"
 	"github.com/commitHub/commitBlockchain/modules/ibc/20-transfer/types"
 	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // SendTransfer handles transfer sending logic
@@ -37,12 +34,12 @@ func (k Keeper) SendTransfer(
 	}
 
 	coins := make(sdk.Coins, len(amount))
-	prefix := types.GetDenomPrefix(destinationPort, destinationChannel)
+	// prefix := types.GetDenomPrefix(destinationPort, destinationChannel)
 	switch {
 	case isSourceChain:
 		// build the receiving denomination prefix
 		for i, coin := range amount {
-			coins[i] = sdk.NewCoin(prefix+coin.Denom, coin.Amount)
+			coins[i] = sdk.NewCoin(coin.Denom, coin.Amount)
 		}
 	default:
 		coins = amount
@@ -77,12 +74,12 @@ func (k Keeper) ReceiveTransfer(
 	data types.PacketData,
 ) error {
 	if data.Source {
-		prefix := types.GetDenomPrefix(destinationPort, destinationChannel)
-		for _, coin := range data.Amount {
-			if !strings.HasPrefix(coin.Denom, prefix) {
-				return sdk.ErrInvalidCoins(fmt.Sprintf("%s doesn't contain the prefix '%s'", coin.Denom, prefix))
-			}
-		}
+		// prefix := types.GetDenomPrefix(destinationPort, destinationChannel)
+		// for _, coin := range data.Amount {
+		// 	if !strings.HasPrefix(coin.Denom, prefix) {
+		// 		return sdk.ErrInvalidCoins(fmt.Sprintf("%s doesn't contain the prefix '%s'", coin.Denom, prefix))
+		// 	}
+		// }
 
 		// mint new tokens if the source of the transfer is the same chain
 		err := k.supplyKeeper.MintCoins(ctx, types.GetModuleAccountName(), data.Amount)
@@ -97,17 +94,18 @@ func (k Keeper) ReceiveTransfer(
 	// unescrow tokens
 
 	// check the denom prefix
-	prefix := types.GetDenomPrefix(sourcePort, sourceChannel)
-	coins := make(sdk.Coins, len(data.Amount))
-	for i, coin := range data.Amount {
-		if !strings.HasPrefix(coin.Denom, prefix) {
-			return sdk.ErrInvalidCoins(fmt.Sprintf("%s doesn't contain the prefix '%s'", coin.Denom, prefix))
-		}
-		coins[i] = sdk.NewCoin(coin.Denom[len(prefix):], coin.Amount)
-	}
+	// prefix := types.GetDenomPrefix(sourcePort, sourceChannel)
+	// coins := make(sdk.Coins, len(data.Amount))
+	// for i, coin := range data.Amount {
+	// 	if !strings.HasPrefix(coin.Denom, prefix) {
+	// 		return sdk.ErrInvalidCoins(fmt.Sprintf("%s doesn't contain the prefix '%s'", coin.Denom, prefix))
+	// 	}
+	// 	coins[i] = sdk.NewCoin(coin.Denom[len(prefix):], coin.Amount)
+	// }
 
 	escrowAddress := types.GetEscrowAddress(destinationPort, destinationChannel)
-	return k.bankKeeper.SendCoins(ctx, escrowAddress, data.Receiver, coins)
+	// return k.bankKeeper.SendCoins(ctx, escrowAddress, data.Receiver, coins)
+	return k.bankKeeper.SendCoins(ctx, escrowAddress, data.Receiver, data.Amount)
 
 }
 
@@ -127,28 +125,29 @@ func (k Keeper) createOutgoingPacket(
 		// escrow tokens if the destination chain is the same as the sender's
 		escrowAddress := types.GetEscrowAddress(sourcePort, sourceChannel)
 
-		prefix := types.GetDenomPrefix(destinationPort, destinationChannel)
-		coins := make(sdk.Coins, len(amount))
-		for i, coin := range amount {
-			if !strings.HasPrefix(coin.Denom, prefix) {
-				return sdk.ErrInvalidCoins(fmt.Sprintf("%s doesn't contain the prefix '%s'", coin.Denom, prefix))
-			}
-			coins[i] = sdk.NewCoin(coin.Denom[len(prefix):], coin.Amount)
-		}
+		// prefix := types.GetDenomPrefix(destinationPort, destinationChannel)
+		// coins := make(sdk.Coins, len(amount))
+		// for i, coin := range amount {
+		// 	if !strings.HasPrefix(coin.Denom, prefix) {
+		// 		return sdk.ErrInvalidCoins(fmt.Sprintf("%s doesn't contain the prefix '%s'", coin.Denom, prefix))
+		// 	}
+		// 	coins[i] = sdk.NewCoin(coin.Denom[len(prefix):], coin.Amount)
+		// }
 
-		err := k.bankKeeper.SendCoins(ctx, sender, escrowAddress, coins)
+		// err := k.bankKeeper.SendCoins(ctx, sender, escrowAddress, coins)
+		err := k.bankKeeper.SendCoins(ctx, sender, escrowAddress, amount)
 		if err != nil {
 			return err
 		}
 
 	} else {
 		// burn vouchers from the sender's balance if the source is from another chain
-		prefix := types.GetDenomPrefix(sourcePort, sourceChannel)
-		for _, coin := range amount {
-			if !strings.HasPrefix(coin.Denom, prefix) {
-				return sdk.ErrInvalidCoins(fmt.Sprintf("%s doesn't contain the prefix '%s'", coin.Denom, prefix))
-			}
-		}
+		// prefix := types.GetDenomPrefix(sourcePort, sourceChannel)
+		// for _, coin := range amount {
+		// 	if !strings.HasPrefix(coin.Denom, prefix) {
+		// 		return sdk.ErrInvalidCoins(fmt.Sprintf("%s doesn't contain the prefix '%s'", coin.Denom, prefix))
+		// 	}
+		// }
 
 		// transfer the coins to the module account and burn them
 		err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, sender, types.GetModuleAccountName(), amount)

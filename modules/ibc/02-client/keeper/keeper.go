@@ -5,14 +5,13 @@ import (
 
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	commitErrors "github.com/commitHub/commitBlockchain/types/errors"
 	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
 	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/types"
 	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
 	ibctypes "github.com/commitHub/commitBlockchain/modules/ibc/types"
+	commitErrors "github.com/commitHub/commitBlockchain/types/errors"
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Keeper represents a type that grants read and write permissions to any client
@@ -37,12 +36,13 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, codespace sdk.CodespaceType) 
 
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s/%s", ibctypes.ModuleName, types.SubModuleName))
+	return ctx.Logger().With("module", fmt.Sprintf("%s/%s", ibctypes.ModuleName, types.SubModuleName))
 }
 
 // GetClientState gets a particular client from the store
 func (k Keeper) GetClientState(ctx sdk.Context, clientID string) (types.State, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), k.prefix)
+	// store := prefix.NewStore(ctx.KVStore(k.storeKey), k.prefix)
+	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.KeyClientState(clientID))
 	if bz == nil {
 		return types.State{}, false
@@ -55,14 +55,16 @@ func (k Keeper) GetClientState(ctx sdk.Context, clientID string) (types.State, b
 
 // SetClientState sets a particular Client to the store
 func (k Keeper) SetClientState(ctx sdk.Context, clientState types.State) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), k.prefix)
+	// store := prefix.NewStore(ctx.KVStore(k.storeKey), k.prefix)
+	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshalBinaryLengthPrefixed(clientState)
 	store.Set(types.KeyClientState(clientState.ID()), bz)
 }
 
 // GetClientType gets the consensus type for a specific client
 func (k Keeper) GetClientType(ctx sdk.Context, clientID string) (exported.ClientType, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), k.prefix)
+	// store := prefix.NewStore(ctx.KVStore(k.storeKey), k.prefix)
+	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.KeyClientType(clientID))
 	if bz == nil {
 		return 0, false
@@ -73,13 +75,15 @@ func (k Keeper) GetClientType(ctx sdk.Context, clientID string) (exported.Client
 
 // SetClientType sets the specific client consensus type to the provable store
 func (k Keeper) SetClientType(ctx sdk.Context, clientID string, clientType exported.ClientType) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), k.prefix)
+	// store := prefix.NewStore(ctx.KVStore(k.storeKey), k.prefix)
+	store := ctx.KVStore(k.storeKey)
 	store.Set(types.KeyClientType(clientID), []byte{byte(clientType)})
 }
 
 // GetConsensusState creates a new client state and populates it with a given consensus state
 func (k Keeper) GetConsensusState(ctx sdk.Context, clientID string) (exported.ConsensusState, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), k.prefix)
+	// store := prefix.NewStore(ctx.KVStore(k.storeKey), k.prefix)
+	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.KeyConsensusState(clientID))
 	if bz == nil {
 		return nil, false
@@ -92,7 +96,8 @@ func (k Keeper) GetConsensusState(ctx sdk.Context, clientID string) (exported.Co
 
 // SetConsensusState sets a ConsensusState to a particular client
 func (k Keeper) SetConsensusState(ctx sdk.Context, clientID string, consensusState exported.ConsensusState) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), k.prefix)
+	// store := prefix.NewStore(ctx.KVStore(k.storeKey), k.prefix)
+	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshalBinaryLengthPrefixed(consensusState)
 	store.Set(types.KeyConsensusState(clientID), bz)
 }
@@ -100,8 +105,8 @@ func (k Keeper) SetConsensusState(ctx sdk.Context, clientID string, consensusSta
 // GetVerifiedRoot gets a verified commitment Root from a particular height to
 // a client
 func (k Keeper) GetVerifiedRoot(ctx sdk.Context, clientID string, height uint64) (commitment.RootI, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), k.prefix)
-
+	// store := prefix.NewStore(ctx.KVStore(k.storeKey), k.prefix)
+	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.KeyRoot(clientID, height))
 	if bz == nil {
 		return nil, false
@@ -115,7 +120,8 @@ func (k Keeper) GetVerifiedRoot(ctx sdk.Context, clientID string, height uint64)
 // SetVerifiedRoot sets a verified commitment Root from a particular height to
 // a client
 func (k Keeper) SetVerifiedRoot(ctx sdk.Context, clientID string, height uint64, root commitment.RootI) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), k.prefix)
+	// store := prefix.NewStore(ctx.KVStore(k.storeKey), k.prefix)
+	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshalBinaryLengthPrefixed(root)
 	store.Set(types.KeyRoot(clientID, height), bz)
 }

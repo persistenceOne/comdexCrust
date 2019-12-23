@@ -50,14 +50,14 @@ const (
 
 var (
 	// functions aliases
-	NewKeeper                     = keeper.NewKeeper
-	QuerierChannel                = keeper.QuerierChannel
-	NewChannel                    = types.NewChannel
-	NewCounterparty               = types.NewCounterparty
-	OrderFromString               = types.OrderFromString
-	StateFromString               = types.StateFromString
-	RegisterCodec                 = types.RegisterCodec
-	SetMsgChanCodec               = types.SetMsgChanCodec
+	NewKeeper       = keeper.NewKeeper
+	QuerierChannel  = keeper.QuerierChannel
+	NewChannel      = types.NewChannel
+	NewCounterparty = types.NewCounterparty
+	OrderFromString = types.OrderFromString
+	StateFromString = types.StateFromString
+	RegisterCodec   = types.RegisterCodec
+	// SetMsgChanCodec               = ypes.SetMsgChanCodec
 	ErrChannelExists              = types.ErrChannelExists
 	ErrChannelNotFound            = types.ErrChannelNotFound
 	ErrInvalidCounterpartyChannel = types.ErrInvalidCounterpartyChannel

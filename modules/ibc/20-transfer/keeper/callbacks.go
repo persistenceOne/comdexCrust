@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	channeltypes "github.com/commitHub/commitBlockchain/modules/ibc/04-channel/types"
 	"github.com/commitHub/commitBlockchain/modules/ibc/20-transfer/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // nolint: unused
@@ -153,20 +153,21 @@ func (k Keeper) onTimeoutPacket(
 		return types.ErrInvalidPacketData(k.codespace)
 	}
 
-	// check the denom prefix
-	prefix := types.GetDenomPrefix(packet.GetSourcePort(), packet.GetSourcePort())
-	coins := make(sdk.Coins, len(data.Amount))
-	for i, coin := range data.Amount {
-		coin := coin
-		if !strings.HasPrefix(coin.Denom, prefix) {
-			return sdk.ErrInvalidCoins(fmt.Sprintf("%s doesn't contain the prefix '%s'", coin.Denom, prefix))
-		}
-		coins[i] = sdk.NewCoin(coin.Denom[len(prefix):], coin.Amount)
-	}
+	// // check the denom prefix
+	// prefix := types.GetDenomPrefix(packet.GetSourcePort(), packet.GetSourcePort())
+	// coins := make(sdk.Coins, len(data.Amount))
+	// for i, coin := range data.Amount {
+	// 	coin := coin
+	// 	if !strings.HasPrefix(coin.Denom, prefix) {
+	// 		return sdk.ErrInvalidCoins(fmt.Sprintf("%s doesn't contain the prefix '%s'", coin.Denom, prefix))
+	// 	}
+	// 	coins[i] = sdk.NewCoin(coin.Denom[len(prefix):], coin.Amount)
+	// }
 
 	if data.Source {
 		escrowAddress := types.GetEscrowAddress(packet.GetDestPort(), packet.GetDestChannel())
-		return k.bankKeeper.SendCoins(ctx, escrowAddress, data.Sender, coins)
+		// return k.bankKeeper.SendCoins(ctx, escrowAddress, data.Sender, coins)
+		return k.bankKeeper.SendCoins(ctx, escrowAddress, data.Sender, data.Amount)
 	}
 
 	// mint from supply

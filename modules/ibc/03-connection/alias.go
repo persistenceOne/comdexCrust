@@ -43,11 +43,11 @@ const (
 
 var (
 	// functions aliases
-	NewKeeper                        = keeper.NewKeeper
-	QuerierConnection                = keeper.QuerierConnection
-	QuerierClientConnections         = keeper.QuerierClientConnections
-	RegisterCodec                    = types.RegisterCodec
-	SetMsgConnectionCodec            = types.SetMsgConnectionCodec
+	NewKeeper                = keeper.NewKeeper
+	QuerierConnection        = keeper.QuerierConnection
+	QuerierClientConnections = keeper.QuerierClientConnections
+	RegisterCodec            = types.RegisterCodec
+	// SetMsgConnectionCodec            = types.SetMsgConnectionCodec
 	NewConnectionEnd                 = types.NewConnectionEnd
 	NewCounterparty                  = types.NewCounterparty
 	StateFromString                  = types.StateFromString
