@@ -10,6 +10,7 @@ const (
 	RouterKey        = types.RouterKey
 	QuerierRoute     = types.QuerierRoute
 	DefaultCodeSpace = types.DefaultCodeSpace
+	StoreKey         = types.StoreKey
 )
 
 var (
@@ -25,6 +26,15 @@ var (
 	EventTypeAssetFactoryRedeemAsset  = types.EventTypeAssetFactoryRedeemAsset
 	EventTypeAssetFactorySendAsset    = types.EventTypeAssetFactorySendAsset
 	EventTypeAssetFactoryExecuteAsset = types.EventTypeAssetFactoryExecuteAsset
+
+	NewIssueAsset             = types.NewIssueAsset
+	NewMsgFactoryIssueAssets  = types.NewMsgFactoryIssueAssets
+	NewRedeemAsset            = types.NewRedeemAsset
+	NewMsgFactoryRedeemAssets = types.NewMsgFactoryRedeemAssets
+	NewSendAsset              = types.NewSendAsset
+	NewMsgFactorySendAssets   = types.NewMsgFactorySendAssets
+
+	NewQuerier = keeper.NewQuerier
 )
 
 type (
@@ -37,5 +47,7 @@ type (
 	MsgFactorySendAssets    = types.MsgFactorySendAssets
 	MsgFactoryExecuteAssets = types.MsgFactoryExecuteAssets
 
-	IssueAsset = types.IssueAsset
+	IssueAsset  = types.IssueAsset
+	RedeemAsset = types.RedeemAsset
+	SendAsset   = types.SendAsset
 )

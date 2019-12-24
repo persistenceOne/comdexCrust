@@ -49,14 +49,16 @@ var (
 )
 
 type (
-	Keeper           = keeper.Keeper
-	BankKeeper       = types.BankKeeper
-	ChannelKeeper    = types.ChannelKeeper
-	ClientKeeper     = types.ClientKeeper
-	ConnectionKeeper = types.ConnectionKeeper
-	SupplyKeeper     = types.SupplyKeeper
-	MsgTransfer      = types.MsgTransfer
-	MsgRecvPacket    = types.MsgRecvPacket
-	PacketData       = types.PacketData
-	PacketDataAlias  = types.PacketDataAlias
+	Keeper                     = keeper.Keeper
+	BankKeeper                 = types.BankKeeper
+	ChannelKeeper              = types.ChannelKeeper
+	ClientKeeper               = types.ClientKeeper
+	ConnectionKeeper           = types.ConnectionKeeper
+	SupplyKeeper               = types.SupplyKeeper
+	MsgTransfer                = types.MsgTransfer
+	MsgRecvPacket              = types.MsgRecvPacket
+	MsgIssueAssetTransfer      = types.MsgIssueAssetTransfer
+	MsgReceiveIssueAssetPacket = types.MsgReceiveIssueAssetPacket
+	PacketData                 = types.PacketData
+	PacketDataAlias            = types.PacketDataAlias
 )

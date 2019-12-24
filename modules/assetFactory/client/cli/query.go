@@ -13,7 +13,7 @@ import (
 
 func QueryAssetCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "[pegHash]",
+		Use:   "pegHash [pegHash]",
 		Short: "Query asset transaction details",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -26,7 +26,7 @@ func QueryAssetCmd() *cobra.Command {
 				return err
 			}
 
-			res, _, err := ctx.QueryWithData(fmt.Sprintf("custom/%s/%s", assetFactoryTypes.QuerierRoute,
+			res, _, err := ctx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", assetFactoryTypes.QuerierRoute, "queryAsset",
 				assetFactoryTypes.PegHashKey), pegHashHex)
 			if err != nil {
 				return err

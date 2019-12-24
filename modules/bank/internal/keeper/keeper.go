@@ -152,7 +152,7 @@ type SendKeeper interface {
 	GetSendEnabled(ctx cTypes.Context) bool
 	SetSendEnabled(ctx cTypes.Context, enabled bool)
 
-	IssueAssetsToWallets(ctx cTypes.Context, issueAsset bankTypes.IssueAsset) cTypes.Error
+	IssueAssetsToWallets(ctx cTypes.Context, issueAsset bankTypes.IssueAsset) (types.AssetPeg, cTypes.Error)
 	IssueFiatsToWallets(ctx cTypes.Context, issueFiat bankTypes.IssueFiat) cTypes.Error
 
 	RedeemAssetsFromWallets(ctx cTypes.Context, redeemAsset bankTypes.RedeemAsset) cTypes.Error
@@ -460,7 +460,7 @@ func setFiatWallet(ctx cTypes.Context, keeper BaseSendKeeper, addr cTypes.AccAdd
 }
 
 // IssueAssetsToWallets handles a list of IssueAsset messages
-func (keeper BaseSendKeeper) IssueAssetsToWallets(ctx cTypes.Context, issueAsset bankTypes.IssueAsset) cTypes.Error {
+func (keeper BaseSendKeeper) IssueAssetsToWallets(ctx cTypes.Context, issueAsset bankTypes.IssueAsset) (types.AssetPeg, cTypes.Error) {
 	var _acl acl.ACL
 	var err cTypes.Error
 
@@ -468,28 +468,28 @@ func (keeper BaseSendKeeper) IssueAssetsToWallets(ctx cTypes.Context, issueAsset
 	if moderated {
 		_acl, err = keeper.aclKeeper.CheckZoneAndGetACL(ctx, issueAsset.IssuerAddress, issueAsset.ToAddress)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	} else {
 		aclAccount, err := keeper.aclKeeper.GetAccountACLDetails(ctx, issueAsset.IssuerAddress)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		_acl = aclAccount.GetACL()
 	}
 	if !_acl.IssueAsset {
-		return cTypes.ErrInternal(fmt.Sprintf("Assets cant be issued to account %v.", issueAsset.ToAddress.String()))
+		return nil, cTypes.ErrInternal(fmt.Sprintf("Assets cant be issued to account %v.", issueAsset.ToAddress.String()))
 	}
-	err = instantiateAndAssignAsset(ctx, issueAsset.IssuerAddress, issueAsset.ToAddress, issueAsset.AssetPeg, keeper)
+	issuedAssetPeg, err := instantiateAndAssignAsset(ctx, issueAsset.IssuerAddress, issueAsset.ToAddress, issueAsset.AssetPeg, keeper)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
-	return nil
+	return issuedAssetPeg, nil
 
 }
 
-func instantiateAndAssignAsset(ctx cTypes.Context, issuerAddress cTypes.AccAddress, toAddress cTypes.AccAddress, assetPeg types.AssetPeg, keeper BaseSendKeeper) cTypes.Error {
+func instantiateAndAssignAsset(ctx cTypes.Context, issuerAddress cTypes.AccAddress, toAddress cTypes.AccAddress, assetPeg types.AssetPeg, keeper BaseSendKeeper) (types.AssetPeg, cTypes.Error) {
 	pegHash, _ := types.GetAssetPegHashHex(fmt.Sprintf("%x", strconv.Itoa(keeper.ak.GetNextAssetPegHash(ctx))))
 	_ = assetPeg.SetPegHash(pegHash)
 	_ = assetPeg.SetLocked(assetPeg.GetModerated())
@@ -504,7 +504,7 @@ func instantiateAndAssignAsset(ctx cTypes.Context, issuerAddress cTypes.AccAddre
 			cTypes.NewAttribute("issuer", issuerAddress.String()),
 			cTypes.NewAttribute("asset", assetPeg.GetPegHash().String()),
 		))
-	return nil
+	return assetPeg, nil
 }
 
 func (keeper BaseSendKeeper) IssueFiatsToWallets(ctx cTypes.Context, issueFiat bankTypes.IssueFiat) cTypes.Error {

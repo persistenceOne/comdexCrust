@@ -32,7 +32,7 @@ func (AppModuleBasic) Name() string { return ModuleName }
 func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) { RegisterCodec(cdc) }
 
 func (AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return ModuleCdc.MustMarshalJSON(DefaultGenesisState)
+	return ModuleCdc.MustMarshalJSON(DefaultGenesisState())
 }
 
 func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
@@ -87,7 +87,7 @@ type AppModule struct {
 	accountKeeper types.AccountKeeper
 }
 
-func NewModule(keeper Keeper, accountKeeper types.AccountKeeper) AppModule {
+func NewAppModule(keeper Keeper, accountKeeper types.AccountKeeper) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         keeper,
@@ -107,7 +107,7 @@ func (am AppModule) NewHandler() cTypes.Handler { return NewHandler(am.keeper) }
 
 func (AppModule) QuerierRoute() string { return QuerierRoute }
 
-func (AppModule) NewQuerierHandler() cTypes.Querier { return nil }
+func (am AppModule) NewQuerierHandler() cTypes.Querier { return NewQuerier(am.keeper) }
 
 func (am AppModule) InitGenesis(ctx cTypes.Context, data json.RawMessage) []abciTypes.ValidatorUpdate {
 	return []abciTypes.ValidatorUpdate{}

@@ -16,7 +16,7 @@ import (
 
 func GetAssetCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "[pegHash] [nodeURI]",
+		Use:   "pegHash [pegHash]",
 		Short: "Query asset from main chain",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

@@ -5,11 +5,13 @@ import (
 
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/commitHub/commitBlockchain/modules/acl"
+	"github.com/commitHub/commitBlockchain/modules/assetFactory"
 	"github.com/commitHub/commitBlockchain/modules/ibc/20-transfer/types"
 	ibctypes "github.com/commitHub/commitBlockchain/modules/ibc/types"
 	supplyexported "github.com/commitHub/commitBlockchain/modules/supply/exported"
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // DefaultPacketTimeout is the default packet timeout relative to the current block height
@@ -29,6 +31,8 @@ type Keeper struct {
 	channelKeeper    types.ChannelKeeper
 	bankKeeper       types.BankKeeper
 	supplyKeeper     types.SupplyKeeper
+	assetKeeper      assetFactory.Keeper
+	aclKeeper        acl.Keeper
 }
 
 // NewKeeper creates a new IBC transfer Keeper instance
@@ -36,7 +40,7 @@ func NewKeeper(
 	cdc *codec.Codec, key sdk.StoreKey, codespace sdk.CodespaceType,
 	clientKeeper types.ClientKeeper, connnectionKeeper types.ConnectionKeeper,
 	channelKeeper types.ChannelKeeper, bankKeeper types.BankKeeper,
-	supplyKeeper types.SupplyKeeper,
+	supplyKeeper types.SupplyKeeper, assetKeeper assetFactory.Keeper, aclKeeper acl.Keeper,
 ) Keeper {
 
 	// ensure ibc transfer module account is set
@@ -54,6 +58,8 @@ func NewKeeper(
 		channelKeeper:    channelKeeper,
 		bankKeeper:       bankKeeper,
 		supplyKeeper:     supplyKeeper,
+		assetKeeper:      assetKeeper,
+		aclKeeper:        aclKeeper,
 	}
 }
 

@@ -30,6 +30,7 @@ var (
 	NewInput               = types.NewInput
 	NewOutput              = types.NewOutput
 	ParamKeyTable          = types.ParamKeyTable
+	NewIssueAsset          = types.NewIssueAsset
 
 	// variable aliases
 	ModuleCdc                = types.ModuleCdc
@@ -44,4 +45,5 @@ type (
 	Input              = types.Input
 	Output             = types.Output
 	MsgBankIssueAssets = types.MsgBankIssueAssets
+	IssueAsset         = types.IssueAsset
 )

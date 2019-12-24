@@ -1,19 +1,21 @@
 package types
 
 import (
+	"github.com/commitHub/commitBlockchain/modules/bank"
 	clientexported "github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
 	connection "github.com/commitHub/commitBlockchain/modules/ibc/03-connection"
 	channel "github.com/commitHub/commitBlockchain/modules/ibc/04-channel"
 	channelexported "github.com/commitHub/commitBlockchain/modules/ibc/04-channel/exported"
 	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
 	supplyexported "github.com/commitHub/commitBlockchain/modules/supply/exported"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	commitTypes "github.com/commitHub/commitBlockchain/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // BankKeeper defines the expected bank keeper
 type BankKeeper interface {
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) sdk.Error
+	IssueAssetsToWallets(ctx sdk.Context, issueAsset bank.IssueAsset) (commitTypes.AssetPeg, sdk.Error)
 }
 
 // ChannelKeeper defines the expected IBC channel keeper

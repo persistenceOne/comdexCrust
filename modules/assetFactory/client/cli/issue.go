@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
@@ -15,18 +17,21 @@ import (
 
 func IssueAssetCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "issue",
+		Use:   "issue [from_key_or_address]",
 		Short: "Initializes asset with the given details and issues to the given address",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContextWithFrom(args[0]).WithCodec(cdc)
 
 			toStr := viper.GetString(FlagTo)
 			to, err := cTypes.AccAddressFromBech32(toStr)
 			if err != nil {
 				return nil
 			}
+
+			fmt.Println("\n \n \n \n " + toStr)
 
 			documentHashStr := viper.GetString(FlagDocumentHash)
 			assetTypeStr := viper.GetString(FlagAssetType)
@@ -46,6 +51,8 @@ func IssueAssetCmd(cdc *codec.Codec) *cobra.Command {
 			}
 
 			msg := assetFactoryTypes.BuildIssueAssetMsg(cliCtx.GetFromAddress(), to, assetPeg)
+
+			fmt.Println("\n \n \n \n ", msg, "\n \n \n \n")
 
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []cTypes.Msg{msg})
 		},

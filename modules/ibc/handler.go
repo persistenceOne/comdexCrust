@@ -3,11 +3,11 @@ package ibc
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	client "github.com/commitHub/commitBlockchain/modules/ibc/02-client"
 	connection "github.com/commitHub/commitBlockchain/modules/ibc/03-connection"
 	channel "github.com/commitHub/commitBlockchain/modules/ibc/04-channel"
 	transfer "github.com/commitHub/commitBlockchain/modules/ibc/20-transfer"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // NewHandler defines the IBC handler
@@ -64,6 +64,12 @@ func NewHandler(k Keeper) sdk.Handler {
 
 		case transfer.MsgRecvPacket:
 			return transfer.HandleMsgRecvPacket(ctx, k.TransferKeeper, msg)
+
+		case transfer.MsgIssueAssetTransfer:
+			return transfer.HandleMsgIssueAssetTransfer(ctx, k.TransferKeeper, msg)
+
+		case transfer.MsgReceiveIssueAssetPacket:
+			return transfer.HandleMsgReceiveIssueAssetPacket(ctx, k.TransferKeeper, msg)
 
 		default:
 			errMsg := fmt.Sprintf("unrecognized IBC message type: %T", msg)

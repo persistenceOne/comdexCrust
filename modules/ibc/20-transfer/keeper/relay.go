@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"github.com/commitHub/commitBlockchain/modules/assetFactory"
+	"github.com/commitHub/commitBlockchain/modules/bank"
 	channelexported "github.com/commitHub/commitBlockchain/modules/ibc/04-channel/exported"
 	channeltypes "github.com/commitHub/commitBlockchain/modules/ibc/04-channel/types"
 	"github.com/commitHub/commitBlockchain/modules/ibc/20-transfer/types"
@@ -189,4 +191,100 @@ func (k Keeper) createOutgoingPacket(
 	key := sdk.NewKVStoreKey(types.BoundPortID)
 
 	return k.channelKeeper.SendPacket(ctx, packet, key)
+}
+
+func (k Keeper) IssueAssetTransfer(
+	ctx sdk.Context,
+	sourcePort,
+	sourceChannel string,
+	issueAsset bank.IssueAsset,
+) error {
+	// get the port and channel of the counterparty
+	channel, found := k.channelKeeper.GetChannel(ctx, sourcePort, sourceChannel)
+	if !found {
+		return channeltypes.ErrChannelNotFound(k.codespace, sourcePort, sourceChannel)
+	}
+
+	destinationPort := channel.Counterparty.PortID
+	destinationChannel := channel.Counterparty.ChannelID
+
+	// get the next sequence
+	sequence, found := k.channelKeeper.GetNextSequenceSend(ctx, sourcePort, sourceChannel)
+	if !found {
+		return channeltypes.ErrSequenceNotFound(k.codespace, "issueAsset")
+	}
+
+	if !issueAsset.AssetPeg.GetModerated() {
+		return sdk.ErrInternal("Cannot do unmoderated issue asset.")
+	}
+
+	return k.createIssueAssetOutgoingPacket(ctx, sequence, sourcePort, sourceChannel, destinationPort, destinationChannel, issueAsset)
+}
+
+func (k Keeper) createIssueAssetOutgoingPacket(
+	ctx sdk.Context,
+	seq uint64,
+	sourcePort,
+	sourceChannel,
+	destinationPort,
+	destinationChannel string,
+	issueAsset bank.IssueAsset,
+) error {
+
+	issuedAssetPeg, err := k.bankKeeper.IssueAssetsToWallets(ctx, issueAsset)
+	if err != nil {
+		return err
+	}
+	issueAsset.AssetPeg.SetPegHash(issuedAssetPeg.GetPegHash())
+	issueAssetPacketData := types.IssueAssetPacketData{
+		IssueAsset: types.NewIssueAsset(issueAsset),
+	}
+
+	// TODO: This should be binary-marshaled and hashed (for the commitment in the store).
+	issueAssetPacketDataBz, err2 := issueAssetPacketData.MarshalJSON()
+	if err2 != nil {
+		return sdk.NewError(sdk.CodespaceType(types.DefaultCodespace), types.CodeInvalidPacketData, "invalid issue asset packet data")
+	}
+
+	packet := channeltypes.NewPacket(
+		seq,
+		uint64(ctx.BlockHeight())+DefaultPacketTimeout,
+		sourcePort,
+		sourceChannel,
+		destinationPort,
+		destinationChannel,
+		issueAssetPacketDataBz,
+	)
+
+	// TODO: Remove this, capability keys are never generated when sending packets. Not sure why this is here.
+	key := sdk.NewKVStoreKey(types.BoundPortID)
+
+	return k.channelKeeper.SendPacket(ctx, packet, key)
+}
+
+func (k Keeper) ReceiveIssueAssetPacket(ctx sdk.Context, packet channelexported.PacketI, proof commitment.ProofI, height uint64) error {
+	_, err := k.channelKeeper.RecvPacket(ctx, packet, proof, height, nil, k.storeKey)
+	if err != nil {
+		return err
+	}
+
+	var data types.IssueAssetPacketData
+	err = data.UnmarshalJSON(packet.GetData())
+	if err != nil {
+		return sdk.NewError(types.DefaultCodespace, types.CodeInvalidPacketData, "invalid packet data!!")
+	}
+
+	return k.ReceiveIssueAssetTransfer(ctx, packet.GetSourcePort(), packet.GetSourceChannel(), packet.GetDestPort(), packet.GetDestChannel(), data)
+}
+
+func (k Keeper) ReceiveIssueAssetTransfer(
+	ctx sdk.Context,
+	sourcePort,
+	sourceChannel,
+	destinationPort,
+	destinationChannel string,
+	data types.IssueAssetPacketData,
+) error {
+	issueAsset := assetFactory.NewIssueAsset(data.IssueAsset.IssuerAddress, data.IssueAsset.ToAddress, &data.IssueAsset.AssetPeg)
+	return k.assetKeeper.InstantiateAndAssignAsset(ctx, issueAsset)
 }

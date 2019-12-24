@@ -20,7 +20,7 @@ func NewQuerier(k Keeper) cTypes.Querier {
 		case QueryAsset:
 			return queryAsset(ctx, path[1:], k)
 		default:
-			return nil, cTypes.ErrUnknownRequest("unknown assetFactory query endpoint")
+			return nil, cTypes.ErrUnknownRequest("unknown assetFactory query endpoint!!")
 		}
 	}
 }
