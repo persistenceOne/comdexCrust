@@ -23,7 +23,7 @@ func IssueAssetCmd(cdc *codec.Codec) *cobra.Command {
 
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-
+			var err error
 			moderated := viper.GetBool(FlagModerated)
 			var to cTypes.AccAddress
 			toStr := viper.GetString(FlagTo)
@@ -34,7 +34,7 @@ func IssueAssetCmd(cdc *codec.Codec) *cobra.Command {
 			if toStr == "" {
 				to = cliCtx.GetFromAddress()
 			} else {
-				to, err := cTypes.AccAddressFromBech32(viper.GetString(FlagTo))
+				to, err = cTypes.AccAddressFromBech32(toStr)
 				if err != nil {
 					return err
 				}

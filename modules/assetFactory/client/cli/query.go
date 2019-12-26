@@ -26,8 +26,7 @@ func QueryAssetCmd() *cobra.Command {
 				return err
 			}
 
-			res, _, err := ctx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", assetFactoryTypes.QuerierRoute, "queryAsset",
-				assetFactoryTypes.PegHashKey), pegHashHex)
+			res, _, err := ctx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", assetFactoryTypes.QuerierRoute, "queryAsset", pegHashHex), nil)
 			if err != nil {
 				return err
 			}
@@ -36,8 +35,7 @@ func QueryAssetCmd() *cobra.Command {
 				return cTypes.ErrUnknownAddress("No asset with pegHash " + pegHash +
 					" was found in the state.\nAre you sure there has been a transaction involving it?")
 			}
-
-			fmt.Println(res)
+			fmt.Println(string(res))
 			return nil
 		},
 	}

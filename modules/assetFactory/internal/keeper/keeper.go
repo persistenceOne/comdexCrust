@@ -63,6 +63,16 @@ func (k Keeper) IterateAssets(ctx cTypes.Context, handler func(assetPeg types.As
 	}
 }
 
+func (k Keeper) GetAssetPegs(ctx cTypes.Context) (assetPegs []types.AssetPeg) {
+	k.IterateAssets(ctx, func(assetPeg types.AssetPeg) (stop bool) {
+		assetPegs = append(assetPegs, assetPeg)
+		return false
+	},
+	)
+
+	return assetPegs
+}
+
 func (k Keeper) InstantiateAndAssignAsset(ctx cTypes.Context, issueAsset assetFactoryTypes.IssueAsset) cTypes.Error {
 
 	// asset, err := k.GetAssetPeg(ctx, issueAsset.AssetPeg.GetPegHash())

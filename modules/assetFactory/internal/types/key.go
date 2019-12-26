@@ -12,8 +12,7 @@ const (
 )
 
 var (
-	PegHashKey      = []byte{0x01}
-	AssetPegHashKey = []byte("assetPegHash")
+	PegHashKey = []byte{0x01}
 )
 
 // AssetPegHashStoreKey : converts peg hash to keystore key

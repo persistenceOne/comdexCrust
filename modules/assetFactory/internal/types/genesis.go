@@ -1,6 +1,11 @@
 package types
 
+import (
+	"github.com/commitHub/commitBlockchain/types"
+)
+
 type GenesisState struct {
+	AssetPegs []types.AssetPeg `json:"assetPegs"`
 }
 
 func DefaultGenesisState() GenesisState {
