@@ -7,14 +7,15 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
+	"github.com/commitHub/commitBlockchain/modules/fiatFactory/internal/keeper"
 	fiatFactoryTypes "github.com/commitHub/commitBlockchain/modules/fiatFactory/internal/types"
 	"github.com/commitHub/commitBlockchain/types"
 )
 
 func QueryFiatCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "[pegHash]",
-		Short: "Query fiat transaction details",
+		Use:   "pegHash [pegHash]",
+		Short: "Query fiat peg",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
@@ -26,8 +27,7 @@ func QueryFiatCmd() *cobra.Command {
 				return err
 			}
 
-			res, _, err := ctx.QueryWithData(fmt.Sprintf("custom/%s/%s", fiatFactoryTypes.QuerierRoute,
-				fiatFactoryTypes.PegHashKey), pegHashHex)
+			res, _, err := ctx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", fiatFactoryTypes.QuerierRoute, keeper.QueryFiat, fiatFactoryTypes.PegHashKey), pegHashHex)
 			if err != nil {
 				return err
 			}
@@ -36,7 +36,6 @@ func QueryFiatCmd() *cobra.Command {
 				return cTypes.ErrUnknownAddress("No fiat with pegHash " + pegHash +
 					" was found in the state.\nAre you sure there has been a transaction involving it?")
 			}
-
 			fmt.Println(res)
 			return nil
 		},

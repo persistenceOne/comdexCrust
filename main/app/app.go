@@ -21,6 +21,7 @@ import (
 	"github.com/commitHub/commitBlockchain/modules/crisis"
 	distr "github.com/commitHub/commitBlockchain/modules/distribution"
 	distrClient "github.com/commitHub/commitBlockchain/modules/distribution/client"
+	"github.com/commitHub/commitBlockchain/modules/fiatFactory"
 	"github.com/commitHub/commitBlockchain/modules/genaccounts"
 	"github.com/commitHub/commitBlockchain/modules/genutil"
 	"github.com/commitHub/commitBlockchain/modules/gov"
@@ -67,6 +68,7 @@ var (
 		orders.AppModuleBasic{},
 		ibc.AppModuleBasic{},
 		assetFactory.AppModuleBasic{},
+		fiatFactory.AppModuleBasic{},
 	)
 
 	maccPerms = map[string][]string{
@@ -111,6 +113,7 @@ type MainApp struct {
 
 	keyIBC   *cTypes.KVStoreKey
 	keyAsset *cTypes.KVStoreKey
+	keyFiat  *cTypes.KVStoreKey
 
 	tkeyStaking      *cTypes.TransientStoreKey
 	tkeyDistribution *cTypes.TransientStoreKey
@@ -134,6 +137,7 @@ type MainApp struct {
 
 	ibcKeeper   ibc.Keeper
 	assetKeeper assetFactory.Keeper
+	fiatKeeper  fiatFactory.Keeper
 
 	mm *module.Manager
 }
@@ -173,6 +177,7 @@ func NewMainApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 
 		keyIBC:   cTypes.NewKVStoreKey(ibc.StoreKey),
 		keyAsset: cTypes.NewKVStoreKey(assetFactory.StoreKey),
+		keyFiat:  cTypes.NewKVStoreKey(fiatFactory.StoreKey),
 	}
 
 	app.paramsKeeper = params.NewKeeper(app.cdc, app.keyParams, app.tkeyParams, params.DefaultCodespace)
@@ -205,7 +210,10 @@ func NewMainApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	app.crisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.supplyKeeper, auth.FeeCollectorName)
 
 	app.assetKeeper = assetFactory.NewKeeper(app.cdc, app.keyAsset, app.accountKeeper)
+	app.fiatKeeper = fiatFactory.NewKeeper(app.cdc, app.keyFiat, app.accountKeeper)
+
 	app.ibcKeeper = ibc.NewKeeper(app.cdc, app.keyIBC, ibc.DefaultCodespace, app.bankKeeper, app.supplyKeeper, app.assetKeeper, app.aclKeeper)
+
 	govRouter := gov.NewRouter()
 	govRouter.AddRoute(gov.RouterKey, gov.ProposalHandler).
 		AddRoute(params.RouterKey, params.NewParamChangeProposalHandler(app.paramsKeeper)).
@@ -236,6 +244,7 @@ func NewMainApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 
 		ibc.NewAppModule(app.ibcKeeper),
 		assetFactory.NewAppModule(app.assetKeeper, app.accountKeeper),
+		fiatFactory.NewAppModule(app.fiatKeeper, app.accountKeeper),
 	)
 
 	app.mm.SetOrderBeginBlockers(mint.ModuleName, distr.ModuleName, slashing.ModuleName)
@@ -244,14 +253,14 @@ func NewMainApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	app.mm.SetOrderInitGenesis(genaccounts.ModuleName, distr.ModuleName,
 		staking.ModuleName, auth.ModuleName, bank.ModuleName, slashing.ModuleName,
 		gov.ModuleName, mint.ModuleName, supply.ModuleName, crisis.ModuleName, genutil.ModuleName,
-		acl.ModuleName, orders.ModuleName, negotiation.ModuleName, reputation.ModuleName, ibc.ModuleName, assetFactory.ModuleName)
+		acl.ModuleName, orders.ModuleName, negotiation.ModuleName, reputation.ModuleName, ibc.ModuleName, assetFactory.ModuleName, fiatFactory.ModuleName)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())
 
 	app.MountStores(app.keyMain, app.keyAccount, app.keySupply, app.keyStaking,
 		app.keyMint, app.keyDistribution, app.keySlashing, app.keyGov, app.keyParams,
-		app.tkeyParams, app.tkeyStaking, app.tkeyDistribution, app.keyACL, app.keyOrder, app.keyNegotiation, app.keyReputation, app.keyIBC, app.keyAsset)
+		app.tkeyParams, app.tkeyStaking, app.tkeyDistribution, app.keyACL, app.keyOrder, app.keyNegotiation, app.keyReputation, app.keyIBC, app.keyAsset, app.keyFiat)
 
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)

@@ -28,7 +28,7 @@ func NewHandler(keeper Keeper) cTypes.Handler {
 func handleMsgFactoryIssueFiat(ctx cTypes.Context, keeper Keeper, msg MsgFactoryIssueFiats) cTypes.Result {
 
 	for _, issueFiat := range msg.IssueFiats {
-		err := instantiateAndAssignFiat(ctx, keeper, issueFiat.IssuerAddress, issueFiat.ToAddress, issueFiat.FiatPeg)
+		err := keeper.InstantiateAndAssignFiat(ctx, issueFiat.IssuerAddress, issueFiat.ToAddress, issueFiat.FiatPeg)
 		if err != nil {
 			return err.Result()
 		}
@@ -41,7 +41,7 @@ func handleMsgFactoryIssueFiat(ctx cTypes.Context, keeper Keeper, msg MsgFactory
 
 func handleMsgFactoryRedeemFiat(ctx cTypes.Context, keeper Keeper, msg MsgFactoryRedeemFiats) cTypes.Result {
 	for _, redeemFiat := range msg.RedeemFiats {
-		err := instantiateAndRedeemFiat(ctx, keeper, redeemFiat.RelayerAddress, redeemFiat.FiatPegWallet)
+		err := keeper.InstantiateAndRedeemFiat(ctx, redeemFiat.RelayerAddress, redeemFiat.FiatPegWallet)
 
 		if err != nil {
 			return err.Result()
@@ -58,7 +58,7 @@ func handleMsgFactorySendFiat(ctx cTypes.Context, keeper Keeper, msg MsgFactoryS
 	ctx.EventManager().EmitEvents(events)
 
 	for _, sendFiat := range msg.SendFiats {
-		err := sendFiatToOrder(ctx, keeper, sendFiat.FromAddress, sendFiat.ToAddress,
+		err := keeper.SendFiatToOrder(ctx, sendFiat.FromAddress, sendFiat.ToAddress,
 			sendFiat.PegHash, sendFiat.FiatPegWallet)
 		if err != nil {
 			return err.Result()
@@ -75,7 +75,7 @@ func handleMsgFactoryExecuteFiat(ctx cTypes.Context, keeper Keeper, msg MsgFacto
 	ctx.EventManager().EmitEvents(events)
 
 	for _, executeFiat := range msg.SendFiats {
-		err := sendFiatFromOrder(ctx, keeper, executeFiat.FromAddress, executeFiat.ToAddress,
+		err := keeper.SendFiatFromOrder(ctx, executeFiat.FromAddress, executeFiat.ToAddress,
 			executeFiat.PegHash, executeFiat.FiatPegWallet)
 		if err != nil {
 			return err.Result()

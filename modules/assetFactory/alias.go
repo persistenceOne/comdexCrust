@@ -17,11 +17,13 @@ var (
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
 
+	DefaultGenesisState  = types.DefaultGenesisState
+	ValidateGenesis      = types.ValidateGenesis
 	AssetPegHashStoreKey = types.AssetPegHashStoreKey
 
-	DefaultGenesisState               = types.DefaultGenesisState
-	ValidateGenesis                   = types.ValidateGenesis
-	NewKeeper                         = keeper.NewKeeper
+	NewQuerier = keeper.NewQuerier
+	NewKeeper  = keeper.NewKeeper
+
 	EventTypeAssetFactoryIssueAsset   = types.EventTypeAssetFactoryIssueAsset
 	EventTypeAssetFactoryRedeemAsset  = types.EventTypeAssetFactoryRedeemAsset
 	EventTypeAssetFactorySendAsset    = types.EventTypeAssetFactorySendAsset
@@ -33,8 +35,6 @@ var (
 	NewMsgFactoryRedeemAssets = types.NewMsgFactoryRedeemAssets
 	NewSendAsset              = types.NewSendAsset
 	NewMsgFactorySendAssets   = types.NewMsgFactorySendAssets
-
-	NewQuerier = keeper.NewQuerier
 )
 
 type (

@@ -17,7 +17,6 @@ import (
 
 	"github.com/commitHub/commitBlockchain/modules/assetFactory/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/assetFactory/client/rest"
-	"github.com/commitHub/commitBlockchain/modules/assetFactory/internal/types"
 )
 
 var (
@@ -47,6 +46,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, router *mux.Router, kafkaBool bool, kafkaState kafka.KafkaState) {
 	rest.RegisterRoutes(ctx, router)
 }
+
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	assetTxCmd := &cobra.Command{
 		Use:                        ModuleName,
@@ -84,10 +84,10 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 	keeper        Keeper
-	accountKeeper types.AccountKeeper
+	accountKeeper AccountKeeper
 }
 
-func NewAppModule(keeper Keeper, accountKeeper types.AccountKeeper) AppModule {
+func NewAppModule(keeper Keeper, accountKeeper AccountKeeper) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         keeper,
@@ -95,9 +95,7 @@ func NewAppModule(keeper Keeper, accountKeeper types.AccountKeeper) AppModule {
 	}
 }
 
-func (AppModule) Name() string {
-	return types.ModuleName
-}
+func (AppModule) Name() string { return ModuleName }
 
 func (am AppModule) RegisterInvariants(ir cTypes.InvariantRegistry) {}
 

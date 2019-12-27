@@ -7,6 +7,7 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
+	"github.com/commitHub/commitBlockchain/modules/assetFactory/internal/keeper"
 	assetFactoryTypes "github.com/commitHub/commitBlockchain/modules/assetFactory/internal/types"
 	"github.com/commitHub/commitBlockchain/types"
 )
@@ -14,7 +15,7 @@ import (
 func QueryAssetCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "pegHash [pegHash]",
-		Short: "Query asset transaction details",
+		Short: "Query asset peg",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
@@ -26,7 +27,7 @@ func QueryAssetCmd() *cobra.Command {
 				return err
 			}
 
-			res, _, err := ctx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", assetFactoryTypes.QuerierRoute, "queryAsset", pegHashHex), nil)
+			res, _, err := ctx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", assetFactoryTypes.QuerierRoute, keeper.QueryAsset, pegHashHex), nil)
 			if err != nil {
 				return err
 			}

@@ -35,16 +35,13 @@ func (k Keeper) SetAssetPeg(ctx cTypes.Context, assetPeg types.AssetPeg) cTypes.
 
 func (k Keeper) GetAssetPeg(ctx cTypes.Context, peghash types.PegHash) (types.AssetPeg, cTypes.Error) {
 	store := ctx.KVStore(k.storeKey)
-
 	assetKey := assetFactoryTypes.AssetPegHashStoreKey(peghash)
 	data := store.Get(assetKey)
 	if data == nil {
 		return nil, assetFactoryTypes.ErrInvalidString(assetFactoryTypes.DefaultCodeSpace, fmt.Sprintf("Asset with pegHash %s not found!!!", peghash))
 	}
-
 	var assetPeg types.AssetPeg
 	k.cdc.MustUnmarshalBinaryLengthPrefixed(data, &assetPeg)
-
 	return assetPeg, nil
 }
 
