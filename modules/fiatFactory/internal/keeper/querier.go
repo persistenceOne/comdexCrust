@@ -26,7 +26,7 @@ func NewQuerier(k Keeper) cTypes.Querier {
 }
 
 func queryFiat(ctx cTypes.Context, path []string, keeper Keeper) ([]byte, cTypes.Error) {
-	pegHashHex, err := types.GetAssetPegHashHex(path[1])
+	pegHashHex, err := types.GetAssetPegHashHex(path[0])
 	if err != nil {
 		return nil, cTypes.ErrInternal(fmt.Sprintf("failed to parse the pegHash %s", err))
 	}

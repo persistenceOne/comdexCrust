@@ -55,10 +55,6 @@ func (in IssueAsset) ValidateBasic() cTypes.Error {
 		return ErrInvalidString(DefaultCodeSpace, "DocumentHash should not be empty string")
 	} else if (in.AssetPeg.GetQuantityUnit()) == "" {
 		return ErrInvalidString(DefaultCodeSpace, "QuantityUnit should not be empty string")
-	} else if len(in.AssetPeg.GetOwnerAddress()) == 0 {
-		return cTypes.ErrInvalidAddress(in.AssetPeg.GetOwnerAddress().String())
-	} else if len(in.AssetPeg.GetTakerAddress()) == 0 {
-		return cTypes.ErrInvalidAddress(in.AssetPeg.GetTakerAddress().String())
 	} else if len(in.AssetPeg.GetPegHash()) == 0 {
 		return ErrInvalidString(DefaultCodeSpace, "PegHash should not be empty")
 	}

@@ -6,9 +6,12 @@ import (
 )
 
 const (
-	ModuleName               = types.ModuleName
-	QuerierRoute             = types.QuerierRoute
-	DefaultCodeSpace         = types.DefaultCodeSpace
+	ModuleName       = types.ModuleName
+	RouterKey        = types.RouterKey
+	QuerierRoute     = types.QuerierRoute
+	DefaultCodeSpace = types.DefaultCodeSpace
+	StoreKey         = types.StoreKey
+
 	CodeInvalidAmount        = types.CodeInvalidAmount
 	CodeInvalidString        = types.CodeInvalidString
 	CodeInvalidInputsOutputs = types.CodeInvalidInputsOutputs
@@ -23,14 +26,20 @@ var (
 	ValidateGenesis     = types.ValidateGenesis
 	FiatPegHashStoreKey = types.FiatPegHashStoreKey
 
+	NewQuerier = keeper.NewQuerier
+	NewKeeper  = keeper.NewKeeper
+
 	EventTypeFiatFactoryAssignFiat  = types.EventTypeFiatFactoryAssignFiat
 	EventTypeFiatFactoryRedeemFiat  = types.EventTypeFiatFactoryRedeemFiat
 	EventTypeFiatFactorySendFiat    = types.EventTypeFiatFactorySendFiat
 	EventTypeFiatFactoryExecuteFiat = types.EventTypeFiatFactoryExecuteFiat
 
-	ErrNoInputs       = types.ErrNoInputs
-	ErrInvalidPegHash = types.ErrInvalidPegHash
-	NewKeeper         = keeper.NewKeeper
+	NewIssueFiat             = types.NewIssueFiat
+	NewMsgFactoryIssueFiats  = types.NewMsgFactoryIssueFiats
+	NewRedeemFiat            = types.NewRedeemFiat
+	NewMsgFactoryRedeemFiats = types.NewMsgFactoryRedeemFiats
+	NewSendFiat              = types.NewSendFiat
+	NewMsgFactorySendFiats   = types.NewMsgFactorySendFiats
 )
 
 type (
@@ -41,4 +50,8 @@ type (
 	MsgFactoryRedeemFiats  = types.MsgFactoryRedeemFiats
 	MsgFactorySendFiats    = types.MsgFactorySendFiats
 	MsgFactoryExecuteFiats = types.MsgFactoryExecuteFiats
+
+	IssueFiat  = types.IssueFiat
+	RedeemFiat = types.RedeemFiat
+	SendFiat   = types.SendFiat
 )

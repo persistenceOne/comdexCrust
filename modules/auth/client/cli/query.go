@@ -50,21 +50,21 @@ func GetAccountCmd(cdc *codec.Codec) *cobra.Command {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			accGetter := types.NewAccountRetriever(cliCtx)
 
-			key, err := cTypes.AccAddressFromBech32(args[0])
+			addr, err := cTypes.AccAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
 
-			if err := accGetter.EnsureExists(key); err != nil {
+			if err := accGetter.EnsureExists(addr); err != nil {
 				return err
 			}
 
-			acc, err := accGetter.GetAccount(key)
+			account, height, err := accGetter.GetAccountWithHeight(addr)
 			if err != nil {
 				return err
 			}
-
-			return cliCtx.PrintOutput(acc)
+			cliCtx = cliCtx.WithHeight(height)
+			return cliCtx.PrintOutput(account)
 		},
 	}
 

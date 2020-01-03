@@ -89,7 +89,7 @@ type AppModule struct {
 	accountKeeper fiatFactoryTypes.AccountKeeper
 }
 
-func NewModule(keeper Keeper, accountKeeper fiatFactoryTypes.AccountKeeper) AppModule {
+func NewAppModule(keeper Keeper, accountKeeper fiatFactoryTypes.AccountKeeper) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         keeper,
@@ -101,12 +101,27 @@ func (AppModule) Name() string { return ModuleName }
 
 func (am AppModule) RegisterInvariants(ir cTypes.InvariantRegistry) {}
 
-func (AppModule) InitGenesis(ctx cTypes.Context, data json.RawMessage) []abciTypes.ValidatorUpdate {
+func (AppModule) Route() string { return RouterKey }
+
+func (am AppModule) NewHandler() cTypes.Handler { return NewHandler(am.keeper) }
+
+func (AppModule) QuerierRoute() string { return QuerierRoute }
+
+func (am AppModule) NewQuerierHandler() cTypes.Querier { return NewQuerier(am.keeper) }
+
+func (am AppModule) InitGenesis(ctx cTypes.Context, data json.RawMessage) []abciTypes.ValidatorUpdate {
+	var genesisState GenesisState
+
+	_ = ModuleCdc.UnmarshalJSON(data, &genesisState)
+	InitGenesis(ctx, am.keeper, genesisState)
+
 	return []abciTypes.ValidatorUpdate{}
 }
 
-func (AppModule) ExportGenesis(ctx cTypes.Context) json.RawMessage {
-	return nil
+func (am AppModule) ExportGenesis(ctx cTypes.Context) json.RawMessage {
+	gs := ExportGenesis(ctx, am.keeper)
+
+	return ModuleCdc.MustMarshalJSON(gs)
 }
 
 func (AppModule) BeginBlock(cTypes.Context, abciTypes.RequestBeginBlock) {}
@@ -114,11 +129,3 @@ func (AppModule) BeginBlock(cTypes.Context, abciTypes.RequestBeginBlock) {}
 func (AppModule) EndBlock(_ cTypes.Context, _ abciTypes.RequestEndBlock) []abciTypes.ValidatorUpdate {
 	return []abciTypes.ValidatorUpdate{}
 }
-
-func (AppModule) Route() string { return ModuleName }
-
-func (AppModule) QuerierRoute() string { return QuerierRoute }
-
-func (AppModule) NewQuerierHandler() cTypes.Querier { return nil }
-
-func (am AppModule) NewHandler() cTypes.Handler { return NewHandler(am.keeper) }

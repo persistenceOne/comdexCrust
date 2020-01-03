@@ -18,7 +18,7 @@ func NewHandler(k Keeper) cTypes.Handler {
 		case MsgFactorySendAssets:
 			return handleMsgFactorySendAssets(ctx, k, msg)
 		case MsgFactoryExecuteAssets:
-			return handleMsgFactoryExecuteAsses(ctx, k, msg)
+			return handleMsgFactoryExecuteAssets(ctx, k, msg)
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", ModuleName, msg)
 			return cTypes.ErrUnknownRequest(errMsg).Result()
@@ -27,8 +27,9 @@ func NewHandler(k Keeper) cTypes.Handler {
 }
 
 func handleMsgFactoryIssueAssets(ctx cTypes.Context, keeper Keeper, msg MsgFactoryIssueAssets) cTypes.Result {
+	fmt.Println("\n \n \n \n HANDLER \n \n \n")
 	for _, issueAsset := range msg.IssueAssets {
-		err := instantiateAndAssignAsset(ctx, keeper, issueAsset)
+		err := keeper.InstantiateAndAssignAsset(ctx, issueAsset)
 		if err != nil {
 			return err.Result()
 		}
@@ -40,7 +41,7 @@ func handleMsgFactoryIssueAssets(ctx cTypes.Context, keeper Keeper, msg MsgFacto
 func handleMsgFactoryRedeemAssets(ctx cTypes.Context, keeper Keeper, msg MsgFactoryRedeemAssets) cTypes.Result {
 
 	for _, redeemAsset := range msg.RedeemAssets {
-		err := instantiateAndRedeemAsset(ctx, keeper, redeemAsset.OwnerAddress,
+		err := keeper.InstantiateAndRedeemAsset(ctx, redeemAsset.OwnerAddress,
 			redeemAsset.ToAddress, redeemAsset.PegHash)
 
 		if err != nil {
@@ -55,7 +56,7 @@ func handleMsgFactoryRedeemAssets(ctx cTypes.Context, keeper Keeper, msg MsgFact
 
 func handleMsgFactorySendAssets(ctx cTypes.Context, keeper Keeper, msg MsgFactorySendAssets) cTypes.Result {
 	for _, sendAsset := range msg.SendAssets {
-		err := sendAssetToOrder(ctx, keeper, sendAsset.FromAddress, sendAsset.ToAddress, sendAsset.PegHash)
+		err := keeper.SendAssetToOrder(ctx, sendAsset.FromAddress, sendAsset.ToAddress, sendAsset.PegHash)
 		if err != nil {
 			return err.Result()
 		}
@@ -66,9 +67,9 @@ func handleMsgFactorySendAssets(ctx cTypes.Context, keeper Keeper, msg MsgFactor
 	}
 }
 
-func handleMsgFactoryExecuteAsses(ctx cTypes.Context, keeper Keeper, msg MsgFactoryExecuteAssets) cTypes.Result {
+func handleMsgFactoryExecuteAssets(ctx cTypes.Context, keeper Keeper, msg MsgFactoryExecuteAssets) cTypes.Result {
 	for _, executeAsset := range msg.SendAssets {
-		err := sendAssetFromOrder(ctx, keeper, executeAsset.FromAddress, executeAsset.ToAddress, executeAsset.PegHash)
+		err := keeper.SendAssetFromOrder(ctx, executeAsset.FromAddress, executeAsset.ToAddress, executeAsset.PegHash)
 		if err != nil {
 			return err.Result()
 		}

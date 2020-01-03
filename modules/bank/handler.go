@@ -28,7 +28,7 @@ func NewHandler(k keeper.Keeper) cTypes.Handler {
 			return handleMsgBankIssueFiats(ctx, k, msg)
 
 		case types.MsgBankRedeemAssets:
-			return handleMMsgBankRedeemAssets(ctx, k, msg)
+			return handleMsgBankRedeemAssets(ctx, k, msg)
 
 		case types.MsgBankRedeemFiats:
 			return handleMMsgBankRedeemFiats(ctx, k, msg)
@@ -109,7 +109,7 @@ func handleMsgMultiSend(ctx cTypes.Context, k keeper.Keeper, msg types.MsgMultiS
 func handleMsgBankIssueAssets(ctx cTypes.Context, k keeper.Keeper, msg types.MsgBankIssueAssets) cTypes.Result {
 
 	for _, issueAsset := range msg.IssueAssets {
-		err := k.IssueAssetsToWallets(ctx, issueAsset)
+		_, err := k.IssueAssetsToWallets(ctx, issueAsset)
 
 		if err != nil {
 			return err.Result()
@@ -133,7 +133,7 @@ func handleMsgBankIssueFiats(ctx cTypes.Context, k keeper.Keeper, msg types.MsgB
 	}
 }
 
-func handleMMsgBankRedeemAssets(ctx cTypes.Context, k keeper.Keeper, msg types.MsgBankRedeemAssets) cTypes.Result {
+func handleMsgBankRedeemAssets(ctx cTypes.Context, k keeper.Keeper, msg types.MsgBankRedeemAssets) cTypes.Result {
 
 	for _, redeemAsset := range msg.RedeemAssets {
 		err := k.RedeemAssetsFromWallets(ctx, redeemAsset)

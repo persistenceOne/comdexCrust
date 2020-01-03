@@ -256,9 +256,9 @@ func (in SendFiat) ValidateBasic() ctypes.Error {
 	if len(in.RelayerAddress) == 0 {
 		return ctypes.ErrInvalidAddress(fmt.Sprintf("Invalid RelayerAddress %s", in.RelayerAddress.String()))
 	} else if len(in.FromAddress) == 0 {
-		return ctypes.ErrInvalidAddress(fmt.Sprintf("Invalid FromAddress", in.FromAddress.String()))
+		return ctypes.ErrInvalidAddress(fmt.Sprintf("Invalid FromAddress %s", in.FromAddress.String()))
 	} else if len(in.ToAddress) == 0 {
-		return ctypes.ErrInvalidAddress(fmt.Sprintf("Invalid ToAddress", in.ToAddress.String()))
+		return ctypes.ErrInvalidAddress(fmt.Sprintf("Invalid ToAddress %s", in.ToAddress.String()))
 	} else if len(in.PegHash) == 0 {
 		return ErrInvalidString(DefaultCodeSpace, "PegHash should not be empty")
 	}

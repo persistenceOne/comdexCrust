@@ -17,7 +17,6 @@ import (
 
 	"github.com/commitHub/commitBlockchain/modules/assetFactory/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/assetFactory/client/rest"
-	"github.com/commitHub/commitBlockchain/modules/assetFactory/internal/types"
 )
 
 var (
@@ -32,7 +31,7 @@ func (AppModuleBasic) Name() string { return ModuleName }
 func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) { RegisterCodec(cdc) }
 
 func (AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return ModuleCdc.MustMarshalJSON(DefaultGenesisState)
+	return ModuleCdc.MustMarshalJSON(DefaultGenesisState())
 }
 
 func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
@@ -47,6 +46,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, router *mux.Router, kafkaBool bool, kafkaState kafka.KafkaState) {
 	rest.RegisterRoutes(ctx, router)
 }
+
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	assetTxCmd := &cobra.Command{
 		Use:                        ModuleName,
@@ -84,10 +84,10 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 	keeper        Keeper
-	accountKeeper types.AccountKeeper
+	accountKeeper AccountKeeper
 }
 
-func NewModule(keeper Keeper, accountKeeper types.AccountKeeper) AppModule {
+func NewAppModule(keeper Keeper, accountKeeper AccountKeeper) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         keeper,
@@ -95,9 +95,7 @@ func NewModule(keeper Keeper, accountKeeper types.AccountKeeper) AppModule {
 	}
 }
 
-func (AppModule) Name() string {
-	return types.ModuleName
-}
+func (AppModule) Name() string { return ModuleName }
 
 func (am AppModule) RegisterInvariants(ir cTypes.InvariantRegistry) {}
 
@@ -107,14 +105,21 @@ func (am AppModule) NewHandler() cTypes.Handler { return NewHandler(am.keeper) }
 
 func (AppModule) QuerierRoute() string { return QuerierRoute }
 
-func (AppModule) NewQuerierHandler() cTypes.Querier { return nil }
+func (am AppModule) NewQuerierHandler() cTypes.Querier { return NewQuerier(am.keeper) }
 
 func (am AppModule) InitGenesis(ctx cTypes.Context, data json.RawMessage) []abciTypes.ValidatorUpdate {
+	var genesisState GenesisState
+
+	_ = ModuleCdc.UnmarshalJSON(data, &genesisState)
+	InitGenesis(ctx, am.keeper, genesisState)
+
 	return []abciTypes.ValidatorUpdate{}
 }
 
-func (AppModule) ExportGenesis(ctx cTypes.Context) json.RawMessage {
-	return nil
+func (am AppModule) ExportGenesis(ctx cTypes.Context) json.RawMessage {
+	gs := ExportGenesis(ctx, am.keeper)
+
+	return ModuleCdc.MustMarshalJSON(gs)
 }
 
 func (AppModule) BeginBlock(cTypes.Context, abciTypes.RequestBeginBlock) {}
