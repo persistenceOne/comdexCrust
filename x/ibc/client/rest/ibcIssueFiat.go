@@ -83,7 +83,7 @@ func IssueFiatHandlerFunction(cdc *wire.Codec, kb keys.Keybase, cliCtx context.C
 			return
 		}
 
-		res, err := cliCtx.QueryStore(acl.AccountStoreKey(from), "acl")
+		res, err := cliCtx.QueryStore(acl.AccountStoreKey(to), "acl")
 		if err != nil {
 			utils.WriteErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("couldn't query account. Error: %s", err.Error()))
 			return
