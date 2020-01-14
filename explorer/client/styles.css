@@ -517,7 +517,7 @@ div.transactions-list div.header{
     height: 1.5em;
     display: inline-block;
     margin-right: 0.2em;
-    border: 0.1em solid #149f98;
+    border: 0.1em solid black;
     -webkit-box-shadow: 1px 1px 3px 0px rgba(163,163,163,1);
     -moz-box-shadow: 1px 1px 3px 0px rgba(163,163,163,1);
     box-shadow: 1px 1px 3px 0px rgba(163,163,163,1);
@@ -525,7 +525,7 @@ div.transactions-list div.header{
 }
 
 .blocks-list .block .full{
-    background-color: #149f98;
+    background-color: black;
 }
 
 .blocks-list .block .full,

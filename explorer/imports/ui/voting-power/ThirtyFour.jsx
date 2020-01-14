@@ -36,12 +36,12 @@ export default class ThirtyFour extends Component{
                                 this.props.stats.numBottomSixtySix
                             ],
                             backgroundColor: [
-                                '#2f9f98',
-                                '#0e4c4d'
+                                'black',
+                                '#e50913'
                             ],
                             hoverBackgroundColor: [
-                                '#2f9f98',
-                                '#0e4c4d'
+                                'black',
+                                '#e50913'
                             ]
                         }
                     ]
