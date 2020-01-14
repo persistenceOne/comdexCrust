@@ -17,7 +17,7 @@ export default class Distribution extends Component{
     render(){
         return <div id="voting-power-dist">
             <Helmet>
-                <title>Voting Power Distribution on Commit-Blockchain</title>
+                <title>Voting Power Distribution on Persistence-Blockchain</title>
                 <meta name="description" content="We would like to keep track how voting power are distributed over time among validators." />
             </Helmet>
             <Row>
