@@ -6,7 +6,7 @@ import (
 
 	ctypes "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 type IssueFiat struct {

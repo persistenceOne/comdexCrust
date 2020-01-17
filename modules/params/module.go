@@ -8,11 +8,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 
-	"github.com/commitHub/commitBlockchain/codec"
-	"github.com/commitHub/commitBlockchain/kafka"
-	"github.com/commitHub/commitBlockchain/types/module"
+	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/persistenceSDK/kafka"
+	"github.com/persistenceOne/persistenceSDK/types/module"
 
-	"github.com/commitHub/commitBlockchain/modules/params/types"
+	"github.com/persistenceOne/persistenceSDK/modules/params/types"
 )
 
 var (

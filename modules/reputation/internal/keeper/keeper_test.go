@@ -4,9 +4,9 @@ import (
 	"reflect"
 	"testing"
 
-	reputationTypes "github.com/commitHub/commitBlockchain/modules/reputation/internal/types"
-	"github.com/commitHub/commitBlockchain/simApp"
-	"github.com/commitHub/commitBlockchain/types"
+	reputationTypes "github.com/persistenceOne/persistenceSDK/modules/reputation/internal/types"
+	"github.com/persistenceOne/persistenceSDK/simApp"
+	"github.com/persistenceOne/persistenceSDK/types"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 )
 

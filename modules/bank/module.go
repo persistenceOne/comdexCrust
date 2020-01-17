@@ -10,13 +10,13 @@ import (
 	"github.com/spf13/cobra"
 	abciTypes "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/commitHub/commitBlockchain/codec"
-	"github.com/commitHub/commitBlockchain/kafka"
-	"github.com/commitHub/commitBlockchain/modules/bank/client/cli"
-	"github.com/commitHub/commitBlockchain/modules/bank/client/rest"
-	"github.com/commitHub/commitBlockchain/modules/bank/internal/keeper"
-	"github.com/commitHub/commitBlockchain/modules/bank/internal/types"
-	"github.com/commitHub/commitBlockchain/types/module"
+	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/persistenceSDK/kafka"
+	"github.com/persistenceOne/persistenceSDK/modules/bank/client/cli"
+	"github.com/persistenceOne/persistenceSDK/modules/bank/client/rest"
+	"github.com/persistenceOne/persistenceSDK/modules/bank/internal/keeper"
+	"github.com/persistenceOne/persistenceSDK/modules/bank/internal/types"
+	"github.com/persistenceOne/persistenceSDK/types/module"
 )
 
 var (

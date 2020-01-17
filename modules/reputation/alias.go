@@ -1,9 +1,9 @@
 package reputation
 
 import (
-	"github.com/commitHub/commitBlockchain/modules/reputation/internal/keeper"
-	"github.com/commitHub/commitBlockchain/modules/reputation/internal/types"
-	types2 "github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/modules/reputation/internal/keeper"
+	"github.com/persistenceOne/persistenceSDK/modules/reputation/internal/types"
+	types2 "github.com/persistenceOne/persistenceSDK/types"
 )
 
 const (

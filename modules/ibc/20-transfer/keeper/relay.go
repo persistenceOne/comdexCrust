@@ -1,12 +1,12 @@
 package keeper
 
 import (
-	"github.com/commitHub/commitBlockchain/modules/assetFactory"
-	"github.com/commitHub/commitBlockchain/modules/bank"
-	channelexported "github.com/commitHub/commitBlockchain/modules/ibc/04-channel/exported"
-	channeltypes "github.com/commitHub/commitBlockchain/modules/ibc/04-channel/types"
-	"github.com/commitHub/commitBlockchain/modules/ibc/20-transfer/types"
-	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	"github.com/persistenceOne/persistenceSDK/modules/assetFactory"
+	"github.com/persistenceOne/persistenceSDK/modules/bank"
+	channelexported "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/exported"
+	channeltypes "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/types"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/20-transfer/types"
+	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

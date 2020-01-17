@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	channeltypes "github.com/commitHub/commitBlockchain/modules/ibc/04-channel/types"
-	"github.com/commitHub/commitBlockchain/modules/ibc/20-transfer/types"
+	channeltypes "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/types"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/20-transfer/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

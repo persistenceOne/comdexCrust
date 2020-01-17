@@ -10,13 +10,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 
-	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/persistenceOne/persistenceSDK/codec"
 
-	"github.com/commitHub/commitBlockchain/modules/auth"
-	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
-	"github.com/commitHub/commitBlockchain/modules/gov"
-	paramscutils "github.com/commitHub/commitBlockchain/modules/params/client/utils"
-	"github.com/commitHub/commitBlockchain/modules/params/types"
+	"github.com/persistenceOne/persistenceSDK/modules/auth"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
+	"github.com/persistenceOne/persistenceSDK/modules/gov"
+	paramscutils "github.com/persistenceOne/persistenceSDK/modules/params/client/utils"
+	"github.com/persistenceOne/persistenceSDK/modules/params/types"
 )
 
 // GetCmdSubmitProposal implements a command handler for submitting a parameter

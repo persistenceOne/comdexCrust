@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/slashing/types"
+	"github.com/persistenceOne/persistenceSDK/modules/slashing/types"
 )
 
 // MaxEvidenceAge - max age for evidence

@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/commitHub/commitBlockchain/modules/ibc/keeper"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/keeper"
 )
 
 type KeeperTestSuite struct {

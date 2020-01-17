@@ -1,14 +1,14 @@
 package types
 
 import (
-	"github.com/commitHub/commitBlockchain/modules/bank"
-	clientexported "github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
-	connection "github.com/commitHub/commitBlockchain/modules/ibc/03-connection"
-	channel "github.com/commitHub/commitBlockchain/modules/ibc/04-channel"
-	channelexported "github.com/commitHub/commitBlockchain/modules/ibc/04-channel/exported"
-	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
-	supplyexported "github.com/commitHub/commitBlockchain/modules/supply/exported"
-	commitTypes "github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/modules/bank"
+	clientexported "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
+	connection "github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection"
+	channel "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel"
+	channelexported "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/exported"
+	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
+	supplyexported "github.com/persistenceOne/persistenceSDK/modules/supply/exported"
+	commitTypes "github.com/persistenceOne/persistenceSDK/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

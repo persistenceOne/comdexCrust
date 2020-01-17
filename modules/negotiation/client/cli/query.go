@@ -7,9 +7,9 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	"github.com/commitHub/commitBlockchain/codec"
-	negotiationTypes "github.com/commitHub/commitBlockchain/modules/negotiation/internal/types"
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/codec"
+	negotiationTypes "github.com/persistenceOne/persistenceSDK/modules/negotiation/internal/types"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 func GetNegotiationCmd(cdc *codec.Codec) *cobra.Command {

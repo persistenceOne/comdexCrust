@@ -1,10 +1,10 @@
 package types
 
 import (
-	clientexported "github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
-	connection "github.com/commitHub/commitBlockchain/modules/ibc/03-connection"
-	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
-	commitTypes "github.com/commitHub/commitBlockchain/types"
+	clientexported "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
+	connection "github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection"
+	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
+	commitTypes "github.com/persistenceOne/persistenceSDK/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

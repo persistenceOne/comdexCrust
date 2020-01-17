@@ -14,14 +14,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/codec"
-	"github.com/commitHub/commitBlockchain/kafka"
-	"github.com/commitHub/commitBlockchain/types/module"
+	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/persistenceSDK/kafka"
+	"github.com/persistenceOne/persistenceSDK/types/module"
 
-	authtypes "github.com/commitHub/commitBlockchain/modules/auth/types"
-	"github.com/commitHub/commitBlockchain/modules/staking/client/cli"
-	"github.com/commitHub/commitBlockchain/modules/staking/client/rest"
-	"github.com/commitHub/commitBlockchain/modules/staking/types"
+	authtypes "github.com/persistenceOne/persistenceSDK/modules/auth/types"
+	"github.com/persistenceOne/persistenceSDK/modules/staking/client/cli"
+	"github.com/persistenceOne/persistenceSDK/modules/staking/client/rest"
+	"github.com/persistenceOne/persistenceSDK/modules/staking/types"
 )
 
 var (

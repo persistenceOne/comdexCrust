@@ -1,8 +1,8 @@
 package types
 
 import (
-	channel "github.com/commitHub/commitBlockchain/modules/ibc/04-channel"
-	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	channel "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel"
+	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
 	"github.com/cosmos/cosmos-sdk/codec"
 )
 

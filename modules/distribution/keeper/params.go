@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/params"
+	"github.com/persistenceOne/persistenceSDK/modules/params"
 )
 
 // type declaration for parameters

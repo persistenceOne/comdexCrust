@@ -5,9 +5,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/spf13/cobra"
 
-	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/persistenceOne/persistenceSDK/codec"
 
-	"github.com/commitHub/commitBlockchain/version"
+	"github.com/persistenceOne/persistenceSDK/version"
 )
 
 func AddCommands(ctx *server.Context, cdc *codec.Codec, rootCmd *cobra.Command,

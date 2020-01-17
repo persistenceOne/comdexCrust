@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/commitHub/commitBlockchain/modules/params"
+	"github.com/persistenceOne/persistenceSDK/modules/params"
 )
 
 const (

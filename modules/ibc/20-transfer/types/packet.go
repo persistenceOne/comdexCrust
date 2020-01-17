@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/commitHub/commitBlockchain/modules/bank"
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/modules/bank"
+	"github.com/persistenceOne/persistenceSDK/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

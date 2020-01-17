@@ -13,10 +13,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 
-	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/persistenceOne/persistenceSDK/codec"
 
-	gcutils "github.com/commitHub/commitBlockchain/modules/gov/client/utils"
-	"github.com/commitHub/commitBlockchain/modules/gov/types"
+	gcutils "github.com/persistenceOne/persistenceSDK/modules/gov/client/utils"
+	"github.com/persistenceOne/persistenceSDK/modules/gov/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module

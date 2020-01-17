@@ -1,9 +1,9 @@
 package negotiation
 
 import (
-	"github.com/commitHub/commitBlockchain/modules/negotiation/internal/keeper"
-	"github.com/commitHub/commitBlockchain/modules/negotiation/internal/types"
-	types2 "github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/modules/negotiation/internal/keeper"
+	"github.com/persistenceOne/persistenceSDK/modules/negotiation/internal/types"
+	types2 "github.com/persistenceOne/persistenceSDK/types"
 )
 
 const (

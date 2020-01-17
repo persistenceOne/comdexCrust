@@ -7,8 +7,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/distribution/types"
-	"github.com/commitHub/commitBlockchain/modules/staking/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/distribution/types"
+	"github.com/persistenceOne/persistenceSDK/modules/staking/exported"
 )
 
 // AllocateTokens handles distribution of the collected fees

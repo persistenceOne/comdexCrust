@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/staking/exported"
-	"github.com/commitHub/commitBlockchain/modules/staking/types"
+	"github.com/persistenceOne/persistenceSDK/modules/staking/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/staking/types"
 )
 
 // _______________________________________________________________________

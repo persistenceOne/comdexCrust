@@ -5,11 +5,11 @@ import (
 
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
-	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/types"
-	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
-	ibctypes "github.com/commitHub/commitBlockchain/modules/ibc/types"
-	commitErrors "github.com/commitHub/commitBlockchain/types/errors"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/types"
+	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
+	ibctypes "github.com/persistenceOne/persistenceSDK/modules/ibc/types"
+	commitErrors "github.com/persistenceOne/persistenceSDK/types/errors"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

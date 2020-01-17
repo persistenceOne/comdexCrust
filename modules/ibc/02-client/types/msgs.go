@@ -3,9 +3,9 @@ package types
 import (
 	"fmt"
 
-	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
-	host "github.com/commitHub/commitBlockchain/modules/ibc/24-host"
-	ibctypes "github.com/commitHub/commitBlockchain/modules/ibc/types"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
+	host "github.com/persistenceOne/persistenceSDK/modules/ibc/24-host"
+	ibctypes "github.com/persistenceOne/persistenceSDK/modules/ibc/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

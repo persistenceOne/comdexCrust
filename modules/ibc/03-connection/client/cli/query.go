@@ -9,9 +9,9 @@ import (
 
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	commitContext "github.com/commitHub/commitBlockchain/client/context"
-	commitFlags "github.com/commitHub/commitBlockchain/client/flags"
-	"github.com/commitHub/commitBlockchain/modules/ibc/03-connection/types"
+	commitContext "github.com/persistenceOne/persistenceSDK/client/context"
+	commitFlags "github.com/persistenceOne/persistenceSDK/client/flags"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"

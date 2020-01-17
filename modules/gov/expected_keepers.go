@@ -3,8 +3,8 @@ package gov
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	stakingexported "github.com/commitHub/commitBlockchain/modules/staking/exported"
-	supplyexported "github.com/commitHub/commitBlockchain/modules/supply/exported"
+	stakingexported "github.com/persistenceOne/persistenceSDK/modules/staking/exported"
+	supplyexported "github.com/persistenceOne/persistenceSDK/modules/supply/exported"
 )
 
 // SupplyKeeper defines the supply Keeper for module accounts

@@ -6,8 +6,8 @@ import (
 
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/types"
-	ibctypes "github.com/commitHub/commitBlockchain/modules/ibc/types"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/types"
+	ibctypes "github.com/persistenceOne/persistenceSDK/modules/ibc/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"

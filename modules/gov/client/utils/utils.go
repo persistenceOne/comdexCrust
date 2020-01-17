@@ -1,6 +1,6 @@
 package utils
 
-import "github.com/commitHub/commitBlockchain/modules/gov/types"
+import "github.com/persistenceOne/persistenceSDK/modules/gov/types"
 
 // NormalizeVoteOption - normalize user specified vote option
 func NormalizeVoteOption(option string) string {

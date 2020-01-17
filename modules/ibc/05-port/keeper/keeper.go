@@ -3,9 +3,9 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/commitHub/commitBlockchain/modules/ibc/05-port/types"
-	host "github.com/commitHub/commitBlockchain/modules/ibc/24-host"
-	commitTypes "github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/05-port/types"
+	host "github.com/persistenceOne/persistenceSDK/modules/ibc/24-host"
+	commitTypes "github.com/persistenceOne/persistenceSDK/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

@@ -13,14 +13,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 
-	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/persistenceOne/persistenceSDK/codec"
 
-	"github.com/commitHub/commitBlockchain/modules/auth"
-	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
-	"github.com/commitHub/commitBlockchain/modules/gov"
+	"github.com/persistenceOne/persistenceSDK/modules/auth"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
+	"github.com/persistenceOne/persistenceSDK/modules/gov"
 
-	"github.com/commitHub/commitBlockchain/modules/distribution/client/common"
-	"github.com/commitHub/commitBlockchain/modules/distribution/types"
+	"github.com/persistenceOne/persistenceSDK/modules/distribution/client/common"
+	"github.com/persistenceOne/persistenceSDK/modules/distribution/types"
 )
 
 var (

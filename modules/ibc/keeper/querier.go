@@ -6,9 +6,9 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	client "github.com/commitHub/commitBlockchain/modules/ibc/02-client"
-	connection "github.com/commitHub/commitBlockchain/modules/ibc/03-connection"
-	channel "github.com/commitHub/commitBlockchain/modules/ibc/04-channel"
+	client "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client"
+	connection "github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection"
+	channel "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel"
 )
 
 // NewQuerier creates a querier for the IBC module

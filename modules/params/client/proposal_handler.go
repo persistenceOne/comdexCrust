@@ -1,9 +1,9 @@
 package client
 
 import (
-	govclient "github.com/commitHub/commitBlockchain/modules/gov/client"
-	"github.com/commitHub/commitBlockchain/modules/params/client/cli"
-	"github.com/commitHub/commitBlockchain/modules/params/client/rest"
+	govclient "github.com/persistenceOne/persistenceSDK/modules/gov/client"
+	"github.com/persistenceOne/persistenceSDK/modules/params/client/cli"
+	"github.com/persistenceOne/persistenceSDK/modules/params/client/rest"
 )
 
 // param change proposal handler

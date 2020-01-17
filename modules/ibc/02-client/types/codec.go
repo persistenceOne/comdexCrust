@@ -1,8 +1,8 @@
 package types
 
 import (
-	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
-	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/types/tendermint"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/types/tendermint"
 	"github.com/cosmos/cosmos-sdk/codec"
 )
 

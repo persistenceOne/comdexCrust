@@ -5,7 +5,7 @@ import (
 
 	"github.com/tendermint/tendermint/crypto/merkle"
 
-	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
 )
 
 // query routes supported by the IBC channel Querier

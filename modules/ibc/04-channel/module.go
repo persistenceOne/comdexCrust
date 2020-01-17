@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/client/cli"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/client/cli"
 )
 
 // Name returns the IBC connection ICS name

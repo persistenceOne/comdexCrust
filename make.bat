@@ -1,4 +1,4 @@
-cd %GOPATH%\src\github.com\commitHub\commitBlockchain
+cd %GOPATH%\src\github.com\persistenceOne\persistenceSDK
 
 go mod verify
 

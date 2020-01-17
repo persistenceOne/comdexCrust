@@ -8,10 +8,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 
-	rest2 "github.com/commitHub/commitBlockchain/client/rest"
-	"github.com/commitHub/commitBlockchain/kafka"
-	bankTypes "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
-	"github.com/commitHub/commitBlockchain/types"
+	rest2 "github.com/persistenceOne/persistenceSDK/client/rest"
+	"github.com/persistenceOne/persistenceSDK/kafka"
+	bankTypes "github.com/persistenceOne/persistenceSDK/modules/bank/internal/types"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 type SendReq struct {

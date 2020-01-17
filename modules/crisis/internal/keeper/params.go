@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/crisis/internal/types"
+	"github.com/persistenceOne/persistenceSDK/modules/crisis/internal/types"
 )
 
 // GetConstantFee get's the constant fee from the paramSpace

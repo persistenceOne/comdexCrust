@@ -7,9 +7,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/types"
 
-	govTypes "github.com/commitHub/commitBlockchain/modules/gov/types"
+	govTypes "github.com/persistenceOne/persistenceSDK/modules/gov/types"
 )
 
 const (

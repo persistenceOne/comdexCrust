@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	commitErrors "github.com/commitHub/commitBlockchain/types/errors"
-	host "github.com/commitHub/commitBlockchain/modules/ibc/24-host"
+	commitErrors "github.com/persistenceOne/persistenceSDK/types/errors"
+	host "github.com/persistenceOne/persistenceSDK/modules/ibc/24-host"
 )
 
 type Channel struct {

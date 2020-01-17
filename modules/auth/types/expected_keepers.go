@@ -3,7 +3,7 @@ package types
 import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/supply/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/supply/exported"
 )
 
 // SupplyKeeper defines the expected supply Keeper (noalias)

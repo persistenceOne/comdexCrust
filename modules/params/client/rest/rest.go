@@ -7,11 +7,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
-	"github.com/commitHub/commitBlockchain/modules/gov"
-	govrest "github.com/commitHub/commitBlockchain/modules/gov/client/rest"
-	"github.com/commitHub/commitBlockchain/modules/params"
-	paramscutils "github.com/commitHub/commitBlockchain/modules/params/client/utils"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
+	"github.com/persistenceOne/persistenceSDK/modules/gov"
+	govrest "github.com/persistenceOne/persistenceSDK/modules/gov/client/rest"
+	"github.com/persistenceOne/persistenceSDK/modules/params"
+	paramscutils "github.com/persistenceOne/persistenceSDK/modules/params/client/utils"
 )
 
 // ProposalRESTHandler returns a ProposalRESTHandler that exposes the param

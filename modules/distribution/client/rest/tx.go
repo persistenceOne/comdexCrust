@@ -7,9 +7,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 
-	rest2 "github.com/commitHub/commitBlockchain/client/rest"
-	"github.com/commitHub/commitBlockchain/modules/distribution/client/common"
-	"github.com/commitHub/commitBlockchain/modules/distribution/types"
+	rest2 "github.com/persistenceOne/persistenceSDK/client/rest"
+	"github.com/persistenceOne/persistenceSDK/modules/distribution/client/common"
+	"github.com/persistenceOne/persistenceSDK/modules/distribution/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"

@@ -1,7 +1,7 @@
 package kafka
 
 import (
-	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/persistenceOne/persistenceSDK/codec"
 )
 
 // Register concrete types on codec

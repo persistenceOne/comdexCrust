@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 type GenesisState struct {

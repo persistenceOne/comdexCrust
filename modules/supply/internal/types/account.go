@@ -7,8 +7,8 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 	"gopkg.in/yaml.v2"
 
-	authTypes "github.com/commitHub/commitBlockchain/modules/auth/types"
-	"github.com/commitHub/commitBlockchain/modules/supply/exported"
+	authTypes "github.com/persistenceOne/persistenceSDK/modules/auth/types"
+	"github.com/persistenceOne/persistenceSDK/modules/supply/exported"
 )
 
 var _ exported.ModuleAccountI = (*ModuleAccount)(nil)

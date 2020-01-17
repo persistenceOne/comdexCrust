@@ -1,9 +1,9 @@
 package types
 
 import (
-	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/persistenceOne/persistenceSDK/codec"
 
-	"github.com/commitHub/commitBlockchain/modules/supply/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/supply/exported"
 )
 
 // RegisterCodec registers the account types and interface

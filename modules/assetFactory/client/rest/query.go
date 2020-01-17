@@ -8,9 +8,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 
-	rest2 "github.com/commitHub/commitBlockchain/client/rest"
-	assetFactoryTypes "github.com/commitHub/commitBlockchain/modules/assetFactory/internal/types"
-	"github.com/commitHub/commitBlockchain/types"
+	rest2 "github.com/persistenceOne/persistenceSDK/client/rest"
+	assetFactoryTypes "github.com/persistenceOne/persistenceSDK/modules/assetFactory/internal/types"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 func QueryAssetRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {

@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/commitHub/commitBlockchain/simApp"
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/simApp"
+	"github.com/persistenceOne/persistenceSDK/types"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 )
 

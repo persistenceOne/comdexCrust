@@ -8,9 +8,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 
-	rest2 "github.com/commitHub/commitBlockchain/client/rest"
-	aclTypes "github.com/commitHub/commitBlockchain/modules/acl/internal/types"
-	"github.com/commitHub/commitBlockchain/types"
+	rest2 "github.com/persistenceOne/persistenceSDK/client/rest"
+	aclTypes "github.com/persistenceOne/persistenceSDK/modules/acl/internal/types"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 func GetZoneRequestHandler(cliCtx context.CLIContext) http.HandlerFunc {

@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/commitHub/commitBlockchain/modules/bank"
-	channelexported "github.com/commitHub/commitBlockchain/modules/ibc/04-channel/exported"
-	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
-	host "github.com/commitHub/commitBlockchain/modules/ibc/24-host"
-	ibctypes "github.com/commitHub/commitBlockchain/modules/ibc/types"
+	"github.com/persistenceOne/persistenceSDK/modules/bank"
+	channelexported "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/exported"
+	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
+	host "github.com/persistenceOne/persistenceSDK/modules/ibc/24-host"
+	ibctypes "github.com/persistenceOne/persistenceSDK/modules/ibc/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

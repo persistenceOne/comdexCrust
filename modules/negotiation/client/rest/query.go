@@ -9,9 +9,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 
-	rest2 "github.com/commitHub/commitBlockchain/client/rest"
-	negotiationTypes "github.com/commitHub/commitBlockchain/modules/negotiation/internal/types"
-	"github.com/commitHub/commitBlockchain/types"
+	rest2 "github.com/persistenceOne/persistenceSDK/client/rest"
+	negotiationTypes "github.com/persistenceOne/persistenceSDK/modules/negotiation/internal/types"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 func QueryNegotiationRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {

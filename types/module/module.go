@@ -38,8 +38,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/codec"
-	"github.com/commitHub/commitBlockchain/kafka"
+	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/persistenceSDK/kafka"
 )
 
 // __________________________________________________________________________________________

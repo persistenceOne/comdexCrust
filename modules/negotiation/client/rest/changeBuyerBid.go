@@ -9,11 +9,11 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	rest2 "github.com/commitHub/commitBlockchain/client/rest"
-	"github.com/commitHub/commitBlockchain/kafka"
-	"github.com/commitHub/commitBlockchain/modules/acl"
-	negotiationTypes "github.com/commitHub/commitBlockchain/modules/negotiation/internal/types"
-	"github.com/commitHub/commitBlockchain/types"
+	rest2 "github.com/persistenceOne/persistenceSDK/client/rest"
+	"github.com/persistenceOne/persistenceSDK/kafka"
+	"github.com/persistenceOne/persistenceSDK/modules/acl"
+	negotiationTypes "github.com/persistenceOne/persistenceSDK/modules/negotiation/internal/types"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 type changeBuyerBidReq struct {

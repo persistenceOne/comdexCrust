@@ -1,7 +1,7 @@
 package client
 
 import (
-	exported "github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
+	exported "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

@@ -6,7 +6,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/types"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/types"
 )
 
 // QuerierChannel defines the sdk.Querier to query a module's channel
