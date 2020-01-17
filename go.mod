@@ -1,4 +1,4 @@
-module github.com/commitHub/commitBlockchain
+module github.com/persistenceOne/persistenceSDK
 
 go 1.12
 
