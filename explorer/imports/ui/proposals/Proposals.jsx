@@ -27,8 +27,8 @@ export default class Proposals extends Component{
     render() {
         return <div>
             <Helmet>
-                <title>Governance Proposals on Commit-Blockchain</title>
-                <meta name="description" content="Commit-Blockchain incorporates on-chain governance. Come to see how on-chain governance can be achieved on Explorer." />
+                <title>Governance Proposals on Persistence-Blockchain</title>
+                <meta name="description" content="Persistence-Blockchain incorporates on-chain governance. Come to see how on-chain governance can be achieved on Explorer." />
             </Helmet>
             <Row>
                 <Col md={3} xs={12}><h1 className="d-none d-lg-block"><T>proposals.proposals</T></h1></Col>

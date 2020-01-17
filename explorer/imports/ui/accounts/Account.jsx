@@ -148,7 +148,7 @@ export default class AccountDetails extends Component{
         else if (this.state.accountExists){
             return <div id="account">
                 <Helmet>
-                    <title>Account Details of {this.state.address} on Commit-Blockchain</title>
+                    <title>Account Details of {this.state.address} on Persistence-Blockchain</title>
                     <meta name="description" content={"Account Details of "+this.state.address+" on Cosmos Hub"} />
                 </Helmet>
                 <Row>

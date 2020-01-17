@@ -185,7 +185,7 @@ export default class Validator extends Component{
 
                 return <Row className="validator-details">
                     <Helmet>
-                        <title>{ moniker } -Commit-Blockchain Validator</title>
+                        <title>{ moniker } Persistence-Blockchain Validator</title>
                     <meta name="description" content={details} />
                   </Helmet>
                     <Col xs={12}>
