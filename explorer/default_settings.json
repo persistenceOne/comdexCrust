@@ -1,6 +1,6 @@
 {
     "public":{
-        "chainName": "",
+        "chainName": "Persistence Testnet",
         "chainId": "crust-2",
         "gtm": "",
         "slashingWindow": 10000,

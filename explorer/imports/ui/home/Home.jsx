@@ -15,7 +15,7 @@ export default class Home extends Component{
     render() {
         return <div id="home">
             <Helmet>
-                <title>Persistence-Blockchain Explorer</title>
+                <title>Persistence Block Explorer</title>
                 <meta name="description" content="Persistence-Blockchain is a decentralized network of independent parallel blockchains, each powered by BFT consensus algorithms like Tendermint consensus." />
             </Helmet>
             <Row>
