@@ -85,7 +85,7 @@ export default class Transactions extends Component{
     render(){
         return <div id="transactions">
             <Helmet>
-                <title>Latest Transactions on Commit-Blockchain</title>
+                <title>Latest Transactions on Persistence-Blockchain</title>
                 <meta name="description" content="See what is happening on Cosmos Hub" />
             </Helmet>
             <Row>

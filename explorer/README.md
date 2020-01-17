@@ -3,7 +3,7 @@
 - `default_settings.json` : 
 - add lcd ,rpc urls and chain-id
 
-## How to run The Commit Explorer
+## How to run The Persistence Explorer
 
 1. Update `default_settings.json`
 2. Update the RPC and LCD URLs.
