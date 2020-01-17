@@ -19,7 +19,7 @@ import (
 
 type ReleaseAssetReq struct {
 	BaseReq  rest.BaseReq `json:"base_req"`
-	To       string       `json:"to" valid:"required~Enter the ToAddress,matches(^commit[a-z0-9]{39}$)~ToAddress is Invalid"`
+	To       string       `json:"to" valid:"required~Enter the ToAddress,matches(^persist[a-z0-9]{39}$)~ToAddress is Invalid"`
 	PegHash  string       `json:"pegHash" valid:"required~Enter the PegHash,matches(^[A-F0-9]+$)~Invalid PegHash,length(2|40)~PegHash length between 2-40"`
 	Password string       `json:"password" valid:"required~Enter the Password"`
 	Mode     string       `json:"mode"`

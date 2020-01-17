@@ -17,7 +17,7 @@ import (
 
 type DefineZoneReq struct {
 	BaseReq  rest.BaseReq `json:"base_req" `
-	To       string       `json:"to" valid:"required~Enter the toAddress,matches(^commit[a-z0-9]{39}$)~toAddress is Invalid"`
+	To       string       `json:"to" valid:"required~Enter the toAddress,matches(^persist[a-z0-9]{39}$)~toAddress is Invalid"`
 	ZoneID   string       `json:"zoneID" valid:"required~Enter the zoneID, matches(^[A-Fa-f0-9]+$)~Invalid zoneID,length(2|40)~ZoneID length should be 2 to 40"`
 	Password string       `json:"password" valid:"required~Enter the password"`
 	Mode     string       `json:"mode"`

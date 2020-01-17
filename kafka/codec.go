@@ -6,8 +6,8 @@ import (
 
 // Register concrete types on codec
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(KafkaCliCtx{}, "commit-blockchain/KafkaCliCtx", nil)
-	cdc.RegisterConcrete(KafkaMsg{}, "commit-blockchain/KafkaMsg", nil)
+	cdc.RegisterConcrete(KafkaCliCtx{}, "persistence-blockchain/KafkaCliCtx", nil)
+	cdc.RegisterConcrete(KafkaMsg{}, "persistence-blockchain/KafkaMsg", nil)
 }
 
 // module codec

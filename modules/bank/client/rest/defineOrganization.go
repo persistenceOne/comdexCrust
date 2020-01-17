@@ -19,7 +19,7 @@ import (
 
 type DefineOrganizationReq struct {
 	BaseReq        rest.BaseReq `json:"base_req"`
-	To             string       `json:"to" valid:"required~Enter the to Address,matches(^commit[a-z0-9]{39}$)~to Address is Invalid"`
+	To             string       `json:"to" valid:"required~Enter the to Address,matches(^persist[a-z0-9]{39}$)~to Address is Invalid"`
 	OrganizationID string       `json:"organizationID" valid:"required~Enter the organizationID, matches(^[A-Fa-f0-9]+$)~Invalid OrganizationID,length(2|40)~OrganizationID length should be 2 to 40"`
 	ZoneID         string       `json:"zoneID" valid:"required~Enter the zoneID, matches(^[A-Fa-f0-9]+$)~Invalid zoneID,length(2|40)~ZoneID length should be 2 to 40"`
 	Password       string       `json:"password" valid:"required~Enter the password"`

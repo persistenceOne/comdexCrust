@@ -20,14 +20,14 @@ import (
 
 type IssueAssetReq struct {
 	BaseReq       rest.BaseReq `json:"base_req"`
-	To            string       `json:"to" valid:"matches(^commit[a-z0-9]{39}$)~ToAddress is Invalid"`
+	To            string       `json:"to" valid:"matches(^persist[a-z0-9]{39}$)~ToAddress is Invalid"`
 	DocumentHash  string       `json:"documentHash" valid:"required~Enter the DocumentHash,matches(^.*$)~Invalid DocumentHash,length(1|1000)~DocumentHash length should be 1 to 1000"`
 	AssetType     string       `json:"assetType" valid:"required~Enter the assetType,matches(^[A-Za-z ]*$)~Invalid AssetType"`
 	AssetPrice    int64        `json:"assetPrice" valid:"required~Enter the assetPrice,matches(^[1-9]{1}[0-9]*$)~Invalid assetPrice"`
 	QuantityUnit  string       `json:"quantityUnit" valid:"required~Enter the QuantityUnit,matches(^[A-Za-z]*$)~Invalid QuantityUnit"`
 	AssetQuantity int64        `json:"assetQuantity" valid:"required~Enter the AssetQuantity,matches(^[1-9]{1}[0-9]*$)~Invalid AssetQuantity"`
 	Moderated     bool         `json:"moderated"`
-	TakerAddress  string       `json:"takerAddress" valid:"matches(^commit[a-z0-9]{39}$)~TakerAddress is Invalid"`
+	TakerAddress  string       `json:"takerAddress" valid:"matches(^persist[a-z0-9]{39}$)~TakerAddress is Invalid"`
 	Password      string       `json:"password" valid:"required~Enter the Password"`
 	Mode          string       `json:"mode"`
 }

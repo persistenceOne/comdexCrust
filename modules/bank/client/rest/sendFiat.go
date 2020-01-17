@@ -19,7 +19,7 @@ import (
 
 type SendFiatReq struct {
 	BaseReq  rest.BaseReq `json:"base_req"`
-	To       string       `json:"to" valid:"required~Enter the ToAddress,matches(^commit[a-z0-9]{39}$)~ToAddress is Invalid"`
+	To       string       `json:"to" valid:"required~Enter the ToAddress,matches(^persist[a-z0-9]{39}$)~ToAddress is Invalid"`
 	PegHash  string       `json:"pegHash" valid:"required~Enter the PegHash,matches(^[A-F0-9]+$)~Invalid PegHash,length(2|40)~PegHash length between 2-40"`
 	Amount   int64        `json:"amount" valid:"required~Enter the Valid Amount,matches(^[1-9]{1}[0-9]*$)~Invalid Amount"`
 	Password string       `json:"password" valid:"required~Enter the Password"`

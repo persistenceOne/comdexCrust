@@ -2,7 +2,7 @@ package types
 
 const (
 	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
-	Bech32MainPrefix = "commit"
+	Bech32MainPrefix = "persist"
 
 	// PrefixValidator is the prefix for validator keys
 	PrefixValidator = "val"

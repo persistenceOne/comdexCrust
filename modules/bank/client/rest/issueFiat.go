@@ -20,7 +20,7 @@ import (
 
 type IssueFiatReq struct {
 	BaseReq           rest.BaseReq `json:"base_req"`
-	To                string       `json:"to" valid:"required~Enter the ToAddress,matches(^commit[a-z0-9]{39}$)~ToAddress is Invalid"`
+	To                string       `json:"to" valid:"required~Enter the ToAddress,matches(^persist[a-z0-9]{39}$)~ToAddress is Invalid"`
 	GasAdjustment     string       `json:"gasAdjustment"`
 	TransactionID     string       `json:"transactionID" valid:"required~Enter the TransactionID,  matches(^[A-Z0-9]+$)~transactionID is Invalid,length(2|40)~TransactionID length should be 2 to 40"`
 	TransactionAmount int64        `json:"transactionAmount" valid:"required~Enter the TransactionAmount,matches(^[1-9]{1}[0-9]*$)~Invalid TransactionAmount"`

@@ -7,11 +7,11 @@ import (
 
 func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterInterface((*types.Negotiation)(nil), nil)
-	cdc.RegisterConcrete(&types.BaseNegotiation{}, "commit-blockchain/Negotiation", nil)
-	cdc.RegisterConcrete(MsgChangeBuyerBids{}, "commit-blockchain/MsgChangeBuyerBids", nil)
-	cdc.RegisterConcrete(MsgChangeSellerBids{}, "commit-blockchain/MsgChangeSellerBids", nil)
-	cdc.RegisterConcrete(MsgConfirmBuyerBids{}, "commit-blockchain/MsgConfirmBuyerBids", nil)
-	cdc.RegisterConcrete(MsgConfirmSellerBids{}, "commit-blockchain/MsgConfirmSellerBids", nil)
+	cdc.RegisterConcrete(&types.BaseNegotiation{}, "persistence-blockchain/Negotiation", nil)
+	cdc.RegisterConcrete(MsgChangeBuyerBids{}, "persistence-blockchain/MsgChangeBuyerBids", nil)
+	cdc.RegisterConcrete(MsgChangeSellerBids{}, "persistence-blockchain/MsgChangeSellerBids", nil)
+	cdc.RegisterConcrete(MsgConfirmBuyerBids{}, "persistence-blockchain/MsgConfirmBuyerBids", nil)
+	cdc.RegisterConcrete(MsgConfirmSellerBids{}, "persistence-blockchain/MsgConfirmSellerBids", nil)
 }
 
 var ModuleCdc *codec.Codec

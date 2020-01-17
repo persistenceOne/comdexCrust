@@ -19077,7 +19077,7 @@ exports.Set = Set;
     /**
      * Executes the chain sequence and returns the wrapped result.
      *
-     * @name commit
+     * @name persistence
      * @memberOf _
      * @since 3.2.0
      * @category Seq
@@ -19090,7 +19090,7 @@ exports.Set = Set;
      * console.log(array);
      * // => [1, 2]
      *
-     * wrapped = wrapped.commit();
+     * wrapped = wrapped.persistence();
      * console.log(array);
      * // => [1, 2, 3]
      *
@@ -27265,7 +27265,7 @@ exports.Set = Set;
     // Add chain sequence methods to the `lodash` wrapper.
     lodash.prototype.at = wrapperAt;
     lodash.prototype.chain = wrapperChain;
-    lodash.prototype.commit = wrapperCommit;
+    lodash.prototype.persistence = wrapperCommit;
     lodash.prototype.next = wrapperNext;
     lodash.prototype.plant = wrapperPlant;
     lodash.prototype.reverse = wrapperReverse;
