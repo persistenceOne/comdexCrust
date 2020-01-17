@@ -5,7 +5,7 @@ import (
 
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 // GenesisState - crisis genesis state

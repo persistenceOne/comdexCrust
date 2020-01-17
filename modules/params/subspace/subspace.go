@@ -6,7 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/persistenceOne/persistenceSDK/codec"
 
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 )

@@ -3,9 +3,9 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/staking"
-	stakingexported "github.com/commitHub/commitBlockchain/modules/staking/exported"
-	supplyexported "github.com/commitHub/commitBlockchain/modules/supply/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/staking"
+	stakingexported "github.com/persistenceOne/persistenceSDK/modules/staking/exported"
+	supplyexported "github.com/persistenceOne/persistenceSDK/modules/supply/exported"
 )
 
 // StakingKeeper expected staking keeper (noalias)

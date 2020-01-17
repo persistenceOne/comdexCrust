@@ -5,11 +5,11 @@ import (
 
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/commitHub/commitBlockchain/modules/acl"
-	"github.com/commitHub/commitBlockchain/modules/assetFactory"
-	"github.com/commitHub/commitBlockchain/modules/ibc/20-transfer/types"
-	ibctypes "github.com/commitHub/commitBlockchain/modules/ibc/types"
-	supplyexported "github.com/commitHub/commitBlockchain/modules/supply/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/acl"
+	"github.com/persistenceOne/persistenceSDK/modules/assetFactory"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/20-transfer/types"
+	ibctypes "github.com/persistenceOne/persistenceSDK/modules/ibc/types"
+	supplyexported "github.com/persistenceOne/persistenceSDK/modules/supply/exported"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

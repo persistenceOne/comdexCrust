@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
-	host "github.com/commitHub/commitBlockchain/modules/ibc/24-host"
+	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
+	host "github.com/persistenceOne/persistenceSDK/modules/ibc/24-host"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

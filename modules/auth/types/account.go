@@ -9,8 +9,8 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 	"gopkg.in/yaml.v2"
 
-	"github.com/commitHub/commitBlockchain/modules/auth/exported"
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/exported"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 // -----------------------------------------------------------------------------

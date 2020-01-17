@@ -17,13 +17,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 
-	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/persistenceOne/persistenceSDK/codec"
 
-	types2 "github.com/commitHub/commitBlockchain/types"
+	types2 "github.com/persistenceOne/persistenceSDK/types"
 
-	"github.com/commitHub/commitBlockchain/modules/auth"
-	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
-	"github.com/commitHub/commitBlockchain/modules/staking/types"
+	"github.com/persistenceOne/persistenceSDK/modules/auth"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
+	"github.com/persistenceOne/persistenceSDK/modules/staking/types"
 )
 
 // GetTxCmd returns the transaction commands for this module

@@ -7,7 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/staking/types"
+	"github.com/persistenceOne/persistenceSDK/modules/staking/types"
 )
 
 // return a specific delegation

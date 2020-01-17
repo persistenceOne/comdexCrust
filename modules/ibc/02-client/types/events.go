@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 
-	ibctypes "github.com/commitHub/commitBlockchain/modules/ibc/types"
+	ibctypes "github.com/persistenceOne/persistenceSDK/modules/ibc/types"
 )
 
 // IBC client events

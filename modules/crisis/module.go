@@ -11,13 +11,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/codec"
-	"github.com/commitHub/commitBlockchain/kafka"
-	"github.com/commitHub/commitBlockchain/types/module"
+	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/persistenceSDK/kafka"
+	"github.com/persistenceOne/persistenceSDK/types/module"
 
-	"github.com/commitHub/commitBlockchain/modules/crisis/client/cli"
-	"github.com/commitHub/commitBlockchain/modules/crisis/internal/keeper"
-	"github.com/commitHub/commitBlockchain/modules/crisis/internal/types"
+	"github.com/persistenceOne/persistenceSDK/modules/crisis/client/cli"
+	"github.com/persistenceOne/persistenceSDK/modules/crisis/internal/keeper"
+	"github.com/persistenceOne/persistenceSDK/modules/crisis/internal/types"
 )
 
 var (

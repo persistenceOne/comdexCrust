@@ -11,7 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	"github.com/commitHub/commitBlockchain/modules/staking/types"
+	"github.com/persistenceOne/persistenceSDK/modules/staking/types"
 )
 
 func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router) {

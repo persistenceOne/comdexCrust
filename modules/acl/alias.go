@@ -1,8 +1,8 @@
 package acl
 
 import (
-	"github.com/commitHub/commitBlockchain/modules/acl/internal/keeper"
-	"github.com/commitHub/commitBlockchain/modules/acl/internal/types"
+	"github.com/persistenceOne/persistenceSDK/modules/acl/internal/keeper"
+	"github.com/persistenceOne/persistenceSDK/modules/acl/internal/types"
 )
 
 const (

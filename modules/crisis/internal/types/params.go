@@ -3,7 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/params"
+	"github.com/persistenceOne/persistenceSDK/modules/params"
 )
 
 // Default parameter namespace

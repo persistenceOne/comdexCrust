@@ -3,8 +3,8 @@ package utils
 import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	commitContext "github.com/commitHub/commitBlockchain/client/context"
-	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/types"
+	commitContext "github.com/persistenceOne/persistenceSDK/client/context"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/types"
 	"github.com/cosmos/cosmos-sdk/client"
 )
 

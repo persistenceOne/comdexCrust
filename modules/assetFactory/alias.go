@@ -1,8 +1,8 @@
 package assetFactory
 
 import (
-	"github.com/commitHub/commitBlockchain/modules/assetFactory/internal/keeper"
-	"github.com/commitHub/commitBlockchain/modules/assetFactory/internal/types"
+	"github.com/persistenceOne/persistenceSDK/modules/assetFactory/internal/keeper"
+	"github.com/persistenceOne/persistenceSDK/modules/assetFactory/internal/types"
 )
 
 const (

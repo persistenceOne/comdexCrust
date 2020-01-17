@@ -4,10 +4,10 @@ import (
 	"reflect"
 	"testing"
 
-	aclTypes "github.com/commitHub/commitBlockchain/modules/acl/internal/types"
-	"github.com/commitHub/commitBlockchain/modules/auth"
-	"github.com/commitHub/commitBlockchain/modules/auth/exported"
-	"github.com/commitHub/commitBlockchain/simApp"
+	aclTypes "github.com/persistenceOne/persistenceSDK/modules/acl/internal/types"
+	"github.com/persistenceOne/persistenceSDK/modules/auth"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/exported"
+	"github.com/persistenceOne/persistenceSDK/simApp"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 )
 

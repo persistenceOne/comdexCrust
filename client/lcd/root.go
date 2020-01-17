@@ -17,12 +17,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
-	keys2 "github.com/commitHub/commitBlockchain/client/keys"
+	keys2 "github.com/persistenceOne/persistenceSDK/client/keys"
 
-	"github.com/commitHub/commitBlockchain/client/rest"
-	"github.com/commitHub/commitBlockchain/codec"
-	"github.com/commitHub/commitBlockchain/kafka"
-	"github.com/commitHub/commitBlockchain/main/app"
+	"github.com/persistenceOne/persistenceSDK/client/rest"
+	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/persistenceSDK/kafka"
+	"github.com/persistenceOne/persistenceSDK/main/app"
 
 	keybase "github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/cosmos/cosmos-sdk/server"

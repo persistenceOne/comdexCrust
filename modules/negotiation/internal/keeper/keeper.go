@@ -6,12 +6,12 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/crypto"
 
-	"github.com/commitHub/commitBlockchain/codec"
-	"github.com/commitHub/commitBlockchain/modules/acl"
-	"github.com/commitHub/commitBlockchain/modules/auth"
-	negotiationTypes "github.com/commitHub/commitBlockchain/modules/negotiation/internal/types"
-	"github.com/commitHub/commitBlockchain/modules/reputation"
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/persistenceSDK/modules/acl"
+	"github.com/persistenceOne/persistenceSDK/modules/auth"
+	negotiationTypes "github.com/persistenceOne/persistenceSDK/modules/negotiation/internal/types"
+	"github.com/persistenceOne/persistenceSDK/modules/reputation"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 type Keeper struct {

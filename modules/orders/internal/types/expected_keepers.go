@@ -3,9 +3,9 @@ package types
 import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/acl"
-	"github.com/commitHub/commitBlockchain/modules/auth/exported"
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/modules/acl"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/exported"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 type NegotiationKeeper interface {

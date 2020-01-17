@@ -2,7 +2,7 @@ package tendermint
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
 )
 
 // CheckMisbehaviour checks if the evidence provided is a misbehaviour

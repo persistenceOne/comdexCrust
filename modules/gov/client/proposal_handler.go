@@ -5,9 +5,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 
-	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/persistenceOne/persistenceSDK/codec"
 
-	"github.com/commitHub/commitBlockchain/modules/gov/client/rest"
+	"github.com/persistenceOne/persistenceSDK/modules/gov/client/rest"
 )
 
 // function to create the rest handler

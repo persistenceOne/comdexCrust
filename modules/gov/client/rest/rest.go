@@ -11,9 +11,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	rest2 "github.com/commitHub/commitBlockchain/client/rest"
-	gcutils "github.com/commitHub/commitBlockchain/modules/gov/client/utils"
-	"github.com/commitHub/commitBlockchain/modules/gov/types"
+	rest2 "github.com/persistenceOne/persistenceSDK/client/rest"
+	gcutils "github.com/persistenceOne/persistenceSDK/modules/gov/client/utils"
+	"github.com/persistenceOne/persistenceSDK/modules/gov/types"
 )
 
 // REST Variable names

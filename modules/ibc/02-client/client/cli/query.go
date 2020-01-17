@@ -10,11 +10,11 @@ import (
 
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	commitContext "github.com/commitHub/commitBlockchain/client/context"
-	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
-	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/types"
-	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/types/tendermint"
-	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
+	commitContext "github.com/persistenceOne/persistenceSDK/client/context"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/types"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/types/tendermint"
+	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"

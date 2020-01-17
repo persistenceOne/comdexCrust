@@ -12,9 +12,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 
-	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/persistenceOne/persistenceSDK/codec"
 
-	"github.com/commitHub/commitBlockchain/modules/genutil"
+	"github.com/persistenceOne/persistenceSDK/modules/genutil"
 )
 
 const flagGenTxDir = "gentx-dir"

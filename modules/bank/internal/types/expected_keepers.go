@@ -3,7 +3,7 @@ package types
 import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/auth/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/exported"
 )
 
 // AccountKeeper defines the account contract that must be fulfilled when

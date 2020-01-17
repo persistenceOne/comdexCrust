@@ -9,7 +9,7 @@ import (
 	"github.com/tendermint/tendermint/crypto/multisig"
 	"gopkg.in/yaml.v2"
 
-	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/persistenceOne/persistenceSDK/codec"
 )
 
 var (

@@ -3,7 +3,7 @@ package acl
 import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/acl/internal/types"
+	"github.com/persistenceOne/persistenceSDK/modules/acl/internal/types"
 )
 
 func InitGenesis(ctx cTypes.Context, keeper Keeper, data GenesisState) (err error) {

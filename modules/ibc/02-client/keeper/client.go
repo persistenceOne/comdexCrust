@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	commitErrors "github.com/commitHub/commitBlockchain/types/errors"
-	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/exported"
-	"github.com/commitHub/commitBlockchain/modules/ibc/02-client/types"
+	commitErrors "github.com/persistenceOne/persistenceSDK/types/errors"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/types"
 )
 
 // CreateClient creates a new client state and populates it with a given consensus

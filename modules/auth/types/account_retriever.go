@@ -5,7 +5,7 @@ import (
 
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/auth/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/exported"
 )
 
 // NodeQuerier is an interface that is satisfied by types that provide the QueryWithData method

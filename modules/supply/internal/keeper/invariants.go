@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/auth/exported"
-	"github.com/commitHub/commitBlockchain/modules/supply/internal/types"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/supply/internal/types"
 )
 
 // RegisterInvariants register all supply invariants

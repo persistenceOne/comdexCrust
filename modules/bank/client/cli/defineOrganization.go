@@ -6,11 +6,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/commitHub/commitBlockchain/codec"
-	"github.com/commitHub/commitBlockchain/modules/acl"
-	"github.com/commitHub/commitBlockchain/modules/auth"
-	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
-	bankTypes "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
+	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/persistenceSDK/modules/acl"
+	"github.com/persistenceOne/persistenceSDK/modules/auth"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
+	bankTypes "github.com/persistenceOne/persistenceSDK/modules/bank/internal/types"
 )
 
 func DefineOrganizationCmd(cdc *codec.Codec) *cobra.Command {

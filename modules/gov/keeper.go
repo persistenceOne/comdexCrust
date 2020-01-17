@@ -6,11 +6,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/persistenceOne/persistenceSDK/codec"
 
-	"github.com/commitHub/commitBlockchain/modules/gov/types"
-	"github.com/commitHub/commitBlockchain/modules/params"
-	"github.com/commitHub/commitBlockchain/modules/supply/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/gov/types"
+	"github.com/persistenceOne/persistenceSDK/modules/params"
+	"github.com/persistenceOne/persistenceSDK/modules/supply/exported"
 
 	"github.com/tendermint/tendermint/libs/log"
 )

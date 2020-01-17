@@ -13,9 +13,9 @@ import (
 	"github.com/spf13/viper"
 	tmTypes "github.com/tendermint/tendermint/types"
 
-	"github.com/commitHub/commitBlockchain/codec"
-	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
-	"github.com/commitHub/commitBlockchain/modules/auth/types"
+	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/types"
 )
 
 const (

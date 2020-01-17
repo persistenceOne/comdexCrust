@@ -6,8 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	commitContext "github.com/commitHub/commitBlockchain/client/context"
-	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/client/utils"
+	commitContext "github.com/persistenceOne/persistenceSDK/client/context"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/client/utils"
 	cli "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"

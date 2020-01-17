@@ -10,7 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	"github.com/commitHub/commitBlockchain/modules/slashing/types"
+	"github.com/persistenceOne/persistenceSDK/modules/slashing/types"
 )
 
 func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router) {

@@ -9,9 +9,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/persistenceOne/persistenceSDK/codec"
 
-	"github.com/commitHub/commitBlockchain/modules/mint/internal/types"
+	"github.com/persistenceOne/persistenceSDK/modules/mint/internal/types"
 )
 
 // GetQueryCmd returns the cli query commands for the minting module.

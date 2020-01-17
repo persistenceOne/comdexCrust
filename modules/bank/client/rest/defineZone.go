@@ -8,11 +8,11 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	rest2 "github.com/commitHub/commitBlockchain/client/rest"
-	"github.com/commitHub/commitBlockchain/kafka"
-	"github.com/commitHub/commitBlockchain/modules/acl"
-	bankTypes "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
-	"github.com/commitHub/commitBlockchain/types"
+	rest2 "github.com/persistenceOne/persistenceSDK/client/rest"
+	"github.com/persistenceOne/persistenceSDK/kafka"
+	"github.com/persistenceOne/persistenceSDK/modules/acl"
+	bankTypes "github.com/persistenceOne/persistenceSDK/modules/bank/internal/types"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 type DefineZoneReq struct {

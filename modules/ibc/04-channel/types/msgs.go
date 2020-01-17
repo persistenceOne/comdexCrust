@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
-	host "github.com/commitHub/commitBlockchain/modules/ibc/24-host"
-	ibctypes "github.com/commitHub/commitBlockchain/modules/ibc/types"
+	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
+	host "github.com/persistenceOne/persistenceSDK/modules/ibc/24-host"
+	ibctypes "github.com/persistenceOne/persistenceSDK/modules/ibc/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/viper"
 
-	govutils "github.com/commitHub/commitBlockchain/modules/gov/client/utils"
+	govutils "github.com/persistenceOne/persistenceSDK/modules/gov/client/utils"
 )
 
 func parseSubmitProposalFlags() (*proposal, error) {

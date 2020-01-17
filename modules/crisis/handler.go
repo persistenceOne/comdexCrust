@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/crisis/internal/keeper"
-	"github.com/commitHub/commitBlockchain/modules/crisis/internal/types"
+	"github.com/persistenceOne/persistenceSDK/modules/crisis/internal/keeper"
+	"github.com/persistenceOne/persistenceSDK/modules/crisis/internal/types"
 )
 
 // RouterKey

@@ -6,8 +6,8 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/commitHub/commitBlockchain/modules/distribution/client/common"
-	"github.com/commitHub/commitBlockchain/modules/distribution/types"
+	"github.com/persistenceOne/persistenceSDK/modules/distribution/client/common"
+	"github.com/persistenceOne/persistenceSDK/modules/distribution/types"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"

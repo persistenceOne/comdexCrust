@@ -1,7 +1,7 @@
 package transfer
 
 import (
-	"github.com/commitHub/commitBlockchain/modules/ibc/20-transfer/types"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/20-transfer/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

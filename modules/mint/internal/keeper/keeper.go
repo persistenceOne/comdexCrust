@@ -7,10 +7,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/persistenceOne/persistenceSDK/codec"
 
-	"github.com/commitHub/commitBlockchain/modules/mint/internal/types"
-	"github.com/commitHub/commitBlockchain/modules/params"
+	"github.com/persistenceOne/persistenceSDK/modules/mint/internal/types"
+	"github.com/persistenceOne/persistenceSDK/modules/params"
 )
 
 // Keeper of the mint store

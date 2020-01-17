@@ -6,7 +6,7 @@ import (
 
 	"github.com/tendermint/tendermint/crypto/merkle"
 
-	host "github.com/commitHub/commitBlockchain/modules/ibc/24-host"
+	host "github.com/persistenceOne/persistenceSDK/modules/ibc/24-host"
 	"github.com/cosmos/cosmos-sdk/store/rootmulti"
 )
 

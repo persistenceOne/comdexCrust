@@ -7,9 +7,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	commitContext "github.com/commitHub/commitBlockchain/client/context"
-	commitFlags "github.com/commitHub/commitBlockchain/client/flags"
-	channel "github.com/commitHub/commitBlockchain/modules/ibc/04-channel"
+	commitContext "github.com/persistenceOne/persistenceSDK/client/context"
+	commitFlags "github.com/persistenceOne/persistenceSDK/client/flags"
+	channel "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/version"

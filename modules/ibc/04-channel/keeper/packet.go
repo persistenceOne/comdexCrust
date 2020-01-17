@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 
-	client "github.com/commitHub/commitBlockchain/modules/ibc/02-client"
-	connection "github.com/commitHub/commitBlockchain/modules/ibc/03-connection"
-	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/exported"
-	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/types"
-	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
-	commitTypes "github.com/commitHub/commitBlockchain/types"
+	client "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client"
+	connection "github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/types"
+	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
+	commitTypes "github.com/persistenceOne/persistenceSDK/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

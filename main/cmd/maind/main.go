@@ -16,13 +16,13 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmTypes "github.com/tendermint/tendermint/types"
 
-	"github.com/commitHub/commitBlockchain/main/app"
-	"github.com/commitHub/commitBlockchain/modules/genaccounts"
-	genAccsCli "github.com/commitHub/commitBlockchain/modules/genaccounts/client/cli"
-	genUtilCli "github.com/commitHub/commitBlockchain/modules/genutil/client/cli"
-	"github.com/commitHub/commitBlockchain/modules/staking"
-	"github.com/commitHub/commitBlockchain/server"
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/main/app"
+	"github.com/persistenceOne/persistenceSDK/modules/genaccounts"
+	genAccsCli "github.com/persistenceOne/persistenceSDK/modules/genaccounts/client/cli"
+	genUtilCli "github.com/persistenceOne/persistenceSDK/modules/genutil/client/cli"
+	"github.com/persistenceOne/persistenceSDK/modules/staking"
+	"github.com/persistenceOne/persistenceSDK/server"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 const (

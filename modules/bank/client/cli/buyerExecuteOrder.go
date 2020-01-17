@@ -6,11 +6,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/commitHub/commitBlockchain/codec"
-	"github.com/commitHub/commitBlockchain/modules/auth"
-	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
-	"github.com/commitHub/commitBlockchain/modules/bank/client"
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/persistenceSDK/modules/auth"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
+	"github.com/persistenceOne/persistenceSDK/modules/bank/client"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 func BuyerExecuteOrderCmd(cdc *codec.Codec) *cobra.Command {

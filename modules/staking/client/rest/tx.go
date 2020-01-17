@@ -10,8 +10,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	rest2 "github.com/commitHub/commitBlockchain/client/rest"
-	"github.com/commitHub/commitBlockchain/modules/staking/types"
+	rest2 "github.com/persistenceOne/persistenceSDK/client/rest"
+	"github.com/persistenceOne/persistenceSDK/modules/staking/types"
 )
 
 func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router) {

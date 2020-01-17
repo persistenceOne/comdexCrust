@@ -7,10 +7,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/auth"
-	authexported "github.com/commitHub/commitBlockchain/modules/auth/exported"
-	"github.com/commitHub/commitBlockchain/modules/supply"
-	supplyexported "github.com/commitHub/commitBlockchain/modules/supply/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/auth"
+	authexported "github.com/persistenceOne/persistenceSDK/modules/auth/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/supply"
+	supplyexported "github.com/persistenceOne/persistenceSDK/modules/supply/exported"
 )
 
 // GenesisAccount is a struct for account initialization used exclusively during genesis

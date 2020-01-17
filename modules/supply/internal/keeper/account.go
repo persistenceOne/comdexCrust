@@ -3,8 +3,8 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/supply/exported"
-	"github.com/commitHub/commitBlockchain/modules/supply/internal/types"
+	"github.com/persistenceOne/persistenceSDK/modules/supply/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/supply/internal/types"
 )
 
 // GetModuleAddress returns an address based on the module name

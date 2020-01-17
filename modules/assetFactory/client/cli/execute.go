@@ -6,11 +6,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/commitHub/commitBlockchain/codec"
-	assetFactoryTypes "github.com/commitHub/commitBlockchain/modules/assetFactory/internal/types"
-	"github.com/commitHub/commitBlockchain/modules/auth"
-	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/codec"
+	assetFactoryTypes "github.com/persistenceOne/persistenceSDK/modules/assetFactory/internal/types"
+	"github.com/persistenceOne/persistenceSDK/modules/auth"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 func ExecuteAssetCmd(cdc *codec.Codec) *cobra.Command {

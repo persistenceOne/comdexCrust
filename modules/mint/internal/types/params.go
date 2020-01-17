@@ -5,9 +5,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/types"
 
-	"github.com/commitHub/commitBlockchain/modules/params"
+	"github.com/persistenceOne/persistenceSDK/modules/params"
 )
 
 // Parameter store keys

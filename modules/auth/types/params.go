@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/commitHub/commitBlockchain/modules/params/subspace"
+	"github.com/persistenceOne/persistenceSDK/modules/params/subspace"
 )
 
 // DefaultParamspace defines the default auth module parameter subspace

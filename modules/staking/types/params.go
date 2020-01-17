@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/persistenceOne/persistenceSDK/codec"
 
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/types"
 
-	"github.com/commitHub/commitBlockchain/modules/params"
+	"github.com/persistenceOne/persistenceSDK/modules/params"
 )
 
 const (

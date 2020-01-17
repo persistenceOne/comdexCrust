@@ -6,12 +6,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/commitHub/commitBlockchain/modules/acl"
-	"github.com/commitHub/commitBlockchain/modules/auth"
-	"github.com/commitHub/commitBlockchain/modules/auth/exported"
-	bankTypes "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
-	"github.com/commitHub/commitBlockchain/simApp"
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/modules/acl"
+	"github.com/persistenceOne/persistenceSDK/modules/auth"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/exported"
+	bankTypes "github.com/persistenceOne/persistenceSDK/modules/bank/internal/types"
+	"github.com/persistenceOne/persistenceSDK/simApp"
+	"github.com/persistenceOne/persistenceSDK/types"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	tmtime "github.com/tendermint/tendermint/types/time"
 )

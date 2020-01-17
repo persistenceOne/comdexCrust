@@ -1,8 +1,8 @@
 package types
 
 import (
-	"github.com/commitHub/commitBlockchain/codec"
-	"github.com/commitHub/commitBlockchain/modules/auth/exported"
+	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/exported"
 )
 
 // RegisterCodec registers concrete types on the codec

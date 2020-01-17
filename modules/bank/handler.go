@@ -5,8 +5,8 @@ import (
 
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/modules/bank/internal/keeper"
-	"github.com/commitHub/commitBlockchain/modules/bank/internal/types"
+	"github.com/persistenceOne/persistenceSDK/modules/bank/internal/keeper"
+	"github.com/persistenceOne/persistenceSDK/modules/bank/internal/types"
 )
 
 // NewHandler returns a handler for "bank" type messages.

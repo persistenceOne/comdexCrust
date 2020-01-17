@@ -1,7 +1,7 @@
 package genaccounts
 
 import (
-	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/persistenceOne/persistenceSDK/codec"
 )
 
 // generic sealed codec to be used throughout this module

@@ -1,10 +1,10 @@
 package types
 
 import (
-	"github.com/commitHub/commitBlockchain/codec"
-	"github.com/commitHub/commitBlockchain/modules/acl"
-	"github.com/commitHub/commitBlockchain/modules/reputation"
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/persistenceSDK/modules/acl"
+	"github.com/persistenceOne/persistenceSDK/modules/reputation"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 // Register concrete types on codec codec

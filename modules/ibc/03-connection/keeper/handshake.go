@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/commitHub/commitBlockchain/modules/ibc/03-connection/types"
-	commitment "github.com/commitHub/commitBlockchain/modules/ibc/23-commitment"
-	commitErrors "github.com/commitHub/commitBlockchain/types/errors"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection/types"
+	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
+	commitErrors "github.com/persistenceOne/persistenceSDK/types/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

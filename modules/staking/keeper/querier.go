@@ -9,9 +9,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commitHub/commitBlockchain/codec"
+	"github.com/persistenceOne/persistenceSDK/codec"
 
-	"github.com/commitHub/commitBlockchain/modules/staking/types"
+	"github.com/persistenceOne/persistenceSDK/modules/staking/types"
 )
 
 // creates a querier for staking REST endpoints

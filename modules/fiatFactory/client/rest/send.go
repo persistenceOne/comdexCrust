@@ -7,9 +7,9 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	rest2 "github.com/commitHub/commitBlockchain/client/rest"
-	fiatFactoryTypes "github.com/commitHub/commitBlockchain/modules/fiatFactory/internal/types"
-	"github.com/commitHub/commitBlockchain/types"
+	rest2 "github.com/persistenceOne/persistenceSDK/client/rest"
+	fiatFactoryTypes "github.com/persistenceOne/persistenceSDK/modules/fiatFactory/internal/types"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 type sendFiatReq struct {

@@ -6,8 +6,8 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	abciTypes "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/commitHub/commitBlockchain/codec"
-	aclTypes "github.com/commitHub/commitBlockchain/modules/acl/internal/types"
+	"github.com/persistenceOne/persistenceSDK/codec"
+	aclTypes "github.com/persistenceOne/persistenceSDK/modules/acl/internal/types"
 )
 
 const (

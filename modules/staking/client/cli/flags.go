@@ -3,7 +3,7 @@ package cli
 import (
 	flag "github.com/spf13/pflag"
 
-	"github.com/commitHub/commitBlockchain/modules/staking/types"
+	"github.com/persistenceOne/persistenceSDK/modules/staking/types"
 )
 
 // nolint

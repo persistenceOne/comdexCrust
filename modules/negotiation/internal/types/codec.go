@@ -1,8 +1,8 @@
 package types
 
 import (
-	"github.com/commitHub/commitBlockchain/codec"
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 func RegisterCodec(cdc *codec.Codec) {

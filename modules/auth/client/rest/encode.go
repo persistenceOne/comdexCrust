@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	"github.com/commitHub/commitBlockchain/modules/auth/types"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/types"
 )
 
 // EncodeResp defines a tx encoding response.

@@ -1,8 +1,8 @@
 package channel
 
 import (
-	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/keeper"
-	"github.com/commitHub/commitBlockchain/modules/ibc/04-channel/types"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/keeper"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

@@ -8,9 +8,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 
-	rest2 "github.com/commitHub/commitBlockchain/client/rest"
-	bankTypes "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
-	"github.com/commitHub/commitBlockchain/types"
+	rest2 "github.com/persistenceOne/persistenceSDK/client/rest"
+	bankTypes "github.com/persistenceOne/persistenceSDK/modules/bank/internal/types"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 func QueryBalancesRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {

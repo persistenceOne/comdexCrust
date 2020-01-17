@@ -9,14 +9,14 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/commitHub/commitBlockchain/modules/acl"
-	"github.com/commitHub/commitBlockchain/modules/auth/exported"
-	bankTypes "github.com/commitHub/commitBlockchain/modules/bank/internal/types"
-	"github.com/commitHub/commitBlockchain/modules/negotiation"
-	"github.com/commitHub/commitBlockchain/modules/orders"
-	"github.com/commitHub/commitBlockchain/modules/params"
-	"github.com/commitHub/commitBlockchain/modules/reputation"
-	"github.com/commitHub/commitBlockchain/types"
+	"github.com/persistenceOne/persistenceSDK/modules/acl"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/exported"
+	bankTypes "github.com/persistenceOne/persistenceSDK/modules/bank/internal/types"
+	"github.com/persistenceOne/persistenceSDK/modules/negotiation"
+	"github.com/persistenceOne/persistenceSDK/modules/orders"
+	"github.com/persistenceOne/persistenceSDK/modules/params"
+	"github.com/persistenceOne/persistenceSDK/modules/reputation"
+	"github.com/persistenceOne/persistenceSDK/types"
 )
 
 var _ Keeper = (*BaseKeeper)(nil)

@@ -10,8 +10,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
-	"github.com/commitHub/commitBlockchain/modules/staking/types"
+	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
+	"github.com/persistenceOne/persistenceSDK/modules/staking/types"
 )
 
 // contains checks if the a given query contains one of the tx types

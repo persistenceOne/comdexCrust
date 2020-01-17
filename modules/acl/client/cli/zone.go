@@ -7,8 +7,8 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	"github.com/commitHub/commitBlockchain/codec"
-	"github.com/commitHub/commitBlockchain/modules/acl/internal/types"
+	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/persistenceSDK/modules/acl/internal/types"
 )
 
 // GetZoneCmd : returns a query account address of zone

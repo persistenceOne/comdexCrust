@@ -3,8 +3,8 @@ package supply
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	autypes "github.com/commitHub/commitBlockchain/modules/auth"
-	"github.com/commitHub/commitBlockchain/modules/supply/internal/types"
+	autypes "github.com/persistenceOne/persistenceSDK/modules/auth"
+	"github.com/persistenceOne/persistenceSDK/modules/supply/internal/types"
 )
 
 // InitGenesis sets supply information for genesis.

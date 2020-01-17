@@ -1,8 +1,8 @@
 package connection
 
 import (
-	"github.com/commitHub/commitBlockchain/modules/ibc/03-connection/keeper"
-	"github.com/commitHub/commitBlockchain/modules/ibc/03-connection/types"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection/keeper"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
