@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	commitContext "github.com/persistenceOne/persistenceSDK/client/context"
-	commitFlags "github.com/persistenceOne/persistenceSDK/client/flags"
+	persistenceSDKContext "github.com/persistenceOne/persistenceSDK/client/context"
+	persistenceSDKFlags "github.com/persistenceOne/persistenceSDK/client/flags"
 	channel "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -53,17 +53,17 @@ $ %s query ibc channel next-recv [port-id] [channel-id]
 				Prove: true,
 			}
 
-			res, err := commitContext.QueryABCI(cliCtx, req)
+			res, err := persistenceSDKContext.QueryABCI(cliCtx, req)
 			if err != nil {
 				return err
 			}
 
 			sequence := binary.BigEndian.Uint64(res.Value)
 
-			return commitContext.PrintOutput(cliCtx, sequence)
+			return persistenceSDKContext.PrintOutput(cliCtx, sequence)
 		},
 	}
-	cmd.Flags().Bool(commitFlags.FlagProve, true, "show proofs for the query results")
+	cmd.Flags().Bool(persistenceSDKFlags.FlagProve, true, "show proofs for the query results")
 
 	return cmd
 }

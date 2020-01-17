@@ -9,7 +9,7 @@ import (
 	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/exported"
 	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/types"
 	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
-	commitTypes "github.com/persistenceOne/persistenceSDK/types"
+	persistenceSDKTypes "github.com/persistenceOne/persistenceSDK/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -24,7 +24,7 @@ func (k Keeper) TimeoutPacket(
 	proof commitment.ProofI,
 	proofHeight uint64,
 	nextSequenceRecv uint64,
-	portCapability commitTypes.CapabilityKey,
+	portCapability persistenceSDKTypes.CapabilityKey,
 ) (exported.PacketI, error) {
 	channel, found := k.GetChannel(ctx, packet.GetSourcePort(), packet.GetSourceChannel())
 	if !found {
@@ -119,7 +119,7 @@ func (k Keeper) TimeoutOnClose(
 	proofNonMembership,
 	proofClosed commitment.ProofI,
 	proofHeight uint64,
-	portCapability commitTypes.CapabilityKey,
+	portCapability persistenceSDKTypes.CapabilityKey,
 ) (exported.PacketI, error) {
 	channel, found := k.GetChannel(ctx, packet.GetSourcePort(), packet.GetSourceChannel())
 	if !found {

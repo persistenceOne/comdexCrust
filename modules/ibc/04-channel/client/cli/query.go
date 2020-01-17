@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	commitContext "github.com/persistenceOne/persistenceSDK/client/context"
+	persistenceSDKContext "github.com/persistenceOne/persistenceSDK/client/context"
 	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/client/utils"
 	cli "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -49,7 +49,7 @@ $ %s query ibc channel end [port-id] [channel-id]
 				return err
 			}
 
-			return commitContext.PrintOutput(cliCtx, ch)
+			return persistenceSDKContext.PrintOutput(cliCtx, ch)
 		},
 	}
 	return cmd

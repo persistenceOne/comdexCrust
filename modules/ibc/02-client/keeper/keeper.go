@@ -5,13 +5,13 @@ import (
 
 	"github.com/tendermint/tendermint/libs/log"
 
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
 	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/types"
 	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
 	ibctypes "github.com/persistenceOne/persistenceSDK/modules/ibc/types"
-	commitErrors "github.com/persistenceOne/persistenceSDK/types/errors"
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	persistenceSDKErrors "github.com/persistenceOne/persistenceSDK/types/errors"
 )
 
 // Keeper represents a type that grants read and write permissions to any client
@@ -140,7 +140,7 @@ func (k Keeper) checkMisbehaviour(ctx sdk.Context, evidence exported.Evidence) e
 	// 	var tmEvidence tendermint.Evidence
 	// 	_, ok := evidence.(tendermint.Evidence)
 	// 	if !ok {
-	// 		return commitErrors.Wrap(types.ErrInvalidClientType(k.codespace), "consensus type is not Tendermint")
+	// 		return persistenceSDKErrors.Wrap(types.ErrInvalidClientType(k.codespace), "consensus type is not Tendermint")
 	// 	}
 	// 	// TODO: pass past consensus states
 	// 	return tendermint.CheckMisbehaviour(tmEvidence)
@@ -153,7 +153,7 @@ func (k Keeper) checkMisbehaviour(ctx sdk.Context, evidence exported.Evidence) e
 // freeze updates the state of the client in the event of a misbehaviour
 func (k Keeper) freeze(ctx sdk.Context, clientState types.State) (types.State, error) {
 	if clientState.Frozen {
-		return types.State{}, commitErrors.Wrap(types.ErrClientFrozen(k.codespace, clientState.ID()), "already frozen")
+		return types.State{}, persistenceSDKErrors.Wrap(types.ErrClientFrozen(k.codespace, clientState.ID()), "already frozen")
 	}
 
 	clientState.Frozen = true
