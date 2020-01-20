@@ -10,7 +10,7 @@ import (
 	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/exported"
 	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/types"
 	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
-	commitTypes "github.com/persistenceOne/persistenceSDK/types"
+	persistenceSDKTypes "github.com/persistenceOne/persistenceSDK/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -31,7 +31,7 @@ func (k Keeper) CleanupPacket(
 	proofHeight,
 	nextSequenceRecv uint64,
 	acknowledgement []byte,
-	portCapability commitTypes.CapabilityKey,
+	portCapability persistenceSDKTypes.CapabilityKey,
 ) (exported.PacketI, error) {
 	channel, found := k.GetChannel(ctx, packet.GetSourcePort(), packet.GetSourceChannel())
 	if !found {
@@ -117,7 +117,7 @@ func (k Keeper) CleanupPacket(
 func (k Keeper) SendPacket(
 	ctx sdk.Context,
 	packet exported.PacketI,
-	portCapability commitTypes.CapabilityKey,
+	portCapability persistenceSDKTypes.CapabilityKey,
 ) error {
 	if err := packet.ValidateBasic(); err != nil {
 		return err
@@ -204,7 +204,7 @@ func (k Keeper) RecvPacket(
 	proof commitment.ProofI,
 	proofHeight uint64,
 	acknowledgement []byte,
-	portCapability commitTypes.CapabilityKey,
+	portCapability persistenceSDKTypes.CapabilityKey,
 ) (exported.PacketI, error) {
 
 	channel, found := k.GetChannel(ctx, packet.GetDestPort(), packet.GetDestChannel())
@@ -304,7 +304,7 @@ func (k Keeper) AcknowledgePacket(
 	acknowledgement []byte,
 	proof commitment.ProofI,
 	proofHeight uint64,
-	portCapability commitTypes.CapabilityKey,
+	portCapability persistenceSDKTypes.CapabilityKey,
 ) (exported.PacketI, error) {
 	channel, found := k.GetChannel(ctx, packet.GetSourcePort(), packet.GetSourceChannel())
 	if !found {

@@ -7,7 +7,7 @@ import (
 
 func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterInterface((*types.Order)(nil), nil)
-	cdc.RegisterConcrete(&types.BaseOrder{}, "commit-blockchain/Order", nil)
+	cdc.RegisterConcrete(&types.BaseOrder{}, "persistence-blockchain/Order", nil)
 }
 
 var ModuleCdc *codec.Codec

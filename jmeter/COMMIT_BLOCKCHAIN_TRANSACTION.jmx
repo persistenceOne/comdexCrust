@@ -5306,7 +5306,7 @@
 		&quot;chain_id&quot;:&quot;crust-2&quot;&#xd;
 		},&#xd;
 	&quot;password&quot;:&quot;${password}&quot;,&#xd;
-	&quot;amount&quot;:[{&quot;denom&quot;:&quot;ucommit&quot;,&quot;amount&quot;:&quot;10&quot;}],&#xd;
+	&quot;amount&quot;:[{&quot;denom&quot;:&quot;uxprs&quot;,&quot;amount&quot;:&quot;10&quot;}],&#xd;
 	&quot;mode&quot;:&quot;block&quot;&#xd;
 }&#xd;
 </stringProp>
@@ -5412,7 +5412,7 @@
 		&quot;chain_id&quot;:&quot;crust-2&quot;&#xd;
 		},&#xd;
 	&quot;password&quot;:&quot;${password}&quot;,&#xd;
-	&quot;amount&quot;:[{&quot;denom&quot;:&quot;ucommit&quot;,&quot;amount&quot;:&quot;10&quot;}],&#xd;
+	&quot;amount&quot;:[{&quot;denom&quot;:&quot;uxprs&quot;,&quot;amount&quot;:&quot;10&quot;}],&#xd;
 	&quot;mode&quot;:&quot;block&quot;&#xd;
 }&#xd;
 </stringProp>
@@ -5734,7 +5734,7 @@
 		&quot;chain_id&quot;:&quot;crust-2&quot;&#xd;
 		},&#xd;
 	&quot;password&quot;:&quot;${password}&quot;,&#xd;
-	&quot;amount&quot;:[{&quot;denom&quot;:&quot;ucommit&quot;,&quot;amount&quot;:&quot;10&quot;}],&#xd;
+	&quot;amount&quot;:[{&quot;denom&quot;:&quot;uxprs&quot;,&quot;amount&quot;:&quot;10&quot;}],&#xd;
 	&quot;mode&quot;:&quot;block&quot;&#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>

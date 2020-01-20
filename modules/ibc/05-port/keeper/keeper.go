@@ -5,7 +5,7 @@ import (
 
 	"github.com/persistenceOne/persistenceSDK/modules/ibc/05-port/types"
 	host "github.com/persistenceOne/persistenceSDK/modules/ibc/24-host"
-	commitTypes "github.com/persistenceOne/persistenceSDK/types"
+	persistenceSDKTypes "github.com/persistenceOne/persistenceSDK/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -16,7 +16,7 @@ type Keeper struct {
 	cdc       *codec.Codec
 	codespace sdk.CodespaceType
 	prefix    []byte // prefix bytes for accessing the store
-	ports     map[commitTypes.CapabilityKey]string
+	ports     map[persistenceSDKTypes.CapabilityKey]string
 	bound     []string
 }
 
@@ -28,7 +28,7 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, codespace sdk.CodespaceType) 
 		codespace: sdk.CodespaceType(fmt.Sprintf("%s/%s", codespace, types.DefaultCodespace)), // "ibc/port",
 		prefix:    []byte{},
 		// prefix:    []byte(types.SubModuleName + "/"),                                          // "port/"
-		ports: make(map[commitTypes.CapabilityKey]string), // map of capabilities to port ids
+		ports: make(map[persistenceSDKTypes.CapabilityKey]string), // map of capabilities to port ids
 	}
 }
 
@@ -39,7 +39,7 @@ func (k Keeper) GetPorts() []string {
 }
 
 // GetPort retrieves a given port ID from keeper map
-func (k Keeper) GetPort(ck commitTypes.CapabilityKey) (string, bool) {
+func (k Keeper) GetPort(ck persistenceSDKTypes.CapabilityKey) (string, bool) {
 	portID, found := k.ports[ck]
 	return portID, found
 }
@@ -48,7 +48,7 @@ func (k Keeper) GetPort(ck commitTypes.CapabilityKey) (string, bool) {
 // Ports must be bound statically when the chain starts in `app.go`.
 // The capability must then be passed to a module which will need to pass
 // it as an extra parameter when calling functions on the IBC module.
-func (k Keeper) BindPort(portID string) commitTypes.CapabilityKey {
+func (k Keeper) BindPort(portID string) persistenceSDKTypes.CapabilityKey {
 	if err := host.DefaultPortIdentifierValidator(portID); err != nil {
 		panic(err.Error())
 	}
@@ -69,7 +69,7 @@ func (k Keeper) BindPort(portID string) commitTypes.CapabilityKey {
 // by checking if the memory address of the capability was previously
 // generated and bound to the port (provided as a parameter) which the capability
 // is being authenticated against.
-func (k Keeper) Authenticate(key commitTypes.CapabilityKey, portID string) bool {
+func (k Keeper) Authenticate(key persistenceSDKTypes.CapabilityKey, portID string) bool {
 	if err := host.DefaultPortIdentifierValidator(portID); err != nil {
 		panic(err.Error())
 	}

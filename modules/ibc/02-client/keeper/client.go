@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	commitErrors "github.com/persistenceOne/persistenceSDK/types/errors"
 	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
 	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/types"
+	persistenceSDKErrors "github.com/persistenceOne/persistenceSDK/types/errors"
 )
 
 // CreateClient creates a new client state and populates it with a given consensus
@@ -38,30 +38,30 @@ func (k Keeper) UpdateClient(ctx sdk.Context, clientID string, header exported.H
 
 	clientType, found := k.GetClientType(ctx, clientID)
 	if !found {
-		return commitErrors.Wrap(types.ErrClientTypeNotFound(k.codespace), "cannot update client")
+		return persistenceSDKErrors.Wrap(types.ErrClientTypeNotFound(k.codespace), "cannot update client")
 	}
 
 	// check that the header consensus matches the client one
 	if header.ClientType() != clientType {
-		return commitErrors.Wrap(types.ErrInvalidConsensus(k.codespace), "cannot update client")
+		return persistenceSDKErrors.Wrap(types.ErrInvalidConsensus(k.codespace), "cannot update client")
 	}
 
 	clientState, found := k.GetClientState(ctx, clientID)
 	if !found {
-		return commitErrors.Wrap(types.ErrClientNotFound(k.codespace, clientID), "cannot update client")
+		return persistenceSDKErrors.Wrap(types.ErrClientNotFound(k.codespace, clientID), "cannot update client")
 	}
 
 	if clientState.Frozen {
-		return commitErrors.Wrap(types.ErrClientFrozen(k.codespace, clientID), "cannot update client")
+		return persistenceSDKErrors.Wrap(types.ErrClientFrozen(k.codespace, clientID), "cannot update client")
 	}
 
 	consensusState, found := k.GetConsensusState(ctx, clientID)
 	if !found {
-		return commitErrors.Wrap(types.ErrConsensusStateNotFound(k.codespace), "cannot update client")
+		return persistenceSDKErrors.Wrap(types.ErrConsensusStateNotFound(k.codespace), "cannot update client")
 	}
 
 	if header.GetHeight() < consensusState.GetHeight() {
-		return commitErrors.Wrap(
+		return persistenceSDKErrors.Wrap(
 			sdk.ErrInvalidSequence(
 				fmt.Sprintf("header height < consensus height (%d < %d)", header.GetHeight(), consensusState.GetHeight()),
 			),
@@ -71,7 +71,7 @@ func (k Keeper) UpdateClient(ctx sdk.Context, clientID string, header exported.H
 
 	consensusState, err := consensusState.CheckValidityAndUpdateState(header)
 	if err != nil {
-		return commitErrors.Wrap(err, "cannot update client")
+		return persistenceSDKErrors.Wrap(err, "cannot update client")
 	}
 
 	k.SetConsensusState(ctx, clientID, consensusState)

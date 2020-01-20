@@ -4,7 +4,7 @@ import (
 	clientexported "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
 	connection "github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection"
 	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
-	commitTypes "github.com/persistenceOne/persistenceSDK/types"
+	persistenceSDKTypes "github.com/persistenceOne/persistenceSDK/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -28,5 +28,5 @@ type ConnectionKeeper interface {
 
 // PortKeeper expected account IBC port keeper
 type PortKeeper interface {
-	Authenticate(key commitTypes.CapabilityKey, portID string) bool
+	Authenticate(key persistenceSDKTypes.CapabilityKey, portID string) bool
 }

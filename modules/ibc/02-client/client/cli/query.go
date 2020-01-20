@@ -8,17 +8,17 @@ import (
 
 	"github.com/spf13/cobra"
 
+	persistenceSDKContext "github.com/persistenceOne/persistenceSDK/client/context"
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	commitContext "github.com/persistenceOne/persistenceSDK/client/context"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/types"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/types/tendermint"
-	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/types"
+	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/types/tendermint"
+	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
 )
 
 // GetQueryCmd returns the query commands for IBC clients
@@ -77,7 +77,7 @@ $ %s query ibc client state [client-id]
 				return err
 			}
 
-			return commitContext.PrintOutput(cliCtx, clientState)
+			return persistenceSDKContext.PrintOutput(cliCtx, clientState)
 		},
 	}
 }
@@ -122,7 +122,7 @@ $ %s query ibc client root [client-id] [height]
 				return err
 			}
 
-			return commitContext.PrintOutput(cliCtx, root)
+			return persistenceSDKContext.PrintOutput(cliCtx, root)
 		},
 	}
 }
@@ -163,7 +163,7 @@ $ %s query ibc client consensus-state [client-id]
 				return err
 			}
 
-			return commitContext.PrintOutput(cliCtx, consensusState)
+			return persistenceSDKContext.PrintOutput(cliCtx, consensusState)
 		},
 	}
 }
@@ -217,7 +217,7 @@ $ %s query ibc client header
 				NextValidatorSet: tmtypes.NewValidatorSet(nextValidators.Validators),
 			}
 
-			return commitContext.PrintOutput(cliCtx, header)
+			return persistenceSDKContext.PrintOutput(cliCtx, header)
 		},
 	}
 }
@@ -270,7 +270,7 @@ $ %s query ibc client node-state
 				NextValidatorSet: tmtypes.NewValidatorSet(validators.Validators),
 			}
 
-			return commitContext.PrintOutput(cliCtx, state)
+			return persistenceSDKContext.PrintOutput(cliCtx, state)
 		},
 	}
 }
@@ -282,7 +282,7 @@ func GetCmdQueryPath(storeName string, cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.NewCLIContext().WithCodec(cdc)
 			path := commitment.NewPrefix([]byte("ibc"))
-			return commitContext.PrintOutput(ctx, path)
+			return persistenceSDKContext.PrintOutput(ctx, path)
 		},
 	}
 }

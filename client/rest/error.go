@@ -7,7 +7,7 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 )
 
-const DefaultCodeSpace = "commit"
+const DefaultCodeSpace = "persistence"
 
 type ErrorResponse struct {
 	Success   bool                 `json:"success"`

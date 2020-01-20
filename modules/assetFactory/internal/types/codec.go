@@ -5,10 +5,10 @@ import (
 )
 
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(MsgFactoryIssueAssets{}, "commit-blockchain/MsgFactoryIssueAssets", nil)
-	cdc.RegisterConcrete(MsgFactoryRedeemAssets{}, "commit-blockchain/MsgFactoryRedeemAssets", nil)
-	cdc.RegisterConcrete(MsgFactorySendAssets{}, "commit-blockchain/MsgFactorySendAssets", nil)
-	cdc.RegisterConcrete(MsgFactoryExecuteAssets{}, "commit-blockchain/MsgFactoryExecuteAssets", nil)
+	cdc.RegisterConcrete(MsgFactoryIssueAssets{}, "persistence-blockchain/MsgFactoryIssueAssets", nil)
+	cdc.RegisterConcrete(MsgFactoryRedeemAssets{}, "persistence-blockchain/MsgFactoryRedeemAssets", nil)
+	cdc.RegisterConcrete(MsgFactorySendAssets{}, "persistence-blockchain/MsgFactorySendAssets", nil)
+	cdc.RegisterConcrete(MsgFactoryExecuteAssets{}, "persistence-blockchain/MsgFactoryExecuteAssets", nil)
 }
 
 var ModuleCdc *codec.Codec

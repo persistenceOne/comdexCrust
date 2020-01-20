@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	commitErrors "github.com/persistenceOne/persistenceSDK/types/errors"
 	host "github.com/persistenceOne/persistenceSDK/modules/ibc/24-host"
+	persistenceSDKErrors "github.com/persistenceOne/persistenceSDK/types/errors"
 )
 
 type Channel struct {
@@ -50,7 +50,7 @@ func (ch Channel) ValidateBasic() sdk.Error {
 		return ErrInvalidChannel(DefaultCodespace, "IBC v1 only supports one connection hop")
 	}
 	if err := host.DefaultConnectionIdentifierValidator(ch.ConnectionHops[0]); err != nil {
-		return ErrInvalidChannel(DefaultCodespace, commitErrors.Wrap(err, "invalid connection hop ID").Error())
+		return ErrInvalidChannel(DefaultCodespace, persistenceSDKErrors.Wrap(err, "invalid connection hop ID").Error())
 	}
 	if strings.TrimSpace(ch.Version) == "" {
 		return ErrInvalidChannel(DefaultCodespace, "channel version can't be blank")

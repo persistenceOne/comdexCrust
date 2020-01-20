@@ -16,7 +16,7 @@ import (
 
 type SubmitSellerFeedbackReq struct {
 	BaseReq  rest.BaseReq `json:"base_req"`
-	To       string       `json:"to" valid:"required~Enter the ToAddress,matches(^commit[a-z0-9]{39}$)~ToAddress is Invalid"`
+	To       string       `json:"to" valid:"required~Enter the ToAddress,matches(^persist[a-z0-9]{39}$)~ToAddress is Invalid"`
 	PegHash  string       `json:"pegHash" valid:"required~Enter the PegHash,matches(^[A-F0-9]+$)~Invalid PegHash,length(2|40)~PegHash length between 2-40"`
 	Rating   int64        `json:"rating" valid:"required~Enter the Rating,matches(^[1-9][0-9]?$|^100$)~invalid Rating"`
 	Password string       `json:"password" valid:"required~Enter the Password"`

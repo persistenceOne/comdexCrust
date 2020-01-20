@@ -77,7 +77,7 @@ export default class Validators extends Component{
 
         return <div id="validator-list">
             <Helmet>
-                <title>Commit-Blockchain Validators List</title>
+                <title>Persistence-Blockchain Validators List</title>
                 <meta name="description" content="Here is a list of Cosmos Validators" />
             </Helmet>
             <Row>
