@@ -9,7 +9,7 @@
   },
   "dbName": "telegramBot",
   "dbURL": "mongodb://localhost:27017/",
-  "chainName": "Cosmos",
+  "chainAppName": "Cosmos",
   "prefix": "cosmos",
   "token": "ATOM"
 }

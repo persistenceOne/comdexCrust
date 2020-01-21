@@ -2,7 +2,7 @@ const config = require('../config');
 
 const buttons = {
     chain: {
-        label: config.chainName,
+        label: config.chainAppName,
         command: '/chain'
     },
     hide: {
