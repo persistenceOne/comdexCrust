@@ -425,29 +425,38 @@ bot.on(['ask.validatorSigning'], async msg => {
 
 bot.connect();
 
-let ws = new WebSocket(wsConstants.url);
+let ws;;
 
 const reinitWS = () => {
     ws = new WebSocket(wsConstants.url);
+    try {
+        ws.on('open', wsOpen);
+        ws.on('close', wsClose);
+        ws.on('message', wsIncoming);
+        ws.on('error', wsError);
+    } catch (e) {
+        errors.Log(e, 'WS_CONNECTION');
+        ws.send(JSON.stringify(unsubscribeAllMsg));
+        reinitWS();
+    }
 };
 
-try {
-    ws.on('open', wsOpen);
-    ws.on('close', wsClose);
-    ws.on('message', wsIncoming);
-} catch (e) {
-    errors.Log(e, 'WS_CONNECTION');
-    ws.send(JSON.stringify(wsConstants.unsubscribeAllMsg));
-    reinitWS();
-}
+reinitWS();
 
 function wsOpen() {
     ws.send(JSON.stringify(wsConstants.subscribeNewBlockMsg));
 }
 
-function wsClose() {
-    errors.Log('ws connection closed!', 'WS_CONNECTION');
+function wsClose(code, reason) {
+    let err = {statusCode: code, message: 'WS connection closed:    ' + reason};
+    errors.Log(err, 'WS_CONNECTION');
     reinitWS();
+}
+
+function wsError(err) {
+    errors.Log(err, 'WS_CONNECTION');
+    ws.send(JSON.stringify(wsConstants.unsubscribeAllMsg));
+    ws.close();
 }
 
 function wsIncoming(data) {
