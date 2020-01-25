@@ -116,7 +116,7 @@ bot.on('ask.valAddr', msg => {
     httpUtils.httpGet(config.node.url, config.node.lcdPort, `/staking/validators/${valAddr}`)
         .then(data => JSON.parse(data))
         .then(async json => {
-            let validator = json.result;
+            let validator = json;               // with cosmos version upgrade, change here
             if (validator.jailed) {
                 return bot.sendMessage(chatID, `Validator is jailed right now. Cannot subscribe to it.`, {parseMode: 'Markdown'});
             }

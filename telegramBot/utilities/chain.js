@@ -92,9 +92,9 @@ const queries = {
         sendValidators(bot, chatID) {
             httpUtil.httpGet(config.node.url, config.node.lcdPort, `/staking/validators`)
                 .then(async data => {
-                    let json = JSON.parse(data);
-                    let validatorsList = json.result;
-                    await bot.sendMessage(chatID, `\`${validatorsList.length}\` validators in total at current height \`${json.height}\`.`, {parseMode: 'Markdown'});
+                    let json = JSON.parse(data);    // with cosmos version upgrade, change here
+                    let validatorsList = json;
+                    await bot.sendMessage(chatID, `\`${validatorsList.length}\` validators in total at current height.`, {parseMode: 'Markdown'});
                     let i = 1;
                     for (let validator of validatorsList) {
                         let selfDelegationAddress = validatorUtils.getDelegatorAddrFromOperatorAddr(validator.operator_address);
@@ -118,7 +118,7 @@ const queries = {
                     if (json.error) {
                         bot.sendMessage(chatID, `Invalid operator address!`);
                     } else {
-                        let validator = json.result;
+                        let validator = json;       // with cosmos version upgrade, change here
                         let selfDelegationAddress = validatorUtils.getDelegatorAddrFromOperatorAddr(validator.operator_address);
                         bot.sendMessage(chatID, `Operator Address: \`${validator.operator_address}\`\n\n`
                             + `Self Delegation Address: \`${selfDelegationAddress}\`\n\n`
@@ -139,11 +139,10 @@ const queries = {
                         bot.sendMessage(chatID, `Invalid address!`);
                     } else {
                         let coins = '';
-                        json.result.value.coins.forEach((coin) => {
+                        json.value.coins.forEach((coin) => {                // with cosmos version upgrade, change here
                             coins = coins + `${coin.amount} ${coin.denom}, `
                         });
-                        bot.sendMessage(chatID, `Height: \`${json.height}\`\n\n`
-                            + `Coins: \`${coins}\`\n`,
+                        bot.sendMessage(chatID, `Coins: \`${coins}\`\n`,
                             {parseMode: 'Markdown'});
                     }
                 })
@@ -156,7 +155,7 @@ const queries = {
                     if (json.error) {
                         bot.sendMessage(chatID, `Invalid address!`);
                     } else {
-                        bot.sendMessage(chatID, `Total Rewards: \`${json.result.total[0].amount} ${json.result.total[0].denom}\``,
+                        bot.sendMessage(chatID, `Total Rewards: \`${json.total[0].amount} ${json.total[0].denom}\``,      // with cosmos version upgrade, change here
                             {parseMode: 'Markdown'});
                     }
                 })
@@ -170,11 +169,11 @@ const queries = {
                         bot.sendMessage(chatID, `Invalid validator's operator address.`);
                     } else {
                         let selfRewards = '';
-                        json.result.self_bond_rewards.forEach((reward) => {
+                        json.self_bond_rewards.forEach((reward) => {        // with cosmos version upgrade, change here
                             selfRewards = selfRewards + `${reward.amount} ${reward.denom}, `;
                         });
                         let commission = '';
-                        json.result.val_commission.forEach((comm) => {
+                        json.val_commission.forEach((comm) => {             // with cosmos version upgrade, change here
                             commission = commission + `${comm.amount} ${comm.denom}, `;
                         });
                         bot.sendMessage(chatID, `Self Bond Rewards: \`${selfRewards}\`\n\nCommission: \`${commission}\`\n`, {parseMode: 'Markdown'});
@@ -189,11 +188,11 @@ const queries = {
                     if (json.error) {
                         bot.sendMessage(chatID, `Invalid validator's consensus public address.`);
                     } else {
-                        let jailed = !(json.result.jailed_until === '1970-01-01T00:00:00Z');
-                        bot.sendMessage(chatID, `Start height: \`${json.result.start_height}\`\n\n`
+                        let jailed = !(json.jailed_until === '1970-01-01T00:00:00Z');       // with cosmos version upgrade, change here
+                        bot.sendMessage(chatID, `Start height: \`${json.start_height}\`\n\n`    // with cosmos version upgrade, change here
                             + `Jailed: \`${jailed}\`\n\n`
-                            + `Tombstoned: \`${json.result.tombstoned}\`\n\n`
-                            + `Missed Blocks Counter: \`${json.result.missed_blocks_counter}\`\n\u200b\n`, {parseMode: 'Markdown'});
+                            + `Tombstoned: \`${json.tombstoned}\`\n\n`      // with cosmos version upgrade, change here
+                            + `Missed Blocks Counter: \`${json.missed_blocks_counter}\`\n\u200b\n`, {parseMode: 'Markdown'});   // with cosmos version upgrade, change here
                     }
                 })
                 .catch(e => handleErrors(bot, chatID, e, 'SEND_VALIDATOR_SIGNING_INFO'));
@@ -202,11 +201,11 @@ const queries = {
             httpUtil.httpGet(config.node.url, config.node.lcdPort, `/slashing/parameters`)
                 .then(data => {
                     let json = JSON.parse(data);
-                    bot.sendMessage(chatID, `Max evidence age: \`${parseInt(json.result.max_evidence_age, 10) / (1e9 * 24 * 3600)} days\`\n\n`
-                        + `Downtime Jail Duration: \`${parseInt(json.result.downtime_jail_duration, 10) / 1e9} seconds\`\n\n`
-                        + `Double Sign Slashing Fraction: \`${parseFloat(json.result.slash_fraction_double_sign, 10) * 100}\`\n\n`
-                        + `Downtime Slashing Fraction: \`${parseFloat(json.result.slash_fraction_downtime, 10) * 100}\`\n\n`
-                        + `Signed Blocks Window: \`${parseInt(json.result.signed_blocks_window, 10)}\`\n\u200b\n`, {parseMode: 'Markdown'});
+                    bot.sendMessage(chatID, `Max evidence age: \`${parseInt(json.max_evidence_age, 10) / (1e9 * 24 * 3600)} days\`\n\n` // with cosmos version upgrade, change here
+                        + `Downtime Jail Duration: \`${parseInt(json.downtime_jail_duration, 10) / 1e9} seconds\`\n\n`  // with cosmos version upgrade, change here
+                        + `Double Sign Slashing Fraction: \`${parseFloat(json.slash_fraction_double_sign, 10) * 100}\`\n\n` // with cosmos version upgrade, change here
+                        + `Downtime Slashing Fraction: \`${parseFloat(json.slash_fraction_downtime, 10) * 100}\`\n\n`   // with cosmos version upgrade, change here
+                        + `Signed Blocks Window: \`${parseInt(json.signed_blocks_window, 10)}\`\n\u200b\n`, {parseMode: 'Markdown'});   // with cosmos version upgrade, change here
                 })
                 .catch(e => handleErrors(bot, chatID, e, 'SEND_SLASHING_PARAMS'));
         },
@@ -214,12 +213,12 @@ const queries = {
             httpUtil.httpGet(config.node.url, config.node.lcdPort, `/minting/parameters`)
                 .then(data => {
                     let json = JSON.parse(data);
-                    bot.sendMessage(chatID, `Mint Denom: \`${json.result.mint_denom}\`\n\n`
-                        + `Inflation Rate Change: \`${parseFloat(json.result.inflation_rate_change, 10) * 100.0}\`\n\n`
-                        + `Inflation Max Rate: \`${parseFloat(json.result.inflation_max, 10) * 100.0}\`\n\n`
-                        + `Inflation Min Rate: \`${parseFloat(json.result.inflation_min, 10) * 100.0}\`\n\n`
-                        + `Goal Bonded: \`${parseFloat(json.result.goal_bonded, 10) * 100.0}\`\n\n`
-                        + `Blocks per year: \`${json.result.blocks_per_year}\`\n\u200b\n`, {parseMode: 'Markdown'});
+                    bot.sendMessage(chatID, `Mint Denom: \`${json.mint_denom}\`\n\n`        // with cosmos version upgrade, change here
+                        + `Inflation Rate Change: \`${parseFloat(json.inflation_rate_change, 10) * 100.0}\`\n\n`    // with cosmos version upgrade, change here
+                        + `Inflation Max Rate: \`${parseFloat(json.inflation_max, 10) * 100.0}\`\n\n`   // with cosmos version upgrade, change here
+                        + `Inflation Min Rate: \`${parseFloat(json.inflation_min, 10) * 100.0}\`\n\n`   // with cosmos version upgrade, change here
+                        + `Goal Bonded: \`${parseFloat(json.goal_bonded, 10) * 100.0}\`\n\n`            // with cosmos version upgrade, change here
+                        + `Blocks per year: \`${json.blocks_per_year}\`\n\u200b\n`, {parseMode: 'Markdown'});   // with cosmos version upgrade, change here
                 })
                 .catch(e => handleErrors(bot, chatID, e, 'SEND_MINTING_PARAMS'));
         },
@@ -227,7 +226,7 @@ const queries = {
             httpUtil.httpGet(config.node.url, config.node.lcdPort, `/minting/inflation`)
                 .then(data => {
                     let json = JSON.parse(data);
-                    bot.sendMessage(chatID, `Minting inflation \`${parseFloat(json.result, 10) * 100}\` at height \`${json.height}\`.`,
+                    bot.sendMessage(chatID, `Minting inflation \`${parseFloat(json, 10) * 100}\`.`,   // with cosmos version upgrade, change here
                         {parseMode: 'Markdown'});
                 })
                 .catch(e => handleErrors(bot, chatID, e, 'SEND_MINTING_INFLATION'));
@@ -236,9 +235,8 @@ const queries = {
             httpUtil.httpGet(config.node.url, config.node.lcdPort, `/staking/pool`)
                 .then(data => {
                     let json = JSON.parse(data);
-                    bot.sendMessage(chatID, `Height: \`${json.height}\`\n\n`
-                        + `Bonded Tokens: \`${parseInt(json.result.bonded_tokens, 10) / 1000000} ${config.token}\`\n\n`
-                        + `Not Bonded Tokens: \`${parseInt(json.result.not_bonded_tokens, 10) / 1000000} ${config.token}\`\n\u200b\n`,
+                    bot.sendMessage(chatID, `Bonded Tokens: \`${parseInt(json.bonded_tokens, 10) / 1000000} ${config.token}\`\n\n`  // with cosmos version upgrade, change here
+                        + `Not Bonded Tokens: \`${parseInt(json.not_bonded_tokens, 10) / 1000000} ${config.token}\`\n\u200b\n`,     // with cosmos version upgrade, change here
                         {parseMode: 'Markdown'});
                 })
                 .catch(e => handleErrors(bot, chatID, e, 'SEND_STAKING_POOL'));
@@ -247,11 +245,10 @@ const queries = {
             httpUtil.httpGet(config.node.url, config.node.lcdPort, `/staking/parameters`)
                 .then(data => {
                     let json = JSON.parse(data);
-                    bot.sendMessage(chatID, `Height: \`${json.height}\`\n\n`
-                        + `Unbonding Time: \`${json.result.unbonding_time / (1e9 * 24 * 3600)} days\`\n\n`
-                        + `Max Validators: \`${json.result.max_validators}\`\n\n`
-                        + `Max Entries: \`${json.result.max_entries}\`\n\n`
-                        + `Bond Denom: \`${json.result.bond_denom}\`\n\u200b\n`, {parseMode: 'Markdown'});
+                    bot.sendMessage(chatID, `Unbonding Time: \`${json.unbonding_time / (1e9 * 24 * 3600)} days\`\n\n`   // with cosmos version upgrade, change here
+                        + `Max Validators: \`${json.max_validators}\`\n\n`  // with cosmos version upgrade, change here
+                        + `Max Entries: \`${json.max_entries}\`\n\n`    // with cosmos version upgrade, change here
+                        + `Bond Denom: \`${json.bond_denom}\`\n\u200b\n`, {parseMode: 'Markdown'}); // with cosmos version upgrade, change here
                 })
                 .catch(e => handleErrors(bot, chatID, e, 'SEND_STAKING_PARAMS'));
         },
@@ -282,7 +279,7 @@ const queries = {
                                 await bot.sendMessage(chatID, `(${i + 1})\n\n`
                                     + `Tx Hash: \`${json.result.txs[i].hash}\`\n\n`
                                     + `Gas Wanted: \`${json.result.txs[i].tx_result.gasWanted}\`\n\n`
-                                    + `Gas USed: \`${json.result.txs[i].tx_result.gasUsed}\`\n\u200b\n`, {parseMode: 'Markdown'});
+                                    + `Gas Used: \`${json.result.txs[i].tx_result.gasUsed}\`\n\u200b\n`, {parseMode: 'Markdown'});
                             }
                         } else {
                             bot.sendMessage(chatID, `No transactions at height \`${height}\`.`, {parseMode: 'Markdown'});
@@ -323,7 +320,7 @@ function updateValidatorDetails(operatorAddress) {
     httpUtil.httpGet(config.node.url, config.node.lcdPort, `/staking/validators/${operatorAddress}`)
         .then(data => JSON.parse(data))
         .then(json => {
-            let validator = json.result;
+            let validator = json;       // with cosmos version upgrade, change here   
             let hexAddress = validatorUtils.getHexAddress(validatorUtils.bech32ToPubkey(validator.consensus_pubkey));
             let selfDelegationAddress = validatorUtils.getDelegatorAddrFromOperatorAddr(validator.operator_address);
             let validatorData = newValidatorObject(hexAddress, selfDelegationAddress, validator.operator_address,
