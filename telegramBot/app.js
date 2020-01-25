@@ -425,7 +425,7 @@ bot.on(['ask.validatorSigning'], async msg => {
 
 bot.connect();
 
-let ws;;
+let ws;
 
 const reinitWS = () => {
     ws = new WebSocket(wsConstants.url);

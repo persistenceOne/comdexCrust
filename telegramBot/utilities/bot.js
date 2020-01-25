@@ -16,29 +16,38 @@ async function waitForUserReply(bot, chatID, message, subEvent, options) {
     }
 }
 
-let wsTx = new WebSocket(wsConstants.url);
+let wsTx;
 
 const reinitWSTx = () => {
     wsTx = new WebSocket(wsConstants.url);
+    try {
+        wsTx.on('open', wsTxOpen);
+        wsTx.on('close', wsTxClose);
+        wsTx.on('message', wsTxIncoming);
+        wsTx.on('error', wsTxError);
+    } catch (e) {
+        errors.Log(e, 'WS_TX_CONNECTION');
+        wsTx.send(JSON.stringify(wsConstants.unsubscribeAllMsg));
+        reinitWSTx();
+    }
 };
 
-try {
-    wsTx.on('open', wsTxOpen);
-    wsTx.on('close', wsTxClose);
-    wsTx.on('message', wsTxIncoming);
-} catch (e) {
-    errors.Log(e, 'WS_TX_CONNECTION');
-    wsTx.send(JSON.stringify(wsConstants.unsubscribeAllMsg));
-    reinitWSTx();
-}
+reinitWSTx();
 
 function wsTxOpen() {
     wsTx.send(JSON.stringify(wsConstants.subscribeTxMsg));
 }
 
-function wsTxClose() {
-    errors.Log('ws connection closed!', 'WS_TX_CONNECTION');
-    reinitWS();
+function wsTxClose(code, reason) {
+    let err = {statusCode: code, message: 'WS TX connection closed:    ' + reason};
+    errors.Log(err, 'WS_TX_CONNECTION');
+    reinitWSTx();
+}
+
+function wsTxError(err) {
+    errors.Log(err, 'WS_TX_CONNECTION');
+    wsTx.send(JSON.stringify(wsConstants.unsubscribeAllMsg));
+    wsTx.close();
 }
 
 //If this doesn't work when there are more than one transactions in one block,
