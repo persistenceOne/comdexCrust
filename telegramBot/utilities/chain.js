@@ -44,11 +44,11 @@ const queries = {
             httpUtil.httpGet(config.node.url, config.node.abciPort, '/net_info')
                 .then(async data => {
                     let json = JSON.parse(data);
-                    await botUtils.sendMessage(bot, chatID, `${json.result.n_peers} peers in total.`, {parseMode: 'Markdown'});
+                    await bot.sendMessage(chatID, `${json.result.n_peers} peers in total.`, {parseMode: 'Markdown'});
                     let peers = json.result.peers;
                     let i = 1;
                     for (let peer of peers) {
-                        await botUtils.sendMessage(bot, chatID, `(${i})\n\nNode ID: \`${peer.node_info.id}\`\n\n`
+                        await bot.sendMessage(chatID, `(${i})\n\nNode ID: \`${peer.node_info.id}\`\n\n`
                             + `Moniker: \`${peer.node_info.moniker}\`\n\u200b\n`,
                             {parseMode: 'Markdown'});
                         i += 1;
@@ -93,7 +93,7 @@ const queries = {
                 .then(async data => {
                     let json = JSON.parse(data);    // with cosmos version upgrade, change here
                     let validatorsList = json;
-                    await botUtils.sendMessage(bot, chatID, `\`${validatorsList.length}\` validators in total at current height.`, {parseMode: 'Markdown'});
+                    await bot.sendMessage(chatID, `\`${validatorsList.length}\` validators in total at current height.`, {parseMode: 'Markdown'});
                     let i = 1;
                     for (let validator of validatorsList) {
                         let selfDelegationAddress = validatorUtils.getDelegatorAddrFromOperatorAddr(validator.operator_address);
@@ -102,7 +102,7 @@ const queries = {
                             + `Moniker: \`${validator.description.moniker}\`\n\n`
                             + `Details: \`${validator.description.details}\`\n\n`
                             + `Website: ${validator.description.website}\n\u200b\n`;
-                        await botUtils.sendMessage(bot, chatID, message, {parseMode: 'Markdown'});
+                        await bot.sendMessage(chatID, message, {parseMode: 'Markdown'});
                         i++;
                     }
                 })
@@ -273,9 +273,9 @@ const queries = {
                         botUtils.sendMessage(bot, chatID, 'Invalid height.');
                     } else {
                         if (json.result.txs[0]) {
-                            await botUtils.sendMessage(bot, chatID, `\`${json.result.txs.length}\` transactions at height \`${height}\`.`);
+                            await bot.sendMessage(chatID, `\`${json.result.txs.length}\` transactions at height \`${height}\`.`);
                             for (let i = 0; i < json.result.txs.length; i++) {
-                                await botUtils.sendMessage(bot, chatID, `(${i + 1})\n\n`
+                                await bot.sendMessage(chatID, `(${i + 1})\n\n`
                                     + `Tx Hash: \`${json.result.txs[i].hash}\`\n\n`
                                     + `Gas Wanted: \`${json.result.txs[i].tx_result.gasWanted}\`\n\n`
                                     + `Gas Used: \`${json.result.txs[i].tx_result.gasUsed}\`\n\u200b\n`, {parseMode: 'Markdown'});
@@ -294,7 +294,7 @@ const queries = {
                     if (json.error) {
                         botUtils.sendMessage(bot, chatID, 'Invalid height.');
                     } else {
-                        await botUtils.sendMessage(bot, chatID, `Block Hash: \`${json.result.block_meta.block_id.hash}\`\n\n`
+                        await bot.sendMessage(chatID, `Block Hash: \`${json.result.block_meta.block_id.hash}\`\n\n`
                             + `Proposer: \`${json.result.block.header.proposer_address}\`\n\n`
                             + `Evidence: \`${json.result.block.evidence.evidence}\`\n\u200b\n`, {parseMode: 'Markdown'});
                         queries.sendTxByHeight(bot, chatID, height);
