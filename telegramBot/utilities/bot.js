@@ -1,4 +1,3 @@
-const chainUtils = require('./chain');
 const errors = require('./errors');
 const jsonUtils = require('./json');
 const WebSocket = require('ws');
@@ -9,10 +8,22 @@ const wsConstants = require('../constants/websocket');
 async function waitForUserReply(bot, chatID, message, subEvent, options) {
     if (!options) {
         await bot.eventList;
-        bot.sendMessage(chatID, message, {ask: subEvent});
+        bot.sendMessage(chatID, message, {ask: subEvent})
+        .catch((err) => errors.Log(err))
     } else {
         await bot.eventList;
-        bot.sendMessage(chatID, message, {ask: subEvent}, options);
+        bot.sendMessage(chatID, message, {ask: subEvent}, options)
+        .catch((err) => errors.Log(err))
+    }
+}
+
+function sendMessage(bot, chatID, message, options) {
+    if (!options) {
+        bot.sendMessage(chatID, message)
+        .catch((err) => errors.Log(err))
+    } else {
+        bot.sendMessage(chatID, message, options)
+        .catch((err) => errors.Log(err))
     }
 }
 
@@ -96,8 +107,28 @@ async function findAndUpdateValidator(events) {
     }
     if (operatorAddress) {
         console.log('Updating validator ' + operatorAddress + '...');
-        chainUtils.updateValidatorDetails(operatorAddress);
+        updateValidatorDetails(operatorAddress);
     }
 }
 
-module.exports = {waitForUserReply};
+function updateValidatorDetails(operatorAddress) {
+    httpUtil.httpGet(config.node.url, config.node.lcdPort, `/staking/validators/${operatorAddress}`)
+        .then(data => JSON.parse(data))
+        .then(json => {
+            let validator = json;       // with cosmos version upgrade, change here   
+            let hexAddress = validatorUtils.getHexAddress(validatorUtils.bech32ToPubkey(validator.consensus_pubkey));
+            let selfDelegationAddress = validatorUtils.getDelegatorAddrFromOperatorAddr(validator.operator_address);
+            let validatorData = newValidatorObject(hexAddress, selfDelegationAddress, validator.operator_address,
+                validator.consensus_pubkey, validator.jailed, validator.description);
+            dataUtil.upsertOne(dataUtil.validatorCollection, {operatorAddress: validator.operator_address}, {$set: validatorData})
+                .then((res, err) => {
+                    console.log(validator.operator_address + ' was updated.');
+                })
+                .catch(err => errors.Log(err, 'UPDATING_VALIDATORS'));
+        })
+        .catch(err => {
+            errors.Log(err, 'UPDATING_VALIDATORS');
+        });
+}
+
+module.exports = {waitForUserReply, sendMessage, updateValidatorDetails};

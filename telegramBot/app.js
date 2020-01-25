@@ -29,20 +29,20 @@ bot.on(['/start', '/home'], msg => {
     let replyMarkup = bot.keyboard([
         [Buttons.chain.label, Buttons.hide.label],
     ], {resize: true});
-    return bot.sendMessage(msg.chat.id, `How can I help you?`, {replyMarkup});
+    return botUtils.sendMessage(bot, msg.chat.id, `How can I help you?`, {replyMarkup});
 });
 
 bot.on('/hide', msg => {
-    return bot.sendMessage(msg.chat.id, 'Keyboard is now hidden. Type /start to re-enable.', {replyMarkup: 'hide'});
+    return botUtils.sendMessage(bot, msg.chat.id, 'Keyboard is now hidden. Type /start to re-enable.', {replyMarkup: 'hide'});
 });
 
 bot.on('/help', (msg) => {
-    return bot.sendMessage(msg.chat.id, `\`/start\` to start using the bot.`, {parseMode: 'Markdown'});
+    return botUtils.sendMessage(bot, msg.chat.id, `\`/start\` to start using the bot.`, {parseMode: 'Markdown'});
 });
 
 bot.on(/^\/say (.+)$/, (msg, props) => {
     const text = props.match[1];
-    return bot.sendMessage(msg.chat.id, text, {replyToMessage: msg.message_id});
+    return botUtils.sendMessage(bot, msg.chat.id, text, {replyToMessage: msg.message_id});
 });
 
 bot.on('edit', (msg) => {
@@ -59,7 +59,7 @@ bot.on(['/chain', '/back'], msg => {
         [Buttons.alerts.label, Buttons.lcdQuery.label],
         [Buttons.home.label, Buttons.hide.label]
     ], {resize: true});
-    return bot.sendMessage(msg.chat.id, 'How can I help you?', {replyMarkup});
+    return botUtils.sendMessage(bot, msg.chat.id, 'How can I help you?', {replyMarkup});
 });
 
 bot.on(['/node_queries'], msg => {
@@ -69,7 +69,7 @@ bot.on(['/node_queries'], msg => {
         [Buttons.back.label, Buttons.home.label, Buttons.hide.label]
     ], {resize: true});
 
-    return bot.sendMessage(msg.chat.id, 'What would you like to query?', {replyMarkup});
+    return botUtils.sendMessage(bot, msg.chat.id, 'What would you like to query?', {replyMarkup});
 });
 
 bot.on(['/chain_queries'], msg => {
@@ -80,7 +80,7 @@ bot.on(['/chain_queries'], msg => {
         [Buttons.txLookup.label, Buttons.txByHeight.label],
         [Buttons.back.label, Buttons.home.label, Buttons.hide.label]
     ], {resize: true});
-    return bot.sendMessage(msg.chat.id, 'What would you like to query?', {replyMarkup});
+    return botUtils.sendMessage(bot, msg.chat.id, 'What would you like to query?', {replyMarkup});
 });
 
 bot.on(['/alerts'], msg => {
@@ -88,7 +88,7 @@ bot.on(['/alerts'], msg => {
         [Buttons.subscribe.label, Buttons.unsubscribe.label],
         [Buttons.back.label, Buttons.home.label, Buttons.hide.label]
     ], {resize: true});
-    return bot.sendMessage(msg.chat.id, 'What would you like to query?', {replyMarkup});
+    return botUtils.sendMessage(bot, msg.chat.id, 'What would you like to query?', {replyMarkup});
 });
 
 bot.on(['/lcd_queries'], msg => {
@@ -98,7 +98,7 @@ bot.on(['/lcd_queries'], msg => {
         [Buttons.slashingParams.label, Buttons.mintingParams.label, Buttons.validatorSigning.label],
         [Buttons.back.label, Buttons.home.label, Buttons.hide.label]
     ], {resize: true});
-    return bot.sendMessage(msg.chat.id, 'What would you like to query?', {replyMarkup});
+    return botUtils.sendMessage(bot, msg.chat.id, 'What would you like to query?', {replyMarkup});
 });
 
 bot.on('/subscribe', async (msg) => {
@@ -110,7 +110,7 @@ bot.on('ask.valAddr', msg => {
     const chatID = msg.chat.id;
 
     if (!validatorUtils.verifyValidatorOperatorAddress(valAddr)) {
-        return bot.sendMessage(chatID, errors.INVALID_ADDRESS, {parseMode: 'Markdown'});
+        return botUtils.sendMessage(bot, chatID, errors.INVALID_ADDRESS, {parseMode: 'Markdown'});
     }
 
     httpUtils.httpGet(config.node.url, config.node.lcdPort, `/staking/validators/${valAddr}`)
@@ -118,7 +118,7 @@ bot.on('ask.valAddr', msg => {
         .then(async json => {
             let validator = json;               // with cosmos version upgrade, change here
             if (validator.jailed) {
-                return bot.sendMessage(chatID, `Validator is jailed right now. Cannot subscribe to it.`, {parseMode: 'Markdown'});
+                return botUtils.sendMessage(bot, chatID, `Validator is jailed right now. Cannot subscribe to it.`, {parseMode: 'Markdown'});
             }
             let hexAddress = validatorUtils.getHexAddress(validatorUtils.bech32ToPubkey(validator.consensus_pubkey));
             let selfDelegationAddress = validatorUtils.getDelegatorAddrFromOperatorAddr(validator.operator_address);
@@ -128,19 +128,19 @@ bot.on('ask.valAddr', msg => {
                 .then((res, err) => {
                     if (err) {
                         errors.Log(err, 'SUBSCRIBE_UPDATING_VALIDATORS');
-                        return bot.sendMessage(chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                        return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                     }
                 })
                 .catch(err => {
                     errors.Log(err, 'SUBSCRIBE_UPDATING_VALIDATORS');
-                    return bot.sendMessage(chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                    return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                 });
             let query = {operatorAddress: valAddr};
             dataUtils.find(dataUtils.subscriberCollection, query)
                 .then((result, err) => {
                     if (err) {
                         errors.Log(err, 'SUBSCRIBE_FIND');
-                        return bot.sendMessage(chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                        return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                     }
                     let validatorSubscribers = result[0];
                     if (result.length === 0) {
@@ -151,11 +151,11 @@ bot.on('ask.valAddr', msg => {
                             subscribers: subscribers
                         })
                             .then((res, err) => {
-                                return bot.sendMessage(chatID, `You are subscribed.`, {parseMode: 'Markdown'});
+                                return botUtils.sendMessage(bot, chatID, `You are subscribed.`, {parseMode: 'Markdown'});
                             })
                             .catch(err => {
                                 errors.Log(err, 'SUBSCRIBE_INSERT');
-                                return bot.sendMessage(chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                                return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                             });
                     } else {
                         let subscribers = validatorSubscribers.subscribers;
@@ -165,7 +165,7 @@ bot.on('ask.valAddr', msg => {
                         } else {
                             for (let i = 0; i < subscribers.length; i++) {
                                 if (subscribers[i].chatID === chatID) {
-                                    return bot.sendMessage(chatID, `You are already subscribed to the validator: \`${valAddr}\`.`, {parseMode: 'Markdown'});
+                                    return botUtils.sendMessage(bot, chatID, `You are already subscribed to the validator: \`${valAddr}\`.`, {parseMode: 'Markdown'});
                                 }
                             }
                             subscribers.push({chatID: chatID});
@@ -178,25 +178,25 @@ bot.on('ask.valAddr', msg => {
                             }
                         })
                             .then((res, err) => {
-                                return bot.sendMessage(chatID, `You are subscribed.`, {parseMode: 'Markdown'});
+                                return botUtils.sendMessage(bot, chatID, `You are subscribed.`, {parseMode: 'Markdown'});
                             })
                             .catch(err => {
                                 errors.Log(err, 'SUBSCRIBE_UPDATE');
-                                return bot.sendMessage(chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                                return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                             });
                     }
                 })
                 .catch(err => {
                     errors.Log(err, 'SUBSCRIBE');
-                    bot.sendMessage(chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                    botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                 })
         })
         .catch(e => {
             errors.Log(e, 'SUBSCRIBE');
             if (e.statusCode === 400) {
-                bot.sendMessage(chatID, errors.INVALID_ADDRESS, {parseMode: 'Markdown'});
+                botUtils.sendMessage(bot, chatID, errors.INVALID_ADDRESS, {parseMode: 'Markdown'});
             } else {
-                bot.sendMessage(chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
             }
         });
 });
@@ -210,29 +210,29 @@ bot.on('ask.valAddrUnsub', msg => {
     const chatID = msg.chat.id;
 
     if (!validatorUtils.verifyValidatorOperatorAddress(valAddr)) {
-        return bot.sendMessage(chatID, errors.INVALID_ADDRESS, {parseMode: 'Markdown'});
+        return botUtils.sendMessage(bot, chatID, errors.INVALID_ADDRESS, {parseMode: 'Markdown'});
     }
     let query = {operatorAddress: valAddr};
     dataUtils.find(dataUtils.subscriberCollection, query)
         .then((result, err) => {
             if (err) {
                 errors.Log(e, 'UNSUBSCRIBE_FIND');
-                return bot.sendMessage(chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
             }
             if (result.length !== 1) {
                 errors.Log(e, 'UNSUBSCRIBE_FIND');
-                return bot.sendMessage(chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
             }
 
             let validatorSubscribers = result[0];
             if (result.length === 0 || validatorSubscribers.subscribers.length === 0) {
-                return bot.sendMessage(chatID, `You are not subscribed to validator.`, {parseMode: 'Markdown'});
+                return botUtils.sendMessage(bot, chatID, `You are not subscribed to validator.`, {parseMode: 'Markdown'});
             } else {
                 let oldSubscribers = validatorSubscribers.subscribers;
 
                 let removeByAttribute = jsonUtils.RemoveByAttribute(oldSubscribers, 'chatID', chatID);
                 if (!removeByAttribute.removed) {
-                    return bot.sendMessage(chatID, `You are not subscribed to validator.`, {parseMode: 'Markdown'});
+                    return botUtils.sendMessage(bot, chatID, `You are not subscribed to validator.`, {parseMode: 'Markdown'});
                 } else {
                     dataUtils.updateOne(dataUtils.subscriberCollection, query, {
                         $set: {
@@ -241,18 +241,18 @@ bot.on('ask.valAddrUnsub', msg => {
                         }
                     })
                         .then((res, err) => {
-                            return bot.sendMessage(chatID, `You are now unsubscribed to the validator: \`${valAddr}\`.`, {parseMode: 'Markdown'});
+                            return botUtils.sendMessage(bot, chatID, `You are now unsubscribed to the validator: \`${valAddr}\`.`, {parseMode: 'Markdown'});
                         })
                         .catch(err => {
                             errors.Log(e, 'UNSUBSCRIBE_UPDATE');
-                            return bot.sendMessage(chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                            return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                         });
                 }
             }
         })
         .catch(err => {
             errors.Log(err, 'UNSUBSCRIBE');
-            return bot.sendMessage(chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+            return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
         });
 });
 
@@ -306,7 +306,7 @@ bot.on(['ask.validatorInfo'], async msg => {
     const addr = msg.text;
     const chatID = msg.chat.id;
     if (!validatorUtils.verifyValidatorOperatorAddress(addr)) {
-        return bot.sendMessage(chatID, 'Address is invalid!');
+        return botUtils.sendMessage(bot, chatID, 'Address is invalid!');
     }
     chainUtils.queries.sendValidatorInfo(bot, chatID, addr)
 });
@@ -347,7 +347,7 @@ bot.on(['ask.accountBalance'], async msg => {
     const addr = msg.text;
     const chatID = msg.chat.id;
     if (addr.length !== 45) {
-        return bot.sendMessage(chatID, 'Address is invalid!');
+        return botUtils.sendMessage(bot, chatID, 'Address is invalid!');
     } else {
         chainUtils.queries.sendBalance(bot, chatID, addr)
     }
@@ -362,7 +362,7 @@ bot.on(['ask.delegatorRewards'], async msg => {
     const addr = msg.text;
     const id = msg.chat.id;
     if (addr.length !== 45) {
-        return bot.sendMessage(id, 'Address is invalid!');
+        return botUtils.sendMessage(bot, id, 'Address is invalid!');
     } else {
         chainUtils.queries.sendDelRewards(bot, msg.chat.id, addr);
     }
@@ -377,7 +377,7 @@ bot.on(['ask.validatorRewards'], async msg => {
     const addr = msg.text;
     const id = msg.chat.id;
     if (addr.length !== 52) {
-        return bot.sendMessage(id, 'Address is invalid!');
+        return botUtils.sendMessage(bot, id, 'Address is invalid!');
     } else {
         chainUtils.queries.sendValRewards(bot, msg.chat.id, addr);
     }
@@ -417,7 +417,7 @@ bot.on(['ask.validatorSigning'], async msg => {
     const addr = msg.text;
     const chatID = msg.chat.id;
     if (addr.length !== 83) {
-        return bot.sendMessage(chatID, 'Address is invalid!');
+        return botUtils.sendMessage(bot, chatID, 'Address is invalid!');
     } else {
         chainUtils.queries.sendValSigningInfo(bot, msg.chat.id, addr);
     }
@@ -506,7 +506,7 @@ async function checkAndSendMsgOnValidatorsAbsence(json, latestBlockHeight) {
                             }
                         } else {
                             if (result.length === 0) {
-                                chainUtils.updateValidatorDetails(validatorSubscribers.operatorAddress);
+                                botUtils.updateValidatorDetails(validatorSubscribers.operatorAddress);
                             } else {
                                 errors.Log('Incorrect database');
                             }
@@ -524,7 +524,7 @@ async function checkAndSendMsgOnValidatorsAbsence(json, latestBlockHeight) {
 
 async function sendMsgToSubscribers(moniker, subscribersList, latestBlockHeight) {
     subscribersList.forEach((subscriber) => {
-        bot.sendMessage(subscriber.chatID, `Alert: \`${moniker} is absent at height \`${latestBlockHeight}`, {
+        botUtils.sendMessage(bot, subscriber.chatID, `Alert: \`${moniker} is absent at height \`${latestBlockHeight}`, {
             parseMode: 'Markdown',
             notification: true
         });
