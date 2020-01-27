@@ -266,14 +266,14 @@ const queries = {
                 .catch(e => handleErrors(bot, chatID, e, 'SEND_TX_BY_HASH'));
         },
         sendTxByHeight(bot, chatID, height) {
-            httpUtil.httpGet(config.node.url, config.node.abciPort, `/tx_search?query="tx.height=${height}"&per_page=30`)
+            httpUtil.httpGet(config.node.url, config.node.abciPort, `/tx_search?query="tx.height=${height}"`)
                 .then(async data => {
                     let json = JSON.parse(data);
                     if (json.error) {
                         botUtils.sendMessage(bot, chatID, 'Invalid height.');
                     } else {
                         if (json.result.txs[0]) {
-                            await bot.sendMessage(chatID, `\`${json.result.txs.length}\` transactions at height \`${height}\`.`);
+                            await bot.sendMessage(chatID, `\`${json.result.txs.length}\` transactions at height \`${height}\`.`, {parseMode: 'Markdown'});
                             for (let i = 0; i < json.result.txs.length; i++) {
                                 await bot.sendMessage(chatID, `(${i + 1})\n\n`
                                     + `Tx Hash: \`${json.result.txs[i].hash}\`\n\n`
@@ -308,7 +308,7 @@ const queries = {
 function handleErrors(bot, chatID, err, method = '') {
     console.log(JSON.stringify(err));
     errors.Log(err, method);
-    if (err.statusCode === 400) {
+    if (err.statusCode === 400 || err.statusCode === 404) {
         botUtils.sendMessage(bot, chatID, errors.INVALID_REQUEST, {parseMode: 'Markdown'});
     } else {
         botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});

@@ -131,4 +131,4 @@ function updateValidatorDetails(operatorAddress) {
         });
 }
 
-module.exports = {waitForUserReply, sendMessage, updateValidatorDetails};
+module.exports = {waitForUserReply, sendMessage, updateValidatorDetails, wsTxError};

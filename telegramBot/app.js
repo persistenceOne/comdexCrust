@@ -459,6 +459,20 @@ function wsError(err) {
     ws.close();
 }
 
+let latestBlockHeight = 1;
+let oldBlockHeight = 0;
+
+function scheduler() {
+    if (latestBlockHeight === oldBlockHeight) {
+        wsError('WS Connection Freezed');
+        botUtils.wsTxError('WS Connection Freezed');
+    } else {
+        oldBlockHeight = latestBlockHeight;
+    }
+}
+
+setInterval(scheduler, 120000);
+
 function wsIncoming(data) {
     let json = jsonUtils.Parse(data, 'WS_INCOMING');
     if (json === undefined) {
@@ -467,7 +481,7 @@ function wsIncoming(data) {
     if (errors.isEmpty(json.result)) {
         console.log('ws Connected!');
     } else {
-        let latestBlockHeight = json.result.data.value.block.header.height;
+        latestBlockHeight = json.result.data.value.block.header.height;
         console.log(latestBlockHeight);
         checkAndSendMsgOnValidatorsAbsence(json, latestBlockHeight);
     }
