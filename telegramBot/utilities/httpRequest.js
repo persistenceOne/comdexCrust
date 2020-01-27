@@ -58,8 +58,9 @@ class HttpUtils {
             http.request(options, (res) => {
                 // response status check
                 if (res.statusCode < 200 || res.statusCode > 299) {
-                    console.log('asdasdas');
-                    reject({statusCode: res.statusCode, message: errors.ERROR_RESPONSE});
+                    let err = {statusCode: res.statusCode, message: errors.ERROR_RESPONSE};
+                    errors.Log(err, 'HTTP_GET')
+                    reject(err);
                 }
                 // var to store res body
                 let res_body = '';
