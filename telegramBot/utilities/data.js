@@ -9,13 +9,14 @@ const validatorCollection = 'validators';
 
 let dbo;    //Not to export.
 
-function InitializeDB() {
+function SetupDB(callback) {
     console.log('Intialzing DB...');
     MongoClient.connect(mongoURL, {useUnifiedTopology: true})
         .then((db, err) => {
             if (err) throw  err;
             dbo = db.db(config.dbName);
-            console.log('DB Initialization complete.')
+            console.log('DB Initialization complete.');
+            callback();
         })
         .catch(err => {
             errors.exitProcess(err);
@@ -45,7 +46,7 @@ function upsertOne(collection, query, data) {
 module.exports = {
     subscriberCollection,
     validatorCollection,
-    InitializeDB,
+    SetupDB,
     find,
     insertOne,
     insertMany,

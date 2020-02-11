@@ -12,7 +12,7 @@ const botUtils = require('./utilities/bot');
 const HttpUtils = require('./utilities/httpRequest');
 const httpUtils = new HttpUtils();
 
-dataUtils.InitializeDB();
+dataUtils.SetupDB(validatorUtils.initializeDB);
 
 const bot = new TeleBot({
     token: config.botToken,

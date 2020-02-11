@@ -3,7 +3,6 @@ const errors = require('./errors');
 const httpUtils = new HttpUtils();
 const config = require('../config.json');
 const dataUtils = require('./data');
-const jsonUtils = require('./json');
 const botUtils = require('./bot');
 const WebSocket = require('ws');
 const wsConstants = require('../constants/websocket');
@@ -154,13 +153,7 @@ function updateValidatorDetails(operatorAddress) {
         .then(data => JSON.parse(data))
         .then(json => {
             let validator = json.result;       // with cosmos version upgrade, change here
-            let hexAddress = addressOperations.getHexAddress(addressOperations.bech32ToPubkey(validator.consensus_pubkey));
-            let selfDelegationAddress = addressOperations.getDelegatorAddrFromOperatorAddr(validator.operator_address);
-            let validatorData = newValidatorObject(hexAddress, selfDelegationAddress, validator.operator_address,
-                validator.consensus_pubkey, validator.jailed, validator.description);
-            dataUtils.upsertOne(dataUtils.validatorCollection, {operatorAddress: validator.operator_address}, {$set: validatorData})
-                .then(console.log(validator.operator_address + ' was updated.'))
-                .catch(err => errors.Log(err, 'UPDATING_VALIDATORS'));
+            updateValidator(validator);
         })
         .catch(err => {
             errors.Log(err, 'UPDATING_VALIDATORS');
@@ -178,4 +171,28 @@ function newValidatorObject(hexAddress, selfDelegateAddress, operatorAddress, co
     };
 }
 
-module.exports = {addressOperations, updateValidatorDetails, newValidatorObject, wsTxError};
+function initializeDB() {
+    httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators`)
+        .then(data => JSON.parse(data))
+        .then(json => {
+            let validators = json.result;       // with cosmos version upgrade, change here
+            validators.forEach((validator) => {
+                updateValidator(validator);
+            });
+        })
+        .catch(err => {
+            errors.Log(err, 'UPDATING_VALIDATORS');
+        });
+}
+
+function updateValidator(validator) {
+    let hexAddress = addressOperations.getHexAddress(addressOperations.bech32ToPubkey(validator.consensus_pubkey));
+    let selfDelegationAddress = addressOperations.getDelegatorAddrFromOperatorAddr(validator.operator_address);
+    let validatorData = newValidatorObject(hexAddress, selfDelegationAddress, validator.operator_address,
+        validator.consensus_pubkey, validator.jailed, validator.description);
+    dataUtils.upsertOne(dataUtils.validatorCollection, {operatorAddress: validator.operator_address}, {$set: validatorData})
+        .then(console.log(validator.operator_address + ' was updated.'))
+        .catch(err => errors.Log(err, 'UPDATING_VALIDATORS'));
+}
+
+module.exports = {addressOperations, updateValidatorDetails, newValidatorObject, wsTxError, initializeDB};
