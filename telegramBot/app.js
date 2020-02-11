@@ -7,12 +7,16 @@ const errors = require('./utilities/errors');
 const jsonUtils = require('./utilities/json');
 const Buttons = require('./constants/buttons');
 const validatorUtils = require('./utilities/validator');
+const subscriberUtils = require('./utilities/subscriber');
 const chainUtils = require('./utilities/chain');
 const botUtils = require('./utilities/bot');
 const HttpUtils = require('./utilities/httpRequest');
 const httpUtils = new HttpUtils();
 
-dataUtils.SetupDB(validatorUtils.initializeDB);
+dataUtils.SetupDB(function () {
+    validatorUtils.initializeValidatorDB();
+    subscriberUtils.initializeSubscriberDB();
+});
 
 const bot = new TeleBot({
     token: config.botToken,
@@ -207,9 +211,7 @@ bot.on('ask.valAddr', msg => {
                             height: latestBlockHeight,
                             subscribers: subscribers
                         })
-                            .then((res, err) => {
-                                return botUtils.sendMessage(bot, chatID, `You are subscribed.`, {parseMode: 'Markdown'});
-                            })
+                            .then(botUtils.sendMessage(bot, chatID, `You are subscribed.`, {parseMode: 'Markdown'}))
                             .catch(err => {
                                 errors.Log(err, 'SUBSCRIBE_INSERT');
                                 return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});

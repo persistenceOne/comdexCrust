@@ -4,6 +4,7 @@ const httpUtils = new HttpUtils();
 const config = require('../config.json');
 const dataUtils = require('./data');
 const botUtils = require('./bot');
+const subscriberUtils = require('./subscriber');
 const WebSocket = require('ws');
 const wsConstants = require('../constants/websocket');
 
@@ -108,11 +109,13 @@ function wsTxIncoming(data) {
             if (tx.success) {
                 tx.events.forEach((event) => {
                     event.attributes.forEach((attribute) => {
-                        if (attribute.value === 'unjail' || attribute.value === 'edit_validator') {
-                            findAndUpdateValidator(tx.events)
-                                .catch(err => {
-                                    errors.Log(err, 'FIND_AND_UPDATE_VALIDATOR')
-                                })
+                        switch (attribute.value) {
+                            case 'unjail':
+                            case 'edit_validator':
+                                findAndUpdateValidator(tx.events)
+                                    .catch(err => errors.Log(err, 'FIND_AND_UPDATE_VALIDATOR'))
+                                break;
+                            case 'create_validator':
                         }
                     });
                 });
@@ -168,7 +171,7 @@ function newValidatorObject(hexAddress, selfDelegateAddress, operatorAddress, co
     };
 }
 
-function initializeDB() {
+function initializeValidatorDB() {
     httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators`)
         .then(data => JSON.parse(data))
         .then(json => {
@@ -178,7 +181,7 @@ function initializeDB() {
             });
         })
         .catch(err => {
-            errors.Log(err, 'UPDATING_VALIDATORS');
+            errors.exitProcess(err, 'INITIALIZE_VALIDATOR_DB');
         });
 }
 
@@ -189,7 +192,7 @@ function updateValidator(validator) {
         validator.consensus_pubkey, validator.jailed, validator.description);
     dataUtils.upsertOne(dataUtils.validatorCollection, {operatorAddress: validator.operator_address}, {$set: validatorData})
         .then(console.log(validator.operator_address + ' was updated.'))
-        .catch(err => errors.Log(err, 'UPDATING_VALIDATORS'));
+        .catch(err => errors.Log(err, 'DB_UPDATING_VALIDATORS'));
 }
 
 
@@ -212,4 +215,33 @@ function getValidatorMessage(validator, totalBondedToken) {
         + `Website: ${validator.description.website}\n\u200b\n`;
 }
 
-module.exports = {addressOperations, updateValidatorDetails, newValidatorObject, wsTxError, initializeDB, getValidatorMessage};
+async function createNewValidator(events) {
+    let attributes;
+    let operatorAddress;
+    for (let i = 0; i < events.length; i++) {
+        if (events[i].type === 'create_validator') {
+            attributes = events[i].attributes;
+            break;
+        }
+    }
+    for (let i = 0; i < attributes.length; i++) {
+        if (attributes[i].key === 'validator') {
+            operatorAddress = attributes[i].value;
+            break;
+        }
+    }
+    if (operatorAddress) {
+        httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${operatorAddress}`)
+            .then(data => JSON.parse(data))
+            .then(json => {
+                let validator = json.result;       // with cosmos version upgrade, change here
+                updateValidator(validator);
+                subscriberUtils.initializeValidatorSubscriber(validator, json.height);      // with cosmos version upgrade, change here
+            })
+            .catch(err => {
+                errors.Log(err, 'CREATE_NEW_VALIDATOR');
+            });
+    }
+}
+
+module.exports = {addressOperations, updateValidatorDetails, newValidatorObject, wsTxError, initializeValidatorDB, getValidatorMessage};

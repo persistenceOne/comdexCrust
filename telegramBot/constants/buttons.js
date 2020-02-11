@@ -34,8 +34,7 @@ const buttons = {
         command: '/voting_power'
     },
     commission: {
-        label: '' +
-            'Commission',
+        label: 'Commission',
         command: '/commission'
     },
     alerts: {

@@ -14,7 +14,7 @@ function exitProcess(err = '', code = 1) {
     } else {
         log = err.message;
     }
-    console.log('Server Stopped:    ' + log);
+    console.log('Server Stopped with Status Code '+ code +':    ' + log);
     process.exit(code);
 }
 
