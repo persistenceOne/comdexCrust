@@ -100,9 +100,6 @@ function wsTxError(err) {
 // to query and update.
 function wsTxIncoming(data) {
     let json = JSON.parse(data);
-    if (json === undefined) {
-        errors.Log('Cannot parse data from ws connection.');
-    }
     if (errors.isEmpty(json.result)) {
         console.log('ws Tx Connected!');
     } else {
@@ -195,4 +192,24 @@ function updateValidator(validator) {
         .catch(err => errors.Log(err, 'UPDATING_VALIDATORS'));
 }
 
-module.exports = {addressOperations, updateValidatorDetails, newValidatorObject, wsTxError, initializeDB};
+
+function getValidatorMessage(validator, totalBondedToken) {
+    let selfDelegationAddress = addressOperations.getDelegatorAddrFromOperatorAddr(validator.operator_address);
+    let rate = (parseFloat(validator.commission.commission_rates.rate) * 100.0).toFixed(2);
+    let maxRate = (parseFloat(validator.commission.commission_rates.max_rate) * 100.0).toFixed(2);
+    let maxChangeRate = (parseFloat(validator.commission.commission_rates.max_change_rate) * 100.0).toFixed(2);
+    let votingPower = (parseInt(validator.tokens, 10)/totalBondedToken * 100.0).toFixed(2);
+    let totalTokens = (validator.tokens/1000000).toFixed(0);
+    return `Operator Address: \`${validator.operator_address}\`\n\n`
+        + `Self Delegation Address: \`${selfDelegationAddress}\`\n\n`
+        + `Moniker: \`${validator.description.moniker}\`\n\n`
+        + `Voting Power: \`${votingPower}\` %\n\n`
+        + `Current Commission Rate: \`${rate}\` %\n\n`
+        + `Max Commission Rate: \`${maxRate}\` %\n\n`
+        + `Max Change Rate: \`${maxChangeRate}\` %\n\n`
+        + `Total Tokens: \`${totalTokens}\` \`${config.token}\`\n\n`
+        + `Details: \`${validator.description.details}\`\n\n`
+        + `Website: ${validator.description.website}\n\u200b\n`;
+}
+
+module.exports = {addressOperations, updateValidatorDetails, newValidatorObject, wsTxError, initializeDB, getValidatorMessage};

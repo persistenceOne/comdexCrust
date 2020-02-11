@@ -25,6 +25,19 @@ const buttons = {
         label: 'Chain Queries',
         command: '/chain_queries'
     },
+    analyticsQuery: {
+        label: 'Analytics',
+        command: '/analytics_queries'
+    },
+    votingPower: {
+        label: 'Voting Power',
+        command: '/voting_power'
+    },
+    commission: {
+        label: '' +
+            'Commission',
+        command: '/commission'
+    },
     alerts: {
         label: 'Alerts',
         command: '/alerts'

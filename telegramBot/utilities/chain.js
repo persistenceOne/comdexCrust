@@ -20,44 +20,43 @@ const queries = {
                 .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_COUNT'));
         },
         sendValidators(bot, chatID) {
-            httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators`)
-                .then(async data => {
-                    let json = JSON.parse(data);
-                    let validatorsList = json.result;   // with cosmos version upgrade, change here
-                    await bot.sendMessage(chatID, `\`${validatorsList.length}\` validators in total at current height.`, {parseMode: 'Markdown'});
-                    let i = 1;
-                    for (let validator of validatorsList) {
-                        let selfDelegationAddress = validatorUtils.getDelegatorAddrFromOperatorAddr(validator.operator_address);
-                        let message = `(${i})\n\nOperator Address: \`${validator.operator_address}\`\n\n`
-                            + `Self Delegation Address: \`${selfDelegationAddress}\`\n\n`
-                            + `Moniker: \`${validator.description.moniker}\`\n\n`
-                            + `Details: \`${validator.description.details}\`\n\n`
-                            + `Website: ${validator.description.website}\n\u200b\n`;
-                        await bot.sendMessage(chatID, message, {parseMode: 'Markdown'});
-                        i++;
-                    }
+            httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/pool`)
+                .then(data => JSON.parse(data))
+                .then(json => {
+                    const totalBondedToken = parseInt(json.result.bonded_tokens, 10);      // with cosmos version upgrade, change here
+                    httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators`)
+                        .then(async data => {
+                            let json = JSON.parse(data);
+                            let validatorsList = json.result;   // with cosmos version upgrade, change here
+                            await bot.sendMessage(chatID, `\`${validatorsList.length}\` validators in total at current height.`, {parseMode: 'Markdown'});
+                            let i = 1;
+                            for (let validator of validatorsList) {
+                                let message = validatorUtils.getValidatorMessage(validator, totalBondedToken);
+                                await bot.sendMessage(chatID, `(${i})\n\n` + message, {parseMode: 'Markdown'});
+                                i++;
+                            }
+                        })
+                        .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_LIST'));
                 })
-                .catch(e => {
-                    botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_LIST');
-                });
+                .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_LIST'));
         },
         sendValidatorInfo(bot, chatID, operatorAddress) {
-            httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${operatorAddress}`)
-                .then(data => {
-                    let json = JSON.parse(data);
-                    if (json.error) {
-                        botUtils.sendMessage(bot, chatID, `Invalid operator address!`);
-                    } else {
-                        let validator = json.result;       // with cosmos version upgrade, change here
-                        let selfDelegationAddress = validatorUtils.getDelegatorAddrFromOperatorAddr(validator.operator_address);
-                        botUtils.sendMessage(bot, chatID, `Operator Address: \`${validator.operator_address}\`\n\n`
-                            + `Self Delegation Address: \`${selfDelegationAddress}\`\n\n`
-                            + `Moniker: \`${validator.description.moniker}\`\n\n`
-                            + `Details: \`${validator.description.details}\`\n\n`
-                            + `Jailed: \`${validator.jailed}\`\n\n`
-                            + `Website: ${validator.description.website}\n\u200b\n`,
-                            {parseMode: 'Markdown'});
-                    }
+            httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/pool`)
+                .then(data => JSON.parse(data))
+                .then(json => {
+                    const totalBondedToken = parseInt(json.result.bonded_tokens, 10);      // with cosmos version upgrade, change here
+                    httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${operatorAddress}`)
+                        .then(data => {
+                            let json = JSON.parse(data);
+                            if (json.error) {
+                                botUtils.sendMessage(bot, chatID, `Invalid operator address!`);
+                            } else {
+                                let validator = json.result;       // with cosmos version upgrade, change here
+                                let message = validatorUtils.getValidatorMessage(validator, totalBondedToken);
+                                botUtils.sendMessage(bot, chatID, message, {parseMode: 'Markdown'});
+                            }
+                        })
+                        .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_LIST'));
                 })
                 .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_LIST'));
         },

@@ -3,12 +3,12 @@
   "adminBotChatID": 0,
   "requestTimeout": 3,
   "node" : {
-    "url" : "localhost",
-    "backupURL" : "localhost",
+    "url" : "192.168.0.147",
+    "backupURL" : "192.168.0.147",
     "abciPort": "26657",
     "lcdPort": "31118"
   },
-  "counterLimit": 10,
+  "counterLimit": 5,
   "dbName": "telegramBot",
   "dbURL": "mongodb://localhost:27017/",
   "chainAppName": "Cosmos",
