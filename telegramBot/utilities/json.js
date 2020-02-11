@@ -1,15 +1,3 @@
-const errors = require('./errors');
-
-function Parse(data, method) {
-    let json;
-    try {
-        json = JSON.parse(data);
-    } catch (e) {
-        errors.Log(e, method);
-    }
-    return json;
-}
-
 function RemoveByAttribute(arr, attr, value) {
     let removed = false;
     let i = arr.length;
@@ -26,4 +14,4 @@ function RemoveByAttribute(arr, attr, value) {
     return {newList: arr, removed: removed};
 }
 
-module.exports = {Parse, RemoveByAttribute};
+module.exports = {RemoveByAttribute};

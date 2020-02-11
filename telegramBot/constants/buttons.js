@@ -17,17 +17,13 @@ const buttons = {
         label: '↵ Back',
         command: '/back'
     },
-    nodeQuery: {
-        label: 'Node Queries',
-        command: '/node_queries'
+    validatorQuery: {
+        label: 'Validator Queries',
+        command: '/validator_queries'
     },
     chainQuery: {
         label: 'Chain Queries',
         command: '/chain_queries'
-    },
-    lcdQuery: {
-        label: 'Light Client Queries',
-        command: '/lcd_queries'
     },
     alerts: {
         label: 'Alerts',
@@ -41,29 +37,9 @@ const buttons = {
         label: 'Unsubscribe',
         command: '/unsubscribe'
     },
-    nodeStatus: {
-        label: 'Status',
-        command: '/node_status'
-    },
     lastBlock: {
         label: 'Last Block',
         command: '/last_block'
-    },
-    peersCount: {
-        label: 'Peers Count',
-        command: '/peers_count'
-    },
-    peersList: {
-        label: 'Peers List',
-        command: '/peers_list'
-    },
-    consensusState: {
-        label: 'Consensus State',
-        command: '/consensus_state'
-    },
-    consensusParams: {
-        label: 'Consensus Parameters',
-        command: '/consensus_params'
     },
     validatorsCount: {
         label: 'Validators Count',
@@ -100,30 +76,6 @@ const buttons = {
     validatorRewards: {
         label: 'Validator Rewards',
         command: '/validator_rewards'
-    },
-    stakingPool: {
-        label: 'Staking Pool',
-        command: '/staking_pool'
-    },
-    stakingParams: {
-        label: 'Staking Params',
-        command: '/staking_params'
-    },
-    mintingInflation: {
-        label: 'Minting Inflation',
-        command: '/minting_inflation'
-    },
-    slashingParams: {
-        label: 'Slashing Params',
-        command: '/slashing_params'
-    },
-    mintingParams: {
-        label: 'Minting Params',
-        command: '/minting_params'
-    },
-    validatorSigning: {
-        label: 'Validator Signing',
-        command: '/validator_signing'
     },
 };
 

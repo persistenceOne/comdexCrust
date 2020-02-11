@@ -45,39 +45,30 @@ bot.on(/^\/say (.+)$/, (msg, props) => {
     return botUtils.sendMessage(bot, msg.chat.id, text, {replyToMessage: msg.message_id});
 });
 
-bot.on('edit', (msg) => {
-    return msg.reply.text('No editing of commands supported. Please re-enter the command.', {asReply: true});
-});
-
-bot.on(['keyboard', 'button', 'inlineKeyboard', 'inlineQueryKeyboard', 'inlineButton'], (msg) => {
-    return msg.reply.text('No editing of commands supported. Please re-enter the command.', {asReply: true});
-});
 
 bot.on(['/chain', '/back'], msg => {
     let replyMarkup = bot.keyboard([
-        [Buttons.nodeQuery.label, Buttons.chainQuery.label],
-        [Buttons.alerts.label, Buttons.lcdQuery.label],
+        [Buttons.validatorQuery.label, Buttons.chainQuery.label],
+        [Buttons.alerts.label],
         [Buttons.home.label, Buttons.hide.label]
     ], {resize: true});
     return botUtils.sendMessage(bot, msg.chat.id, 'How can I help you?', {replyMarkup});
 });
 
-bot.on(['/node_queries'], msg => {
+bot.on(['/chain_queries'], msg => {
     let replyMarkup = bot.keyboard([
-        [Buttons.nodeStatus.label, Buttons.lastBlock.label],
-        [Buttons.peersCount.label, Buttons.peersList.label],
+        [Buttons.accountBalance.label, Buttons.delegatorRewards.label],
+        [Buttons.lastBlock.label, Buttons.blockLookup.label],
+        [Buttons.txLookup.label, Buttons.txByHeight.label],
         [Buttons.back.label, Buttons.home.label, Buttons.hide.label]
     ], {resize: true});
-
     return botUtils.sendMessage(bot, msg.chat.id, 'What would you like to query?', {replyMarkup});
 });
 
-bot.on(['/chain_queries'], msg => {
+bot.on(['/validator_queries'], msg => {
     let replyMarkup = bot.keyboard([
-        [Buttons.consensusState.label, Buttons.consensusParams.label],
         [Buttons.validatorsCount.label, Buttons.validatorsList.label],
-        [Buttons.validatorInfo.label, Buttons.blockLookup.label],
-        [Buttons.txLookup.label, Buttons.txByHeight.label],
+        [Buttons.validatorInfo.label, Buttons.validatorRewards.label],
         [Buttons.back.label, Buttons.home.label, Buttons.hide.label]
     ], {resize: true});
     return botUtils.sendMessage(bot, msg.chat.id, 'What would you like to query?', {replyMarkup});
@@ -91,15 +82,6 @@ bot.on(['/alerts'], msg => {
     return botUtils.sendMessage(bot, msg.chat.id, 'What would you like to query?', {replyMarkup});
 });
 
-bot.on(['/lcd_queries'], msg => {
-    let replyMarkup = bot.keyboard([
-        [Buttons.accountBalance.label, Buttons.delegatorRewards.label, Buttons.validatorRewards.label],
-        [Buttons.stakingPool.label, Buttons.stakingParams.label, Buttons.mintingInflation.label],
-        [Buttons.slashingParams.label, Buttons.mintingParams.label, Buttons.validatorSigning.label],
-        [Buttons.back.label, Buttons.home.label, Buttons.hide.label]
-    ], {resize: true});
-    return botUtils.sendMessage(bot, msg.chat.id, 'What would you like to query?', {replyMarkup});
-});
 
 bot.on('/subscribe', async (msg) => {
     return botUtils.waitForUserReply(bot, msg.chat.id, `What\'s the validator\'s operator address?`, 'valAddr', {parseMode: 'Markdown'});
@@ -113,16 +95,16 @@ bot.on('ask.valAddr', msg => {
         return botUtils.sendMessage(bot, chatID, errors.INVALID_ADDRESS, {parseMode: 'Markdown'});
     }
 
-    httpUtils.httpGet(config.node.url, config.node.lcdPort, `/staking/validators/${valAddr}`)
+    httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${valAddr}`)
         .then(data => JSON.parse(data))
         .then(async json => {
-            let validator = json;               // with cosmos version upgrade, change here
+            let validator = json.result;               // with cosmos version upgrade, change here
             if (validator.jailed) {
                 return botUtils.sendMessage(bot, chatID, `Validator is jailed right now. Cannot subscribe to it.`, {parseMode: 'Markdown'});
             }
             let hexAddress = validatorUtils.getHexAddress(validatorUtils.bech32ToPubkey(validator.consensus_pubkey));
             let selfDelegationAddress = validatorUtils.getDelegatorAddrFromOperatorAddr(validator.operator_address);
-            let validatorData = chainUtils.newValidatorObject(hexAddress, selfDelegationAddress, validator.operator_address,
+            let validatorData = validatorUtils.newValidatorObject(hexAddress, selfDelegationAddress, validator.operator_address,
                 validator.consensus_pubkey, validator.jailed, validator.description);
             await dataUtils.upsertOne(dataUtils.validatorCollection, {operatorAddress: validator.operator_address}, {$set: validatorData})
                 .then((res, err) => {
@@ -142,12 +124,13 @@ bot.on('ask.valAddr', msg => {
                         errors.Log(err, 'SUBSCRIBE_FIND');
                         return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                     }
-                    let validatorSubscribers = result[0];
                     if (result.length === 0) {
                         let subscribers = [];
                         subscribers.push({chatID: chatID});
                         dataUtils.insertOne(dataUtils.subscriberCollection, {
                             operatorAddress: valAddr,
+                            counter: 0,
+                            height: latestBlockHeight,
                             subscribers: subscribers
                         })
                             .then((res, err) => {
@@ -158,6 +141,7 @@ bot.on('ask.valAddr', msg => {
                                 return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                             });
                     } else {
+                        let validatorSubscribers = result[0];
                         let subscribers = validatorSubscribers.subscribers;
                         let newSubscribers = [];
                         if (subscribers.length === 0) {
@@ -173,7 +157,6 @@ bot.on('ask.valAddr', msg => {
                         }
                         dataUtils.updateOne(dataUtils.subscriberCollection, query, {
                             $set: {
-                                operatorAddress: valAddr,
                                 subscribers: newSubscribers
                             }
                         })
@@ -193,7 +176,7 @@ bot.on('ask.valAddr', msg => {
         })
         .catch(e => {
             errors.Log(e, 'SUBSCRIBE');
-            if (e.statusCode === 400) {
+            if (e.statusCode === 400 || e.statusCode === 404) {
                 botUtils.sendMessage(bot, chatID, errors.INVALID_ADDRESS, {parseMode: 'Markdown'});
             } else {
                 botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
@@ -216,11 +199,11 @@ bot.on('ask.valAddrUnsub', msg => {
     dataUtils.find(dataUtils.subscriberCollection, query)
         .then((result, err) => {
             if (err) {
-                errors.Log(e, 'UNSUBSCRIBE_FIND');
+                errors.Log(err, 'UNSUBSCRIBE_FIND');
                 return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
             }
             if (result.length !== 1) {
-                errors.Log(e, 'UNSUBSCRIBE_FIND');
+                errors.Log('More than one validator object for same operator address.', 'UNSUBSCRIBE_FIND');
                 return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
             }
 
@@ -244,7 +227,7 @@ bot.on('ask.valAddrUnsub', msg => {
                             return botUtils.sendMessage(bot, chatID, `You are now unsubscribed to the validator: \`${valAddr}\`.`, {parseMode: 'Markdown'});
                         })
                         .catch(err => {
-                            errors.Log(e, 'UNSUBSCRIBE_UPDATE');
+                            errors.Log(err, 'UNSUBSCRIBE_UPDATE');
                             return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                         });
                 }
@@ -256,37 +239,10 @@ bot.on('ask.valAddrUnsub', msg => {
         });
 });
 
-// node info
-bot.on('/node_status', (msg) => {
-    chainUtils.queries.sendNodeInfo(bot, msg.chat.id);
-});
-
 // last block
 bot.on('/last_block', (msg) => {
     chainUtils.queries.sendLastBlock(bot, msg.chat.id);
 });
-
-
-// peers count
-bot.on('/peers_count', (msg) => {
-    chainUtils.queries.sendPeersCount(bot, msg.chat.id);
-});
-
-// peers list
-bot.on('/peers_list', (msg) => {
-    chainUtils.queries.sendPeersList(bot, msg.chat.id);
-});
-
-// consensus state
-bot.on('/consensus_state', (msg) => {
-    chainUtils.queries.sendConsensusState(bot, msg.chat.id);
-});
-
-// consensus params
-bot.on('/consensus_params', (msg) => {
-    chainUtils.queries.sendConsensusParams(bot, msg.chat.id);
-});
-
 // validators count
 bot.on('/validators_count', (msg) => {
     chainUtils.queries.sendValidatorsCount(bot, msg.chat.id);
@@ -383,52 +339,23 @@ bot.on(['ask.validatorRewards'], async msg => {
     }
 });
 
-// staking pool
-bot.on('/staking_pool', async (msg) => {
-    chainUtils.queries.sendStakingPool(bot, msg.chat.id);
-});
-
-// staking params
-bot.on('/staking_params', async (msg) => {
-    chainUtils.queries.sendStakingParams(bot, msg.chat.id)
-});
-
-// minting inflation
-bot.on('/minting_inflation', async (msg) => {
-    chainUtils.queries.sendMintingInflation(bot, msg.chat.id);
-});
-
-// slashing params
-bot.on('/slashing_params', async (msg) => {
-    chainUtils.queries.sendSlashingParams(bot, msg.chat.id);
-});
-
-// minting params
-bot.on('/minting_params', async (msg) => {
-    chainUtils.queries.sendMintingParams(bot, msg.chat.id);
-});
-
-// validator signing-info
-bot.on('/validator_signing', async (msg) => {
-    return botUtils.waitForUserReply(bot, msg.chat.id, `Please provide a validator public key address.`, 'validatorSigning', {parseMode: 'Markdown'});
-});
-
-bot.on(['ask.validatorSigning'], async msg => {
-    const addr = msg.text;
-    const chatID = msg.chat.id;
-    if (addr.length !== 83) {
-        return botUtils.sendMessage(bot, chatID, 'Address is invalid!');
-    } else {
-        chainUtils.queries.sendValSigningInfo(bot, msg.chat.id, addr);
-    }
-});
-
 bot.connect();
 
 let ws;
 
 const reinitWS = () => {
-    ws = new WebSocket(wsConstants.url);
+    if (ws === undefined) {
+        ws = new WebSocket(wsConstants.url);
+    } else {
+        if (ws.url === wsConstants.url) {
+            ws = new WebSocket(wsConstants.backupURL);
+            botUtils.nodeURL = config.node.backupURL;
+        }
+        if (ws.url === wsConstants.backupURL) {
+            ws = new WebSocket(wsConstants.url);
+            botUtils.nodeURL = config.node.url;
+        }
+    }
     try {
         ws.on('open', wsOpen);
         ws.on('close', wsClose);
@@ -465,7 +392,7 @@ let oldBlockHeight = 0;
 function scheduler() {
     if (latestBlockHeight === oldBlockHeight) {
         wsError('WS Connection Freezed');
-        botUtils.wsTxError('WS Connection Freezed');
+        validatorUtils.wsTxError('WS Connection Freezed');
     } else {
         oldBlockHeight = latestBlockHeight;
     }
@@ -474,20 +401,20 @@ function scheduler() {
 setInterval(scheduler, 120000);
 
 function wsIncoming(data) {
-    let json = jsonUtils.Parse(data, 'WS_INCOMING');
+    let json = JSON.parse(data);
     if (json === undefined) {
-        errors.Log('Error empty data from ws connection.');
+        errors.Log('Cannot parse data from ws connection.');
     }
     if (errors.isEmpty(json.result)) {
         console.log('ws Connected!');
     } else {
         latestBlockHeight = json.result.data.value.block.header.height;
         console.log(latestBlockHeight);
-        checkAndSendMsgOnValidatorsAbsence(json, latestBlockHeight);
+        checkAndSendMsgOnValidatorsAbsence(json)
     }
 }
 
-async function checkAndSendMsgOnValidatorsAbsence(json, latestBlockHeight) {
+function checkAndSendMsgOnValidatorsAbsence(json) {
     dataUtils.find(dataUtils.subscriberCollection, {})
         .then((result, err) => {
             if (err) {
@@ -504,7 +431,6 @@ async function checkAndSendMsgOnValidatorsAbsence(json, latestBlockHeight) {
                         }
                         if (result.length === 1) {
                             let validatorDetails = result[0];
-                            let moniker = validatorDetails.description.moniker;
                             do {
                                 if (!errors.isEmpty(json.result.data.value.block.last_commit.precommits[i])) {
                                     let hexAddress = json.result.data.value.block.last_commit.precommits[i].validator_address;
@@ -516,11 +442,11 @@ async function checkAndSendMsgOnValidatorsAbsence(json, latestBlockHeight) {
                             } while (!found && i < json.result.data.value.block.last_commit.precommits.length);
 
                             if (!found) {
-                                sendMsgToSubscribers(moniker, validatorSubscribers.subscribers, latestBlockHeight);
+                                updateCounterAndSendMessage(validatorSubscribers, validatorDetails);
                             }
                         } else {
                             if (result.length === 0) {
-                                botUtils.updateValidatorDetails(validatorSubscribers.operatorAddress);
+                                validatorUtils.updateValidatorDetails(validatorSubscribers.operatorAddress);
                             } else {
                                 errors.Log('Incorrect database');
                             }
@@ -536,9 +462,74 @@ async function checkAndSendMsgOnValidatorsAbsence(json, latestBlockHeight) {
         })
 }
 
-async function sendMsgToSubscribers(moniker, subscribersList, latestBlockHeight) {
+function updateCounterAndSendMessage(validatorSubscribers, validatorDetails) {
+    let query = {operatorAddress: validatorSubscribers.operatorAddress};
+    if (validatorSubscribers.counter >= config.counterLimit - 1) {
+        if (!validatorDetails.jailed) {
+            dataUtils.updateOne(dataUtils.subscriberCollection, query, {
+                $set: {
+                    counter: 0,
+                    height: latestBlockHeight,
+                }
+            })
+                .then((res, err) => {
+                    httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${validatorDetails.operatorAddress}`)
+                        .then(async data => {
+                            let json = JSON.parse(data);
+                            if (json.error) {
+                                errors.Log('Invalid Operator Address', 'UPDATE_COUNTER_QUERY_VALIDATOR')
+                            } else {
+                                let validator = json.result;       // with cosmos version upgrade, change here
+                                if (validator.jailed) {
+                                    dataUtils.updateOne(dataUtils.validatorCollection, query, {
+                                        $set: {
+                                            jailed: true,
+                                        }
+                                    })
+                                        .then((res, err) => {
+                                            return sendJailedMsgToSubscribers(validatorDetails.description.moniker, validatorSubscribers.subscribers);
+                                        })
+                                        .catch(err => {
+                                            errors.Log(err, 'UPDATING_COUNTER_UPDATE_VALIDATOR');
+                                        });
+                                } else {
+                                    return sendMissedMsgToSubscribers(validatorDetails.description.moniker, validatorSubscribers.subscribers, validatorSubscribers.height);
+                                }
+                            }
+                        })
+                        .catch(err => {
+                            errors.Log(err, 'UPDATE_COUNTER_QUERY_VALIDATOR');
+                        });
+                })
+                .catch(err => {
+                    errors.Log(err, 'UPDATING_COUNTER_AND_SENDING_MESSAGE');
+                });
+        }
+    } else {
+        dataUtils.updateOne(dataUtils.subscriberCollection, query, {
+            $set: {
+                counter: validatorSubscribers.counter + 1,
+            }
+        })
+            .catch(err => {
+                errors.Log(err, 'UPDATING_COUNTER_AND_SENDING_MESSAGE');
+            });
+    }
+
+}
+
+async function sendMissedMsgToSubscribers(moniker, subscribersList, height) {
     subscribersList.forEach((subscriber) => {
-        botUtils.sendMessage(bot, subscriber.chatID, `Alert: \`${moniker} is absent at height \`${latestBlockHeight}`, {
+        botUtils.sendMessage(bot, subscriber.chatID, `Alert: \`${moniker}\` has missed \`${config.counterLimit}\` blocks since \`${height}\``, {
+            parseMode: 'Markdown',
+            notification: true
+        });
+    });
+}
+
+async function sendJailedMsgToSubscribers(moniker, subscribersList) {
+    subscribersList.forEach((subscriber) => {
+        botUtils.sendMessage(bot, subscriber.chatID, `Alert: \`${moniker}\` has been jailed.`, {
             parseMode: 'Markdown',
             notification: true
         });
