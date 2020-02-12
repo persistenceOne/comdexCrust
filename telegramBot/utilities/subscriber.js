@@ -27,16 +27,21 @@ function initializeValidatorSubscriber(validator, latestBlockHeight) {
                 errors.exitProcess('DB_INITIALIZING_VALIDATOR_SUBSCRIBER');
             }
             if (result.length === 0) {
-                dataUtils.insertOne(dataUtils.subscriberCollection, {
-                    operatorAddress: operatorAddress,
-                    counter: 0,
-                    height: latestBlockHeight,
-                    subscribers: []
-                })
+                let validatorSubscriber = newValidatorSubscribers(operatorAddress, latestBlockHeight, []);
+                dataUtils.insertOne(dataUtils.subscriberCollection, validatorSubscriber)
                     .catch(err => errors.exitProcess(err, 'DB_INITIALIZING_VALIDATOR_SUBSCRIBER'));
             }
         })
         .catch(err => errors.Log(err, 'INITIALIZING_VALIDATOR_SUBSCRIBER'));
 }
 
-module.exports = {initializeSubscriberDB, initializeValidatorSubscriber};
+function newValidatorSubscribers(operatorAddress, latestBlockHeight, subscribers) {
+    return  {
+        operatorAddress: operatorAddress,
+        counter: 0,
+        height: latestBlockHeight,
+        subscribers: subscribers,
+    };
+}
+
+module.exports = {initializeSubscriberDB, initializeValidatorSubscriber, newValidatorSubscribers};

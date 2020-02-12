@@ -37,17 +37,29 @@ const buttons = {
         label: 'Commission',
         command: '/commission'
     },
-    alerts: {
-        label: 'Alerts',
-        command: '/alerts'
+    topValidator: {
+        label: 'Top Validator',
+        command: '/topValidator'
     },
-    subscribe: {
-        label: 'Subscribe',
-        command: '/subscribe'
+    alerter: {
+        label: 'Alerter',
+        command: '/alerter'
     },
-    unsubscribe: {
-        label: 'Unsubscribe',
-        command: '/unsubscribe'
+    validator: {
+        label: 'Validator',
+        command: '/validator'
+    },
+    allValidators: {
+        label: 'All Validators',
+        command: '/allValidators'
+    },
+    unsubValidator: {
+        label: 'Unsubscribe Validator',
+        command: '/unsubValidator'
+    },
+    unsubAllValidators: {
+        label: 'Unsubscribe All Validators',
+        command: '/unsubAllValidators'
     },
     lastBlock: {
         label: 'Last Block',

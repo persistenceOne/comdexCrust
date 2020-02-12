@@ -2,13 +2,14 @@ const config = require('../config');
 const HttpUtils = require('./httpRequest');
 const validatorUtils = require('./validator');
 const botUtils = require('./bot');
+const dataUtils = require('./data');
 const httpUtils = new HttpUtils();
 
 const queries = {
         sendLastBlock(bot, chatID) {
             httpUtils.httpGet(botUtils.nodeURL, config.node.abciPort, '/status')
                 .then(data => JSON.parse(data))
-                .then(json => botUtils.sendMessage(bot, chatID, `\`${json.result.sync_info.latest_block_height}\``, {parseMode: 'Markdown'}))
+                .then(json => queries.sendBlockInfo(bot, chatID, parseInt(json.result.sync_info.latest_block_height, 10)))
                 .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_LAST_BLOCK'));
         },
         sendValidatorsCount(bot, chatID) {
@@ -148,15 +149,28 @@ const queries = {
         },
         sendBlockInfo(bot, chatID, height) {
             httpUtils.httpGet(botUtils.nodeURL, config.node.abciPort, `/block?height=${height}`)
-                .then(async data => {
+                .then(data => {
                     let json = JSON.parse(data);
                     if (json.error) {
-                        botUtils.sendMessage(bot, chatID, 'Invalid height.');
+                        botUtils.sendMessage(bot, chatID, 'Invalid height or height is greater than the current blockchain height.');
                     } else {
-                        await bot.sendMessage(chatID, `Block Hash: \`${json.result.block_meta.block_id.hash}\`\n\n`
-                            + `Proposer: \`${json.result.block.header.proposer_address}\`\n\n`
-                            + `Evidence: \`${json.result.block.evidence.evidence}\`\n\u200b\n`, {parseMode: 'Markdown'});
-                        queries.sendTxByHeight(bot, chatID, height);
+                        dataUtils.find(dataUtils.validatorCollection, {hexAddress: json.result.block.header.proposer_address})
+                            .then(async (result, err) => {
+                                if (err) {
+                                    return botUtils.handleErrors(bot, chatID, err, 'SEND_BLOCK_INFO');
+                                }
+                                if (result.length === 0) {
+                                    validatorUtils.initializeValidatorDB();
+                                    return botUtils.handleErrors(bot, chatID, {message: 'Cannot find validator in DB'}, 'SEND_BLOCK_INFO');
+                                }
+                                let validator = result[0];
+                                let moniker = validator.description.moniker;
+                                await bot.sendMessage(chatID, `Height: \`${height}\`\n\n`
+                                    + `Proposer: \`${moniker}\`\n\u200b\n`, {parseMode: 'Markdown'});
+                                queries.sendTxByHeight(bot, chatID, height);
+                            })
+                            .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_BLOCK_INFO'));
+
                     }
                 })
                 .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_BLOCK_INFO'));

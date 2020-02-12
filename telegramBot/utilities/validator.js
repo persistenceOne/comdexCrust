@@ -113,9 +113,12 @@ function wsTxIncoming(data) {
                             case 'unjail':
                             case 'edit_validator':
                                 findAndUpdateValidator(tx.events)
-                                    .catch(err => errors.Log(err, 'FIND_AND_UPDATE_VALIDATOR'))
+                                    .catch(err => errors.Log(err, 'FIND_AND_UPDATE_VALIDATOR'));
                                 break;
                             case 'create_validator':
+                                createNewValidator(tx.events)
+                                    .catch(err => errors.Log(err, 'CREATE_NEW_VALIDATOR'))
+                                break;
                         }
                     });
                 });
@@ -160,14 +163,16 @@ function updateValidatorDetails(operatorAddress) {
         });
 }
 
-function newValidatorObject(hexAddress, selfDelegateAddress, operatorAddress, consensusPublicKey, jailed, description) {
+function newValidatorObject(validator) {
+    let hexAddress = addressOperations.getHexAddress(addressOperations.bech32ToPubkey(validator.consensus_pubkey));
+    let selfDelegationAddress = addressOperations.getDelegatorAddrFromOperatorAddr(validator.operator_address);
     return {
         hexAddress: hexAddress,
-        selfDelegateAddress: selfDelegateAddress,
-        operatorAddress: operatorAddress,
-        consensusPublicKey: consensusPublicKey,
-        jailed: jailed,
-        description: description,
+        selfDelegateAddress: selfDelegationAddress,
+        operatorAddress: validator.operator_address,
+        consensusPublicKey: validator.consensus_pubkey,
+        jailed: validator.jailed,
+        description: validator.description,
     };
 }
 
@@ -186,10 +191,7 @@ function initializeValidatorDB() {
 }
 
 function updateValidator(validator) {
-    let hexAddress = addressOperations.getHexAddress(addressOperations.bech32ToPubkey(validator.consensus_pubkey));
-    let selfDelegationAddress = addressOperations.getDelegatorAddrFromOperatorAddr(validator.operator_address);
-    let validatorData = newValidatorObject(hexAddress, selfDelegationAddress, validator.operator_address,
-        validator.consensus_pubkey, validator.jailed, validator.description);
+    let validatorData = newValidatorObject(validator);
     dataUtils.upsertOne(dataUtils.validatorCollection, {operatorAddress: validator.operator_address}, {$set: validatorData})
         .then(console.log(validator.operator_address + ' was updated.'))
         .catch(err => errors.Log(err, 'DB_UPDATING_VALIDATORS'));
@@ -213,6 +215,73 @@ function getValidatorMessage(validator, totalBondedToken) {
         + `Total Tokens: \`${totalTokens}\` \`${config.token}\`\n\n`
         + `Details: \`${validator.description.details}\`\n\n`
         + `Website: ${validator.description.website}\n\u200b\n`;
+}
+
+function getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTotalBondedToken, newTotalBondedToken, newBlockHeight) {
+    let oldRate = (parseFloat(oldValidatorDetails.commission.commission_rates.rate) * 100.0).toFixed(2);
+    let newRate = (parseFloat(latestValidatorDetails.commission.commission_rates.rate) * 100.0).toFixed(2);
+    let rateChanged;
+    switch (true) {
+        case (newRate === oldRate):
+            rateChanged = `Commission rate has not changed \`${newRate}\` %`;
+            break;
+        case (newRate > oldRate):
+            rateChanged = `Commission rate has increased to \`${newRate}\` % from \`${oldRate}\` %`;
+            break;
+        case (newRate < oldRate):
+            rateChanged = `Commission rate has decreased to \`${newRate}\` % from \`${oldRate}\` %`;
+            break;
+    }
+    let newMaxRate = (parseFloat(latestValidatorDetails.commission.commission_rates.max_rate) * 100.0).toFixed(2);
+    let oldMaxRate = (parseFloat(oldValidatorDetails.commission.commission_rates.max_rate) * 100.0).toFixed(2);
+    let maxRateChanged;
+    switch (true) {
+        case (newMaxRate === oldMaxRate):
+            maxRateChanged = `Maximum commission rate has not changed \`${newMaxRate}\` %`;
+            break;
+        case (newMaxRate > oldMaxRate):
+            maxRateChanged = `Maximum commission rate has increased to \`${newMaxRate}\` % from \`${oldMaxRate}\` %`;
+            break;
+        case (newMaxRate < oldMaxRate):
+            maxRateChanged = `Maximum commission rate has decreased to \`${newMaxRate}\` % from \`${oldMaxRate}\` %`;
+            break;
+    }
+    let oldVotingPower = (parseInt(oldValidatorDetails.tokens, 10)/oldTotalBondedToken * 100.0).toFixed(2);
+    let newVotingPower = (parseInt(latestValidatorDetails.tokens, 10)/newTotalBondedToken * 100.0).toFixed(2);
+    let votingPowerChanged;
+    switch (true) {
+        case (newVotingPower === oldVotingPower):
+            votingPowerChanged = `Voting power has not changed \`${newVotingPower}\` %`;
+            break;
+        case (newVotingPower > oldVotingPower):
+            votingPowerChanged = `Voting power has increased to \`${newVotingPower}\` % from \`${oldVotingPower}\` %`;
+            break;
+        case (newVotingPower < oldVotingPower):
+            votingPowerChanged = `Voting power has decreased to \`${newVotingPower}\` % from \`${oldVotingPower}\` %`;
+            break;
+    }
+    let oldTotalTokens = (oldValidatorDetails.tokens/1000000).toFixed(0);
+    let newTotalTokens = (latestValidatorDetails.tokens/1000000).toFixed(0);
+    let change = Math.abs(newTotalTokens - oldTotalTokens);
+    let totalTokensChange;
+    switch (true) {
+        case (newTotalTokens === oldTotalTokens):
+            totalTokensChange = `Total tokens delegated (including self) has not changed (\`${newTotalTokens}\` \`${config.token}\`)`;
+            break;
+        case (newTotalTokens > oldTotalTokens):
+            totalTokensChange = `Total tokens delegated (including self) has increased by \`${change}\` \`${config.token}\` to \`${oldTotalTokens}\` \`${config.token}\``;
+            break;
+        case (newTotalTokens < oldTotalTokens):
+            totalTokensChange = `Total tokens delegated (including self) has decreased by \`${change}\` \`${config.token}\` from \`${oldTotalTokens}\` \`${config.token}\``;
+            break;
+    }
+    return `Report for \`${latestValidatorDetails.description.moniker}\` at \`${newBlockHeight}\`:\n\n`
+        + `Operator Address: \`${latestValidatorDetails.operator_address}\`\n\n`
+        + `Moniker: \`${latestValidatorDetails.description.moniker}\`\n\n`
+        + `Change in Voting Power: \`${votingPowerChanged}\` %\n\n`
+        + `Change in Commission Rate: \`${rateChanged}\` %\n\n`
+        + `Change in Max Commission Rate: \`${maxRateChanged}\` %\n\n`
+        + `Change in Total Tokens: \`${totalTokensChange}\`\n\n`;
 }
 
 async function createNewValidator(events) {
@@ -244,4 +313,4 @@ async function createNewValidator(events) {
     }
 }
 
-module.exports = {addressOperations, updateValidatorDetails, newValidatorObject, wsTxError, initializeValidatorDB, getValidatorMessage};
+module.exports = {addressOperations, updateValidatorDetails, newValidatorObject, wsTxError, initializeValidatorDB, getValidatorMessage, getValidatorReport};
