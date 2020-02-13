@@ -433,7 +433,7 @@ bot.on('ask.validatorAddress', msg => {
 
 bot.on('/allValidators', msg => {
     const chatID = msg.chat.id;
-
+    let blockHeight = latestBlockHeight;
     httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators`)
         .then(data => JSON.parse(data))
         .then(async json => {
@@ -450,7 +450,7 @@ bot.on('/allValidators', msg => {
                         if (result.length === 0) {
                             let subscribers = [];
                             subscribers.push({chatID: chatID});
-                            let validatorSubscriber = subscriberUtils.newValidatorSubscribers(valAddr, latestBlockHeight, subscribers);
+                            let validatorSubscriber = subscriberUtils.newValidatorSubscribers(valAddr, blockHeight, subscribers);
                             validatorUtils.updateValidatorDetails(valAddr);
                             dataUtils.insertOne(dataUtils.subscriberCollection, validatorSubscriber)
                                 .catch(err => {
@@ -481,13 +481,13 @@ bot.on('/allValidators', msg => {
                             }
                         }
                     })
-                    .then(() => botUtils.sendMessage(bot, chatID, 'You have been subscribed to all validators.', {parseMode: 'Markdown'}))
                     .catch(err => {
                         errors.Log(err, 'SUBSCRIBE');
                         botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                     })
             });
         })
+        .then(() => botUtils.sendMessage(bot, chatID, 'You have been subscribed to all validators.', {parseMode: 'Markdown'}))
         .catch(e => {
             errors.Log(e, 'SUBSCRIBE');
             if (e.statusCode === 400 || e.statusCode === 404) {
@@ -708,7 +708,12 @@ bot.on(['ask.lastMissedBlockValidatorAddress'], async msg => {
                             subscriberUtils.initializeValidatorSubscriber(validator.operatorAddress, blockHeight);
                             return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                         } else {
-                            return botUtils.sendMessage(bot, chatID, `\`${validatorSubscribers[0].lastMissedBlock}\``, {parseMode: 'Markdown'});
+                            let moniker = validator.description.moniker;
+                            if (validatorSubscribers[0].lastMissedBlock) {
+                                return botUtils.sendMessage(bot, chatID, `\`${moniker}\` last missed \`${validatorSubscribers[0].lastMissedBlock}\` block.`, {parseMode: 'Markdown'});
+                            } else {
+                                return botUtils.sendMessage(bot, chatID, `\`${moniker}\` has not missed any blocks since birth of this Bot.`, {parseMode: 'Markdown'});
+                            }
                         }
                     })
             })
@@ -865,8 +870,8 @@ function updateCounterAndSendMessage(validatorSubscribers, validatorDetails, blo
                                         .then(sendJailedMsgToSubscribers(validatorDetails.description.moniker, validatorSubscribers.subscribers))
                                         .catch(err => errors.Log(err, 'UPDATING_COUNTER_UPDATE_VALIDATOR'));
                                 } else {
-                                    let lastMissedBlocks = blockHeight - validatorSubscribers.counterHeight;
-                                    return sendMissedMsgToSubscribers(validatorDetails.description.moniker, validatorSubscribers.subscribers, lastMissedBlocks);
+                                    let totalBlocks = blockHeight - validatorSubscribers.counterHeight;
+                                    return sendMissedMsgToSubscribers(validatorDetails.description.moniker, validatorSubscribers.subscribers, totalBlocks, blockHeight);
                                 }
                             }
                         })
@@ -886,9 +891,9 @@ function updateCounterAndSendMessage(validatorSubscribers, validatorDetails, blo
 
 }
 
-async function sendMissedMsgToSubscribers(moniker, subscribersList, height) {
+async function sendMissedMsgToSubscribers(moniker, subscribersList, totalBlocks, lastBlockMissed) {
     subscribersList.forEach((subscriber) => {
-        botUtils.sendMessage(bot, subscriber.chatID, `Alert: \`${moniker}\` has missed \`${config.counterLimit}\` blocks in last \`${height}\` blocks.`, {
+        botUtils.sendMessage(bot, subscriber.chatID, `Alert: \`${moniker}\` has missed \`${config.counterLimit}\` blocks in last \`${totalBlocks}\` blocks.\n\nLast block missed: \`${lastBlockMissed}\``, {
             parseMode: 'Markdown',
             notification: true
         });
