@@ -30,15 +30,19 @@ const buttons = {
         command: '/analytics_queries'
     },
     votingPower: {
-        label: 'Voting Power',
+        label: 'Top Validators w.r.t. Voting Power',
         command: '/voting_power'
     },
     commission: {
-        label: 'Commission',
+        label: 'Top Validators w.r.t. Lowest Commission',
         command: '/commission'
     },
+    uptime: {
+        label: 'Top Validators w.r.t. Uptime',
+        command: '/uptime'
+    },
     topValidator: {
-        label: 'Top Validator',
+        label: 'Top Validator w.r.t. Voting Power & Lowest Commission',
         command: '/topValidator'
     },
     alerter: {
@@ -72,6 +76,10 @@ const buttons = {
     validatorsList: {
         label: 'Validators List',
         command: '/validators_list'
+    },
+    lastMissedBlock: {
+        label: 'Last Missed Block',
+        command: '/lastMissedBlock'
     },
     validatorInfo: {
         label: 'Validator Info',

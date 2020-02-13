@@ -53,78 +53,37 @@ function bech32ify(address, prefix) {
     return bech32.encode(prefix, words);
 }
 
-let wsTx;
-
-const reinitWSTx = () => {
-    if (wsTx === undefined) {
-        wsTx = new WebSocket(wsConstants.url);
-    } else {
-        if (wsTx.url === wsConstants.url) {
-            wsTx = new WebSocket(wsConstants.backupURL);
-        }
-        if (wsTx.url === wsConstants.backupURL) {
-            wsTx = new WebSocket(wsConstants.url);
-        }
-    }
-    try {
-        wsTx.on('open', wsTxOpen);
-        wsTx.on('close', wsTxClose);
-        wsTx.on('message', wsTxIncoming);
-        wsTx.on('error', wsTxError);
-    } catch (e) {
-        errors.Log(e, 'WS_TX_CONNECTION');
-        wsTx.send(JSON.stringify(wsConstants.unsubscribeAllMsg));
-        reinitWSTx();
-    }
-};
-
-reinitWSTx();
-
-function wsTxOpen() {
-    wsTx.send(JSON.stringify(wsConstants.subscribeTxMsg));
-}
-
-function wsTxClose(code, reason) {
-    let err = {statusCode: code, message: 'WS TX connection closed:    ' + reason};
-    errors.Log(err, 'WS_TX_CONNECTION');
-    reinitWSTx();
-}
-
-function wsTxError(err) {
-    errors.Log(err, 'WS_TX_CONNECTION');
-    wsTx.send(JSON.stringify(wsConstants.unsubscribeAllMsg));
-    wsTx.close();
-}
-
-//If this doesn't work when there are more than one transactions in one block,
-// use httpUtils.httpGet(botUtils.nodeURL, config.node.abciPort, `/tx_search?query="tx.height=${height}"&per_page=30`)
-// to query and update.
-function wsTxIncoming(data) {
-    let json = JSON.parse(data);
-    if (errors.isEmpty(json.result)) {
-        console.log('ws Tx Connected!');
-    } else {
-        let txs = JSON.parse(json.result.data.value.TxResult.result.log);
-        txs.forEach((tx) => {
-            if (tx.success) {
-                tx.events.forEach((event) => {
-                    event.attributes.forEach((attribute) => {
-                        switch (attribute.value) {
-                            case 'unjail':
-                            case 'edit_validator':
-                                findAndUpdateValidator(tx.events)
-                                    .catch(err => errors.Log(err, 'FIND_AND_UPDATE_VALIDATOR'));
-                                break;
-                            case 'create_validator':
-                                createNewValidator(tx.events)
-                                    .catch(err => errors.Log(err, 'CREATE_NEW_VALIDATOR'))
-                                break;
-                        }
+function checkTxs(height) {
+    httpUtils.httpGet(botUtils.nodeURL, config.node.abciPort, `/tx_search?query="tx.height=${height}"`)
+    .then(async (data) => {
+        let json = JSON.parse(data);
+        if (json.error) {
+            errors.Log(json.error, 'CHECK_TX');
+        } else {
+            let txs = json.result.txs;
+            txs.forEach(txBlock => {
+                let tx = JSON.parse(txBlock.tx_result.log);
+                if (tx.success) {
+                    tx.events.forEach((event) => {
+                        event.attributes.forEach((attribute) => {
+                            switch (attribute.value) {
+                                case 'unjail':
+                                case 'edit_validator':
+                                    findAndUpdateValidator(tx.events)
+                                        .catch(err => errors.Log(err, 'FIND_AND_UPDATE_VALIDATOR'));
+                                    break;
+                                case 'create_validator':
+                                    createNewValidator(tx.events)
+                                        .catch(err => errors.Log(err, 'CREATE_NEW_VALIDATOR'))
+                                    break;
+                            }
+                        });
                     });
-                });
-            }
-        });
-    }
+                }
+            })
+        }
+
+    })
 }
 
 async function findAndUpdateValidator(events) {
@@ -198,17 +157,19 @@ function updateValidator(validator) {
 }
 
 
-function getValidatorMessage(validator, totalBondedToken) {
+function getValidatorMessage(validator, totalBondedToken, counter, initHeight, blockHeight) {
     let selfDelegationAddress = addressOperations.getDelegatorAddrFromOperatorAddr(validator.operator_address);
     let rate = (parseFloat(validator.commission.commission_rates.rate) * 100.0).toFixed(2);
     let maxRate = (parseFloat(validator.commission.commission_rates.max_rate) * 100.0).toFixed(2);
     let maxChangeRate = (parseFloat(validator.commission.commission_rates.max_change_rate) * 100.0).toFixed(2);
     let votingPower = (parseInt(validator.tokens, 10)/totalBondedToken * 100.0).toFixed(2);
     let totalTokens = (validator.tokens/1000000).toFixed(0);
+    let upTime = getUptime(counter, initHeight, blockHeight);
     return `Operator Address: \`${validator.operator_address}\`\n\n`
         + `Self Delegation Address: \`${selfDelegationAddress}\`\n\n`
         + `Moniker: \`${validator.description.moniker}\`\n\n`
         + `Voting Power: \`${votingPower}\` %\n\n`
+        + upTime
         + `Current Commission Rate: \`${rate}\` %\n\n`
         + `Max Commission Rate: \`${maxRate}\` %\n\n`
         + `Max Change Rate: \`${maxChangeRate}\` %\n\n`
@@ -217,7 +178,7 @@ function getValidatorMessage(validator, totalBondedToken) {
         + `Website: ${validator.description.website}\n\u200b\n`;
 }
 
-function getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTotalBondedToken, newTotalBondedToken, newBlockHeight) {
+function getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTotalBondedToken, newTotalBondedToken, newBlockHeight, counter, initHeight) {
     let oldRate = (parseFloat(oldValidatorDetails.commission.commission_rates.rate) * 100.0).toFixed(2);
     let newRate = (parseFloat(latestValidatorDetails.commission.commission_rates.rate) * 100.0).toFixed(2);
     let rateChanged;
@@ -275,9 +236,11 @@ function getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTota
             totalTokensChange = `Total tokens delegated (including self) has decreased by \`${change}\` \`${config.token}\` from \`${oldTotalTokens}\` \`${config.token}\``;
             break;
     }
+    let upTime = getUptime(counter, initHeight, newBlockHeight);
     return `Report for \`${latestValidatorDetails.description.moniker}\` at \`${newBlockHeight}\`:\n\n`
         + `Operator Address: \`${latestValidatorDetails.operator_address}\`\n\n`
         + `Moniker: \`${latestValidatorDetails.description.moniker}\`\n\n`
+        + upTime
         + `Change in Voting Power: \`${votingPowerChanged}\` %\n\n`
         + `Change in Commission Rate: \`${rateChanged}\` %\n\n`
         + `Change in Max Commission Rate: \`${maxRateChanged}\` %\n\n`
@@ -305,7 +268,7 @@ async function createNewValidator(events) {
             .then(json => {
                 let validator = json.result;       // with cosmos version upgrade, change here
                 updateValidator(validator);
-                subscriberUtils.initializeValidatorSubscriber(validator, json.height);      // with cosmos version upgrade, change here
+                subscriberUtils.initializeValidatorSubscriber(operatorAddress, json.height);      // with cosmos version upgrade, change here
             })
             .catch(err => {
                 errors.Log(err, 'CREATE_NEW_VALIDATOR');
@@ -313,4 +276,14 @@ async function createNewValidator(events) {
     }
 }
 
-module.exports = {addressOperations, updateValidatorDetails, newValidatorObject, wsTxError, initializeValidatorDB, getValidatorMessage, getValidatorReport};
+function getUptime(counter, initHeight, latestBlockHeight) {
+    let upTime = `Uptime: Not enough data.\n\n`;
+    if (initHeight !== 0){
+        let upTimePercentage = (1.0 - (counter/initHeight)) * 100.0;
+        let basedOn = latestBlockHeight - initHeight;
+        upTime = `Uptime: \`${upTimePercentage}\`% (based on \`${basedOn}\` blocks)\n\n`;
+    }
+    return upTime
+}
+
+module.exports = {addressOperations, updateValidatorDetails, newValidatorObject, checkTxs, initializeValidatorDB, getValidatorMessage, getValidatorReport};

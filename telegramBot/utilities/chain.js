@@ -3,6 +3,8 @@ const HttpUtils = require('./httpRequest');
 const validatorUtils = require('./validator');
 const botUtils = require('./bot');
 const dataUtils = require('./data');
+const errors = require('./errors');
+const subscriberUtils = require('./subscriber');
 const httpUtils = new HttpUtils();
 
 const queries = {
@@ -20,28 +22,42 @@ const queries = {
                 })
                 .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_COUNT'));
         },
-        sendValidators(bot, chatID) {
+        sendValidators(bot, chatID, blockHeight) {
             httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/pool`)
                 .then(data => JSON.parse(data))
                 .then(json => {
                     const totalBondedToken = parseInt(json.result.bonded_tokens, 10);      // with cosmos version upgrade, change here
                     httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators`)
-                        .then(async data => {
+                        .then(data => {
                             let json = JSON.parse(data);
                             let validatorsList = json.result;   // with cosmos version upgrade, change here
-                            await bot.sendMessage(chatID, `\`${validatorsList.length}\` validators in total at current height.`, {parseMode: 'Markdown'});
-                            let i = 1;
-                            for (let validator of validatorsList) {
-                                let message = validatorUtils.getValidatorMessage(validator, totalBondedToken);
-                                await bot.sendMessage(chatID, `(${i})\n\n` + message, {parseMode: 'Markdown'});
-                                i++;
-                            }
+                            dataUtils.find(dataUtils.subscriberCollection, {})
+                                .then(async (validatorSubscribers, err) => {
+                                    if (err) {
+                                        errors.Log(err, 'SEND_VALIDATORS_LIST');
+                                        return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                                    }
+                                    await bot.sendMessage(chatID, `\`${validatorsList.length}\` validators in total at current height.`, {parseMode: 'Markdown'});
+                                    let i = 1;
+                                    for (let validator of validatorsList) {
+                                        let filteredValidator = validatorSubscribers.filter(validatorSubscriber => (validatorSubscriber.operatorAddress === validator.operator_address));
+                                        let message;
+                                        if (filteredValidator.length !== 0) {
+                                            message = validatorUtils.getValidatorMessage(validator, totalBondedToken, filteredValidator[0].counter, filteredValidator[0].initHeight, blockHeight);
+                                        } else {
+                                            message = validatorUtils.getValidatorMessage(validator, totalBondedToken, 0, 0, blockHeight);
+                                        }
+                                        await bot.sendMessage(chatID, `(${i})\n\n` + message, {parseMode: 'Markdown'});
+                                        i++;
+                                    }
+                                })
+                                .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_INFO'));
                         })
                         .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_LIST'));
                 })
                 .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_LIST'));
         },
-        sendValidatorInfo(bot, chatID, operatorAddress) {
+        sendValidatorInfo(bot, chatID, operatorAddress, blockHeight) {
             httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/pool`)
                 .then(data => JSON.parse(data))
                 .then(json => {
@@ -53,13 +69,27 @@ const queries = {
                                 botUtils.sendMessage(bot, chatID, `Invalid operator address!`);
                             } else {
                                 let validator = json.result;       // with cosmos version upgrade, change here
-                                let message = validatorUtils.getValidatorMessage(validator, totalBondedToken);
-                                botUtils.sendMessage(bot, chatID, message, {parseMode: 'Markdown'});
+                                dataUtils.find(dataUtils.subscriberCollection, {operatorAddress: operatorAddress})
+                                    .then((validatorSubscriber, err) => {
+                                        if (err) {
+                                            errors.Log(err, 'VALIDATOR_INFO');
+                                            return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                                        }
+                                        if (validatorSubscriber.length === 0) {
+                                            errors.Log('No validatorSubscriber found.', 'VALIDATOR_INFO');
+                                            subscriberUtils.initializeValidatorSubscriber(operatorAddress, blockHeight);
+                                            return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                                        } else {
+                                            let message = validatorUtils.getValidatorMessage(validator, totalBondedToken, validatorSubscriber[0].counter, validatorSubscriber[0].initHeight, blockHeight);
+                                            botUtils.sendMessage(bot, chatID, message, {parseMode: 'Markdown'});
+                                        }
+                                    })
+                                    .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_INFO'));
                             }
                         })
-                        .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_LIST'));
+                        .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_INFO'));
                 })
-                .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_LIST'));
+                .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_INFO'));
         },
         sendBalance(bot, chatID, addr) {
             httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/auth/accounts/${addr}`)
