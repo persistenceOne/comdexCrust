@@ -30,13 +30,13 @@ function initializeValidatorSubscriber(operatorAddress, latestBlockHeight) {
                 dataUtils.insertOne(dataUtils.subscriberCollection, validatorSubscriber)
                     .catch(err => errors.exitProcess(err, 'DB_INITIALIZING_VALIDATOR_SUBSCRIBER'));
             } else {
-                resetSubscriberCounterAndHeight(operatorAddress, latestBlockHeight);
+                resetSubscriberCounters(operatorAddress, latestBlockHeight);
             }
         })
         .catch(err => errors.Log(err, 'INITIALIZING_VALIDATOR_SUBSCRIBER'));
 }
 
-function resetSubscriberCounterAndHeight(operatorAddress, latestBlockHeight) {
+function resetSubscriberCounters(operatorAddress, latestBlockHeight) {
     dataUtils.find(dataUtils.subscriberCollection, {operatorAddress: operatorAddress})
         .then((result, err) => {
             if (err) {
@@ -45,8 +45,10 @@ function resetSubscriberCounterAndHeight(operatorAddress, latestBlockHeight) {
             dataUtils.updateOne(dataUtils.subscriberCollection, {operatorAddress: operatorAddress}, {
                 $set: {
                     counter: 0,
+                    consecutiveCounter: 0,
+                    alertLevel: 1,
                     initHeight: latestBlockHeight,
-                    counterHeight: latestBlockHeight
+                    counterHeight: latestBlockHeight,
                 }
             })
         })
@@ -57,10 +59,47 @@ function newValidatorSubscribers(operatorAddress, latestBlockHeight, subscribers
     return  {
         operatorAddress: operatorAddress,
         counter: 0,
+        consecutiveCounter: 0,
+        alertLevel: 1,
         initHeight: latestBlockHeight,
         counterHeight: latestBlockHeight,
         subscribers: subscribers,
+
     };
 }
 
-module.exports = {initializeSubscriberDB, initializeValidatorSubscriber, newValidatorSubscribers};
+function getBlocksLevel(alertLevel) {
+    switch (alertLevel) {
+        case 1:
+            return 5;
+        case 2:
+            return 10;
+        case 3:
+            return 15;
+        case 4:
+            return 20;
+        case 5:
+            return 20;
+        default:
+            return 20;
+    }
+}
+
+function getAlertLevel(consecutiveCounter) {
+    switch (true) {
+        case consecutiveCounter <= 5:
+            return 1;
+        case 5 <= consecutiveCounter && consecutiveCounter <= 10:
+            return 2;
+        case 10 <= consecutiveCounter && consecutiveCounter <= 15:
+            return 3;
+        case 15 <= consecutiveCounter && consecutiveCounter <= 20:
+            return 4;
+        case consecutiveCounter >= 20:
+            return 5;
+        default:
+            return 1;
+    }
+}
+
+module.exports = {initializeSubscriberDB, initializeValidatorSubscriber, newValidatorSubscribers, getBlocksLevel, getAlertLevel};

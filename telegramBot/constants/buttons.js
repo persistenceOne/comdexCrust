@@ -85,6 +85,10 @@ const buttons = {
         label: 'Validator Info',
         command: '/validator_info'
     },
+    report: {
+        label: 'Validator Report',
+        command: '/report'
+    },
     blockLookup: {
         label: 'Block Look Up',
         command: '/block_lookup'

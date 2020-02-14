@@ -1,14 +1,12 @@
 {
-  "botToken"  : "",
+  "botToken"  : "1054343115:AAHkt5FVHuAJSSICArLuPUmTKIxqUTBBrrw",
   "requestTimeout": 3,
   "node" : {
-    "url" : "192.168.0.147",
-    "backupURL" : "192.168.0.147",
+    "url" : "localhost",
+    "backupURL" : "localhost",
     "abciPort": "26657",
     "lcdPort": "31118"
   },
-  "counterLimit": 5,
-  "upTimeLimit": 10,
   "dbName": "telegramBot",
   "dbURL": "mongodb://localhost:27017/",
   "chainAppName": "Cosmos",

@@ -29,9 +29,9 @@ function handleErrors(bot, chatID, err, method = '') {
     console.log(JSON.stringify(err));
     errors.Log(err, method);
     if (err.statusCode === 400 || err.statusCode === 404) {
-        botUtils.sendMessage(bot, chatID, errors.INVALID_REQUEST, {parseMode: 'Markdown'});
+        sendMessage(bot, chatID, errors.INVALID_REQUEST, {parseMode: 'Markdown'});
     } else {
-        botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+        sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
     }
 }
 

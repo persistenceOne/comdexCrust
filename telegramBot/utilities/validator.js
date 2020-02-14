@@ -5,8 +5,6 @@ const config = require('../config.json');
 const dataUtils = require('./data');
 const botUtils = require('./bot');
 const subscriberUtils = require('./subscriber');
-const WebSocket = require('ws');
-const wsConstants = require('../constants/websocket');
 
 const bech32 = require('bech32');
 const hash = require('tendermint/lib/hash.js');
@@ -158,16 +156,13 @@ function updateValidator(validator) {
 
 
 function getValidatorMessage(validator, totalBondedToken, counter, initHeight, blockHeight) {
-    let selfDelegationAddress = addressOperations.getDelegatorAddrFromOperatorAddr(validator.operator_address);
     let rate = (parseFloat(validator.commission.commission_rates.rate) * 100.0).toFixed(2);
     let maxRate = (parseFloat(validator.commission.commission_rates.max_rate) * 100.0).toFixed(2);
     let maxChangeRate = (parseFloat(validator.commission.commission_rates.max_change_rate) * 100.0).toFixed(2);
     let votingPower = (parseInt(validator.tokens, 10)/totalBondedToken * 100.0).toFixed(2);
     let totalTokens = (validator.tokens/1000000).toFixed(0);
     let upTime = getUptime(counter, initHeight, blockHeight);
-    return `Operator Address: \`${validator.operator_address}\`\n\n`
-        + `Self Delegation Address: \`${selfDelegationAddress}\`\n\n`
-        + `Moniker: \`${validator.description.moniker}\`\n\n`
+    return `Moniker: \`${validator.description.moniker}\`\n\n`
         + `Voting Power: \`${votingPower}\` %\n\n`
         + upTime
         + `Current Commission Rate: \`${rate}\` %\n\n`
@@ -184,13 +179,13 @@ function getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTota
     let rateChanged;
     switch (true) {
         case (newRate === oldRate):
-            rateChanged = `Commission rate has not changed \`${newRate}\` %`;
+            rateChanged = `Commission rate has not changed (\`${newRate}\`%)`;
             break;
         case (newRate > oldRate):
-            rateChanged = `Commission rate has increased to \`${newRate}\` % from \`${oldRate}\` %`;
+            rateChanged = `Commission rate has increased to \`${newRate}\`% from \`${oldRate}\`%`;
             break;
         case (newRate < oldRate):
-            rateChanged = `Commission rate has decreased to \`${newRate}\` % from \`${oldRate}\` %`;
+            rateChanged = `Commission rate has decreased to \`${newRate}\`% from \`${oldRate}\`%`;
             break;
     }
     let newMaxRate = (parseFloat(latestValidatorDetails.commission.commission_rates.max_rate) * 100.0).toFixed(2);
@@ -198,13 +193,13 @@ function getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTota
     let maxRateChanged;
     switch (true) {
         case (newMaxRate === oldMaxRate):
-            maxRateChanged = `Maximum commission rate has not changed \`${newMaxRate}\` %`;
+            maxRateChanged = `Maximum commission rate has not changed (\`${newMaxRate}\`%)`;
             break;
         case (newMaxRate > oldMaxRate):
-            maxRateChanged = `Maximum commission rate has increased to \`${newMaxRate}\` % from \`${oldMaxRate}\` %`;
+            maxRateChanged = `Maximum commission rate has increased to \`${newMaxRate}\`% from \`${oldMaxRate}\`%`;
             break;
         case (newMaxRate < oldMaxRate):
-            maxRateChanged = `Maximum commission rate has decreased to \`${newMaxRate}\` % from \`${oldMaxRate}\` %`;
+            maxRateChanged = `Maximum commission rate has decreased to \`${newMaxRate}\`% from \`${oldMaxRate}\`%`;
             break;
     }
     let oldVotingPower = (parseInt(oldValidatorDetails.tokens, 10)/oldTotalBondedToken * 100.0).toFixed(2);
@@ -212,13 +207,13 @@ function getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTota
     let votingPowerChanged;
     switch (true) {
         case (newVotingPower === oldVotingPower):
-            votingPowerChanged = `Voting power has not changed \`${newVotingPower}\` %`;
+            votingPowerChanged = `Voting power has not changed (\`${newVotingPower}\`%)`;
             break;
         case (newVotingPower > oldVotingPower):
-            votingPowerChanged = `Voting power has increased to \`${newVotingPower}\` % from \`${oldVotingPower}\` %`;
+            votingPowerChanged = `Voting power has increased to \`${newVotingPower}\`% from \`${oldVotingPower}\`%`;
             break;
         case (newVotingPower < oldVotingPower):
-            votingPowerChanged = `Voting power has decreased to \`${newVotingPower}\` % from \`${oldVotingPower}\` %`;
+            votingPowerChanged = `Voting power has decreased to \`${newVotingPower}\`% from \`${oldVotingPower}\`%`;
             break;
     }
     let oldTotalTokens = (oldValidatorDetails.tokens/1000000).toFixed(0);
@@ -238,12 +233,10 @@ function getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTota
     }
     let upTime = getUptime(counter, initHeight, newBlockHeight);
     return `Report for \`${latestValidatorDetails.description.moniker}\` at \`${newBlockHeight}\`:\n\n`
-        + `Operator Address: \`${latestValidatorDetails.operator_address}\`\n\n`
-        + `Moniker: \`${latestValidatorDetails.description.moniker}\`\n\n`
         + upTime
-        + `Change in Voting Power: \`${votingPowerChanged}\` %\n\n`
-        + `Change in Commission Rate: \`${rateChanged}\` %\n\n`
-        + `Change in Max Commission Rate: \`${maxRateChanged}\` %\n\n`
+        + `Change in Voting Power: \`${votingPowerChanged}\`\n\n`
+        + `Change in Commission Rate: \`${rateChanged}\`\n\n`
+        + `Change in Max Commission Rate: \`${maxRateChanged}\`\n\n`
         + `Change in Total Tokens: \`${totalTokensChange}\`\n\n`;
 }
 
@@ -286,4 +279,4 @@ function getUptime(counter, initHeight, latestBlockHeight) {
     return upTime
 }
 
-module.exports = {addressOperations, updateValidatorDetails, newValidatorObject, checkTxs, initializeValidatorDB, getValidatorMessage, getValidatorReport};
+module.exports = {addressOperations, updateValidatorDetails, checkTxs, initializeValidatorDB, getValidatorMessage, getValidatorReport};

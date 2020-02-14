@@ -317,7 +317,7 @@ bot.on('/uptime', async (msg) => {
                             let validatorList = [];
                             for (let i = 0; i < activeValidators.length; i++) {
                                 let validator = validatorSubscribersList.filter(validatorSubscribe => (activeValidators[i].operator_address === validatorSubscribe.operatorAddress));
-                                if (validator.length !== 0 && (blockHeight - activeValidators[i].initHeight) >= config.upTimeLimit) {
+                                if (validator.length !== 0) {
                                     activeValidators[i].counter = validator[0].counter;
                                     activeValidators[i].initHeight = validator[0].initHeight;
                                     validatorList.push(activeValidators[i]);
@@ -717,11 +717,50 @@ bot.on(['ask.lastMissedBlockValidatorAddress'], async msg => {
                         }
                     })
             })
-            .catch(err => {
-                errors.Log(err, 'UPDATING_VALIDATORS');
-            });
+            .catch(err => botUtils.handleErrors(bot, chatID, err,'LAST_MISSED_BLOCK'));
     }
 });
+
+// Report
+// bot.on('/report', async (msg) => {
+//     return botUtils.waitForUserReply(bot, msg.chat.id, `Please provide a validator address.`, 'validatorAddressReport', {parseMode: 'Markdown'});
+// });
+//
+// bot.on(['ask.validatorAddressReport'], async msg => {
+//     const addr = msg.text;
+//     const chatID = msg.chat.id;
+//     let blockHeight = latestBlockHeight;
+//     if (!validatorUtils.addressOperations.verifyValidatorOperatorAddress(addr)) {
+//         return botUtils.sendMessage(bot, chatID, errors.INVALID_ADDRESS, {parseMode: 'Markdown'});
+//     } else {
+//         httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${addr}`)
+//             .then(data => JSON.parse(data))
+//             .then(json => {
+//                 let validator = json.result;       // with cosmos version upgrade, change here
+//                 dataUtils.find(dataUtils.subscriberCollection, {operatorAddress: addr})
+//                     .then((validatorSubscribers, err) => {
+//                         if (err) {
+//                             errors.Log(err, 'LAST_MISSED_BLOCK');
+//                             return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+//                         }
+//                         if (validatorSubscribers.length === 0) {
+//                             subscriberUtils.initializeValidatorSubscriber(validator.operatorAddress, blockHeight);
+//                             return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+//                         } else {
+//                             let moniker = validator.description.moniker;
+//                             if (validatorSubscribers[0].lastMissedBlock) {
+//                                 return botUtils.sendMessage(bot, chatID, `\`${moniker}\` last missed \`${validatorSubscribers[0].lastMissedBlock}\` block.`, {parseMode: 'Markdown'});
+//                             } else {
+//                                 return botUtils.sendMessage(bot, chatID, `\`${moniker}\` has not missed any blocks since birth of this Bot.`, {parseMode: 'Markdown'});
+//                             }
+//                         }
+//                     })
+//             })
+//             .catch(err => {
+//                 errors.Log(err, 'UPDATING_VALIDATORS');
+//             });
+//     }
+// });
 
 bot.connect();
 
@@ -772,6 +811,7 @@ function wsError(err) {
 
 let latestBlockHeight = 1;
 let oldBlockHeight = 0;
+let initHeight = 0;
 
 function scheduler() {
     if (latestBlockHeight === oldBlockHeight) {
@@ -788,8 +828,11 @@ function wsIncoming(data) {
     if (errors.isEmpty(json.result)) {
         console.log('ws Connected!');
     } else {
-        latestBlockHeight = json.result.data.value.block.header.height;
+        latestBlockHeight = parseInt(json.result.data.value.block.header.height, 10);
         console.log(latestBlockHeight);
+        if (initHeight === 0) {
+            initHeight = latestBlockHeight;
+        }
         checkAndSendMsgOnValidatorsAbsence(json);
         if (latestBlockHeight % 10000 === 0) {
             sendReports(latestBlockHeight)
@@ -845,59 +888,72 @@ function checkAndSendMsgOnValidatorsAbsence(json) {
 
 function updateCounterAndSendMessage(validatorSubscribers, validatorDetails, blockHeight) {
     let query = {operatorAddress: validatorSubscribers.operatorAddress};
-    if (validatorSubscribers.counter !== 0 && (validatorSubscribers.counter % config.counterLimit) === 0) {
-        if (!validatorDetails.jailed) {
+    if (!validatorDetails.jailed) {
+        if ((validatorSubscribers.lastMissedBlock - validatorSubscribers.previousToLastMissedBlock) === 1) {
+            let consecutiveCounter = validatorSubscribers.consecutiveCounter + 1;
+            let alertLevel = subscriberUtils.getAlertLevel(consecutiveCounter);
             dataUtils.updateOne(dataUtils.subscriberCollection, query, {
                 $set: {
-                    counter: 0,
-                    counterHeight: blockHeight,
+                    counter: validatorSubscribers.counter + 1,
+                    consecutiveCounter: consecutiveCounter,
+                    alertLevel: alertLevel,
+                    lastMissedBlock: blockHeight,
+                    previousToLastMissedBlock: validatorSubscribers.lastMissedBlock
                 }
             })
-                .then(() => {
-                    httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${validatorDetails.operatorAddress}`)
-                        .then(async data => {
-                            let json = JSON.parse(data);
-                            if (json.error) {
-                                errors.Log('Invalid Operator Address', 'UPDATE_COUNTER_QUERY_VALIDATOR')
-                            } else {
-                                let validator = json.result;       // with cosmos version upgrade, change here
-                                if (validator.jailed) {
-                                    dataUtils.updateOne(dataUtils.validatorCollection, query, {
-                                        $set: {
-                                            jailed: true,
-                                        }
-                                    })
-                                        .then(sendJailedMsgToSubscribers(validatorDetails.description.moniker, validatorSubscribers.subscribers))
-                                        .catch(err => errors.Log(err, 'UPDATING_COUNTER_UPDATE_VALIDATOR'));
-                                } else {
-                                    let totalBlocks = blockHeight - validatorSubscribers.counterHeight;
-                                    return sendMissedMsgToSubscribers(validatorDetails.description.moniker, validatorSubscribers.subscribers, totalBlocks, blockHeight);
-                                }
-                            }
-                        })
-                        .catch(err => errors.Log(err, 'UPDATE_COUNTER_QUERY_VALIDATOR'));
+                .then((result) => {
+                    let blocksLevel = subscriberUtils.getBlocksLevel(alertLevel);
+                    if (consecutiveCounter % blocksLevel === 0) {
+                        checkJailedStatusAndSendMessage(validatorSubscribers.operatorAddress);
+                        sendMissedMsgToSubscribers(validatorDetails.description.moniker, validatorSubscribers.subscribers, consecutiveCounter)
+                            .catch(err => errors.Log(err))
+                    }
                 })
                 .catch(err => errors.Log(err, 'UPDATING_COUNTER_AND_SENDING_MESSAGE'));
+        } else {
+            dataUtils.updateOne(dataUtils.subscriberCollection, query, {
+                $set: {
+                    counter: validatorSubscribers.counter + 1,
+                    consecutiveCounter: 0,
+                    alertLevel: 1,
+                    lastMissedBlock: blockHeight,
+                    previousToLastMissedBlock: validatorSubscribers.lastMissedBlock
+                }
+            })
+                .catch(err => errors.Log(err, 'UPDATING_COUNTER_AND_SENDING_MESSAGE'));
         }
-    } else {
-        dataUtils.updateOne(dataUtils.subscriberCollection, query, {
-            $set: {
-                counter: validatorSubscribers.counter + 1,
-                lastMissedBlock: blockHeight
-            }
-        })
-            .catch(err => errors.Log(err, 'UPDATING_COUNTER_AND_SENDING_MESSAGE'));
     }
-
 }
 
-async function sendMissedMsgToSubscribers(moniker, subscribersList, totalBlocks, lastBlockMissed) {
+async function sendMissedMsgToSubscribers(moniker, subscribersList, consecutiveCounter) {
     subscribersList.forEach((subscriber) => {
-        botUtils.sendMessage(bot, subscriber.chatID, `Alert: \`${moniker}\` has missed \`${config.counterLimit}\` blocks in last \`${totalBlocks}\` blocks.\n\nLast block missed: \`${lastBlockMissed}\``, {
+        botUtils.sendMessage(bot, subscriber.chatID, `Alert: \`${moniker}\` has consecutively missed \`${consecutiveCounter}\` blocks.`, {
             parseMode: 'Markdown',
             notification: true
         });
     });
+}
+
+function checkJailedStatusAndSendMessage(operatorAddress) {
+    httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${operatorAddress}`)
+        .then(async data => {
+            let json = JSON.parse(data);
+            if (json.error) {
+                errors.Log('Invalid Operator Address', 'UPDATE_COUNTER_QUERY_VALIDATOR')
+            } else {
+                let validator = json.result;       // with cosmos version upgrade, change here
+                if (validator.jailed) {
+                    dataUtils.updateOne(dataUtils.validatorCollection, query, {
+                        $set: {
+                            jailed: true,
+                        }
+                    })
+                        .then(sendJailedMsgToSubscribers(validatorDetails.description.moniker, validatorSubscribers.subscribers))
+                        .catch(err => errors.Log(err, 'UPDATING_COUNTER_UPDATE_VALIDATOR'));
+                }
+            }
+        })
+        .catch(err => errors.Log(err, 'UPDATE_COUNTER_QUERY_VALIDATOR'));
 }
 
 async function sendJailedMsgToSubscribers(moniker, subscribersList) {
