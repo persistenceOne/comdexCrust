@@ -41,13 +41,11 @@ const queries = {
                                     let i = 1;
                                     for (let validator of validatorsList) {
                                         let filteredValidator = validatorSubscribers.filter(validatorSubscriber => (validatorSubscriber.operatorAddress === validator.operator_address));
-                                        let message;
                                         if (filteredValidator.length !== 0) {
-                                            message = validatorUtils.getValidatorMessage(validator, totalBondedToken, filteredValidator[0].counter, filteredValidator[0].initHeight, blockHeight);
-                                        } else {
-                                            message = validatorUtils.getValidatorMessage(validator, totalBondedToken, 0, 0, blockHeight);
+                                            let upTime = subscriberUtils.calculateUptime(filteredValidator[0].blocksHistory);
+                                            let message = validatorUtils.getValidatorMessage(validator, totalBondedToken, upTime, filteredValidator[0].blocksHistory.length, blockHeight);
+                                            await bot.sendMessage(chatID, `(${i})\n\n` + message, {parseMode: 'Markdown'});
                                         }
-                                        await bot.sendMessage(chatID, `(${i})\n\n` + message, {parseMode: 'Markdown'});
                                         i++;
                                     }
                                 })
@@ -80,7 +78,8 @@ const queries = {
                                             subscriberUtils.initializeValidatorSubscriber(operatorAddress, blockHeight);
                                             return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                                         } else {
-                                            let message = validatorUtils.getValidatorMessage(validator, totalBondedToken, validatorSubscriber[0].counter, validatorSubscriber[0].initHeight, blockHeight);
+                                            let upTime = subscriberUtils.calculateUptime(validatorSubscriber[0].blocksHistory);
+                                            let message = validatorUtils.getValidatorMessage(validator, totalBondedToken, upTime, validatorSubscriber[0].blocksHistory.length, blockHeight);
                                             botUtils.sendMessage(bot, chatID, message, {parseMode: 'Markdown'});
                                         }
                                     })
@@ -98,10 +97,13 @@ const queries = {
                     if (json.error) {
                         botUtils.sendMessage(bot, chatID, `Invalid address!`);
                     } else {
-                        let coins = '';
-                        json.result.value.coins.forEach((coin) => {                // with cosmos version upgrade, change here
-                            coins = coins + `${coin.amount} ${coin.denom}, `
-                        });
+                        let coins = '0';
+                        if (!errors.isEmpty(json.result.value.coins)) {
+                            coins = '';
+                            json.result.value.coins.forEach((coin) => {                // with cosmos version upgrade, change here
+                                coins = coins + `${coin.amount} ${coin.denom}, `
+                            });
+                        }
                         botUtils.sendMessage(bot, chatID, `Coins: \`${coins}\`\n`,
                             {parseMode: 'Markdown'});
                     }
@@ -128,14 +130,20 @@ const queries = {
                     if (json.error) {
                         botUtils.sendMessage(bot, chatID, `Invalid validator's operator address.`);
                     } else {
-                        let selfRewards = '';
-                        json.result.self_bond_rewards.forEach((reward) => {        // with cosmos version upgrade, change here
-                            selfRewards = selfRewards + `${reward.amount} ${reward.denom}, `;
-                        });
-                        let commission = '';
-                        json.result.val_commission.forEach((comm) => {             // with cosmos version upgrade, change here
-                            commission = commission + `${comm.amount} ${comm.denom}, `;
-                        });
+                        let selfRewards = '0';
+                        if (!errors.isEmpty(json.result.self_bond_rewards)) {
+                            selfRewards = '';
+                            json.result.self_bond_rewards.forEach((reward) => {        // with cosmos version upgrade, change here
+                                selfRewards = selfRewards + `${reward.amount} ${reward.denom}, `;
+                            });
+                        }
+                        let commission = '0';
+                        if (!errors.isEmpty(json.result.val_commission)) {
+                            commission = '';
+                            json.result.val_commission.forEach((comm) => {        // with cosmos version upgrade, change here
+                                commission = commission + `${comm.amount} ${comm.denom}, `;
+                            });
+                        }
                         botUtils.sendMessage(bot, chatID, `Self Bond Rewards: \`${selfRewards}\`\n\nCommission: \`${commission}\`\n`, {parseMode: 'Markdown'});
                     }
                 })

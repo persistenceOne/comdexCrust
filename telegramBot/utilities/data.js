@@ -6,6 +6,7 @@ const mongoURL = config.dbURL + config.dbName;
 
 const subscriberCollection = 'subscribers';
 const validatorCollection = 'validators';
+const blockchainCollection = 'blockchain';
 
 let dbo;    //Not to export.
 
@@ -23,8 +24,12 @@ function SetupDB(callback) {
         });
 }
 
-function find(collection, query) {
-    return dbo.collection(collection).find(query).toArray();
+function find(collection, query, options = {}) {
+    return dbo.collection(collection).find(query, options).toArray();
+}
+
+function findSorted(collection, query, sortingOption, options = {}) {
+    return dbo.collection(collection).find(query, options).sort(sortingOption).toArray();
 }
 
 function insertOne(collection, data) {
@@ -39,6 +44,14 @@ function updateOne(collection, query, data) {
     return dbo.collection(collection).updateOne(query, data);
 }
 
+function deleteOne(collection, query) {
+    return dbo.collection(collection).deleteOne(query);
+}
+
+function deleteMany(collection, query) {
+    return dbo.collection(collection).deleteMany(query);
+}
+
 function upsertOne(collection, query, data) {
     return dbo.collection(collection).updateOne(query, data, {upsert: true});
 }
@@ -46,10 +59,14 @@ function upsertOne(collection, query, data) {
 module.exports = {
     subscriberCollection,
     validatorCollection,
+    blockchainCollection,
     SetupDB,
     find,
+    findSorted,
     insertOne,
     insertMany,
     updateOne,
+    deleteOne,
+    deleteMany,
     upsertOne
 };

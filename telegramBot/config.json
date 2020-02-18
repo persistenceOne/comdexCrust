@@ -11,5 +11,14 @@
   "dbURL": "mongodb://localhost:27017/",
   "chainAppName": "Cosmos",
   "prefix": "cosmos",
-  "token": "ATOM"
+  "token": "ATOM",
+  "alertLevelBlocks": {
+    "level1": 5,
+    "level2": 20,
+    "level3": 50,
+    "level4": 100,
+    "level5": 100
+  },
+  "subscriberBlockHistoryLimit" : 100,
+  "blockchainHistoryLimit" : 250
 }

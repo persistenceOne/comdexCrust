@@ -51,7 +51,7 @@ function bech32ify(address, prefix) {
     return bech32.encode(prefix, words);
 }
 
-function checkTxs(height) {
+async function checkTxs(height) {
     httpUtils.httpGet(botUtils.nodeURL, config.node.abciPort, `/tx_search?query="tx.height=${height}"`)
     .then(async (data) => {
         let json = JSON.parse(data);
@@ -155,16 +155,16 @@ function updateValidator(validator) {
 }
 
 
-function getValidatorMessage(validator, totalBondedToken, counter, initHeight, blockHeight) {
+function getValidatorMessage(validator, totalBondedToken, upTimePercentage, totalUptimeBlocks, blockHeight) {
     let rate = (parseFloat(validator.commission.commission_rates.rate) * 100.0).toFixed(2);
     let maxRate = (parseFloat(validator.commission.commission_rates.max_rate) * 100.0).toFixed(2);
     let maxChangeRate = (parseFloat(validator.commission.commission_rates.max_change_rate) * 100.0).toFixed(2);
     let votingPower = (parseInt(validator.tokens, 10)/totalBondedToken * 100.0).toFixed(2);
     let totalTokens = (validator.tokens/1000000).toFixed(0);
-    let upTime = getUptime(counter, initHeight, blockHeight);
-    return `Moniker: \`${validator.description.moniker}\`\n\n`
+    return `At Block \`${blockHeight}\`\n\n`
+        + `Moniker: \`${validator.description.moniker}\`\n\n`
         + `Voting Power: \`${votingPower}\` %\n\n`
-        + upTime
+        + `Uptime: \`${upTimePercentage}\`% (based on \`${totalUptimeBlocks}\` blocks)\n\n`
         + `Current Commission Rate: \`${rate}\` %\n\n`
         + `Max Commission Rate: \`${maxRate}\` %\n\n`
         + `Max Change Rate: \`${maxChangeRate}\` %\n\n`
@@ -172,8 +172,41 @@ function getValidatorMessage(validator, totalBondedToken, counter, initHeight, b
         + `Details: \`${validator.description.details}\`\n\n`
         + `Website: ${validator.description.website}\n\u200b\n`;
 }
+function getValidatorCommissionMessage(validator) {
+    let rate = (parseFloat(validator.commission.commission_rates.rate) * 100.0).toFixed(2);
+    let maxRate = (parseFloat(validator.commission.commission_rates.max_rate) * 100.0).toFixed(2);
+    let maxChangeRate = (parseFloat(validator.commission.commission_rates.max_change_rate) * 100.0).toFixed(2);
+    return `Moniker: \`${validator.description.moniker}\`\n\n`
+        + `Current Commission Rate: \`${rate}\`%\n\n`
+        + `Max Commission Rate: \`${maxRate}\`%\n\n`
+        + `Max Change Rate: \`${maxChangeRate}\`%\n\u200b\n`;
+}
 
-function getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTotalBondedToken, newTotalBondedToken, newBlockHeight, counter, initHeight) {
+function getValidatorVotingPowerMessage(validator, totalBondedToken) {
+    let votingPower = (parseInt(validator.tokens, 10)/totalBondedToken * 100.0).toFixed(2);
+    return `Moniker: \`${validator.description.moniker}\`\n\n`
+        + `Voting Power: \`${votingPower}\`%\n\u200b\n`;
+}
+
+function getTopValidatorMessage(validator, totalBondedToken) {
+    let rate = (parseFloat(validator.commission.commission_rates.rate) * 100.0).toFixed(2);
+    let maxRate = (parseFloat(validator.commission.commission_rates.max_rate) * 100.0).toFixed(2);
+    let maxChangeRate = (parseFloat(validator.commission.commission_rates.max_change_rate) * 100.0).toFixed(2);
+    let votingPower = (parseInt(validator.tokens, 10)/totalBondedToken * 100.0).toFixed(2);
+    return `Moniker: \`${validator.description.moniker}\`\n\n`
+        + `Voting Power: \`${votingPower}\`%\n\n`
+        + `Current Commission Rate: \`${rate}\`%\n\n`
+        + `Max Commission Rate: \`${maxRate}\`%\n\n`
+        + `Max Change Rate: \`${maxChangeRate}\`%\n\u200b\n`;
+}
+
+function getValidatorUptimeMessage(validator, blocksHistory) {
+    let upTimePercentage = subscriberUtils.calculateUptime(blocksHistory);
+    return `Moniker: \`${validator.description.moniker}\`\n\n`
+        + `Uptime: \`${upTimePercentage}\`% (based on \`${blocksHistory.length}\` blocks)\n\n`;
+}
+
+function getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTotalBondedToken, newTotalBondedToken, newBlockHeight, oldBlockHeight, blocksHistory, blockchainHistory) {
     let oldRate = (parseFloat(oldValidatorDetails.commission.commission_rates.rate) * 100.0).toFixed(2);
     let newRate = (parseFloat(latestValidatorDetails.commission.commission_rates.rate) * 100.0).toFixed(2);
     let rateChanged;
@@ -231,13 +264,26 @@ function getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTota
             totalTokensChange = `Total tokens delegated (including self) has decreased by \`${change}\` \`${config.token}\` from \`${oldTotalTokens}\` \`${config.token}\``;
             break;
     }
-    let upTime = getUptime(counter, initHeight, newBlockHeight);
-    return `Report for \`${latestValidatorDetails.description.moniker}\` at \`${newBlockHeight}\`:\n\n`
-        + upTime
+    let upTimePercentage = subscriberUtils.calculateUptime(blocksHistory);
+    let totalBlocks = blockchainHistory.length;
+    let totalBlocksProposed = 0;
+    let totalTxsProposed = 0;
+    let hexAddress = addressOperations.getHexAddress(addressOperations.bech32ToPubkey(latestValidatorDetails.consensus_pubkey));
+    for (let i = 0; i < totalBlocks; i++) {
+        if (blockchainHistory[i].proposer === hexAddress) {
+            totalBlocksProposed++;
+            totalTxsProposed = totalTxsProposed + blockchainHistory[i].numTxs;
+        }
+    }
+    let blocksProposalPercentage = (totalBlocksProposed * 100.0/totalBlocks).toFixed(2);
+    return `Report for \`${latestValidatorDetails.description.moniker}\` at \`${newBlockHeight}\` with base block at \`${oldBlockHeight}\` :\n\n`
+        + `Uptime: \`${upTimePercentage}\`% (based on \`${blocksHistory.length}\`)\n\n`
         + `Change in Voting Power: \`${votingPowerChanged}\`\n\n`
         + `Change in Commission Rate: \`${rateChanged}\`\n\n`
         + `Change in Max Commission Rate: \`${maxRateChanged}\`\n\n`
-        + `Change in Total Tokens: \`${totalTokensChange}\`\n\n`;
+        + `Change in Total Tokens: \`${totalTokensChange}\`\n\n`
+        + `Total Blocks Proposed: \`${totalBlocksProposed}\` (\`${blocksProposalPercentage}\`%) in \`${totalBlocks}\` blocks\n\n`
+        + `Total Txs Proposed: \`${totalTxsProposed}\` in \`${totalBlocks}\` blocks`;
 }
 
 async function createNewValidator(events) {
@@ -269,14 +315,15 @@ async function createNewValidator(events) {
     }
 }
 
-function getUptime(counter, initHeight, latestBlockHeight) {
-    let upTime = `Uptime: Not enough data.\n\n`;
-    if (initHeight !== 0){
-        let upTimePercentage = (1.0 - (counter/initHeight)) * 100.0;
-        let basedOn = latestBlockHeight - initHeight;
-        upTime = `Uptime: \`${upTimePercentage}\`% (based on \`${basedOn}\` blocks)\n\n`;
-    }
-    return upTime
-}
-
-module.exports = {addressOperations, updateValidatorDetails, checkTxs, initializeValidatorDB, getValidatorMessage, getValidatorReport};
+module.exports = {
+    addressOperations,
+    updateValidatorDetails,
+    checkTxs,
+    initializeValidatorDB,
+    getValidatorMessage,
+    getValidatorUptimeMessage,
+    getValidatorVotingPowerMessage,
+    getValidatorCommissionMessage,
+    getTopValidatorMessage,
+    getValidatorReport
+};
