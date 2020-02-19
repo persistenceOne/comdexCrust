@@ -7,7 +7,7 @@ const botUtils = require('./bot');
 
 function initializeBlockchainDB() {
     dataUtils.deleteMany(dataUtils.blockchainCollection, {})
-        .catch(e => errors.exitProcess(e, 'INITIALIZING_BLOCKHCHAIN_DB'));
+        .catch(e => errors.exitProcess(e, 'INITIALIZING_BLOCKCHAIN_DB'));
 }
 
 async function updateBlock(blockHeight) {
@@ -28,17 +28,14 @@ async function updateBlock(blockHeight) {
                             errors.Log(err, 'COMMISSION');
                         } else {
                             let newBlock = {height: blockHeight, proposer: proposerHexAddress, numTxs: numTxs};
-                            if (blockchainDetails.length > config.blockchainHistoryLimit) {
-                                dataUtils.deleteOne(dataUtils.blockchainCollection, {height: blockchainDetails[0].height})
-                                    .then((result, err) => {
-                                        dataUtils.insertOne(dataUtils.blockchainCollection, newBlock)
+                            dataUtils.insertOne(dataUtils.blockchainCollection, newBlock)
+                                .then((result) => {
+                                    if (blockchainDetails.length >= config.blockchainHistoryLimit) {
+                                        dataUtils.deleteOne(dataUtils.blockchainCollection, {height: blockchainDetails[0].height})
                                             .catch(err => errors.Log(err, 'SUBSCRIBE_INSERT'));
-                                    })
-                                    .catch(err => errors.Log(err, 'SUBSCRIBE_INSERT'));
-                            } else {
-                                dataUtils.insertOne(dataUtils.blockchainCollection, newBlock)
-                                    .catch(err => errors.Log(err, 'SUBSCRIBE_INSERT'));
-                            }
+                                    }
+                                })
+                                .catch(err => errors.Log(err, 'SUBSCRIBE_INSERT'));
                         }
                     })
             }

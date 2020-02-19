@@ -18,10 +18,22 @@ async function waitForUserReply(bot, chatID, message, subEvent, options) {
 function sendMessage(bot, chatID, message, options) {
     if (!options) {
         bot.sendMessage(chatID, message)
-        .catch((err) => errors.Log(err.description, 'SENDING_MESSAGE'))
+        .catch((err) => {
+            errors.Log(err.description, 'SENDING_MESSAGE');
+            bot.sendMessage(chatID, err.description)
+                .catch((err) => {
+                    errors.Log(err.description, 'SENDING_MESSAGE')
+                })
+        });
     } else {
         bot.sendMessage(chatID, message, options)
-        .catch((err) => errors.Log(err.description, 'SENDING_MESSAGE'))
+        .catch((err) => {
+            errors.Log(err.description, 'SENDING_MESSAGE');
+            bot.sendMessage(chatID, err.description)
+                .catch((err) => {
+                    errors.Log(err.description, 'SENDING_MESSAGE')
+                })
+        });
     }
 }
 

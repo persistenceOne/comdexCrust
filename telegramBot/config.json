@@ -2,7 +2,7 @@
   "botToken"  : "1054343115:AAHkt5FVHuAJSSICArLuPUmTKIxqUTBBrrw",
   "requestTimeout": 3,
   "node" : {
-    "url" : "localhost",
+    "url" : "192.168.147",
     "backupURL" : "localhost",
     "abciPort": "26657",
     "lcdPort": "31118"
@@ -12,13 +12,8 @@
   "chainAppName": "Cosmos",
   "prefix": "cosmos",
   "token": "ATOM",
-  "alertLevelBlocks": {
-    "level1": 5,
-    "level2": 20,
-    "level3": 50,
-    "level4": 100,
-    "level5": 100
-  },
+  "alertLevels": 5,
+  "slashingWindow": 50,
   "subscriberBlockHistoryLimit" : 100,
   "blockchainHistoryLimit" : 250
 }

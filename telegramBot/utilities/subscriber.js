@@ -55,37 +55,15 @@ function newValidatorSubscribers(operatorAddress, latestBlockHeight, subscribers
     };
 }
 
-function getBlocksLevel(alertLevel) {
-    switch (alertLevel) {
-        case 1:
-            return config.alertLevelBlocks.level1;
-        case 2:
-            return config.alertLevelBlocks.level2;
-        case 3:
-            return config.alertLevelBlocks.level3;
-        case 4:
-            return config.alertLevelBlocks.level4;
-        case 5:
-            return config.alertLevelBlocks.level5;
-        default:
-            return config.alertLevelBlocks.level5;
-    }
+function getBlocksLevel(slashingWindow, alertLevel) {
+    return Math.ceil(slashingWindow ** (alertLevel/config.alertLevels));
 }
 
-function getAlertLevel(consecutiveCounter) {
-    switch (true) {
-        case consecutiveCounter <= config.alertLevelBlocks.level1:
-            return 1;
-        case config.alertLevelBlocks.level1 < consecutiveCounter && consecutiveCounter <= config.alertLevelBlocks.level2:
-            return 2;
-        case config.alertLevelBlocks.level2 < consecutiveCounter && consecutiveCounter <= config.alertLevelBlocks.level3:
-            return 3;
-        case config.alertLevelBlocks.level3 < consecutiveCounter && consecutiveCounter <= config.alertLevelBlocks.level4:
-            return 4;
-        case config.alertLevelBlocks.level4 < consecutiveCounter:
-            return 5;
-        default:
-            return 1;
+function getAlertLevel(slashingWindow, consecutiveCounter) {
+    if (consecutiveCounter === 0 || consecutiveCounter === 1){
+        return 1;
+    } else {
+        return Math.ceil(config.alertLevels * Math.log(consecutiveCounter) / Math.log(slashingWindow));
     }
 }
 

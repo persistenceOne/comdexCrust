@@ -23,7 +23,7 @@ function Log(err, method = '') {
     if (method !== '') {
         message = message + ' METHOD: ' + method + ';';
     }
-    if (!isEmpty(err.statusCode)) {
+    if (err.statusCode) {
         message = message + ' Status Code: ' + err.statusCode + ';';
     }
     if (isEmpty(err.message)) {

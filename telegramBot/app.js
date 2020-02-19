@@ -136,19 +136,12 @@ bot.on('/top_validators_wrt_voting_power', async (msg) => {
                                     break;
                                 }
                             }
-                            if (validatorList.length !== 0) {
-                                await bot.sendMessage(chatID, `Top validators by voting power are:`, {parseMode: 'Markdown'});
-                                for (let i = 0; i < validatorList.length; i++) {
-                                    let message = validatorUtils.getValidatorVotingPowerMessage(validatorList[i], totalBondedToken);
-                                    await bot.sendMessage(chatID, `(${i + 1})\n\n` + message, {parseMode: 'Markdown'});
-                                }
-                            } else {
-                                await bot.sendMessage(chatID, `Top \`${topValidatorsLength}\` validators by voting power at current height are:`, {parseMode: 'Markdown'});
-                                for (let i = 0; i < topValidatorsLength; i++) {
-                                    let message = validatorUtils.getValidatorVotingPowerMessage(activeValidators[i], totalBondedToken);
-                                    await bot.sendMessage(chatID, `(${i + 1})\n\n` + message, {parseMode: 'Markdown'});
-                                }
+                            let message = `Top validators by voting power at block \`${blockHeight}\` are:\n\n`;
+                            for (let i = 0; i < validatorList.length; i++) {
+                                let valMessage = validatorUtils.getValidatorVotingPowerMessage(validatorList[i], totalBondedToken);
+                                message = message + `(${i + 1})\n\n` + valMessage;
                             }
+                            botUtils.sendMessage(bot, chatID, message, {parseMode: 'Markdown'});
                         })
                         .catch(err => {
                             errors.Log(err, 'VOTING_POWER');
@@ -169,39 +162,37 @@ bot.on('/top_validators_wrt_voting_power', async (msg) => {
 bot.on('/top_validators_wrt_commission', async (msg) => {
     const chatID = msg.chat.id;
     let blockHeight = latestBlockHeight;
-    httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/pool`)
+    httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators`)
         .then(data => JSON.parse(data))
-        .then(json => {
-            const totalBondedToken = parseInt(json.result.bonded_tokens, 10);      // with cosmos version upgrade, change here
-            httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators`)
-                .then(data => JSON.parse(data))
-                .then(async json => {
-                    let activeValidators = json.result;       // with cosmos version upgrade, change here
-                    activeValidators.sort((a, b) => parseFloat(a.commission.commission_rates.rate) - parseFloat(b.commission.commission_rates.rate));
-                    let lowestCommissionRate = parseFloat(activeValidators[0].commission.commission_rates.rate);
-                    dataUtils.find(dataUtils.subscriberCollection, {})
-                        .then(async (validatorSubscribersList, err) => {
-                            if (err) {
-                                errors.Log(err, 'COMMISSION');
-                                return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
-                            }
-                            await bot.sendMessage(chatID, `Validators by lowest commission rate \`${(lowestCommissionRate * 100.0).toFixed(2)}\` % at current height are:`, {parseMode: 'Markdown'});
-                            for (let i = 0; i < activeValidators.length; i++) {
-                                if (parseFloat(activeValidators[i].commission.commission_rates.rate) > lowestCommissionRate) {
-                                    break;
-                                }
-                                let validatorSubscribe = validatorSubscribersList.filter(validatorSubscribers => (validatorSubscribers.operatorAddress === activeValidators[i].operator_address));
-                                if (validatorSubscribe.length === 0) {
-                                    subscriberUtils.initializeValidatorSubscriber(activeValidators[i].operator_address, blockHeight);
-                                }
-                                let message = validatorUtils.getValidatorCommissionMessage(activeValidators[i]);
-                                await bot.sendMessage(chatID, `(${i + 1})\n\n` + message, {parseMode: 'Markdown'});
-                            }
-                        })
-                        .catch(err => {
-                            errors.Log(err, 'COMMISSION');
-                            botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
-                        })
+        .then(async json => {
+            let activeValidators = json.result;       // with cosmos version upgrade, change here
+            activeValidators.sort((a, b) => parseFloat(a.commission.commission_rates.rate) - parseFloat(b.commission.commission_rates.rate));
+            let lowestCommissionRate = parseFloat(activeValidators[0].commission.commission_rates.rate);
+            dataUtils.find(dataUtils.subscriberCollection, {})
+                .then(async (validatorSubscribersList, err) => {
+                    if (err) {
+                        errors.Log(err, 'COMMISSION');
+                        return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                    }
+                    let message = `Validators by lowest commission rate \`${(lowestCommissionRate * 100.0).toFixed(2)}\` % at block \`${blockHeight}\` are:\n\n`;
+                    for (let i = 0; i < activeValidators.length; i++) {
+                        if (parseFloat(activeValidators[i].commission.commission_rates.rate) > lowestCommissionRate) {
+                            break;
+                        }
+                        let validatorSubscribe = validatorSubscribersList.filter(validatorSubscribers => (validatorSubscribers.operatorAddress === activeValidators[i].operator_address));
+                        if (validatorSubscribe.length === 0) {
+                            subscriberUtils.initializeValidatorSubscriber(activeValidators[i].operator_address, blockHeight);
+                        }
+                        let valMessage = validatorUtils.getValidatorCommissionMessage(activeValidators[i]);
+                        message = message + `(${i + 1})\n\n` + valMessage;
+                        if (i % 5 === 0) {
+                            await bot.sendMessage(chatID, message);
+                            message = ``;
+                        }
+                    }
+                    if (message !== ``) {
+                        botUtils.sendMessage(bot, chatID, message, {parseMode: 'Markdown'});
+                    }
                 })
                 .catch(err => {
                     errors.Log(err, 'COMMISSION');
@@ -212,7 +203,6 @@ bot.on('/top_validators_wrt_commission', async (msg) => {
             errors.Log(err, 'COMMISSION');
             botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
         })
-
 });
 
 bot.on('/top_validators_wrt_commission_voting_power', async (msg) => {
@@ -229,7 +219,7 @@ bot.on('/top_validators_wrt_commission_voting_power', async (msg) => {
                     dataUtils.find(dataUtils.subscriberCollection, {})
                         .then(async (validatorSubscribersList, err) => {
                             if (err) {
-                                errors.Log(err, 'COMMISSION');
+                                errors.Log(err, 'VOTING_POWER_COMMISSION');
                                 return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                             }
                             activeValidators.sort((a, b) => parseInt(b.tokens, 10) - parseInt(a.tokens, 10));
@@ -246,38 +236,20 @@ bot.on('/top_validators_wrt_commission_voting_power', async (msg) => {
                                 subscriberUtils.initializeValidatorSubscriber(slicedValidator[0].operator_address, blockHeight);
                             }
                             let message = validatorUtils.getTopValidatorMessage(slicedValidator[0], totalBondedToken);
-                            await bot.sendMessage(chatID, `Validator with voting power in top \`${topValidatorsLength}\` and lowest commission rate:\n\n\n` + message, {parseMode: 'Markdown'});
-
-                            activeValidators.sort((a, b) => parseFloat(a.commission.commission_rates.rate) - parseFloat(b.commission.commission_rates.rate));
-                            let lowestCommissionRate = parseFloat(activeValidators[0].commission.commission_rates.rate);
-                            for (let i = 0; i < activeValidators.length; i++) {
-                                if (parseFloat(activeValidators[i].commission.commission_rates.rate) > lowestCommissionRate) {
-                                    topValidatorsLength = i + 1;
-                                    break;
-                                }
-                            }
-                            slicedValidator = activeValidators.slice(0, topValidatorsLength);
-                            slicedValidator.sort((a, b) => parseInt(b.tokens, 10) - parseInt(a.tokens, 10));
-                            validatorSubscribe = validatorSubscribersList.filter(validatorSubscribers => (validatorSubscribers.operatorAddress === slicedValidator[0].operator_address));
-                            if (validatorSubscribe.length === 0) {
-                                subscriberUtils.initializeValidatorSubscriber(slicedValidator[0].operator_address, blockHeight);
-                            }
-                            message = validatorUtils.getTopValidatorMessage(slicedValidator[0], totalBondedToken);
-                            botUtils.sendMessage(bot, chatID, `Validator among lowest commission rates \`${(lowestCommissionRate * 100.0).toFixed(2)}\`% and highest voting power:\n\n\n` + message, {parseMode: 'Markdown'});
-
+                            await bot.sendMessage(chatID, `Validator with voting power in top \`${topValidatorsLength}\` and lowest commission rate:\n\n` + message, {parseMode: 'Markdown'});
                         })
                         .catch(err => {
-                            errors.Log(err, 'COMMISSION');
+                            errors.Log(err, 'VOTING_POWER_COMMISSION');
                             botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                         })
                 })
                 .catch(err => {
-                    errors.Log(err, 'VOTING_POWER');
+                    errors.Log(err, 'VOTING_POWER_COMMISSION');
                     botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                 })
         })
         .catch(err => {
-            errors.Log(err, 'VOTING_POWER');
+            errors.Log(err, 'VOTING_POWER_COMMISSION');
             botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
         })
 });
@@ -304,19 +276,20 @@ bot.on('/top_validators_wrt_uptime', async (msg) => {
                             validatorList.push(activeValidators[i]);
                         }
                     }
+                    let message = `Top active validators by uptime at block \`${blockHeight}\` are:`;
                     if (validatorList.length !== 0) {
                         let highestUptime = subscriberUtils.calculateUptime(validatorList[0].blocksHistory);
-                        await bot.sendMessage(chatID, `Top active validators by uptime are:`, {parseMode: 'Markdown'});
                         for (let i = 0; i < validatorList.length; i++) {
                             let validatorUptime = subscriberUtils.calculateUptime(validatorList[i].blocksHistory);
                             if (validatorUptime > highestUptime) {
                                 break;
                             }
-                            let message = validatorUtils.getValidatorUptimeMessage(validatorList[i], validatorList[i].blocksHistory);
-                            await bot.sendMessage(chatID, `(${i + 1})\n\n` + message, {parseMode: 'Markdown'});
+                            let valMessage = validatorUtils.getValidatorUptimeMessage(validatorList[i], validatorList[i].blocksHistory);
+                            message = message + valMessage;
                         }
+                        botUtils.sendMessage(bot, chatID, message, {parseMode: 'Markdown'});
                     } else {
-                        return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'})
+                        return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                     }
                 })
                 .catch(err => {
@@ -626,7 +599,7 @@ bot.on(['ask.accountBalance'], async msg => {
     if (addr.length !== 45) {
         return botUtils.sendMessage(bot, chatID, 'Address is invalid!');
     } else {
-        chainUtils.queries.sendBalance(bot, chatID, addr)
+        chainUtils.queries.sendBalance(bot, chatID, addr, latestBlockHeight)
     }
 });
 
@@ -641,7 +614,7 @@ bot.on(['ask.delegatorRewards'], async msg => {
     if (addr.length !== 45) {
         return botUtils.sendMessage(bot, id, 'Address is invalid!');
     } else {
-        chainUtils.queries.sendDelRewards(bot, msg.chat.id, addr);
+        chainUtils.queries.sendDelRewards(bot, msg.chat.id, addr, latestBlockHeight);
     }
 });
 
@@ -656,7 +629,7 @@ bot.on(['ask.validatorRewards'], async msg => {
     if (addr.length !== 52) {
         return botUtils.sendMessage(bot, id, 'Address is invalid!');
     } else {
-        chainUtils.queries.sendValRewards(bot, msg.chat.id, addr);
+        chainUtils.queries.sendValRewards(bot, msg.chat.id, addr, latestBlockHeight);
     }
 });
 
@@ -696,13 +669,16 @@ bot.on(['ask.lastMissedBlockValidatorAddress'], async msg => {
                                     missedBlocks.push(validatorSubscribers[0].blocksHistory[i].block);
                                     missedBlocksEmoticonMessage = missedBlocksEmoticonMessage + blockchainConstants.emoticon.missedBlock + ' ';
                                 }
+                                if ((i + 1) % 10 === 0) {
+                                    missedBlocksEmoticonMessage = missedBlocksEmoticonMessage + '\n';
+                                }
                             }
                             missedBlocks = JSON.stringify(missedBlocks);
                             let message = '';
                             if (validatorSubscribers[0].lastMissedBlock !== 0) {
                                 message = `\`${moniker}\` last missed \`${validatorSubscribers[0].lastMissedBlock}\` block.\n\n`;
                             } else {
-                                message = `\`${moniker}\` has not missed any blocks since birth of this Bot.\n\n`;
+                                message = `\`${moniker}\` has not missed any blocks since start of this Bot.\n\n`;
                             }
                             message = message + `Latest Missed Block List: \`${missedBlocks}\`\n\n` + missedBlocksEmoticonMessage;
                             botUtils.sendMessage(bot, chatID, message, {parseMode: 'Markdown'});
@@ -722,6 +698,9 @@ bot.on(['ask.validatorAddressReport'], async msg => {
     const chatID = msg.chat.id;
     let blockHeight = latestBlockHeight;
     let baseBlockHeight = Math.floor(blockHeight / 10000) * 10000;
+    if (baseBlockHeight === 0) {
+        baseBlockHeight = 1;
+    }
     if (!validatorUtils.addressOperations.verifyValidatorOperatorAddress(addr)) {
         return botUtils.sendMessage(bot, chatID, errors.INVALID_ADDRESS, {parseMode: 'Markdown'});
     } else {
@@ -827,7 +806,7 @@ function wsError(err) {
 
 let latestBlockHeight = 1;
 let oldBlockHeight = 0;
-let initHeight = 0;
+let slashingWindow = config.slashingWindow;
 
 function scheduler() {
     if (latestBlockHeight === oldBlockHeight) {
@@ -844,22 +823,27 @@ function wsIncoming(data) {
     if (errors.isEmpty(json.result)) {
         console.log('ws Connected!');
     } else {
-        let currentBlockHieght = parseInt(json.result.data.value.block.header.height, 10);
-        console.log(currentBlockHieght);
-        if (initHeight === 0) {
-            initHeight = currentBlockHieght;
-        }
+        let currentBlockHeight = parseInt(json.result.data.value.block.header.height, 10);
+        latestBlockHeight = currentBlockHeight;
+        console.log(currentBlockHeight);
+        validatorUtils.checkTxs(currentBlockHeight)
+            .catch(err => errors.Log(err, 'CHECKING_TXS'));
         checkAndSendMsgOnValidatorsAbsence(json)
             .catch(err => errors.Log(err, 'CHECK_UPDATE_COUNTER_SEND_MESSAGE'));
-        if (currentBlockHieght % 10000 === 0) {
-            sendDailyReports(currentBlockHieght)
-                .catch(err => errors.Log(err, 'SENDING_REPORTS'));
-        }
-        validatorUtils.checkTxs(currentBlockHieght)
-            .catch(err => errors.Log(err, 'CHECKING_TXS'));
-        blockchainUtils.updateBlock(currentBlockHieght)
+        blockchainUtils.updateBlock(currentBlockHeight)
             .catch(err => errors.Log(err, 'UPDATING_BLOCKCHAIN_DB'));
-        latestBlockHeight = currentBlockHieght;
+        if (currentBlockHeight % 10000 === 0) {
+            sendDailyReports(currentBlockHeight)
+                .catch(err => errors.Log(err, 'SENDING_REPORTS'));
+            httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/slashing/parameters`)
+                .then(data => JSON.parse(data))
+                .then(async (json) => {
+                    let signed_blocks_window = parseInt(json.result.signed_blocks_window, 10);
+                    let min_signed_per_window = parseFloat(json.result.min_signed_per_window);
+                    slashingWindow = signed_blocks_window * min_signed_per_window;
+                })
+                .catch(err => errors.Log(err, 'UPDATING_SLASHING_WINDOW'));
+        }
     }
 }
 
@@ -901,7 +885,7 @@ async function checkAndSendMsgOnValidatorsAbsence(json) {
                     .catch(err => errors.Log(err, 'SENDING_MESSAGE'));
             });
         })
-        .catch(err => errors.Log(err, 'SENDING_MESSAGE'))
+        .catch(err => errors.Log(err, 'SENDING_MESSAGE'));
 }
 
 function updateCounterAndSendMessage(validatorSubscribers, validatorDetails, blockHeight, found) {
@@ -914,10 +898,10 @@ function updateCounterAndSendMessage(validatorSubscribers, validatorDetails, blo
         }
         if (!found) {
             let consecutiveCounter = validatorSubscribers.consecutiveCounter;
+            let alertLevel = subscriberUtils.getAlertLevel(slashingWindow, consecutiveCounter);
             if (blockHeight - validatorSubscribers.lastMissedBlock === 1) {
                 consecutiveCounter = validatorSubscribers.consecutiveCounter + 1;
             }
-            let alertLevel = subscriberUtils.getAlertLevel(consecutiveCounter);
             dataUtils.updateOne(dataUtils.subscriberCollection, query, {
                 $set: {
                     consecutiveCounter: consecutiveCounter,
@@ -927,9 +911,9 @@ function updateCounterAndSendMessage(validatorSubscribers, validatorDetails, blo
                 }
             })
                 .then((result) => {
-                    let blocksLevel = subscriberUtils.getBlocksLevel(alertLevel);
+                    let blocksLevel = subscriberUtils.getBlocksLevel(slashingWindow, alertLevel);
                     if (consecutiveCounter !== 0 && consecutiveCounter % blocksLevel === 0) {
-                        sendMissedMsgToSubscribers(validatorDetails.description.moniker, validatorSubscribers.subscribers, consecutiveCounter)
+                        sendMissedMsgToSubscribers(validatorDetails.description.moniker, validatorSubscribers.subscribers, consecutiveCounter, alertLevel)
                             .catch(err => errors.Log(err));
                         checkJailedStatusAndSendMessage(validatorDetails, validatorSubscribers)
                             .catch(err => errors.Log(err));
@@ -949,9 +933,16 @@ function updateCounterAndSendMessage(validatorSubscribers, validatorDetails, blo
     }
 }
 
-async function sendMissedMsgToSubscribers(moniker, subscribersList, consecutiveCounter) {
+async function sendMissedMsgToSubscribers(moniker, subscribersList, consecutiveCounter, alertLevel) {
+    let emoji = '';
+    for (let i = 0; i < alertLevel; i++) {
+        emoji = emoji + ' ' + blockchainConstants.emoticon.alert;
+        if (i === 4) {
+            break;
+        }
+    }
     subscribersList.forEach((subscriber) => {
-        botUtils.sendMessage(bot, subscriber.chatID, `Alert: \`${moniker}\` has consecutively missed \`${consecutiveCounter}\` blocks.`, {
+        botUtils.sendMessage(bot, subscriber.chatID, `Alert: \`${moniker}\` has consecutively missed \`${consecutiveCounter}\` blocks \`${emoji}\`.`, {
             parseMode: 'Markdown',
             notification: true
         });
@@ -998,47 +989,52 @@ async function sendDailyReports(blockHeight) {
                 return;
             }
             let oldBlockHeight = blockHeight - 10000;
-            result.forEach((validatorSubscribers) => {
-                httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${validatorSubscribers.operatorAddress}?height=${oldBlockHeight}`)
-                    .then(data => JSON.parse(data))
-                    .then(async (json) => {
-                        let oldValidatorDetails = json.result;       // with cosmos version upgrade, change here
-                        httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${validatorSubscribers.operatorAddress}?height=${blockHeight}`)
+            if (oldBlockHeight <= 0) {
+                oldBlockHeight = 1;
+            }
+            dataUtils.find(dataUtils.blockchainCollection, {})
+                .then((blockchainHistory, err) => {
+                    if (err) {
+                        errors.Log(err, 'SENDING_REPORT');
+                        return;
+                    }
+                    result.forEach((validatorSubscribers) => {
+                        httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${validatorSubscribers.operatorAddress}?height=${oldBlockHeight}`)
                             .then(data => JSON.parse(data))
-                            .then(json => {
-                                let latestValidatorDetails = json.result;       // with cosmos version upgrade, change here
-                                httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/pool?height=${oldBlockHeight}`)
+                            .then(async (json) => {
+                                let oldValidatorDetails = json.result;       // with cosmos version upgrade, change here
+                                httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${validatorSubscribers.operatorAddress}?height=${blockHeight}`)
                                     .then(data => JSON.parse(data))
                                     .then(json => {
-                                        let oldTotalBondedTokens = json.result.bonded_tokens;       // with cosmos version upgrade, change here
-                                        httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/pool?height=${blockHeight}`)
-                                            .then(data => JSON.parse(data))
-                                            .then(json => {
-                                                let newTotalBondedTokens = json.result.bonded_tokens;       // with cosmos version upgrade, change here
-                                                dataUtils.find(dataUtils.blockchainCollection, {})
-                                                    .then((blockchainHistory, err) => {
-                                                        if (err) {
-                                                            errors.Log(err, 'SENDING_REPORT');
-                                                            return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
-                                                        }
-                                                        let message = validatorUtils.getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTotalBondedTokens, newTotalBondedTokens, blockHeight, oldBlockHeight, validatorSubscribers[0].blocksHistory, blockchainHistory);
-                                                        validatorSubscribers.subscribers.forEach((subscriber) => {
-                                                            botUtils.sendMessage(bot, subscriber.chatID, message, {
-                                                                parseMode: 'Markdown',
-                                                                notification: true
+                                        let latestValidatorDetails = json.result;       // with cosmos version upgrade, change here
+                                        if (!latestValidatorDetails.jailed) {
+                                            httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/pool?height=${oldBlockHeight}`)
+                                                .then(data => JSON.parse(data))
+                                                .then(json => {
+                                                    let oldTotalBondedTokens = json.result.bonded_tokens;       // with cosmos version upgrade, change here
+                                                    httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/pool?height=${blockHeight}`)
+                                                        .then(data => JSON.parse(data))
+                                                        .then(json => {
+                                                            let newTotalBondedTokens = json.result.bonded_tokens;       // with cosmos version upgrade, change here
+                                                            let message = validatorUtils.getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTotalBondedTokens, newTotalBondedTokens, blockHeight, oldBlockHeight, validatorSubscribers.blocksHistory, blockchainHistory);
+                                                            validatorSubscribers.subscribers.forEach((subscriber) => {
+                                                                botUtils.sendMessage(bot, subscriber.chatID, message, {
+                                                                    parseMode: 'Markdown',
+                                                                    notification: true
+                                                                });
                                                             });
-                                                        });
-                                                    })
-                                                    .catch(err => errors.Log(err, 'SENDING_REPORTS'));
-                                            })
-                                            .catch(err => errors.Log(err, 'SENDING_REPORTS'));
+                                                        })
+                                                        .catch(err => errors.Log(err, 'SENDING_REPORTS'));
+                                                })
+                                                .catch(err => errors.Log(err, 'SENDING_REPORTS'));
+                                        }
                                     })
                                     .catch(err => errors.Log(err, 'SENDING_REPORTS'));
                             })
                             .catch(err => errors.Log(err, 'SENDING_REPORTS'));
-                    })
-                    .catch(err => errors.Log(err, 'SENDING_REPORTS'));
-            });
+                    });
+                })
+                .catch(err => errors.Log(err, 'SENDING_REPORTS'));
         })
-        .catch(err => errors.Log(err, 'SENDING_REPORTS'))
+        .catch(err => errors.Log(err, 'SENDING_REPORTS'));
 }

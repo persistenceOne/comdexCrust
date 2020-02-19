@@ -53,38 +53,40 @@ function bech32ify(address, prefix) {
 
 async function checkTxs(height) {
     httpUtils.httpGet(botUtils.nodeURL, config.node.abciPort, `/tx_search?query="tx.height=${height}"`)
-    .then(async (data) => {
-        let json = JSON.parse(data);
-        if (json.error) {
-            errors.Log(json.error, 'CHECK_TX');
-        } else {
-            let txs = json.result.txs;
-            txs.forEach(txBlock => {
-                let tx = JSON.parse(txBlock.tx_result.log);
-                if (tx.success) {
-                    tx.events.forEach((event) => {
-                        event.attributes.forEach((attribute) => {
-                            switch (attribute.value) {
-                                case 'unjail':
-                                case 'edit_validator':
-                                    findAndUpdateValidator(tx.events)
-                                        .catch(err => errors.Log(err, 'FIND_AND_UPDATE_VALIDATOR'));
-                                    break;
-                                case 'create_validator':
-                                    createNewValidator(tx.events)
-                                        .catch(err => errors.Log(err, 'CREATE_NEW_VALIDATOR'))
-                                    break;
-                            }
-                        });
+        .then(async (data) => {
+            let json = JSON.parse(data);
+            if (json.error) {
+                errors.Log(json.error, 'CHECK_TX');
+            } else {
+                let txs = json.result.txs;
+                txs.forEach(txBlock => {
+                    let sub_txs = JSON.parse(txBlock.tx_result.log);
+                    sub_txs.forEach((tx) => {
+                        if (tx.success) {
+                            tx.events.forEach((event) => {
+                                event.attributes.forEach((attribute) => {
+                                    switch (attribute.value) {
+                                        case 'unjail':
+                                        case 'edit_validator':
+                                            findAndUpdateValidator(tx.events, height)
+                                                .catch(err => errors.Log(err, 'FIND_AND_UPDATE_VALIDATOR'));
+                                            break;
+                                        case 'create_validator':
+                                            createNewValidator(tx.events)
+                                                .catch(err => errors.Log(err, 'CREATE_NEW_VALIDATOR'));
+                                            break;
+                                    }
+                                });
+                            });
+                        }
                     });
-                }
-            })
-        }
-
-    })
+                })
+            }
+        })
+        .catch(err => errors.Log(err, 'CHECK_TXS'));
 }
 
-async function findAndUpdateValidator(events) {
+async function findAndUpdateValidator(events, height) {
     let messageEvent;
     let operatorAddress;
     for (let i = 0; i < events.length; i++) {
@@ -104,9 +106,11 @@ async function findAndUpdateValidator(events) {
     if (operatorAddress) {
         console.log('Updating validator ' + operatorAddress + '...');
         updateValidatorDetails(operatorAddress);
+        subscriberUtils.initializeValidatorSubscriber(operatorAddress, height);
+    } else {
+        errors.Log('Operator Address not found.', 'FIND_AND_UPDATE_VALIDATOR')
     }
 }
-
 
 function updateValidatorDetails(operatorAddress) {
     httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${operatorAddress}`)
@@ -154,15 +158,13 @@ function updateValidator(validator) {
         .catch(err => errors.Log(err, 'DB_UPDATING_VALIDATORS'));
 }
 
-
-function getValidatorMessage(validator, totalBondedToken, upTimePercentage, totalUptimeBlocks, blockHeight) {
+function getValidatorMessage(validator, totalBondedToken, upTimePercentage, totalUptimeBlocks) {
     let rate = (parseFloat(validator.commission.commission_rates.rate) * 100.0).toFixed(2);
     let maxRate = (parseFloat(validator.commission.commission_rates.max_rate) * 100.0).toFixed(2);
     let maxChangeRate = (parseFloat(validator.commission.commission_rates.max_change_rate) * 100.0).toFixed(2);
-    let votingPower = (parseInt(validator.tokens, 10)/totalBondedToken * 100.0).toFixed(2);
-    let totalTokens = (validator.tokens/1000000).toFixed(0);
-    return `At Block \`${blockHeight}\`\n\n`
-        + `Moniker: \`${validator.description.moniker}\`\n\n`
+    let votingPower = (parseInt(validator.tokens, 10) / totalBondedToken * 100.0).toFixed(2);
+    let totalTokens = (validator.tokens / 1000000).toFixed(0);
+    return `Moniker: \`${validator.description.moniker}\`\n\n`
         + `Voting Power: \`${votingPower}\` %\n\n`
         + `Uptime: \`${upTimePercentage}\`% (based on \`${totalUptimeBlocks}\` blocks)\n\n`
         + `Current Commission Rate: \`${rate}\` %\n\n`
@@ -172,6 +174,7 @@ function getValidatorMessage(validator, totalBondedToken, upTimePercentage, tota
         + `Details: \`${validator.description.details}\`\n\n`
         + `Website: ${validator.description.website}\n\u200b\n`;
 }
+
 function getValidatorCommissionMessage(validator) {
     let rate = (parseFloat(validator.commission.commission_rates.rate) * 100.0).toFixed(2);
     let maxRate = (parseFloat(validator.commission.commission_rates.max_rate) * 100.0).toFixed(2);
@@ -183,7 +186,7 @@ function getValidatorCommissionMessage(validator) {
 }
 
 function getValidatorVotingPowerMessage(validator, totalBondedToken) {
-    let votingPower = (parseInt(validator.tokens, 10)/totalBondedToken * 100.0).toFixed(2);
+    let votingPower = (parseInt(validator.tokens, 10) / totalBondedToken * 100.0).toFixed(2);
     return `Moniker: \`${validator.description.moniker}\`\n\n`
         + `Voting Power: \`${votingPower}\`%\n\u200b\n`;
 }
@@ -192,7 +195,7 @@ function getTopValidatorMessage(validator, totalBondedToken) {
     let rate = (parseFloat(validator.commission.commission_rates.rate) * 100.0).toFixed(2);
     let maxRate = (parseFloat(validator.commission.commission_rates.max_rate) * 100.0).toFixed(2);
     let maxChangeRate = (parseFloat(validator.commission.commission_rates.max_change_rate) * 100.0).toFixed(2);
-    let votingPower = (parseInt(validator.tokens, 10)/totalBondedToken * 100.0).toFixed(2);
+    let votingPower = (parseInt(validator.tokens, 10) / totalBondedToken * 100.0).toFixed(2);
     return `Moniker: \`${validator.description.moniker}\`\n\n`
         + `Voting Power: \`${votingPower}\`%\n\n`
         + `Current Commission Rate: \`${rate}\`%\n\n`
@@ -221,22 +224,8 @@ function getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTota
             rateChanged = `Commission rate has decreased to \`${newRate}\`% from \`${oldRate}\`%`;
             break;
     }
-    let newMaxRate = (parseFloat(latestValidatorDetails.commission.commission_rates.max_rate) * 100.0).toFixed(2);
-    let oldMaxRate = (parseFloat(oldValidatorDetails.commission.commission_rates.max_rate) * 100.0).toFixed(2);
-    let maxRateChanged;
-    switch (true) {
-        case (newMaxRate === oldMaxRate):
-            maxRateChanged = `Maximum commission rate has not changed (\`${newMaxRate}\`%)`;
-            break;
-        case (newMaxRate > oldMaxRate):
-            maxRateChanged = `Maximum commission rate has increased to \`${newMaxRate}\`% from \`${oldMaxRate}\`%`;
-            break;
-        case (newMaxRate < oldMaxRate):
-            maxRateChanged = `Maximum commission rate has decreased to \`${newMaxRate}\`% from \`${oldMaxRate}\`%`;
-            break;
-    }
-    let oldVotingPower = (parseInt(oldValidatorDetails.tokens, 10)/oldTotalBondedToken * 100.0).toFixed(2);
-    let newVotingPower = (parseInt(latestValidatorDetails.tokens, 10)/newTotalBondedToken * 100.0).toFixed(2);
+    let oldVotingPower = (parseInt(oldValidatorDetails.tokens, 10) / oldTotalBondedToken * 100.0).toFixed(2);
+    let newVotingPower = (parseInt(latestValidatorDetails.tokens, 10) / newTotalBondedToken * 100.0).toFixed(2);
     let votingPowerChanged;
     switch (true) {
         case (newVotingPower === oldVotingPower):
@@ -249,8 +238,8 @@ function getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTota
             votingPowerChanged = `Voting power has decreased to \`${newVotingPower}\`% from \`${oldVotingPower}\`%`;
             break;
     }
-    let oldTotalTokens = (oldValidatorDetails.tokens/1000000).toFixed(0);
-    let newTotalTokens = (latestValidatorDetails.tokens/1000000).toFixed(0);
+    let oldTotalTokens = (oldValidatorDetails.tokens / 1000000).toFixed(0);
+    let newTotalTokens = (latestValidatorDetails.tokens / 1000000).toFixed(0);
     let change = Math.abs(newTotalTokens - oldTotalTokens);
     let totalTokensChange;
     switch (true) {
@@ -275,12 +264,11 @@ function getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTota
             totalTxsProposed = totalTxsProposed + blockchainHistory[i].numTxs;
         }
     }
-    let blocksProposalPercentage = (totalBlocksProposed * 100.0/totalBlocks).toFixed(2);
-    return `Report for \`${latestValidatorDetails.description.moniker}\` at \`${newBlockHeight}\` with base block at \`${oldBlockHeight}\` :\n\n`
+    let blocksProposalPercentage = (totalBlocksProposed * 100.0 / totalBlocks).toFixed(2);
+    return `Report for \`${latestValidatorDetails.description.moniker}\` at \`${newBlockHeight}\` with since block \`${oldBlockHeight}\` :\n\n`
         + `Uptime: \`${upTimePercentage}\`% (based on \`${blocksHistory.length}\`)\n\n`
         + `Change in Voting Power: \`${votingPowerChanged}\`\n\n`
         + `Change in Commission Rate: \`${rateChanged}\`\n\n`
-        + `Change in Max Commission Rate: \`${maxRateChanged}\`\n\n`
         + `Change in Total Tokens: \`${totalTokensChange}\`\n\n`
         + `Total Blocks Proposed: \`${totalBlocksProposed}\` (\`${blocksProposalPercentage}\`%) in \`${totalBlocks}\` blocks\n\n`
         + `Total Txs Proposed: \`${totalTxsProposed}\` in \`${totalBlocks}\` blocks`;
@@ -312,6 +300,8 @@ async function createNewValidator(events) {
             .catch(err => {
                 errors.Log(err, 'CREATE_NEW_VALIDATOR');
             });
+    } else {
+        errors.Log('Operator Address not found.', 'FIND_AND_UPDATE_VALIDATOR')
     }
 }
 
