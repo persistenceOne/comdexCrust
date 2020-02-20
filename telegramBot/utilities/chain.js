@@ -46,8 +46,8 @@ const queries = {
                                         let valMsg = validatorUtils.getValidatorMessage(validator, totalBondedToken, upTime, filteredValidator[0].blocksHistory.length, blockHeight);
                                         message = message + `\n\n` + `(${i})\n\n` + valMsg;
                                     }
-                                    if (i % 5 === 0) {
-                                        await bot.sendMessage(chatID, message);
+                                    if (i % 10 === 0) {
+                                        await bot.sendMessage(chatID, message, {parseMode: 'Markdown'});
                                         message = ``;
                                     }
                                     i++;

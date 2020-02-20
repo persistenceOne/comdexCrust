@@ -185,8 +185,8 @@ bot.on('/top_validators_wrt_commission', async (msg) => {
                         }
                         let valMessage = validatorUtils.getValidatorCommissionMessage(activeValidators[i]);
                         message = message + `(${i + 1})\n\n` + valMessage;
-                        if (i % 5 === 0) {
-                            await bot.sendMessage(chatID, message);
+                        if ((i +1) % 20 === 0) {
+                            await bot.sendMessage(chatID, message, {parseMode: 'Markdown'});
                             message = ``;
                         }
                     }
@@ -236,7 +236,7 @@ bot.on('/top_validators_wrt_commission_voting_power', async (msg) => {
                                 subscriberUtils.initializeValidatorSubscriber(slicedValidator[0].operator_address, blockHeight);
                             }
                             let message = validatorUtils.getTopValidatorMessage(slicedValidator[0], totalBondedToken);
-                            await bot.sendMessage(chatID, `Validator with voting power in top \`${topValidatorsLength}\` and lowest commission rate:\n\n` + message, {parseMode: 'Markdown'});
+                            botUtils.sendMessage(bot, chatID, `Validator with voting power in top \`${topValidatorsLength}\` and lowest commission rate:\n\n` + message, {parseMode: 'Markdown'});
                         })
                         .catch(err => {
                             errors.Log(err, 'VOTING_POWER_COMMISSION');
@@ -269,25 +269,44 @@ bot.on('/top_validators_wrt_uptime', async (msg) => {
                     }
                     validatorSubscribersList.sort((a, b) => (subscriberUtils.calculateUptime(b.blocksHistory) - subscriberUtils.calculateUptime(a.blocksHistory)));
                     let validatorList = [];
+                    let highestUptime = 0.0;
                     for (let i = 0; i < activeValidators.length; i++) {
                         let validator = validatorSubscribersList.filter(validatorSubscribe => (activeValidators[i].operator_address === validatorSubscribe.operatorAddress));
                         if (validator.length !== 0) {
                             activeValidators[i].blocksHistory = validator[0].blocksHistory;
                             validatorList.push(activeValidators[i]);
-                        }
-                    }
-                    let message = `Top active validators by uptime at block \`${blockHeight}\` are:`;
-                    if (validatorList.length !== 0) {
-                        let highestUptime = subscriberUtils.calculateUptime(validatorList[0].blocksHistory);
-                        for (let i = 0; i < validatorList.length; i++) {
                             let validatorUptime = subscriberUtils.calculateUptime(validatorList[i].blocksHistory);
-                            if (validatorUptime > highestUptime) {
+                            if(i === 0) {
+                                highestUptime = validatorUptime;
+                            }
+                            if (validatorUptime < highestUptime) {
                                 break;
                             }
-                            let valMessage = validatorUtils.getValidatorUptimeMessage(validatorList[i], validatorList[i].blocksHistory);
-                            message = message + valMessage;
                         }
-                        botUtils.sendMessage(bot, chatID, message, {parseMode: 'Markdown'});
+                    }
+                    if (validatorList.length !== 0) {
+                        let message = `Top validators with highest uptime \`${highestUptime}\`% (based on \`${config.subscriberBlockHistoryLimit}\` blocks if not shown) at height \`${blockHeight}\` are:\n\n`;
+                        for (let i = 0; i < validatorList.length; i++) {
+                            let validatorUptime = subscriberUtils.calculateUptime(validatorList[i].blocksHistory);
+                            if (validatorUptime < highestUptime) {
+                                break;
+                            }
+                            let valMessage = ``;
+                            if (validatorList[i].blocksHistory.length !== config.subscriberBlockHistoryLimit) {
+                                valMessage = `\`${validatorList[i].description.moniker}\` (based on \`${validatorList[i].blocksHistory.length}\` blocks) \n\n`;
+                            } else {
+                                valMessage = `\`${validatorList[i].description.moniker}\` \n\n`;
+                            }
+                            
+                            message = message + valMessage;
+                            if ((i +1) % 20 === 0) {
+                                await bot.sendMessage(chatID, message, {parseMode: 'Markdown'});
+                                message = ``;
+                            }
+                        }
+                        if (message !== ``) {
+                            botUtils.sendMessage(bot, chatID, message, {parseMode: 'Markdown'});
+                        }
                     } else {
                         return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                     }
@@ -666,7 +685,7 @@ bot.on(['ask.lastMissedBlockValidatorAddress'], async msg => {
                                 if (validatorSubscribers[0].blocksHistory[i].found) {
                                     missedBlocksEmoticonMessage = missedBlocksEmoticonMessage + blockchainConstants.emoticon.presentBlock + ' ';
                                 } else {
-                                    missedBlocks.push(validatorSubscribers[0].blocksHistory[i].block);
+                                    missedBlocks.unshift(validatorSubscribers[0].blocksHistory[i].block);
                                     missedBlocksEmoticonMessage = missedBlocksEmoticonMessage + blockchainConstants.emoticon.missedBlock + ' ';
                                 }
                                 if ((i + 1) % 10 === 0) {

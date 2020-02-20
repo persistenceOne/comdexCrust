@@ -181,8 +181,7 @@ function getValidatorCommissionMessage(validator) {
     let maxChangeRate = (parseFloat(validator.commission.commission_rates.max_change_rate) * 100.0).toFixed(2);
     return `Moniker: \`${validator.description.moniker}\`\n\n`
         + `Current Commission Rate: \`${rate}\`%\n\n`
-        + `Max Commission Rate: \`${maxRate}\`%\n\n`
-        + `Max Change Rate: \`${maxChangeRate}\`%\n\u200b\n`;
+        + `Max Commission Rate: \`${maxRate}\`%\n\u200b\n`;
 }
 
 function getValidatorVotingPowerMessage(validator, totalBondedToken) {
@@ -198,9 +197,7 @@ function getTopValidatorMessage(validator, totalBondedToken) {
     let votingPower = (parseInt(validator.tokens, 10) / totalBondedToken * 100.0).toFixed(2);
     return `Moniker: \`${validator.description.moniker}\`\n\n`
         + `Voting Power: \`${votingPower}\`%\n\n`
-        + `Current Commission Rate: \`${rate}\`%\n\n`
-        + `Max Commission Rate: \`${maxRate}\`%\n\n`
-        + `Max Change Rate: \`${maxChangeRate}\`%\n\u200b\n`;
+        + `Current Commission Rate: \`${rate}\`%\n\u200b\n`;
 }
 
 function getValidatorUptimeMessage(validator, blocksHistory) {
