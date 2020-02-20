@@ -59,7 +59,7 @@ class HttpUtils {
                 // response status check
                 if (res.statusCode < 200 || res.statusCode > 299) {
                     let err = {statusCode: res.statusCode, message: errors.ERROR_RESPONSE};
-                    errors.Log(err, 'HTTP_GET')
+                    errors.Log(err, 'HTTP_GET');
                     reject(err);
                 }
                 // var to store res body

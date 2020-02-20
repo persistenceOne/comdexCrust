@@ -27,6 +27,7 @@ const constants = {
         "params": {},
     },
     url: `ws://${config.node.url}:${config.node.abciPort}/websocket`,
+    backupURL: `ws://${config.node.backupURL}:${config.node.abciPort}/websocket`,
 };
 
 module.exports = constants;

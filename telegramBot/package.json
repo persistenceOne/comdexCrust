@@ -11,5 +11,16 @@
     "url": "https://github.com/persistenceOne"
   },
   "author": "https://github.com/avkr003",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "bech32": "^1.1.3",
+    "bufferutil": "^4.0.1",
+    "http": "0.0.0",
+    "https": "^1.0.0",
+    "mongodb": "^3.5.3",
+    "telebot": "^1.2.6",
+    "tendermint": "^4.0.8",
+    "utf-8-validate": "^5.0.2",
+    "ws": "^7.2.1"
+  }
 }

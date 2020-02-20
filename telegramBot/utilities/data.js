@@ -5,25 +5,32 @@ const config = require('../config');
 const mongoURL = config.dbURL + config.dbName;
 
 const subscriberCollection = 'subscribers';
+const subscriberAllCollection = 'subscribeAll';
 const validatorCollection = 'validators';
+const blockchainCollection = 'blockchain';
 
 let dbo;    //Not to export.
 
-function InitializeDB() {
+function SetupDB(callback) {
     console.log('Intialzing DB...');
     MongoClient.connect(mongoURL, {useUnifiedTopology: true})
         .then((db, err) => {
             if (err) throw  err;
             dbo = db.db(config.dbName);
-            console.log('DB Initialization complete.')
+            console.log('DB Initialization complete.');
+            callback();
         })
         .catch(err => {
             errors.exitProcess(err);
         });
 }
 
-function find(collection, query) {
-    return dbo.collection(collection).find(query).toArray();
+function find(collection, query, options = {}) {
+    return dbo.collection(collection).find(query, options).toArray();
+}
+
+function findSorted(collection, query, sortingOption, options = {}) {
+    return dbo.collection(collection).find(query, options).sort(sortingOption).toArray();
 }
 
 function insertOne(collection, data) {
@@ -38,6 +45,14 @@ function updateOne(collection, query, data) {
     return dbo.collection(collection).updateOne(query, data);
 }
 
+function deleteOne(collection, query) {
+    return dbo.collection(collection).deleteOne(query);
+}
+
+function deleteMany(collection, query) {
+    return dbo.collection(collection).deleteMany(query);
+}
+
 function upsertOne(collection, query, data) {
     return dbo.collection(collection).updateOne(query, data, {upsert: true});
 }
@@ -45,10 +60,15 @@ function upsertOne(collection, query, data) {
 module.exports = {
     subscriberCollection,
     validatorCollection,
-    InitializeDB,
+    blockchainCollection,
+    subscriberAllCollection,
+    SetupDB,
     find,
+    findSorted,
     insertOne,
     insertMany,
     updateOne,
+    deleteOne,
+    deleteMany,
     upsertOne
 };

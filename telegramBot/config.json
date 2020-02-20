@@ -1,15 +1,19 @@
 {
-  "botToken"  : "",
-  "adminBotChatID": 0,
-  "requestTimeout": 3,
+  "botToken"  : "1054343115:AAHkt5FVHuAJSSICArLuPUmTKIxqUTBBrrw",
+  "requestTimeout": 30,
   "node" : {
     "url" : "localhost",
+    "backupURL" : "localhost",
     "abciPort": "26657",
     "lcdPort": "31118"
   },
   "dbName": "telegramBot",
   "dbURL": "mongodb://localhost:27017/",
-  "chainAppName": "Persistence",
-  "prefix": "commit",
-  "token": "commit"
+  "chainAppName": "Cosmos",
+  "prefix": "cosmos",
+  "token": "ATOM",
+  "alertLevels": 5,
+  "slashingWindow": 500,
+  "subscriberBlockHistoryLimit" : 100,
+  "blockchainHistoryLimit" : 250
 }
