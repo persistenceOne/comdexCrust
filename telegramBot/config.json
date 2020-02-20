@@ -2,8 +2,8 @@
   "botToken"  : "1054343115:AAHkt5FVHuAJSSICArLuPUmTKIxqUTBBrrw",
   "requestTimeout": 30,
   "node" : {
-    "url" : "203.174.81.90",
-    "backupURL" : "203.174.81,90",
+    "url" : "localhost",
+    "backupURL" : "localhost",
     "abciPort": "26657",
     "lcdPort": "31118"
   },

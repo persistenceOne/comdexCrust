@@ -1034,7 +1034,7 @@ async function sendJailedMsgToSubscribers(moniker, subscribersList) {
 
 async function sendDailyReports(blockHeight) {
     dataUtils.find(dataUtils.subscriberCollection, {})
-        .then((result, err) => {
+        .then((validatorSubscribersList, err) => {
             if (err) {
                 errors.Log(err, 'SEND_REPORT');
                 return;
@@ -1049,41 +1049,54 @@ async function sendDailyReports(blockHeight) {
                         errors.Log(err, 'SENDING_REPORT');
                         return;
                     }
-                    result.forEach((validatorSubscribers) => {
-                        httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${validatorSubscribers.operatorAddress}?height=${oldBlockHeight}`)
-                            .then(data => JSON.parse(data))
-                            .then(async (json) => {
-                                let oldValidatorDetails = json.result;       // with cosmos version upgrade, change here
-                                httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${validatorSubscribers.operatorAddress}?height=${blockHeight}`)
+                    dataUtils.find(dataUtils.subscriberAllCollection, {})
+                        .then((subscribeToAllList, err) => {
+                            if (err) {
+                                errors.Log(err, 'UPDATING_COUNTER_AND_SENDING_MESSAGE')
+                            }
+                            validatorSubscribersList.forEach((validatorSubscribers) => {
+                                if (subscribeToAllList.length !== 0) {
+                                    for (let i = 0; i < subscribeToAllList.length; i++) {
+                                        validatorSubscribers.subscribers.push({chatID: subscribeToAllList[i].chatID});
+                                    }
+                                }
+                                httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${validatorSubscribers.operatorAddress}?height=${oldBlockHeight}`)
                                     .then(data => JSON.parse(data))
-                                    .then(json => {
-                                        let latestValidatorDetails = json.result;       // with cosmos version upgrade, change here
-                                        if (!latestValidatorDetails.jailed) {
-                                            httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/pool?height=${oldBlockHeight}`)
-                                                .then(data => JSON.parse(data))
-                                                .then(json => {
-                                                    let oldTotalBondedTokens = json.result.bonded_tokens;       // with cosmos version upgrade, change here
-                                                    httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/pool?height=${blockHeight}`)
+                                    .then(async (json) => {
+                                        let oldValidatorDetails = json.result;       // with cosmos version upgrade, change here
+                                        httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${validatorSubscribers.operatorAddress}?height=${blockHeight}`)
+                                            .then(data => JSON.parse(data))
+                                            .then(json => {
+                                                let latestValidatorDetails = json.result;       // with cosmos version upgrade, change here
+                                                if (!latestValidatorDetails.jailed) {
+                                                    httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/pool?height=${oldBlockHeight}`)
                                                         .then(data => JSON.parse(data))
                                                         .then(json => {
-                                                            let newTotalBondedTokens = json.result.bonded_tokens;       // with cosmos version upgrade, change here
-                                                            let message = validatorUtils.getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTotalBondedTokens, newTotalBondedTokens, blockHeight, oldBlockHeight, validatorSubscribers.blocksHistory, blockchainHistory);
-                                                            validatorSubscribers.subscribers.forEach((subscriber) => {
-                                                                botUtils.sendMessage(bot, subscriber.chatID, message, {
-                                                                    parseMode: 'Markdown',
-                                                                    notification: true
-                                                                });
-                                                            });
+                                                            let oldTotalBondedTokens = json.result.bonded_tokens;       // with cosmos version upgrade, change here
+                                                            httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/pool?height=${blockHeight}`)
+                                                                .then(data => JSON.parse(data))
+                                                                .then(json => {
+                                                                    let newTotalBondedTokens = json.result.bonded_tokens;       // with cosmos version upgrade, change here
+                                                                    let message = validatorUtils.getValidatorReport(oldValidatorDetails, latestValidatorDetails, oldTotalBondedTokens, newTotalBondedTokens, blockHeight, oldBlockHeight, validatorSubscribers.blocksHistory, blockchainHistory);
+                                                                    validatorSubscribers.subscribers.forEach((subscriber) => {
+                                                                        botUtils.sendMessage(bot, subscriber.chatID, message, {
+                                                                            parseMode: 'Markdown',
+                                                                            notification: true
+                                                                        });
+                                                                    });
+                                                                })
+                                                                .catch(err => errors.Log(err, 'SENDING_REPORTS'));
                                                         })
                                                         .catch(err => errors.Log(err, 'SENDING_REPORTS'));
-                                                })
-                                                .catch(err => errors.Log(err, 'SENDING_REPORTS'));
-                                        }
+                                                }
+                                            })
+                                            .catch(err => errors.Log(err, 'SENDING_REPORTS'));
                                     })
                                     .catch(err => errors.Log(err, 'SENDING_REPORTS'));
                             })
-                            .catch(err => errors.Log(err, 'SENDING_REPORTS'));
-                    });
+                        })
+                        .catch(err => errors.Log(err, 'SENDING_REPORTS'));
+
                 })
                 .catch(err => errors.Log(err, 'SENDING_REPORTS'));
         })

@@ -22,7 +22,8 @@ const queries = {
             })
             .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_COUNT'));
     },
-    sendValidators(bot, chatID, blockHeight) {
+    sendValidators(bot, chatID, height) {
+        let blockHeight = height - 1;
         httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/pool?height=${blockHeight}`)
             .then(data => JSON.parse(data))
             .then(json => {
@@ -62,7 +63,8 @@ const queries = {
             })
             .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_LIST'));
     },
-    sendValidatorInfo(bot, chatID, operatorAddress, blockHeight) {
+    sendValidatorInfo(bot, chatID, operatorAddress, height) {
+        let blockHeight = height - 1;
         httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/pool`)
             .then(data => JSON.parse(data))
             .then(json => {
@@ -98,7 +100,8 @@ const queries = {
             })
             .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_VALIDATORS_INFO'));
     },
-    sendBalance(bot, chatID, addr, blockHeight) {
+    sendBalance(bot, chatID, addr, height) {
+        let blockHeight = height - 1;
         httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/auth/accounts/${addr}?height=${blockHeight}`)
             .then(data => {
                 let json = JSON.parse(data);
@@ -113,13 +116,14 @@ const queries = {
                             coins = coins + `${cn} ${coin.denom}, `
                         });
                     }
-                    botUtils.sendMessage(bot, chatID, `At height \`${blockHeight}\` \n\n Coins: \`${coins}\`\n`,
+                    botUtils.sendMessage(bot, chatID, `At height \`${blockHeight}\` \n\nCoins: \`${coins}\`\n`,
                         {parseMode: 'Markdown'});
                 }
             })
             .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_BALANCE'));
     },
-    sendDelRewards(bot, chatID, addr, blockHeight) {
+    sendDelRewards(bot, chatID, addr, height) {
+        let blockHeight = height - 1;
         httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/distribution/delegators/${addr}/rewards?height=${blockHeight}`)
             .then(data => {
                 let json = JSON.parse(data);
@@ -134,14 +138,15 @@ const queries = {
                             total = total + `${rwdAmt} ${rwd.denom}, `;
                         });
                     }
-                    botUtils.sendMessage(bot, chatID, `At height ${blockHeight} \n\n Total Rewards: \`${total}\``,      // with cosmos version upgrade, change here
+                    botUtils.sendMessage(bot, chatID, `At height ${blockHeight} \n\nTotal Rewards: \`${total}\``,      // with cosmos version upgrade, change here
                         {parseMode: 'Markdown'});
                 }
             })
             .catch(e => botUtils.handleErrors(bot, chatID, e, 'SEND_DELEGATOR_REWARDS'));
     },
-    sendValRewards(bot, chatID, addr, blockHeight) {
-        httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/distribution/validators/${addr}`)
+    sendValRewards(bot, chatID, addr, height) {
+        let blockHeight = height - 1;
+        httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/distribution/validators/${addr}?height=${blockHeight}`)
             .then(data => {
                 let json = JSON.parse(data);
                 if (json.error) {
