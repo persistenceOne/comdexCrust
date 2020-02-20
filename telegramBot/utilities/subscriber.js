@@ -68,13 +68,13 @@ function getAlertLevel(slashingWindow, consecutiveCounter) {
 }
 
 function calculateUptime(blocksHistory) {
-    let missed = 0;
+    let found = 0;
     for (let i = 0; i < blocksHistory.length; i++) {
-        if (!blocksHistory[i].found) {
-            missed = missed + 1;
+        if (blocksHistory[i].found) {
+            found = found + 1;
         }
     }
-    return ((1.00 - (missed / blocksHistory.length)) * 100.00).toFixed(2);
+    return ((found / blocksHistory.length) * 100.00).toFixed(2);
 }
 
 module.exports = {

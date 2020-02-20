@@ -270,11 +270,11 @@ bot.on('/top_validators_wrt_uptime', async (msg) => {
                     validatorSubscribersList.sort((a, b) => (subscriberUtils.calculateUptime(b.blocksHistory) - subscriberUtils.calculateUptime(a.blocksHistory)));
                     let validatorList = [];
                     let highestUptime = 0.0;
-                    for (let i = 0; i < activeValidators.length; i++) {
-                        let validator = validatorSubscribersList.filter(validatorSubscribe => (activeValidators[i].operator_address === validatorSubscribe.operatorAddress));
+                    for (let i = 0; i < validatorSubscribersList.length; i++) {
+                        let validator = activeValidators.filter(activeValidator => (activeValidator.operator_address === validatorSubscribersList[i].operatorAddress));
                         if (validator.length !== 0) {
-                            activeValidators[i].blocksHistory = validator[0].blocksHistory;
-                            validatorList.push(activeValidators[i]);
+                            validatorSubscribersList[i].moniker = validator[0].description.moniker;
+                            validatorList.push(validatorSubscribersList[i]);
                             let validatorUptime = subscriberUtils.calculateUptime(validatorList[i].blocksHistory);
                             if(i === 0) {
                                 highestUptime = validatorUptime;
@@ -293,13 +293,13 @@ bot.on('/top_validators_wrt_uptime', async (msg) => {
                             }
                             let valMessage = ``;
                             if (validatorList[i].blocksHistory.length !== config.subscriberBlockHistoryLimit) {
-                                valMessage = `\`${validatorList[i].description.moniker}\` (based on \`${validatorList[i].blocksHistory.length}\` blocks) \n\n`;
+                                valMessage = `\`${validatorList[i].moniker}\` (based on \`${validatorList[i].blocksHistory.length}\` blocks) \n`;
                             } else {
-                                valMessage = `\`${validatorList[i].description.moniker}\` \n\n`;
+                                valMessage = `\`${validatorList[i].moniker}\` \n`;
                             }
                             
                             message = message + valMessage;
-                            if ((i +1) % 20 === 0) {
+                            if ((i +1) % 50 === 0) {
                                 await bot.sendMessage(chatID, message, {parseMode: 'Markdown'});
                                 message = ``;
                             }
@@ -955,13 +955,13 @@ function updateCounterAndSendMessage(validatorSubscribers, validatorDetails, blo
 async function sendMissedMsgToSubscribers(moniker, subscribersList, consecutiveCounter, alertLevel) {
     let emoji = '';
     for (let i = 0; i < alertLevel; i++) {
-        emoji = emoji + ' ' + blockchainConstants.emoticon.alert;
+        emoji = emoji + blockchainConstants.emoticon.alert;
         if (i === 4) {
             break;
         }
     }
     subscribersList.forEach((subscriber) => {
-        botUtils.sendMessage(bot, subscriber.chatID, `Alert: \`${moniker}\` has consecutively missed \`${consecutiveCounter}\` blocks \`${emoji}\`.`, {
+        botUtils.sendMessage(bot, subscriber.chatID, `Alert: \`${moniker}\` has consecutively missed \`${consecutiveCounter}\` blocks \` ${emoji}\`.`, {
             parseMode: 'Markdown',
             notification: true
         });
