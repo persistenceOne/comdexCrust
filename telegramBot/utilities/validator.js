@@ -53,36 +53,39 @@ function bech32ify(address, prefix) {
 
 async function checkTxs(height) {
     httpUtils.httpGet(botUtils.nodeURL, config.node.abciPort, `/tx_search?query="tx.height=${height}"`)
-        .then(async (data) => {
-            let json = JSON.parse(data);
-            if (json.error) {
-                errors.Log(json.error, 'CHECK_TX');
-            } else {
-                let txs = json.result.txs;
-                txs.forEach(txBlock => {
-                    let sub_txs = JSON.parse(txBlock.tx_result.log);
-                    sub_txs.forEach((tx) => {
-                        if (tx.success) {
-                            tx.events.forEach((event) => {
-                                event.attributes.forEach((attribute) => {
-                                    switch (attribute.value) {
-                                        case 'unjail':
-                                        case 'edit_validator':
-                                            findAndUpdateValidator(tx.events, height)
-                                                .catch(err => errors.Log(err, 'FIND_AND_UPDATE_VALIDATOR'));
-                                            break;
-                                        case 'create_validator':
-                                            createNewValidator(tx.events)
-                                                .catch(err => errors.Log(err, 'CREATE_NEW_VALIDATOR'));
-                                            break;
-                                    }
+        .then(data => JSON.parse(data))
+        .then(json => {
+                if (json.error) {
+                    errors.Log(json.error, 'CHECK_TX');
+                } else {
+                    let txs = json.result.txs;
+                    txs.forEach(txBlock => {
+                        let sub_txs = JSON.parse(txBlock.tx_result.log);
+                        sub_txs.forEach((tx) => {
+                            if (tx.success) {
+                                tx.events.forEach((event) => {
+                                    event.attributes.forEach((attribute) => {
+                                        switch (attribute.value) {
+                                            case 'unjail':
+                                                findAndUpdateValidator(tx.events, height)
+                                                    .catch(err => errors.Log(err, 'FIND_AND_UPDATE_VALIDATOR'));
+                                                break;
+                                            case 'edit_validator':
+                                                findAndUpdateValidator(tx.events, height)
+                                                    .catch(err => errors.Log(err, 'FIND_AND_UPDATE_VALIDATOR'));
+                                                break;
+                                            case 'create_validator':
+                                                createNewValidator(tx.events)
+                                                    .catch(err => errors.Log(err, 'CREATE_NEW_VALIDATOR'));
+                                                break;
+                                        }
+                                    });
                                 });
-                            });
-                        }
-                    });
-                })
-            }
-        })
+                            }
+                        });
+                    })
+                }
+            })
         .catch(err => errors.Log(err, 'CHECK_TXS'));
 }
 

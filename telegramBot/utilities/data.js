@@ -5,6 +5,7 @@ const config = require('../config');
 const mongoURL = config.dbURL + config.dbName;
 
 const subscriberCollection = 'subscribers';
+const subscriberAllCollection = 'subscribeAll';
 const validatorCollection = 'validators';
 const blockchainCollection = 'blockchain';
 
@@ -60,6 +61,7 @@ module.exports = {
     subscriberCollection,
     validatorCollection,
     blockchainCollection,
+    subscriberAllCollection,
     SetupDB,
     find,
     findSorted,

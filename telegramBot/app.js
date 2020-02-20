@@ -185,7 +185,7 @@ bot.on('/top_validators_wrt_commission', async (msg) => {
                         }
                         let valMessage = validatorUtils.getValidatorCommissionMessage(activeValidators[i]);
                         message = message + `(${i + 1})\n\n` + valMessage;
-                        if ((i +1) % 20 === 0) {
+                        if ((i + 1) % 20 === 0) {
                             await bot.sendMessage(chatID, message, {parseMode: 'Markdown'});
                             message = ``;
                         }
@@ -269,37 +269,30 @@ bot.on('/top_validators_wrt_uptime', async (msg) => {
                     }
                     validatorSubscribersList.sort((a, b) => (subscriberUtils.calculateUptime(b.blocksHistory) - subscriberUtils.calculateUptime(a.blocksHistory)));
                     let validatorList = [];
-                    let highestUptime = 0.0;
+                    let highestUptime = subscriberUtils.calculateUptime(validatorSubscribersList[0].blocksHistory);
                     for (let i = 0; i < validatorSubscribersList.length; i++) {
                         let validator = activeValidators.filter(activeValidator => (activeValidator.operator_address === validatorSubscribersList[i].operatorAddress));
                         if (validator.length !== 0) {
-                            validatorSubscribersList[i].moniker = validator[0].description.moniker;
-                            validatorList.push(validatorSubscribersList[i]);
-                            let validatorUptime = subscriberUtils.calculateUptime(validatorList[i].blocksHistory);
-                            if(i === 0) {
-                                highestUptime = validatorUptime;
-                            }
-                            if (validatorUptime < highestUptime) {
+                            let validatorUptime = subscriberUtils.calculateUptime(validatorSubscribersList[i].blocksHistory);
+                            if (parseFloat(validatorUptime) < parseFloat(highestUptime)) {
                                 break;
                             }
+                            validatorSubscribersList[i].moniker = validator[0].description.moniker;
+                            validatorList.push(validatorSubscribersList[i]);
                         }
                     }
                     if (validatorList.length !== 0) {
                         let message = `Top validators with highest uptime \`${highestUptime}\`% (based on \`${config.subscriberBlockHistoryLimit}\` blocks if not shown) at height \`${blockHeight}\` are:\n\n`;
                         for (let i = 0; i < validatorList.length; i++) {
-                            let validatorUptime = subscriberUtils.calculateUptime(validatorList[i].blocksHistory);
-                            if (validatorUptime < highestUptime) {
-                                break;
-                            }
                             let valMessage = ``;
                             if (validatorList[i].blocksHistory.length !== config.subscriberBlockHistoryLimit) {
                                 valMessage = `\`${validatorList[i].moniker}\` (based on \`${validatorList[i].blocksHistory.length}\` blocks) \n`;
                             } else {
                                 valMessage = `\`${validatorList[i].moniker}\` \n`;
                             }
-                            
+
                             message = message + valMessage;
-                            if ((i +1) % 50 === 0) {
+                            if ((i + 1) % 50 === 0) {
                                 await bot.sendMessage(chatID, message, {parseMode: 'Markdown'});
                                 message = ``;
                             }
@@ -334,34 +327,128 @@ bot.on('ask.validatorAddress', msg => {
         return botUtils.sendMessage(bot, chatID, errors.INVALID_ADDRESS, {parseMode: 'Markdown'});
     }
 
-    httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${valAddr}`)
-        .then(data => JSON.parse(data))
-        .then(json => {
-            let validator = json.result;               // with cosmos version upgrade, change here
-            if (validator.jailed) {
-                return botUtils.sendMessage(bot, chatID, `Validator is jailed right now. Cannot subscribe to it.`, {parseMode: 'Markdown'});
+    dataUtils.deleteOne(dataUtils.subscriberAllCollection, {chatID: chatID})
+        .then((result, err) => {
+            if (err) {
+                errors.Log(err, 'UNSUBSCRIBE_FIND');
+                return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
             }
-            let query = {operatorAddress: valAddr};
-            dataUtils.find(dataUtils.subscriberCollection, query)
-                .then(async (result, err) => {
+            httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators/${valAddr}`)
+                .then(data => JSON.parse(data))
+                .then(json => {
+                    let validator = json.result;               // with cosmos version upgrade, change here
+                    if (validator.jailed) {
+                        return botUtils.sendMessage(bot, chatID, `Validator is jailed right now. Cannot subscribe to it.`, {parseMode: 'Markdown'});
+                    }
+                    let query = {operatorAddress: valAddr};
+                    dataUtils.find(dataUtils.subscriberCollection, query)
+                        .then(async (result, err) => {
+                            if (err) {
+                                errors.Log(err, 'SUBSCRIBE_FIND');
+                                return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                            }
+                            if (result.length === 0) {
+                                let subscribers = [];
+                                subscribers.push({chatID: chatID});
+                                let validatorSubscriber = subscriberUtils.newValidatorSubscribers(valAddr, latestBlockHeight, subscribers);
+                                validatorUtils.updateValidatorDetails(valAddr);
+                                dataUtils.insertOne(dataUtils.subscriberCollection, validatorSubscriber)
+                                    .then(botUtils.sendMessage(bot, chatID, `You are subscribed.`, {parseMode: 'Markdown'}))
+                                    .catch(err => {
+                                        errors.Log(err, 'SUBSCRIBE_INSERT');
+                                        return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                                    });
+                            } else {
+                                let validatorSubscribers = result[0];
+                                let subscribers = validatorSubscribers.subscribers;
+                                let subscriberExists = false;
+                                for (let i = 0; i < subscribers.length; i++) {
+                                    if (subscribers[i].chatID === chatID) {
+                                        subscriberExists = true;
+                                        break;
+                                    }
+                                }
+                                if (!subscriberExists || subscribers.length === 0) {
+                                    subscribers.push({chatID: chatID});
+                                    dataUtils.updateOne(dataUtils.subscriberCollection, query, {
+                                        $set: {
+                                            subscribers: subscribers
+                                        }
+                                    })
+                                        .then(botUtils.sendMessage(bot, chatID, `You are subscribed.`, {parseMode: 'Markdown'}))
+                                        .catch(err => {
+                                            errors.Log(err, 'SUBSCRIBE_UPDATE');
+                                            return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                                        });
+                                } else {
+                                    return botUtils.sendMessage(bot, chatID, `You are already subscribed to the validator: \`${valAddr}\`.`, {parseMode: 'Markdown'});
+                                }
+                            }
+                        })
+                        .catch(err => {
+                            errors.Log(err, 'SUBSCRIBE');
+                            botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                        })
+                })
+                .catch(e => {
+                    errors.Log(e, 'SUBSCRIBE');
+                    if (e.statusCode === 400 || e.statusCode === 404) {
+                        botUtils.sendMessage(bot, chatID, errors.INVALID_ADDRESS, {parseMode: 'Markdown'});
+                    } else {
+                        botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                    }
+                });
+        })
+        .catch(err => {
+            errors.Log(err, 'UNSUBSCRIBE_UPDATE');
+            return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+        });
+});
+
+bot.on('/all_validator', msg => {
+    const chatID = msg.chat.id;
+    dataUtils.find(dataUtils.subscriberCollection, {})
+        .then((result, err) => {
+            if (err) {
+                errors.Log(err, 'UNSUBSCRIBE_FIND');
+                return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+            }
+            result.forEach((validatorSubscribers) => {
+                if (validatorSubscribers.subscribers.length !== 0) {
+                    let oldSubscribers = validatorSubscribers.subscribers;
+                    let removeByAttribute = jsonUtils.RemoveByAttribute(oldSubscribers, 'chatID', chatID);
+                    let query = {operatorAddress: validatorSubscribers.operatorAddress};
+                    dataUtils.updateOne(dataUtils.subscriberCollection, query, {
+                        $set: {
+                            subscribers: removeByAttribute.newList
+                        }
+                    })
+                        .catch(err => {
+                            errors.Log(err, 'UNSUBSCRIBE_UPDATE');
+                            return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                        });
+                }
+            });
+        })
+        .then(() => {
+            dataUtils.find(dataUtils.subscriberAllCollection, {})
+                .then((result, err) => {
                     if (err) {
                         errors.Log(err, 'SUBSCRIBE_FIND');
                         return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                     }
-                    if (result.length === 0) {
-                        let subscribers = [];
-                        subscribers.push({chatID: chatID});
-                        let validatorSubscriber = subscriberUtils.newValidatorSubscribers(valAddr, latestBlockHeight, subscribers);
-                        validatorUtils.updateValidatorDetails(valAddr);
-                        dataUtils.insertOne(dataUtils.subscriberCollection, validatorSubscriber)
-                            .then(botUtils.sendMessage(bot, chatID, `You are subscribed.`, {parseMode: 'Markdown'}))
+                    if (result === undefined || result.length === 0) {
+                        let subscriber = {chatID: chatID};
+                        dataUtils.insertOne(dataUtils.subscriberAllCollection, subscriber)
+                            .then((result) => {
+                                botUtils.sendMessage(bot, chatID, `You are subscribed to all`, {parseMode: 'Markdown'})
+                            })
                             .catch(err => {
                                 errors.Log(err, 'SUBSCRIBE_INSERT');
                                 return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                             });
                     } else {
-                        let validatorSubscribers = result[0];
-                        let subscribers = validatorSubscribers.subscribers;
+                        let subscribers = result;
                         let subscriberExists = false;
                         for (let i = 0; i < subscribers.length; i++) {
                             if (subscribers[i].chatID === chatID) {
@@ -371,18 +458,16 @@ bot.on('ask.validatorAddress', msg => {
                         }
                         if (!subscriberExists || subscribers.length === 0) {
                             subscribers.push({chatID: chatID});
-                            dataUtils.updateOne(dataUtils.subscriberCollection, query, {
-                                $set: {
-                                    subscribers: subscribers
-                                }
-                            })
-                                .then(botUtils.sendMessage(bot, chatID, `You are subscribed.`, {parseMode: 'Markdown'}))
+                            dataUtils.insertOne(dataUtils.subscriberAllCollection, subscribers)
+                                .then((result) => {
+                                    botUtils.sendMessage(bot, chatID, `You are subscribed to all`, {parseMode: 'Markdown'})
+                                })
                                 .catch(err => {
                                     errors.Log(err, 'SUBSCRIBE_UPDATE');
                                     return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                                 });
                         } else {
-                            return botUtils.sendMessage(bot, chatID, `You are already subscribed to the validator: \`${valAddr}\`.`, {parseMode: 'Markdown'});
+                            botUtils.sendMessage(bot, chatID, `You are already subscribed`, {parseMode: 'Markdown'});
                         }
                     }
                 })
@@ -391,80 +476,9 @@ bot.on('ask.validatorAddress', msg => {
                     botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
                 })
         })
-        .catch(e => {
-            errors.Log(e, 'SUBSCRIBE');
-            if (e.statusCode === 400 || e.statusCode === 404) {
-                botUtils.sendMessage(bot, chatID, errors.INVALID_ADDRESS, {parseMode: 'Markdown'});
-            } else {
-                botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
-            }
-        });
-});
-
-bot.on('/all_validator', msg => {
-    const chatID = msg.chat.id;
-    let blockHeight = latestBlockHeight;
-    httpUtils.httpGet(botUtils.nodeURL, config.node.lcdPort, `/staking/validators`)
-        .then(data => JSON.parse(data))
-        .then(async json => {
-            let validators = json.result;               // with cosmos version upgrade, change here
-            validators.forEach((validator) => {
-                let valAddr = validator.operator_address;
-                let query = {operatorAddress: valAddr};
-                dataUtils.find(dataUtils.subscriberCollection, query)
-                    .then((result, err) => {
-                        if (err) {
-                            errors.Log(err, 'SUBSCRIBE_FIND');
-                            return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
-                        }
-                        if (result.length === 0) {
-                            let subscribers = [];
-                            subscribers.push({chatID: chatID});
-                            let validatorSubscriber = subscriberUtils.newValidatorSubscribers(valAddr, blockHeight, subscribers);
-                            validatorUtils.updateValidatorDetails(valAddr);
-                            dataUtils.insertOne(dataUtils.subscriberCollection, validatorSubscriber)
-                                .catch(err => {
-                                    errors.Log(err, 'SUBSCRIBE_INSERT');
-                                    return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
-                                });
-                        } else {
-                            let validatorSubscribers = result[0];
-                            let subscribers = validatorSubscribers.subscribers;
-                            let subscriberExists = false;
-                            for (let i = 0; i < subscribers.length; i++) {
-                                if (subscribers[i].chatID === chatID) {
-                                    subscriberExists = true;
-                                    break;
-                                }
-                            }
-                            if (!subscriberExists || subscribers.length === 0) {
-                                subscribers.push({chatID: chatID});
-                                dataUtils.updateOne(dataUtils.subscriberCollection, query, {
-                                    $set: {
-                                        subscribers: subscribers
-                                    }
-                                })
-                                    .catch(err => {
-                                        errors.Log(err, 'SUBSCRIBE_UPDATE');
-                                        return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
-                                    });
-                            }
-                        }
-                    })
-                    .catch(err => {
-                        errors.Log(err, 'SUBSCRIBE');
-                        botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
-                    })
-            });
-        })
-        .then(() => botUtils.sendMessage(bot, chatID, 'You have been subscribed to all validators.', {parseMode: 'Markdown'}))
-        .catch(e => {
-            errors.Log(e, 'SUBSCRIBE');
-            if (e.statusCode === 400 || e.statusCode === 404) {
-                botUtils.sendMessage(bot, chatID, errors.INVALID_ADDRESS, {parseMode: 'Markdown'});
-            } else {
-                botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
-            }
+        .catch(err => {
+            errors.Log(err, 'UNSUBSCRIBE');
+            return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
         });
 });
 
@@ -493,12 +507,12 @@ bot.on('ask.unsubValidatorAddress', msg => {
 
             let validatorSubscribers = result[0];
             if (result.length === 0 || validatorSubscribers.subscribers.length === 0) {
-                return botUtils.sendMessage(bot, chatID, `You are not subscribed to validator.`, {parseMode: 'Markdown'});
+                return botUtils.sendMessage(bot, chatID, `You are not individually subscribed to the validator.`, {parseMode: 'Markdown'});
             } else {
                 let oldSubscribers = validatorSubscribers.subscribers;
                 let removeByAttribute = jsonUtils.RemoveByAttribute(oldSubscribers, 'chatID', chatID);
                 if (!removeByAttribute.removed) {
-                    return botUtils.sendMessage(bot, chatID, `You are not subscribed to validator.`, {parseMode: 'Markdown'});
+                    return botUtils.sendMessage(bot, chatID, `You are not individually subscribed to the validator.`, {parseMode: 'Markdown'});
                 } else {
                     dataUtils.updateOne(dataUtils.subscriberCollection, query, {
                         $set: {
@@ -521,33 +535,39 @@ bot.on('ask.unsubValidatorAddress', msg => {
 
 bot.on('/unsub_all_validator', msg => {
     const chatID = msg.chat.id;
-
-    dataUtils.find(dataUtils.subscriberCollection, {})
+    dataUtils.deleteOne(dataUtils.subscriberAllCollection, {chatID: chatID})
         .then((result, err) => {
-            if (err) {
-                errors.Log(err, 'UNSUBSCRIBE_FIND');
-                return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
-            }
-            result.forEach((validatorSubscribers) => {
-                if (validatorSubscribers.subscribers.length !== 0) {
-                    let oldSubscribers = validatorSubscribers.subscribers;
-                    let removeByAttribute = jsonUtils.RemoveByAttribute(oldSubscribers, 'chatID', chatID);
-                    let query = {operatorAddress: validatorSubscribers.operatorAddress};
-                    dataUtils.updateOne(dataUtils.subscriberCollection, query, {
-                        $set: {
-                            subscribers: removeByAttribute.newList
+            dataUtils.find(dataUtils.subscriberCollection, {})
+                .then((result, err) => {
+                    if (err) {
+                        errors.Log(err, 'UNSUBSCRIBE_FIND');
+                        return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                    }
+                    result.forEach((validatorSubscribers) => {
+                        if (validatorSubscribers.subscribers.length !== 0) {
+                            let oldSubscribers = validatorSubscribers.subscribers;
+                            let removeByAttribute = jsonUtils.RemoveByAttribute(oldSubscribers, 'chatID', chatID);
+                            let query = {operatorAddress: validatorSubscribers.operatorAddress};
+                            dataUtils.updateOne(dataUtils.subscriberCollection, query, {
+                                $set: {
+                                    subscribers: removeByAttribute.newList
+                                }
+                            })
+                                .catch(err => {
+                                    errors.Log(err, 'UNSUBSCRIBE_UPDATE');
+                                    return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                                });
                         }
-                    })
-                        .catch(err => {
-                            errors.Log(err, 'UNSUBSCRIBE_UPDATE');
-                            return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
-                        });
-                }
-            });
+                    });
+                })
+                .then(() => botUtils.sendMessage(bot, chatID, `You have been unsubscribed to all validators you were subscribed to.`, {parseMode: 'Markdown'}))
+                .catch(err => {
+                    errors.Log(err, 'UNSUBSCRIBE');
+                    return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
+                });
         })
-        .then(() => botUtils.sendMessage(bot, chatID, `You have been unsubscribed to all validators you were subscribed to.`, {parseMode: 'Markdown'}))
         .catch(err => {
-            errors.Log(err, 'UNSUBSCRIBE');
+            errors.Log(err, 'UNSUBSCRIBE_UPDATE');
             return botUtils.sendMessage(bot, chatID, errors.INTERNAL_ERROR, {parseMode: 'Markdown'});
         });
 });
@@ -681,11 +701,11 @@ bot.on(['ask.lastMissedBlockValidatorAddress'], async msg => {
                             let moniker = validator.description.moniker;
                             let missedBlocks = [];
                             let missedBlocksEmoticonMessage = '';
-                            for (let i = 0; i < validatorSubscribers[0].blocksHistory.length; i++) {
+                            for (let i = validatorSubscribers[0].blocksHistory.length - 1; i >= 0; i--) {
                                 if (validatorSubscribers[0].blocksHistory[i].found) {
                                     missedBlocksEmoticonMessage = missedBlocksEmoticonMessage + blockchainConstants.emoticon.presentBlock + ' ';
                                 } else {
-                                    missedBlocks.unshift(validatorSubscribers[0].blocksHistory[i].block);
+                                    missedBlocks.push(validatorSubscribers[0].blocksHistory[i].block);
                                     missedBlocksEmoticonMessage = missedBlocksEmoticonMessage + blockchainConstants.emoticon.missedBlock + ' ';
                                 }
                                 if ((i + 1) % 10 === 0) {
@@ -845,7 +865,7 @@ function wsIncoming(data) {
         let currentBlockHeight = parseInt(json.result.data.value.block.header.height, 10);
         latestBlockHeight = currentBlockHeight;
         console.log(currentBlockHeight);
-        validatorUtils.checkTxs(currentBlockHeight)
+        validatorUtils.checkTxs(currentBlockHeight - 1)
             .catch(err => errors.Log(err, 'CHECKING_TXS'));
         checkAndSendMsgOnValidatorsAbsence(json)
             .catch(err => errors.Log(err, 'CHECK_UPDATE_COUNTER_SEND_MESSAGE'));
@@ -932,10 +952,22 @@ function updateCounterAndSendMessage(validatorSubscribers, validatorDetails, blo
                 .then((result) => {
                     let blocksLevel = subscriberUtils.getBlocksLevel(slashingWindow, alertLevel);
                     if (consecutiveCounter !== 0 && consecutiveCounter % blocksLevel === 0) {
-                        sendMissedMsgToSubscribers(validatorDetails.description.moniker, validatorSubscribers.subscribers, consecutiveCounter, alertLevel)
-                            .catch(err => errors.Log(err));
-                        checkJailedStatusAndSendMessage(validatorDetails, validatorSubscribers)
-                            .catch(err => errors.Log(err));
+                        dataUtils.find(dataUtils.subscriberAllCollection, {})
+                            .then((result, err) => {
+                                if (err) {
+                                    errors.Log(err, 'UPDATING_COUNTER_AND_SENDING_MESSAGE')
+                                }
+                                if (result.length !== 0) {
+                                    for (let i = 0; i < result.length; i++) {
+                                        validatorSubscribers.subscribers.push({chatID: result[i].chatID});
+                                    }
+                                }
+                                sendMissedMsgToSubscribers(validatorDetails.description.moniker, validatorSubscribers.subscribers, consecutiveCounter, alertLevel)
+                                    .catch(err => errors.Log(err));
+                                checkJailedStatusAndSendMessage(validatorDetails, validatorSubscribers)
+                                    .catch(err => errors.Log(err));
+                            })
+                            .catch(err => errors.Log(err, 'UPDATING_COUNTER_AND_SENDING_MESSAGE'));
                     }
                 })
                 .catch(err => errors.Log(err, 'UPDATING_COUNTER_AND_SENDING_MESSAGE'));
