@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/persistenceOne/persistenceSDK/modules/params/subspace"
+	"github.com/persistenceOne/comdexCrust/modules/params/subspace"
 )
 
 // DefaultParamspace defines the default auth module parameter subspace

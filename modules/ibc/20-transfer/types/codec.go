@@ -1,9 +1,9 @@
 package types
 
 import (
-	channel "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel"
-	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
 	"github.com/cosmos/cosmos-sdk/codec"
+	channel "github.com/persistenceOne/comdexCrust/modules/ibc/04-channel"
+	commitment "github.com/persistenceOne/comdexCrust/modules/ibc/23-commitment"
 )
 
 func RegisterCodec(cdc *codec.Codec) {

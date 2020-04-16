@@ -9,14 +9,14 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/kafka"
-	"github.com/persistenceOne/persistenceSDK/types/module"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/kafka"
+	"github.com/persistenceOne/comdexCrust/types/module"
 
 	abciTypes "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/acl/client/cli"
-	"github.com/persistenceOne/persistenceSDK/modules/acl/client/rest"
+	"github.com/persistenceOne/comdexCrust/modules/acl/client/cli"
+	"github.com/persistenceOne/comdexCrust/modules/acl/client/rest"
 )
 
 var (

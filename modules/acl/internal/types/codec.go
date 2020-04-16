@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 )
 
 func RegisterCodec(cdc *codec.Codec) {

@@ -14,14 +14,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/kafka"
-	"github.com/persistenceOne/persistenceSDK/types/module"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/kafka"
+	"github.com/persistenceOne/comdexCrust/types/module"
 
-	authtypes "github.com/persistenceOne/persistenceSDK/modules/auth/types"
-	"github.com/persistenceOne/persistenceSDK/modules/staking/client/cli"
-	"github.com/persistenceOne/persistenceSDK/modules/staking/client/rest"
-	"github.com/persistenceOne/persistenceSDK/modules/staking/types"
+	authtypes "github.com/persistenceOne/comdexCrust/modules/auth/types"
+	"github.com/persistenceOne/comdexCrust/modules/staking/client/cli"
+	"github.com/persistenceOne/comdexCrust/modules/staking/client/rest"
+	"github.com/persistenceOne/comdexCrust/modules/staking/types"
 )
 
 var (

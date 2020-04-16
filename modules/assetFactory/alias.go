@@ -1,8 +1,8 @@
 package assetFactory
 
 import (
-	"github.com/persistenceOne/persistenceSDK/modules/assetFactory/internal/keeper"
-	"github.com/persistenceOne/persistenceSDK/modules/assetFactory/internal/types"
+	"github.com/persistenceOne/comdexCrust/modules/assetFactory/internal/keeper"
+	"github.com/persistenceOne/comdexCrust/modules/assetFactory/internal/types"
 )
 
 const (

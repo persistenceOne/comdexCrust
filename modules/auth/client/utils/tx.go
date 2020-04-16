@@ -15,8 +15,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	authTypes "github.com/persistenceOne/persistenceSDK/modules/auth/types"
+	"github.com/persistenceOne/comdexCrust/codec"
+	authTypes "github.com/persistenceOne/comdexCrust/modules/auth/types"
 )
 
 // GasEstimateResponse defines a response definition for tx gas estimation.

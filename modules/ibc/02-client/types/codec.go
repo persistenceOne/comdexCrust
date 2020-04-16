@@ -1,9 +1,9 @@
 package types
 
 import (
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/types/tendermint"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/02-client/exported"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/02-client/types/tendermint"
 )
 
 var SubModuleCdc *codec.Codec

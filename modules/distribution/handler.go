@@ -5,9 +5,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/distribution/keeper"
-	"github.com/persistenceOne/persistenceSDK/modules/distribution/types"
-	govtypes "github.com/persistenceOne/persistenceSDK/modules/gov/types"
+	"github.com/persistenceOne/comdexCrust/modules/distribution/keeper"
+	"github.com/persistenceOne/comdexCrust/modules/distribution/types"
+	govtypes "github.com/persistenceOne/comdexCrust/modules/gov/types"
 )
 
 func NewHandler(k keeper.Keeper) sdk.Handler {

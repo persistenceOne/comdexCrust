@@ -3,7 +3,7 @@ package slashing
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/slashing/types"
+	"github.com/persistenceOne/comdexCrust/modules/slashing/types"
 )
 
 // Stored by *validator* address (not operator address)

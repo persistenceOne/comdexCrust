@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
-	host "github.com/persistenceOne/persistenceSDK/modules/ibc/24-host"
-	ibctypes "github.com/persistenceOne/persistenceSDK/modules/ibc/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	commitment "github.com/persistenceOne/comdexCrust/modules/ibc/23-commitment"
+	host "github.com/persistenceOne/comdexCrust/modules/ibc/24-host"
+	ibctypes "github.com/persistenceOne/comdexCrust/modules/ibc/types"
 )
 
 var _ sdk.Msg = MsgConnectionOpenInit{}

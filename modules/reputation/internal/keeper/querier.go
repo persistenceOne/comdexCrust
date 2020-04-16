@@ -6,7 +6,7 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	abciTypes "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 )
 
 const (

@@ -7,10 +7,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 
-	"github.com/persistenceOne/persistenceSDK/modules/supply/exported"
-	"github.com/persistenceOne/persistenceSDK/modules/supply/internal/types"
+	"github.com/persistenceOne/comdexCrust/modules/supply/exported"
+	"github.com/persistenceOne/comdexCrust/modules/supply/internal/types"
 )
 
 // Keeper of the supply store

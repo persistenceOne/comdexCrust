@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
-	host "github.com/persistenceOne/persistenceSDK/modules/ibc/24-host"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	commitment "github.com/persistenceOne/comdexCrust/modules/ibc/23-commitment"
+	host "github.com/persistenceOne/comdexCrust/modules/ibc/24-host"
 )
 
 // ICS03 - Connection Data Structures as defined in https://github.com/cosmos/ics/tree/master/spec/ics-003-connection-semantics#data-structures

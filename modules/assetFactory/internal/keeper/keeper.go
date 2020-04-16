@@ -5,9 +5,9 @@ import (
 
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	assetFactoryTypes "github.com/persistenceOne/persistenceSDK/modules/assetFactory/internal/types"
-	"github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/codec"
+	assetFactoryTypes "github.com/persistenceOne/comdexCrust/modules/assetFactory/internal/types"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 type Keeper struct {

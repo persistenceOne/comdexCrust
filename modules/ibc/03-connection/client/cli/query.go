@@ -7,15 +7,15 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	persistenceSDKContext "github.com/persistenceOne/persistenceSDK/client/context"
+	comdexCrustContext "github.com/persistenceOne/comdexCrust/client/context"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/version"
-	persistenceSDKFlags "github.com/persistenceOne/persistenceSDK/client/flags"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection/types"
+	comdexCrustFlags "github.com/persistenceOne/comdexCrust/client/flags"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/03-connection/types"
 )
 
 // GetQueryCmd returns the query commands for IBC connections
@@ -58,10 +58,10 @@ $ %s query ibc connection end [connection-id]
 			req := abci.RequestQuery{
 				Path:  fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryConnection),
 				Data:  bz,
-				Prove: viper.GetBool(persistenceSDKFlags.FlagProve),
+				Prove: viper.GetBool(comdexCrustFlags.FlagProve),
 			}
 
-			res, err := persistenceSDKContext.QueryABCI(cliCtx, req)
+			res, err := comdexCrustContext.QueryABCI(cliCtx, req)
 			if err != nil {
 				return err
 			}
@@ -72,14 +72,14 @@ $ %s query ibc connection end [connection-id]
 			}
 
 			if res.Proof == nil {
-				return persistenceSDKContext.PrintOutput(cliCtx, connection)
+				return comdexCrustContext.PrintOutput(cliCtx, connection)
 			}
 
 			connRes := types.NewConnectionResponse(connectionID, connection, res.Proof, res.Height)
-			return persistenceSDKContext.PrintOutput(cliCtx, connRes)
+			return comdexCrustContext.PrintOutput(cliCtx, connRes)
 		},
 	}
-	cmd.Flags().Bool(persistenceSDKFlags.FlagProve, true, "show proofs for the query results")
+	cmd.Flags().Bool(comdexCrustFlags.FlagProve, true, "show proofs for the query results")
 
 	return cmd
 }
@@ -108,10 +108,10 @@ $ %s query ibc connection client [client-id]
 			req := abci.RequestQuery{
 				Path:  fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryClientConnections),
 				Data:  bz,
-				Prove: viper.GetBool(persistenceSDKFlags.FlagProve),
+				Prove: viper.GetBool(comdexCrustFlags.FlagProve),
 			}
 
-			res, err := persistenceSDKContext.QueryABCI(cliCtx, req)
+			res, err := comdexCrustContext.QueryABCI(cliCtx, req)
 			if err != nil {
 				return err
 			}
@@ -122,11 +122,11 @@ $ %s query ibc connection client [client-id]
 			}
 
 			if res.Proof == nil {
-				return persistenceSDKContext.PrintOutput(cliCtx, connectionPaths)
+				return comdexCrustContext.PrintOutput(cliCtx, connectionPaths)
 			}
 
 			connPathsRes := types.NewClientConnectionsResponse(clientID, connectionPaths, res.Proof, res.Height)
-			return persistenceSDKContext.PrintOutput(cliCtx, connPathsRes)
+			return comdexCrustContext.PrintOutput(cliCtx, connPathsRes)
 		},
 	}
 }

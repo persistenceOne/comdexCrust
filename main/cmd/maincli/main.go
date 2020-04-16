@@ -13,14 +13,14 @@ import (
 	"github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/persistenceOne/persistenceSDK/client/lcd"
+	"github.com/persistenceOne/comdexCrust/client/lcd"
 
-	"github.com/persistenceOne/persistenceSDK/main/app"
-	authCmd "github.com/persistenceOne/persistenceSDK/modules/auth/client/cli"
-	bankCmd "github.com/persistenceOne/persistenceSDK/modules/bank/client/cli"
-	"github.com/persistenceOne/persistenceSDK/version"
+	"github.com/persistenceOne/comdexCrust/main/app"
+	authCmd "github.com/persistenceOne/comdexCrust/modules/auth/client/cli"
+	bankCmd "github.com/persistenceOne/comdexCrust/modules/bank/client/cli"
+	"github.com/persistenceOne/comdexCrust/version"
 
-	"github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 func main() {

@@ -6,8 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
-	"github.com/persistenceOne/persistenceSDK/modules/gov/types"
+	"github.com/persistenceOne/comdexCrust/modules/auth/client/utils"
+	"github.com/persistenceOne/comdexCrust/modules/gov/types"
 )
 
 const (

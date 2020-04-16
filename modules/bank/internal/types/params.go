@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/persistenceOne/persistenceSDK/modules/params"
+	"github.com/persistenceOne/comdexCrust/modules/params"
 )
 
 const (

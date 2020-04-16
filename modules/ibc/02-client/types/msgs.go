@@ -3,10 +3,10 @@ package types
 import (
 	"fmt"
 
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
-	host "github.com/persistenceOne/persistenceSDK/modules/ibc/24-host"
-	ibctypes "github.com/persistenceOne/persistenceSDK/modules/ibc/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/02-client/exported"
+	host "github.com/persistenceOne/comdexCrust/modules/ibc/24-host"
+	ibctypes "github.com/persistenceOne/comdexCrust/modules/ibc/types"
 )
 
 var _ sdk.Msg = MsgCreateClient{}

@@ -8,11 +8,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/kafka"
-	"github.com/persistenceOne/persistenceSDK/types/module"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/kafka"
+	"github.com/persistenceOne/comdexCrust/types/module"
 
-	"github.com/persistenceOne/persistenceSDK/modules/params/types"
+	"github.com/persistenceOne/comdexCrust/modules/params/types"
 )
 
 var (

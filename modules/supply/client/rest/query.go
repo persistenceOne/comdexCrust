@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	"github.com/persistenceOne/persistenceSDK/modules/supply/internal/types"
+	"github.com/persistenceOne/comdexCrust/modules/supply/internal/types"
 )
 
 // RegisterRoutes registers staking-related REST handlers to a router

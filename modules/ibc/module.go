@@ -8,18 +8,18 @@ import (
 
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/persistenceOne/persistenceSDK/kafka"
-	client "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client"
-	connection "github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection"
-	channel "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel"
-	transfer "github.com/persistenceOne/persistenceSDK/modules/ibc/20-transfer"
-	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/client/cli"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/types"
-	"github.com/persistenceOne/persistenceSDK/types/module"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/persistenceOne/comdexCrust/kafka"
+	client "github.com/persistenceOne/comdexCrust/modules/ibc/02-client"
+	connection "github.com/persistenceOne/comdexCrust/modules/ibc/03-connection"
+	channel "github.com/persistenceOne/comdexCrust/modules/ibc/04-channel"
+	transfer "github.com/persistenceOne/comdexCrust/modules/ibc/20-transfer"
+	commitment "github.com/persistenceOne/comdexCrust/modules/ibc/23-commitment"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/client/cli"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/types"
+	"github.com/persistenceOne/comdexCrust/types/module"
 )
 
 // TODO: AppModuleSimulation

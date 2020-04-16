@@ -7,8 +7,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/modules/auth/client/utils"
 )
 
 // GetBroadcastCommand returns the tx broadcast command.

@@ -4,7 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/gorilla/mux"
 
-	"github.com/persistenceOne/persistenceSDK/kafka"
+	"github.com/persistenceOne/comdexCrust/kafka"
 )
 
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, kafkaBool bool, kafkaState kafka.KafkaState) {

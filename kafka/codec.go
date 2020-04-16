@@ -1,7 +1,7 @@
 package kafka
 
 import (
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 )
 
 // Register concrete types on codec

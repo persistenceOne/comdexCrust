@@ -3,7 +3,7 @@ package types
 import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/auth/exported"
+	"github.com/persistenceOne/comdexCrust/modules/auth/exported"
 )
 
 type AccountKeeper interface {

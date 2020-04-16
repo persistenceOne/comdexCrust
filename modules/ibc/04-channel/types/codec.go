@@ -2,7 +2,7 @@ package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/exported"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/04-channel/exported"
 )
 
 var SubModuleCdc *codec.Codec

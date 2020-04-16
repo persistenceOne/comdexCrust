@@ -10,9 +10,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 
-	"github.com/persistenceOne/persistenceSDK/modules/supply/internal/types"
+	"github.com/persistenceOne/comdexCrust/modules/supply/internal/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module

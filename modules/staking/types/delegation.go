@@ -9,9 +9,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 
-	"github.com/persistenceOne/persistenceSDK/modules/staking/exported"
+	"github.com/persistenceOne/comdexCrust/modules/staking/exported"
 )
 
 // DVPair is struct that just has a delegator-validator pair with no other data.

@@ -1,10 +1,10 @@
 package types
 
 import (
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/modules/acl"
-	"github.com/persistenceOne/persistenceSDK/modules/reputation"
-	"github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/modules/acl"
+	"github.com/persistenceOne/comdexCrust/modules/reputation"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 // Register concrete types on codec codec

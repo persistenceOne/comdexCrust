@@ -8,10 +8,10 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	rest2 "github.com/persistenceOne/persistenceSDK/client/rest"
-	"github.com/persistenceOne/persistenceSDK/kafka"
-	reputationTypes "github.com/persistenceOne/persistenceSDK/modules/reputation/internal/types"
-	"github.com/persistenceOne/persistenceSDK/types"
+	rest2 "github.com/persistenceOne/comdexCrust/client/rest"
+	"github.com/persistenceOne/comdexCrust/kafka"
+	reputationTypes "github.com/persistenceOne/comdexCrust/modules/reputation/internal/types"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 type SubmitBuyerFeedbackReq struct {

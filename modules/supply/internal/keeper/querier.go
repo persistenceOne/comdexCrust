@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/supply/internal/types"
+	"github.com/persistenceOne/comdexCrust/modules/supply/internal/types"
 )
 
 // NewQuerier creates a querier for supply REST endpoints

@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/gov/types"
+	"github.com/persistenceOne/comdexCrust/modules/gov/types"
 )
 
 // GetDeposit gets the deposit of a specific depositor on a specific proposal

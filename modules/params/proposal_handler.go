@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	govtypes "github.com/persistenceOne/persistenceSDK/modules/gov/types"
+	govtypes "github.com/persistenceOne/comdexCrust/modules/gov/types"
 )
 
 func NewParamChangeProposalHandler(k Keeper) govtypes.Handler {

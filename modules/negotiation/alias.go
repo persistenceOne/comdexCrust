@@ -1,9 +1,9 @@
 package negotiation
 
 import (
-	"github.com/persistenceOne/persistenceSDK/modules/negotiation/internal/keeper"
-	"github.com/persistenceOne/persistenceSDK/modules/negotiation/internal/types"
-	types2 "github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/modules/negotiation/internal/keeper"
+	"github.com/persistenceOne/comdexCrust/modules/negotiation/internal/types"
+	types2 "github.com/persistenceOne/comdexCrust/types"
 )
 
 const (

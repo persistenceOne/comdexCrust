@@ -1,9 +1,9 @@
 package orders
 
 import (
-	"github.com/persistenceOne/persistenceSDK/modules/orders/internal/keeper"
-	"github.com/persistenceOne/persistenceSDK/modules/orders/internal/types"
-	types2 "github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/modules/orders/internal/keeper"
+	"github.com/persistenceOne/comdexCrust/modules/orders/internal/types"
+	types2 "github.com/persistenceOne/comdexCrust/types"
 )
 
 const (

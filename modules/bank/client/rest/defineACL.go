@@ -3,8 +3,8 @@ package rest
 import (
 	"bytes"
 	"fmt"
-	"github.com/persistenceOne/persistenceSDK/modules/acl"
-	bankTypes "github.com/persistenceOne/persistenceSDK/modules/bank/internal/types"
+	"github.com/persistenceOne/comdexCrust/modules/acl"
+	bankTypes "github.com/persistenceOne/comdexCrust/modules/bank/internal/types"
 
 	"net/http"
 	"strconv"
@@ -14,9 +14,9 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	rest2 "github.com/persistenceOne/persistenceSDK/client/rest"
-	"github.com/persistenceOne/persistenceSDK/kafka"
-	"github.com/persistenceOne/persistenceSDK/types"
+	rest2 "github.com/persistenceOne/comdexCrust/client/rest"
+	"github.com/persistenceOne/comdexCrust/kafka"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 type DefineACLReq struct {

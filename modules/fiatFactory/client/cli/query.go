@@ -7,9 +7,9 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	"github.com/persistenceOne/persistenceSDK/modules/fiatFactory/internal/keeper"
-	fiatFactoryTypes "github.com/persistenceOne/persistenceSDK/modules/fiatFactory/internal/types"
-	"github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/modules/fiatFactory/internal/keeper"
+	fiatFactoryTypes "github.com/persistenceOne/comdexCrust/modules/fiatFactory/internal/types"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 func QueryFiatCmd() *cobra.Command {

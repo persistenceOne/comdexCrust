@@ -12,12 +12,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 
-	"github.com/persistenceOne/persistenceSDK/modules/auth"
-	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
-	govutils "github.com/persistenceOne/persistenceSDK/modules/gov/client/utils"
-	"github.com/persistenceOne/persistenceSDK/modules/gov/types"
+	"github.com/persistenceOne/comdexCrust/modules/auth"
+	"github.com/persistenceOne/comdexCrust/modules/auth/client/utils"
+	govutils "github.com/persistenceOne/comdexCrust/modules/gov/client/utils"
+	"github.com/persistenceOne/comdexCrust/modules/gov/types"
 )
 
 // Proposal flags

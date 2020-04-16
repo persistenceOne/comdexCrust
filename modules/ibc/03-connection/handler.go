@@ -1,9 +1,9 @@
 package connection
 
 import (
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection/keeper"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/03-connection/keeper"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/03-connection/types"
 )
 
 // HandleMsgConnectionOpenInit defines the sdk.Handler for MsgConnectionOpenInit

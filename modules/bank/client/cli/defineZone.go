@@ -6,11 +6,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/modules/acl"
-	"github.com/persistenceOne/persistenceSDK/modules/auth"
-	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
-	bankTypes "github.com/persistenceOne/persistenceSDK/modules/bank/internal/types"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/modules/acl"
+	"github.com/persistenceOne/comdexCrust/modules/auth"
+	"github.com/persistenceOne/comdexCrust/modules/auth/client/utils"
+	bankTypes "github.com/persistenceOne/comdexCrust/modules/bank/internal/types"
 )
 
 func DefineZoneCmd(cdc *codec.Codec) *cobra.Command {

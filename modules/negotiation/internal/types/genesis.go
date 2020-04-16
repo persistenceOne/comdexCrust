@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 type GenesisState struct {

@@ -3,7 +3,7 @@ package mint
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/mint/internal/types"
+	"github.com/persistenceOne/comdexCrust/modules/mint/internal/types"
 )
 
 // BeginBlocker mints new tokens for the previous block.

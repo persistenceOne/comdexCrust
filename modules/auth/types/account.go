@@ -9,8 +9,8 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 	"gopkg.in/yaml.v2"
 
-	"github.com/persistenceOne/persistenceSDK/modules/auth/exported"
-	"github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/modules/auth/exported"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 // -----------------------------------------------------------------------------

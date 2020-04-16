@@ -1,8 +1,8 @@
 package transfer
 
 import (
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/20-transfer/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/20-transfer/types"
 )
 
 // HandleMsgTransfer defines the sdk.Handler for MsgTransfer

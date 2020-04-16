@@ -11,10 +11,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 
-	"github.com/persistenceOne/persistenceSDK/modules/genaccounts"
-	"github.com/persistenceOne/persistenceSDK/modules/genutil"
+	"github.com/persistenceOne/comdexCrust/modules/genaccounts"
+	"github.com/persistenceOne/comdexCrust/modules/genutil"
 )
 
 const (

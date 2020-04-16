@@ -5,10 +5,10 @@ import (
 
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/modules/orders"
-	reputationTypes "github.com/persistenceOne/persistenceSDK/modules/reputation/internal/types"
-	"github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/modules/orders"
+	reputationTypes "github.com/persistenceOne/comdexCrust/modules/reputation/internal/types"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 type Keeper struct {

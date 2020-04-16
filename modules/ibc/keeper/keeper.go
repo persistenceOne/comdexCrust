@@ -1,15 +1,15 @@
 package keeper
 
 import (
-	"github.com/persistenceOne/persistenceSDK/modules/acl"
-	"github.com/persistenceOne/persistenceSDK/modules/assetFactory"
-	client "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client"
-	connection "github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection"
-	channel "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel"
-	port "github.com/persistenceOne/persistenceSDK/modules/ibc/05-port"
-	transfer "github.com/persistenceOne/persistenceSDK/modules/ibc/20-transfer"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/persistenceOne/comdexCrust/modules/acl"
+	"github.com/persistenceOne/comdexCrust/modules/assetFactory"
+	client "github.com/persistenceOne/comdexCrust/modules/ibc/02-client"
+	connection "github.com/persistenceOne/comdexCrust/modules/ibc/03-connection"
+	channel "github.com/persistenceOne/comdexCrust/modules/ibc/04-channel"
+	port "github.com/persistenceOne/comdexCrust/modules/ibc/05-port"
+	transfer "github.com/persistenceOne/comdexCrust/modules/ibc/20-transfer"
 )
 
 // Keeper defines each ICS keeper for IBC

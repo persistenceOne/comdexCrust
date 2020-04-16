@@ -10,8 +10,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/staking/keeper"
-	"github.com/persistenceOne/persistenceSDK/modules/staking/types"
+	"github.com/persistenceOne/comdexCrust/modules/staking/keeper"
+	"github.com/persistenceOne/comdexCrust/modules/staking/types"
 )
 
 func NewHandler(k keeper.Keeper) sdk.Handler {

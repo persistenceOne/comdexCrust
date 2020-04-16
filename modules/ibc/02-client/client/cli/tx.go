@@ -8,16 +8,16 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/persistenceOne/persistenceSDK/modules/auth"
-	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/persistenceOne/comdexCrust/modules/auth"
+	"github.com/persistenceOne/comdexCrust/modules/auth/client/utils"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/02-client/exported"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/02-client/types"
 )
 
 // GetTxCmd returns the transaction commands for IBC Clients

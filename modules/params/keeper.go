@@ -5,10 +5,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 
-	"github.com/persistenceOne/persistenceSDK/modules/params/subspace"
-	"github.com/persistenceOne/persistenceSDK/modules/params/types"
+	"github.com/persistenceOne/comdexCrust/modules/params/subspace"
+	"github.com/persistenceOne/comdexCrust/modules/params/types"
 
 	"github.com/tendermint/tendermint/libs/log"
 )

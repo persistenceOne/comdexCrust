@@ -2,9 +2,9 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	client "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client"
-	clientexported "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
-	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
+	client "github.com/persistenceOne/comdexCrust/modules/ibc/02-client"
+	clientexported "github.com/persistenceOne/comdexCrust/modules/ibc/02-client/exported"
+	commitment "github.com/persistenceOne/comdexCrust/modules/ibc/23-commitment"
 )
 
 // ClientKeeper expected account IBC client keeper

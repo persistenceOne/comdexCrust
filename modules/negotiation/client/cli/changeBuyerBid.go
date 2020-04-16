@@ -6,11 +6,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/modules/auth"
-	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
-	negotiationTypes "github.com/persistenceOne/persistenceSDK/modules/negotiation/internal/types"
-	"github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/modules/auth"
+	"github.com/persistenceOne/comdexCrust/modules/auth/client/utils"
+	negotiationTypes "github.com/persistenceOne/comdexCrust/modules/negotiation/internal/types"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 func ChangeBuyerBidCmd(cdc *codec.Codec) *cobra.Command {

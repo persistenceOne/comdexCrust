@@ -7,9 +7,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 
-	"github.com/persistenceOne/persistenceSDK/modules/gov/types"
+	"github.com/persistenceOne/comdexCrust/modules/gov/types"
 )
 
 func NewQuerier(keeper Keeper) sdk.Querier {

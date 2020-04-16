@@ -3,7 +3,7 @@ package cli
 import (
 	flag "github.com/spf13/pflag"
 
-	"github.com/persistenceOne/persistenceSDK/modules/staking/types"
+	"github.com/persistenceOne/comdexCrust/modules/staking/types"
 )
 
 // nolint

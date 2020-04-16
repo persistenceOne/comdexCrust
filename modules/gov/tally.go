@@ -3,8 +3,8 @@ package gov
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/gov/types"
-	"github.com/persistenceOne/persistenceSDK/modules/staking/exported"
+	"github.com/persistenceOne/comdexCrust/modules/gov/types"
+	"github.com/persistenceOne/comdexCrust/modules/staking/exported"
 )
 
 // validatorGovInfo used for tallying

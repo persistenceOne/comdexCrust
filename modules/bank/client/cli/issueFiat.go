@@ -6,11 +6,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/modules/auth"
-	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
-	"github.com/persistenceOne/persistenceSDK/modules/bank/client"
-	"github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/modules/auth"
+	"github.com/persistenceOne/comdexCrust/modules/auth/client/utils"
+	"github.com/persistenceOne/comdexCrust/modules/bank/client"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 func IssueFiatCmd(cdc *codec.Codec) *cobra.Command {

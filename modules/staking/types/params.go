@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 
-	"github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/params"
+	"github.com/persistenceOne/comdexCrust/modules/params"
 )
 
 const (

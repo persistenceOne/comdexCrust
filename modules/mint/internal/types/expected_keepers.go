@@ -3,7 +3,7 @@ package types // noalias
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/supply/exported"
+	"github.com/persistenceOne/comdexCrust/modules/supply/exported"
 )
 
 // StakingKeeper defines the expected staking keeper

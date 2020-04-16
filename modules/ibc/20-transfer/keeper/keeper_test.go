@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/20-transfer/keeper"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/20-transfer/keeper"
 )
 
 type KeeperTestSuite struct {

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	channeltypes "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/types"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/20-transfer/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	channeltypes "github.com/persistenceOne/comdexCrust/modules/ibc/04-channel/types"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/20-transfer/types"
 )
 
 // nolint: unused

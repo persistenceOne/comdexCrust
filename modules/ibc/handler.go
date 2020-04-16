@@ -3,11 +3,11 @@ package ibc
 import (
 	"fmt"
 
-	client "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client"
-	connection "github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection"
-	channel "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel"
-	transfer "github.com/persistenceOne/persistenceSDK/modules/ibc/20-transfer"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	client "github.com/persistenceOne/comdexCrust/modules/ibc/02-client"
+	connection "github.com/persistenceOne/comdexCrust/modules/ibc/03-connection"
+	channel "github.com/persistenceOne/comdexCrust/modules/ibc/04-channel"
+	transfer "github.com/persistenceOne/comdexCrust/modules/ibc/20-transfer"
 )
 
 // NewHandler defines the IBC handler

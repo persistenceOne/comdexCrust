@@ -5,9 +5,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	client "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client"
-	connection "github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection"
-	channel "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel"
+	client "github.com/persistenceOne/comdexCrust/modules/ibc/02-client"
+	connection "github.com/persistenceOne/comdexCrust/modules/ibc/03-connection"
+	channel "github.com/persistenceOne/comdexCrust/modules/ibc/04-channel"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 )

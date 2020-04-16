@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/distribution/types"
+	"github.com/persistenceOne/comdexCrust/modules/distribution/types"
 )
 
 // DistributeFromFeePool distributes funds from the distribution module account to

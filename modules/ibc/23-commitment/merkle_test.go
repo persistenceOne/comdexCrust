@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/iavl"
 	"github.com/cosmos/cosmos-sdk/store/rootmulti"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
+	commitment "github.com/persistenceOne/comdexCrust/modules/ibc/23-commitment"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	dbm "github.com/tendermint/tm-db"

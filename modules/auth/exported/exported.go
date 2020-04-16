@@ -6,7 +6,7 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/crypto"
 
-	"github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 // Account is an interface used to store coins at a given address within state.

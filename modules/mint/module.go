@@ -11,12 +11,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/kafka"
-	"github.com/persistenceOne/persistenceSDK/types/module"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/kafka"
+	"github.com/persistenceOne/comdexCrust/types/module"
 
-	"github.com/persistenceOne/persistenceSDK/modules/mint/client/cli"
-	"github.com/persistenceOne/persistenceSDK/modules/mint/client/rest"
+	"github.com/persistenceOne/comdexCrust/modules/mint/client/cli"
+	"github.com/persistenceOne/comdexCrust/modules/mint/client/rest"
 )
 
 var (

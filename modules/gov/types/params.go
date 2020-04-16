@@ -6,7 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	params "github.com/persistenceOne/persistenceSDK/modules/params/subspace"
+	params "github.com/persistenceOne/comdexCrust/modules/params/subspace"
 )
 
 // Parameter store key

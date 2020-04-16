@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/20-transfer/client/cli"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/20-transfer/client/cli"
 )
 
 // Name returns the IBC transfer ICS name

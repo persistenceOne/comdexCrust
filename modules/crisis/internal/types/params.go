@@ -3,7 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/params"
+	"github.com/persistenceOne/comdexCrust/modules/params"
 )
 
 // Default parameter namespace

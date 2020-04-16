@@ -1,6 +1,6 @@
 package utils
 
-import "github.com/persistenceOne/persistenceSDK/modules/gov/types"
+import "github.com/persistenceOne/comdexCrust/modules/gov/types"
 
 // NormalizeVoteOption - normalize user specified vote option
 func NormalizeVoteOption(option string) string {

@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection/types"
-	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
-	persistenceSDKErrors "github.com/persistenceOne/persistenceSDK/types/errors"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/03-connection/types"
+	commitment "github.com/persistenceOne/comdexCrust/modules/ibc/23-commitment"
+	comdexCrustErrors "github.com/persistenceOne/comdexCrust/types/errors"
 )
 
 // ConnOpenInit initialises a connection attempt on chain A.
@@ -21,7 +21,7 @@ func (k Keeper) ConnOpenInit(
 ) error {
 	_, found := k.GetConnection(ctx, connectionID)
 	if found {
-		return persistenceSDKErrors.Wrap(types.ErrConnectionExists(k.codespace, connectionID), "cannot initialize connection")
+		return comdexCrustErrors.Wrap(types.ErrConnectionExists(k.codespace, connectionID), "cannot initialize connection")
 	}
 
 	// connection defines chain A's ConnectionEnd
@@ -30,7 +30,7 @@ func (k Keeper) ConnOpenInit(
 
 	err := k.addConnectionToClient(ctx, clientID, connectionID)
 	if err != nil {
-		persistenceSDKErrors.Wrap(err, "cannot initialize connection")
+		comdexCrustErrors.Wrap(err, "cannot initialize connection")
 	}
 
 	k.Logger(ctx).Info(fmt.Sprintf("connection %s state updated: NONE -> INIT", connectionID))
@@ -111,13 +111,13 @@ func (k Keeper) ConnOpenTry(
 
 	_, found := k.GetConnection(ctx, connectionID)
 	if found {
-		return persistenceSDKErrors.Wrap(types.ErrConnectionExists(k.codespace, connectionID), "cannot relay connection attempt")
+		return comdexCrustErrors.Wrap(types.ErrConnectionExists(k.codespace, connectionID), "cannot relay connection attempt")
 	}
 
 	connection.State = types.TRYOPEN
 	err = k.addConnectionToClient(ctx, clientID, connectionID)
 	if err != nil {
-		return persistenceSDKErrors.Wrap(err, "cannot relay connection attempt")
+		return comdexCrustErrors.Wrap(err, "cannot relay connection attempt")
 	}
 
 	k.SetConnection(ctx, connectionID, connection)
@@ -146,7 +146,7 @@ func (k Keeper) ConnOpenAck(
 	*/
 	connection, found := k.GetConnection(ctx, connectionID)
 	if !found {
-		return persistenceSDKErrors.Wrap(types.ErrConnectionNotFound(k.codespace, connectionID), "cannot relay ACK of open attempt")
+		return comdexCrustErrors.Wrap(types.ErrConnectionNotFound(k.codespace, connectionID), "cannot relay ACK of open attempt")
 	}
 
 	if connection.State != types.INIT {
@@ -222,7 +222,7 @@ func (k Keeper) ConnOpenConfirm(
 ) error {
 	connection, found := k.GetConnection(ctx, connectionID)
 	if !found {
-		return persistenceSDKErrors.Wrap(types.ErrConnectionNotFound(k.codespace, connectionID), "cannot relay ACK of open attempt")
+		return comdexCrustErrors.Wrap(types.ErrConnectionNotFound(k.codespace, connectionID), "cannot relay ACK of open attempt")
 	}
 
 	if connection.State != types.TRYOPEN {

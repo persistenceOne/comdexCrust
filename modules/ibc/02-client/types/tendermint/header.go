@@ -3,8 +3,8 @@ package tendermint
 import (
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
 	"github.com/cosmos/cosmos-sdk/client/context"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/02-client/exported"
 )
 
 var _ exported.Header = Header{}
@@ -66,4 +66,3 @@ func GetHeader(ctx context.CLIContext) (res Header, err error) {
 
 	return
 }
-

@@ -6,13 +6,13 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/persistenceOne/persistenceSDK/modules/acl"
-	negotiationTypes "github.com/persistenceOne/persistenceSDK/modules/negotiation/internal/types"
-	"github.com/persistenceOne/persistenceSDK/simApp"
-	"github.com/persistenceOne/persistenceSDK/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	cKeys "github.com/cosmos/cosmos-sdk/crypto/keys"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/persistenceOne/comdexCrust/modules/acl"
+	negotiationTypes "github.com/persistenceOne/comdexCrust/modules/negotiation/internal/types"
+	"github.com/persistenceOne/comdexCrust/simApp"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 type prerequisites func()

@@ -6,22 +6,22 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	persistenceSDKContext "github.com/persistenceOne/persistenceSDK/client/context"
-	"github.com/persistenceOne/persistenceSDK/modules/auth"
-	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
-	"github.com/persistenceOne/persistenceSDK/modules/bank"
-	ibcclient "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/types/tendermint"
-	cutils "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/client/utils"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/20-transfer/types"
-	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
-	persistenceSDKTypes "github.com/persistenceOne/persistenceSDK/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	comdexCrustContext "github.com/persistenceOne/comdexCrust/client/context"
+	"github.com/persistenceOne/comdexCrust/modules/auth"
+	"github.com/persistenceOne/comdexCrust/modules/auth/client/utils"
+	"github.com/persistenceOne/comdexCrust/modules/bank"
+	ibcclient "github.com/persistenceOne/comdexCrust/modules/ibc/02-client"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/02-client/types/tendermint"
+	cutils "github.com/persistenceOne/comdexCrust/modules/ibc/04-channel/client/utils"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/20-transfer/types"
+	commitment "github.com/persistenceOne/comdexCrust/modules/ibc/23-commitment"
+	comdexCrustTypes "github.com/persistenceOne/comdexCrust/types"
 )
 
 // IBC transfer flags
@@ -104,7 +104,7 @@ func GetMsgRecvPacketCmd(cdc *codec.Codec) *cobra.Command {
 			node2 := viper.GetString(FlagNode2)
 			cid1 := viper.GetString(flags.FlagChainID)
 			cid2 := viper.GetString(FlagChainId2)
-			cliCtx2 := persistenceSDKContext.NewCLIContextIBC(cliCtx.GetFromAddress().String(), cid2, node2).WithCodec(cdc).WithBroadcastMode(flags.BroadcastBlock)
+			cliCtx2 := comdexCrustContext.NewCLIContextIBC(cliCtx.GetFromAddress().String(), cid2, node2).WithCodec(cdc).WithBroadcastMode(flags.BroadcastBlock)
 
 			header, err := tendermint.GetHeader(cliCtx2)
 			if err != nil {
@@ -122,7 +122,7 @@ func GetMsgRecvPacketCmd(cdc *codec.Codec) *cobra.Command {
 			msgUpdateClient := ibcclient.NewMsgUpdateClient(clientid, header, cliCtx.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid2, msgUpdateClient.Type())
 			res, err := utils.CompleteAndBroadcastTx(txBldr, cliCtx, []sdk.Msg{msgUpdateClient}, passphrase)
-			if err != nil || !persistenceSDKTypes.IsOK(res) {
+			if err != nil || !comdexCrustTypes.IsOK(res) {
 				fmt.Println(res)
 				return err
 			}
@@ -171,7 +171,7 @@ func GetIssueAssetTransferTxCmd(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			assetPeg := &persistenceSDKTypes.BaseAssetPeg{
+			assetPeg := &comdexCrustTypes.BaseAssetPeg{
 				AssetQuantity: viper.GetInt64(FlagAssetQuantity),
 				AssetType:     viper.GetString(FlagAssetType),
 				AssetPrice:    viper.GetInt64(FlagAssetPrice),
@@ -215,7 +215,7 @@ func GetReceiveIssueAssetPacket(cdc *codec.Codec) *cobra.Command {
 			node2 := viper.GetString(FlagNode2)
 			cid1 := viper.GetString(flags.FlagChainID)
 			cid2 := viper.GetString(FlagChainId2)
-			cliCtx2 := persistenceSDKContext.NewCLIContextIBC(cliCtx.GetFromAddress().String(), cid2, node2).WithCodec(cdc).WithBroadcastMode(flags.BroadcastBlock)
+			cliCtx2 := comdexCrustContext.NewCLIContextIBC(cliCtx.GetFromAddress().String(), cid2, node2).WithCodec(cdc).WithBroadcastMode(flags.BroadcastBlock)
 
 			header, err := tendermint.GetHeader(cliCtx2)
 			if err != nil {
@@ -233,7 +233,7 @@ func GetReceiveIssueAssetPacket(cdc *codec.Codec) *cobra.Command {
 			msgUpdateClient := ibcclient.NewMsgUpdateClient(clientid, header, cliCtx.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid2, msgUpdateClient.Type())
 			res, err := utils.CompleteAndBroadcastTx(txBldr, cliCtx, []sdk.Msg{msgUpdateClient}, passphrase)
-			if err != nil || !persistenceSDKTypes.IsOK(res) {
+			if err != nil || !comdexCrustTypes.IsOK(res) {
 				fmt.Println(res)
 				return err
 			}

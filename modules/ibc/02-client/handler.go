@@ -1,8 +1,8 @@
 package client
 
 import (
-	exported "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	exported "github.com/persistenceOne/comdexCrust/modules/ibc/02-client/exported"
 )
 
 // HandleMsgCreateClient defines the sdk.Handler for MsgCreateClient

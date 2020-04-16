@@ -3,10 +3,10 @@ package keeper
 import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/modules/auth"
-	orderTypes "github.com/persistenceOne/persistenceSDK/modules/orders/internal/types"
-	"github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/modules/auth"
+	orderTypes "github.com/persistenceOne/comdexCrust/modules/orders/internal/types"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 type Keeper struct {

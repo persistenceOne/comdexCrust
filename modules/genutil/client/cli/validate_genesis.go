@@ -10,8 +10,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/server"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/types/module"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/types/module"
 )
 
 // Validate genesis command takes

@@ -1,4 +1,4 @@
-cd %GOPATH%\src\github.com\persistenceOne\persistenceSDK
+cd %GOPATH%\src\github.com\persistenceOne\comdexCrust
 
 go mod verify
 

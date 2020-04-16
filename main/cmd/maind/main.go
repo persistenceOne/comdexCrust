@@ -16,13 +16,13 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmTypes "github.com/tendermint/tendermint/types"
 
-	"github.com/persistenceOne/persistenceSDK/main/app"
-	"github.com/persistenceOne/persistenceSDK/modules/genaccounts"
-	genAccsCli "github.com/persistenceOne/persistenceSDK/modules/genaccounts/client/cli"
-	genUtilCli "github.com/persistenceOne/persistenceSDK/modules/genutil/client/cli"
-	"github.com/persistenceOne/persistenceSDK/modules/staking"
-	"github.com/persistenceOne/persistenceSDK/server"
-	"github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/main/app"
+	"github.com/persistenceOne/comdexCrust/modules/genaccounts"
+	genAccsCli "github.com/persistenceOne/comdexCrust/modules/genaccounts/client/cli"
+	genUtilCli "github.com/persistenceOne/comdexCrust/modules/genutil/client/cli"
+	"github.com/persistenceOne/comdexCrust/modules/staking"
+	"github.com/persistenceOne/comdexCrust/server"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 const (

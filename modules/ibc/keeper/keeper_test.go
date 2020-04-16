@@ -10,15 +10,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/keeper"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/keeper"
 )
 
 type KeeperTestSuite struct {
 	suite.Suite
 
-	cdc    *codec.Codec
-	ctx    sdk.Context
-	keeper *keeper.Keeper
+	cdc     *codec.Codec
+	ctx     sdk.Context
+	keeper  *keeper.Keeper
 	querier sdk.Querier
 }
 

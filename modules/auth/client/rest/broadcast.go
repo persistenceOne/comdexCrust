@@ -7,7 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	"github.com/persistenceOne/persistenceSDK/modules/auth/types"
+	"github.com/persistenceOne/comdexCrust/modules/auth/types"
 )
 
 // BroadcastReq defines a tx broadcasting request.

@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/exported"
-	host "github.com/persistenceOne/persistenceSDK/modules/ibc/24-host"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/04-channel/exported"
+	host "github.com/persistenceOne/comdexCrust/modules/ibc/24-host"
 )
 
 var _ exported.PacketI = Packet{}

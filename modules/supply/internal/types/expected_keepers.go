@@ -3,7 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/auth/exported"
+	"github.com/persistenceOne/comdexCrust/modules/auth/exported"
 )
 
 // AccountKeeper defines the expected account keeper (noalias)

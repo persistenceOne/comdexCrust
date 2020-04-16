@@ -6,7 +6,7 @@ import (
 
 	ctypes "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 type IssueFiat struct {

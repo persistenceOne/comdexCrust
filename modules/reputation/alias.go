@@ -1,9 +1,9 @@
 package reputation
 
 import (
-	"github.com/persistenceOne/persistenceSDK/modules/reputation/internal/keeper"
-	"github.com/persistenceOne/persistenceSDK/modules/reputation/internal/types"
-	types2 "github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/modules/reputation/internal/keeper"
+	"github.com/persistenceOne/comdexCrust/modules/reputation/internal/types"
+	types2 "github.com/persistenceOne/comdexCrust/types"
 )
 
 const (

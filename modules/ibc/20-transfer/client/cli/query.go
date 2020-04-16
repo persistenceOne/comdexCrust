@@ -7,12 +7,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	persistenceSDKContext "github.com/persistenceOne/persistenceSDK/client/context"
-	persistenceSDKFlags "github.com/persistenceOne/persistenceSDK/client/flags"
-	channel "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/version"
+	comdexCrustContext "github.com/persistenceOne/comdexCrust/client/context"
+	comdexCrustFlags "github.com/persistenceOne/comdexCrust/client/flags"
+	channel "github.com/persistenceOne/comdexCrust/modules/ibc/04-channel"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -53,17 +53,17 @@ $ %s query ibc channel next-recv [port-id] [channel-id]
 				Prove: true,
 			}
 
-			res, err := persistenceSDKContext.QueryABCI(cliCtx, req)
+			res, err := comdexCrustContext.QueryABCI(cliCtx, req)
 			if err != nil {
 				return err
 			}
 
 			sequence := binary.BigEndian.Uint64(res.Value)
 
-			return persistenceSDKContext.PrintOutput(cliCtx, sequence)
+			return comdexCrustContext.PrintOutput(cliCtx, sequence)
 		},
 	}
-	cmd.Flags().Bool(persistenceSDKFlags.FlagProve, true, "show proofs for the query results")
+	cmd.Flags().Bool(comdexCrustFlags.FlagProve, true, "show proofs for the query results")
 
 	return cmd
 }

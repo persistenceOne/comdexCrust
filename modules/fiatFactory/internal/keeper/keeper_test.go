@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/persistenceOne/persistenceSDK/simApp"
-	"github.com/persistenceOne/persistenceSDK/types"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/persistenceOne/comdexCrust/simApp"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 type prerequisites func()

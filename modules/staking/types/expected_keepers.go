@@ -3,10 +3,10 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/auth"
-	stakingexported "github.com/persistenceOne/persistenceSDK/modules/staking/exported"
-	"github.com/persistenceOne/persistenceSDK/modules/supply"
-	supplyexported "github.com/persistenceOne/persistenceSDK/modules/supply/exported"
+	"github.com/persistenceOne/comdexCrust/modules/auth"
+	stakingexported "github.com/persistenceOne/comdexCrust/modules/staking/exported"
+	"github.com/persistenceOne/comdexCrust/modules/supply"
+	supplyexported "github.com/persistenceOne/comdexCrust/modules/supply/exported"
 )
 
 // DistributionKeeper expected distribution keeper (noalias)

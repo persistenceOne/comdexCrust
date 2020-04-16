@@ -3,8 +3,8 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/staking/types"
-	"github.com/persistenceOne/persistenceSDK/modules/supply/exported"
+	"github.com/persistenceOne/comdexCrust/modules/staking/types"
+	"github.com/persistenceOne/comdexCrust/modules/supply/exported"
 )
 
 // GetBondedPool returns the bonded tokens pool's module account

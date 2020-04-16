@@ -4,11 +4,11 @@ import (
 	"reflect"
 	"testing"
 
-	aclTypes "github.com/persistenceOne/persistenceSDK/modules/acl/internal/types"
-	"github.com/persistenceOne/persistenceSDK/modules/auth"
-	"github.com/persistenceOne/persistenceSDK/modules/auth/exported"
-	"github.com/persistenceOne/persistenceSDK/simApp"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
+	aclTypes "github.com/persistenceOne/comdexCrust/modules/acl/internal/types"
+	"github.com/persistenceOne/comdexCrust/modules/auth"
+	"github.com/persistenceOne/comdexCrust/modules/auth/exported"
+	"github.com/persistenceOne/comdexCrust/simApp"
 )
 
 type prerequiste func()

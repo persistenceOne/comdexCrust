@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 
-	ibctypes "github.com/persistenceOne/persistenceSDK/modules/ibc/types"
+	ibctypes "github.com/persistenceOne/comdexCrust/modules/ibc/types"
 )
 
 // IBC connection events

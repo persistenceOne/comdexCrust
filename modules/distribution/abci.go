@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/distribution/keeper"
+	"github.com/persistenceOne/comdexCrust/modules/distribution/keeper"
 )
 
 // set the proposer for determining distribution during endblock

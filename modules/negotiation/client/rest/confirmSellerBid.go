@@ -10,11 +10,11 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	rest2 "github.com/persistenceOne/persistenceSDK/client/rest"
-	"github.com/persistenceOne/persistenceSDK/kafka"
-	"github.com/persistenceOne/persistenceSDK/modules/acl"
-	negotiationTypes "github.com/persistenceOne/persistenceSDK/modules/negotiation/internal/types"
-	"github.com/persistenceOne/persistenceSDK/types"
+	rest2 "github.com/persistenceOne/comdexCrust/client/rest"
+	"github.com/persistenceOne/comdexCrust/kafka"
+	"github.com/persistenceOne/comdexCrust/modules/acl"
+	negotiationTypes "github.com/persistenceOne/comdexCrust/modules/negotiation/internal/types"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 type confirmSellerBidReq struct {

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/persistenceOne/persistenceSDK/modules/bank"
-	"github.com/persistenceOne/persistenceSDK/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/persistenceOne/comdexCrust/modules/bank"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 // PacketData defines a struct for the packet payload

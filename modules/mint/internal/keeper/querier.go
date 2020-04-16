@@ -7,9 +7,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 
-	"github.com/persistenceOne/persistenceSDK/modules/mint/internal/types"
+	"github.com/persistenceOne/comdexCrust/modules/mint/internal/types"
 )
 
 // NewQuerier returns a minting Querier handler.

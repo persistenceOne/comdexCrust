@@ -9,12 +9,12 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	rest2 "github.com/persistenceOne/persistenceSDK/client/rest"
-	"github.com/persistenceOne/persistenceSDK/kafka"
-	"github.com/persistenceOne/persistenceSDK/modules/acl"
-	"github.com/persistenceOne/persistenceSDK/modules/bank/client"
-	bankTypes "github.com/persistenceOne/persistenceSDK/modules/bank/internal/types"
-	"github.com/persistenceOne/persistenceSDK/types"
+	rest2 "github.com/persistenceOne/comdexCrust/client/rest"
+	"github.com/persistenceOne/comdexCrust/kafka"
+	"github.com/persistenceOne/comdexCrust/modules/acl"
+	"github.com/persistenceOne/comdexCrust/modules/bank/client"
+	bankTypes "github.com/persistenceOne/comdexCrust/modules/bank/internal/types"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 type SendFiatReq struct {

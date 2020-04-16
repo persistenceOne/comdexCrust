@@ -1,8 +1,8 @@
 package fiatFactory
 
 import (
-	"github.com/persistenceOne/persistenceSDK/modules/fiatFactory/internal/keeper"
-	"github.com/persistenceOne/persistenceSDK/modules/fiatFactory/internal/types"
+	"github.com/persistenceOne/comdexCrust/modules/fiatFactory/internal/keeper"
+	"github.com/persistenceOne/comdexCrust/modules/fiatFactory/internal/types"
 )
 
 const (

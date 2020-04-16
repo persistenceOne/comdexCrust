@@ -3,7 +3,7 @@ package genaccounts
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/auth"
+	"github.com/persistenceOne/comdexCrust/modules/auth"
 )
 
 // export genesis for all accounts

@@ -6,8 +6,8 @@ import (
 
 	"github.com/tendermint/tendermint/crypto/merkle"
 
-	host "github.com/persistenceOne/persistenceSDK/modules/ibc/24-host"
 	"github.com/cosmos/cosmos-sdk/store/rootmulti"
+	host "github.com/persistenceOne/comdexCrust/modules/ibc/24-host"
 )
 
 // ICS 023 Merkle Types Implementation

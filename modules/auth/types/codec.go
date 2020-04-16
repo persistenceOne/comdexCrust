@@ -1,8 +1,8 @@
 package types
 
 import (
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/modules/auth/exported"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/modules/auth/exported"
 )
 
 // RegisterCodec registers concrete types on the codec

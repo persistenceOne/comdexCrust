@@ -8,8 +8,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/staking/exported"
-	"github.com/persistenceOne/persistenceSDK/modules/staking/types"
+	"github.com/persistenceOne/comdexCrust/modules/staking/exported"
+	"github.com/persistenceOne/comdexCrust/modules/staking/types"
 )
 
 // InitGenesis sets the pool and parameters for the provided keeper.  For each

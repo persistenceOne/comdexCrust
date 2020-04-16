@@ -6,12 +6,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	persistenceSDKContext "github.com/persistenceOne/persistenceSDK/client/context"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/client/utils"
 	cli "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/version"
+	comdexCrustContext "github.com/persistenceOne/comdexCrust/client/context"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/04-channel/client/utils"
 )
 
 // GetQueryCmd returns the query commands for IBC channels
@@ -49,7 +49,7 @@ $ %s query ibc channel end [port-id] [channel-id]
 				return err
 			}
 
-			return persistenceSDKContext.PrintOutput(cliCtx, ch)
+			return comdexCrustContext.PrintOutput(cliCtx, ch)
 		},
 	}
 	return cmd

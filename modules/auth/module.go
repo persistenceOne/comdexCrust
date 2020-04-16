@@ -10,13 +10,13 @@ import (
 
 	abciTypes "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/kafka"
-	"github.com/persistenceOne/persistenceSDK/types/module"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/kafka"
+	"github.com/persistenceOne/comdexCrust/types/module"
 
-	"github.com/persistenceOne/persistenceSDK/modules/auth/client/cli"
-	"github.com/persistenceOne/persistenceSDK/modules/auth/client/rest"
-	"github.com/persistenceOne/persistenceSDK/modules/auth/types"
+	"github.com/persistenceOne/comdexCrust/modules/auth/client/cli"
+	"github.com/persistenceOne/comdexCrust/modules/auth/client/rest"
+	"github.com/persistenceOne/comdexCrust/modules/auth/types"
 )
 
 var (

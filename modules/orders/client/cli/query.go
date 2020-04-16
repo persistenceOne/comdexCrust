@@ -7,9 +7,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/modules/orders/internal/types"
-	types2 "github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/modules/orders/internal/types"
+	types2 "github.com/persistenceOne/comdexCrust/types"
 )
 
 func GetOrderCmd(cdc *codec.Codec) *cobra.Command {

@@ -6,7 +6,7 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibctypes "github.com/persistenceOne/persistenceSDK/modules/ibc/types"
+	ibctypes "github.com/persistenceOne/comdexCrust/modules/ibc/types"
 )
 
 const (

@@ -5,13 +5,13 @@ import (
 	"errors"
 	"fmt"
 
-	client "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client"
-	connection "github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/exported"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/types"
-	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
-	persistenceSDKTypes "github.com/persistenceOne/persistenceSDK/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	client "github.com/persistenceOne/comdexCrust/modules/ibc/02-client"
+	connection "github.com/persistenceOne/comdexCrust/modules/ibc/03-connection"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/04-channel/exported"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/04-channel/types"
+	commitment "github.com/persistenceOne/comdexCrust/modules/ibc/23-commitment"
+	comdexCrustTypes "github.com/persistenceOne/comdexCrust/types"
 )
 
 // CleanupPacket is called by a module to remove a received packet commitment
@@ -31,7 +31,7 @@ func (k Keeper) CleanupPacket(
 	proofHeight,
 	nextSequenceRecv uint64,
 	acknowledgement []byte,
-	portCapability persistenceSDKTypes.CapabilityKey,
+	portCapability comdexCrustTypes.CapabilityKey,
 ) (exported.PacketI, error) {
 	channel, found := k.GetChannel(ctx, packet.GetSourcePort(), packet.GetSourceChannel())
 	if !found {
@@ -117,7 +117,7 @@ func (k Keeper) CleanupPacket(
 func (k Keeper) SendPacket(
 	ctx sdk.Context,
 	packet exported.PacketI,
-	portCapability persistenceSDKTypes.CapabilityKey,
+	portCapability comdexCrustTypes.CapabilityKey,
 ) error {
 	if err := packet.ValidateBasic(); err != nil {
 		return err
@@ -204,7 +204,7 @@ func (k Keeper) RecvPacket(
 	proof commitment.ProofI,
 	proofHeight uint64,
 	acknowledgement []byte,
-	portCapability persistenceSDKTypes.CapabilityKey,
+	portCapability comdexCrustTypes.CapabilityKey,
 ) (exported.PacketI, error) {
 
 	channel, found := k.GetChannel(ctx, packet.GetDestPort(), packet.GetDestChannel())
@@ -304,7 +304,7 @@ func (k Keeper) AcknowledgePacket(
 	acknowledgement []byte,
 	proof commitment.ProofI,
 	proofHeight uint64,
-	portCapability persistenceSDKTypes.CapabilityKey,
+	portCapability comdexCrustTypes.CapabilityKey,
 ) (exported.PacketI, error) {
 	channel, found := k.GetChannel(ctx, packet.GetSourcePort(), packet.GetSourceChannel())
 	if !found {

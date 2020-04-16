@@ -6,13 +6,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/persistenceOne/persistenceSDK/modules/acl"
-	"github.com/persistenceOne/persistenceSDK/modules/auth"
-	"github.com/persistenceOne/persistenceSDK/modules/auth/exported"
-	bankTypes "github.com/persistenceOne/persistenceSDK/modules/bank/internal/types"
-	"github.com/persistenceOne/persistenceSDK/simApp"
-	"github.com/persistenceOne/persistenceSDK/types"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/persistenceOne/comdexCrust/modules/acl"
+	"github.com/persistenceOne/comdexCrust/modules/auth"
+	"github.com/persistenceOne/comdexCrust/modules/auth/exported"
+	bankTypes "github.com/persistenceOne/comdexCrust/modules/bank/internal/types"
+	"github.com/persistenceOne/comdexCrust/simApp"
+	"github.com/persistenceOne/comdexCrust/types"
 	tmtime "github.com/tendermint/tendermint/types/time"
 )
 

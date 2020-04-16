@@ -7,10 +7,10 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/modules/auth/exported"
-	"github.com/persistenceOne/persistenceSDK/modules/auth/types"
-	"github.com/persistenceOne/persistenceSDK/modules/params/subspace"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/modules/auth/exported"
+	"github.com/persistenceOne/comdexCrust/modules/auth/types"
+	"github.com/persistenceOne/comdexCrust/modules/params/subspace"
 )
 
 // AccountKeeper encodes/decodes accounts using the go-amino (binary)

@@ -5,11 +5,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
-	ibcclient "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client"
-	connection "github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection"
-	channel "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel"
-	transfer "github.com/persistenceOne/persistenceSDK/modules/ibc/20-transfer/client/cli"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/types"
+	ibcclient "github.com/persistenceOne/comdexCrust/modules/ibc/02-client"
+	connection "github.com/persistenceOne/comdexCrust/modules/ibc/03-connection"
+	channel "github.com/persistenceOne/comdexCrust/modules/ibc/04-channel"
+	transfer "github.com/persistenceOne/comdexCrust/modules/ibc/20-transfer/client/cli"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/types"
 )
 
 // GetTxCmd returns the transaction commands for this module

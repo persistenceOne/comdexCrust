@@ -3,7 +3,7 @@ package kafka
 import (
 	"github.com/Shopify/sarama"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 )
 
 // NewConsumer : is a consumer which is needed to create child consumers to consume topics

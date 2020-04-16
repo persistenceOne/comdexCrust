@@ -1,9 +1,9 @@
 package types
 
 import (
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 
-	"github.com/persistenceOne/persistenceSDK/modules/supply/exported"
+	"github.com/persistenceOne/comdexCrust/modules/supply/exported"
 )
 
 // RegisterCodec registers the account types and interface

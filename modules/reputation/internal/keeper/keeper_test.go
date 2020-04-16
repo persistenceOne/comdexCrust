@@ -4,10 +4,10 @@ import (
 	"reflect"
 	"testing"
 
-	reputationTypes "github.com/persistenceOne/persistenceSDK/modules/reputation/internal/types"
-	"github.com/persistenceOne/persistenceSDK/simApp"
-	"github.com/persistenceOne/persistenceSDK/types"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
+	reputationTypes "github.com/persistenceOne/comdexCrust/modules/reputation/internal/types"
+	"github.com/persistenceOne/comdexCrust/simApp"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 type prerequisites func()

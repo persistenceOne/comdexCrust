@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	connection "github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/types"
-	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
+	connection "github.com/persistenceOne/comdexCrust/modules/ibc/03-connection"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/04-channel/types"
+	commitment "github.com/persistenceOne/comdexCrust/modules/ibc/23-commitment"
 )
 
 // CounterpartyHops returns the connection hops of the counterparty channel.

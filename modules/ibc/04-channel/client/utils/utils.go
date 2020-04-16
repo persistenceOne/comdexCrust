@@ -4,8 +4,8 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	persistenceSDKContext "github.com/persistenceOne/persistenceSDK/client/context"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/types"
+	comdexCrustContext "github.com/persistenceOne/comdexCrust/client/context"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/04-channel/types"
 )
 
 func QueryPacket(ctx client.CLIContext, portID, channelID string, sequence uint64, timeout uint64, queryRoute string) (types.PacketResponse, error) {
@@ -17,7 +17,7 @@ func QueryPacket(ctx client.CLIContext, portID, channelID string, sequence uint6
 		Prove: true,
 	}
 
-	res, err := persistenceSDKContext.QueryABCI(ctx, req)
+	res, err := comdexCrustContext.QueryABCI(ctx, req)
 	if err != nil {
 		return packetRes, err
 	}
@@ -53,7 +53,7 @@ func QueryChannel(ctx client.CLIContext, portID string, channelID string, queryR
 		Prove: true,
 	}
 
-	res, err := persistenceSDKContext.QueryABCI(ctx, req)
+	res, err := comdexCrustContext.QueryABCI(ctx, req)
 	if res.Value == nil || err != nil {
 		return connRes, err
 	}

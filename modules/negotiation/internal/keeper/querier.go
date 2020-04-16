@@ -6,9 +6,9 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	abciTypes "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	negotiationTypes "github.com/persistenceOne/persistenceSDK/modules/negotiation/internal/types"
-	"github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/codec"
+	negotiationTypes "github.com/persistenceOne/comdexCrust/modules/negotiation/internal/types"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 const (

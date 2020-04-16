@@ -6,11 +6,11 @@ import (
 
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/types"
-	ibctypes "github.com/persistenceOne/persistenceSDK/modules/ibc/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/04-channel/types"
+	ibctypes "github.com/persistenceOne/comdexCrust/modules/ibc/types"
 )
 
 // Keeper defines the IBC channel keeper

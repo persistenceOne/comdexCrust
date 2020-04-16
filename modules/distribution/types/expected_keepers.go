@@ -3,9 +3,9 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/staking"
-	stakingexported "github.com/persistenceOne/persistenceSDK/modules/staking/exported"
-	supplyexported "github.com/persistenceOne/persistenceSDK/modules/supply/exported"
+	"github.com/persistenceOne/comdexCrust/modules/staking"
+	stakingexported "github.com/persistenceOne/comdexCrust/modules/staking/exported"
+	supplyexported "github.com/persistenceOne/comdexCrust/modules/supply/exported"
 )
 
 // StakingKeeper expected staking keeper (noalias)

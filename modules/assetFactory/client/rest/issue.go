@@ -7,9 +7,9 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	rest2 "github.com/persistenceOne/persistenceSDK/client/rest"
-	assetFactoryTypes "github.com/persistenceOne/persistenceSDK/modules/assetFactory/internal/types"
-	"github.com/persistenceOne/persistenceSDK/types"
+	rest2 "github.com/persistenceOne/comdexCrust/client/rest"
+	assetFactoryTypes "github.com/persistenceOne/comdexCrust/modules/assetFactory/internal/types"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 type issueAssetReq struct {

@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	persistenceSDKContext "github.com/persistenceOne/persistenceSDK/client/context"
+	comdexCrustContext "github.com/persistenceOne/comdexCrust/client/context"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -18,14 +18,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	persistenceSDKFlags "github.com/persistenceOne/persistenceSDK/client/flags"
-	"github.com/persistenceOne/persistenceSDK/modules/auth"
-	"github.com/persistenceOne/persistenceSDK/modules/auth/client/utils"
-	ibcclient "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/types"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/types/tendermint"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection/types"
-	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
-	persistenceSDKTypes "github.com/persistenceOne/persistenceSDK/types"
+	comdexCrustFlags "github.com/persistenceOne/comdexCrust/client/flags"
+	"github.com/persistenceOne/comdexCrust/modules/auth"
+	"github.com/persistenceOne/comdexCrust/modules/auth/client/utils"
+	ibcclient "github.com/persistenceOne/comdexCrust/modules/ibc/02-client/types"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/02-client/types/tendermint"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/03-connection/types"
+	commitment "github.com/persistenceOne/comdexCrust/modules/ibc/23-commitment"
+	comdexCrustTypes "github.com/persistenceOne/comdexCrust/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -285,7 +285,7 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			viper.Set(persistenceSDKFlags.FlagProve, true)
+			viper.Set(comdexCrustFlags.FlagProve, true)
 
 			// --chain-id values for each chain
 			cid1 := viper.GetString(flags.FlagChainID)
@@ -313,13 +313,13 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 			// Create txbldr, clictx, querier for cid1
 			viper.Set(flags.FlagChainID, cid1)
 			txBldr1 := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-			ctx1 := persistenceSDKContext.NewCLIContextIBC(from1, cid1, rpc1).WithCodec(cdc).
+			ctx1 := comdexCrustContext.NewCLIContextIBC(from1, cid1, rpc1).WithCodec(cdc).
 				WithBroadcastMode(flags.BroadcastBlock)
 
 			// Create txbldr, clictx, querier for cid1
 			viper.Set(flags.FlagChainID, cid2)
 			txBldr2 := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-			ctx2 := persistenceSDKContext.NewCLIContextIBC(from2, cid2, rpc2).WithCodec(cdc).
+			ctx2 := comdexCrustContext.NewCLIContextIBC(from2, cid2, rpc2).WithCodec(cdc).
 				WithBroadcastMode(flags.BroadcastBlock)
 
 			// read in path for cid1
@@ -354,7 +354,7 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 
 			fmt.Printf("%v <- %-23v", cid1, msgOpenInit.Type())
 			res, err := utils.CompleteAndBroadcastTx(txBldr1, ctx1, []sdk.Msg{msgOpenInit}, passphrase1)
-			if err != nil || !persistenceSDKTypes.IsOK(res) {
+			if err != nil || !comdexCrustTypes.IsOK(res) {
 				return err
 			}
 
@@ -376,7 +376,7 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 			msgUpdateClient := ibcclient.NewMsgUpdateClient(clientID2, header, ctx2.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid2, msgUpdateClient.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr2, ctx2, []sdk.Msg{msgUpdateClient}, passphrase2)
-			if err != nil || !persistenceSDKTypes.IsOK(res) {
+			if err != nil || !comdexCrustTypes.IsOK(res) {
 				return err
 			}
 			fmt.Printf(" [OK] txid(%v) client(%v)\n", res.TxHash, clientID1)
@@ -399,7 +399,7 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 
 			fmt.Printf("%v <- %-23v", cid2, msgOpenTry.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr2, ctx2, []sdk.Msg{msgOpenTry}, passphrase2)
-			if err != nil || !persistenceSDKTypes.IsOK(res) {
+			if err != nil || !comdexCrustTypes.IsOK(res) {
 				return err
 			}
 
@@ -421,7 +421,7 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 			msgUpdateClient = ibcclient.NewMsgUpdateClient(clientID1, header, ctx1.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid1, msgUpdateClient.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr1, ctx1, []sdk.Msg{msgUpdateClient}, passphrase1)
-			if err != nil || !persistenceSDKTypes.IsOK(res) {
+			if err != nil || !comdexCrustTypes.IsOK(res) {
 				return err
 			}
 			fmt.Printf(" [OK] txid(%v) client(%v)\n", res.TxHash, clientID2)
@@ -443,7 +443,7 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 			msgOpenAck := types.NewMsgConnectionOpenAck(connID1, proofs.Proof, csProof.Proof, uint64(header.Height), uint64(header.Height), version, ctx1.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid1, msgOpenAck.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr1, ctx1, []sdk.Msg{msgOpenAck}, passphrase1)
-			if err != nil || !persistenceSDKTypes.IsOK(res) {
+			if err != nil || !comdexCrustTypes.IsOK(res) {
 				return err
 			}
 			fmt.Printf(" [OK] txid(%v) connection(%v)\n", res.TxHash, connID1)
@@ -464,7 +464,7 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 			msgUpdateClient = ibcclient.NewMsgUpdateClient(clientID2, header, ctx2.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid2, msgUpdateClient.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr2, ctx2, []sdk.Msg{msgUpdateClient}, passphrase2)
-			if err != nil || !persistenceSDKTypes.IsOK(res) {
+			if err != nil || !comdexCrustTypes.IsOK(res) {
 				return err
 			}
 			fmt.Printf(" [OK] txid(%v) client(%v)\n", res.TxHash, clientID1)
@@ -481,7 +481,7 @@ func GetCmdHandshakeState(storeKey string, cdc *codec.Codec) *cobra.Command {
 			msgOpenConfirm := types.NewMsgConnectionOpenConfirm(connID2, proofs.Proof, uint64(header.Height), ctx2.GetFromAddress())
 			fmt.Printf("%v <- %-23v", cid1, msgOpenConfirm.Type())
 			res, err = utils.CompleteAndBroadcastTx(txBldr2, ctx2, []sdk.Msg{msgOpenConfirm}, passphrase2)
-			if err != nil || !persistenceSDKTypes.IsOK(res) {
+			if err != nil || !comdexCrustTypes.IsOK(res) {
 				return err
 			}
 			fmt.Printf(" [OK] txid(%v) connection(%v)\n", res.TxHash, connID2)
@@ -514,7 +514,7 @@ func queryProofs(ctx client.CLIContext, connectionID string, queryRoute string) 
 		Data:  []byte(fmt.Sprintf("connections/%s", connectionID)),
 		Prove: true,
 	}
-	res, err := persistenceSDKContext.QueryABCI(ctx, req)
+	res, err := comdexCrustContext.QueryABCI(ctx, req)
 	if err != nil {
 		return connRes, err
 	}
@@ -533,7 +533,7 @@ func queryConsensusStateProof(ctx client.CLIContext, clientID string) (ibcclient
 		Data:  []byte(fmt.Sprintf("clients/%s/consensusState", clientID)),
 		Prove: true,
 	}
-	res, err := persistenceSDKContext.QueryABCI(ctx, req)
+	res, err := comdexCrustContext.QueryABCI(ctx, req)
 	if err != nil {
 		return csRes, err
 	}

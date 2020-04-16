@@ -3,8 +3,8 @@ package slashing
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/slashing/types"
-	"github.com/persistenceOne/persistenceSDK/modules/staking/exported"
+	"github.com/persistenceOne/comdexCrust/modules/slashing/types"
+	"github.com/persistenceOne/comdexCrust/modules/staking/exported"
 )
 
 // InitGenesis initialize default parameters

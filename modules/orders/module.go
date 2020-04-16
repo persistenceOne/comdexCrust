@@ -10,11 +10,11 @@ import (
 	"github.com/spf13/cobra"
 	abciTypes "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/kafka"
-	"github.com/persistenceOne/persistenceSDK/modules/orders/client/cli"
-	"github.com/persistenceOne/persistenceSDK/modules/orders/client/rest"
-	"github.com/persistenceOne/persistenceSDK/types/module"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/kafka"
+	"github.com/persistenceOne/comdexCrust/modules/orders/client/cli"
+	"github.com/persistenceOne/comdexCrust/modules/orders/client/rest"
+	"github.com/persistenceOne/comdexCrust/types/module"
 )
 
 var (

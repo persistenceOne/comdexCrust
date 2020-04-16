@@ -3,7 +3,7 @@ package genaccounts
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 )
 
 // initialize accounts and deliver genesis transactions

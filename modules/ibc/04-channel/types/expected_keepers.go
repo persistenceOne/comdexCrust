@@ -1,11 +1,11 @@
 package types
 
 import (
-	clientexported "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
-	connection "github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection"
-	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
-	persistenceSDKTypes "github.com/persistenceOne/persistenceSDK/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	clientexported "github.com/persistenceOne/comdexCrust/modules/ibc/02-client/exported"
+	connection "github.com/persistenceOne/comdexCrust/modules/ibc/03-connection"
+	commitment "github.com/persistenceOne/comdexCrust/modules/ibc/23-commitment"
+	comdexCrustTypes "github.com/persistenceOne/comdexCrust/types"
 )
 
 // ClientKeeper expected account IBC client keeper
@@ -28,5 +28,5 @@ type ConnectionKeeper interface {
 
 // PortKeeper expected account IBC port keeper
 type PortKeeper interface {
-	Authenticate(key persistenceSDKTypes.CapabilityKey, portID string) bool
+	Authenticate(key comdexCrustTypes.CapabilityKey, portID string) bool
 }

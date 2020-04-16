@@ -5,9 +5,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 
-	"github.com/persistenceOne/persistenceSDK/modules/gov/client/rest"
+	"github.com/persistenceOne/comdexCrust/modules/gov/client/rest"
 )
 
 // function to create the rest handler

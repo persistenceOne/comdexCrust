@@ -8,8 +8,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/crisis/internal/types"
-	"github.com/persistenceOne/persistenceSDK/modules/params"
+	"github.com/persistenceOne/comdexCrust/modules/crisis/internal/types"
+	"github.com/persistenceOne/comdexCrust/modules/params"
 )
 
 // Keeper - crisis keeper

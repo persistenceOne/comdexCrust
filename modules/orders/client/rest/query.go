@@ -8,10 +8,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 
-	rest2 "github.com/persistenceOne/persistenceSDK/client/rest"
-	"github.com/persistenceOne/persistenceSDK/modules/orders/internal/keeper"
-	orderTypes "github.com/persistenceOne/persistenceSDK/modules/orders/internal/types"
-	"github.com/persistenceOne/persistenceSDK/types"
+	rest2 "github.com/persistenceOne/comdexCrust/client/rest"
+	"github.com/persistenceOne/comdexCrust/modules/orders/internal/keeper"
+	orderTypes "github.com/persistenceOne/comdexCrust/modules/orders/internal/types"
+	"github.com/persistenceOne/comdexCrust/types"
 )
 
 func QueryOrderRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {

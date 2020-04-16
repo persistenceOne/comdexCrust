@@ -8,7 +8,7 @@ import (
 
 	dbm "github.com/tendermint/tendermint/libs/db"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 )
 
 // SetTicketIDtoDB : initiates ticketid in Database

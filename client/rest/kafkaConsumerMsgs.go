@@ -8,7 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 
-	"github.com/persistenceOne/persistenceSDK/kafka"
+	"github.com/persistenceOne/comdexCrust/kafka"
 )
 
 // KafkaConsumerMsgs : msgs to consume 5 second delay

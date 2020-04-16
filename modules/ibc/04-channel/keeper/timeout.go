@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 
-	connection "github.com/persistenceOne/persistenceSDK/modules/ibc/03-connection"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/exported"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/types"
-	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
-	persistenceSDKTypes "github.com/persistenceOne/persistenceSDK/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	connection "github.com/persistenceOne/comdexCrust/modules/ibc/03-connection"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/04-channel/exported"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/04-channel/types"
+	commitment "github.com/persistenceOne/comdexCrust/modules/ibc/23-commitment"
+	comdexCrustTypes "github.com/persistenceOne/comdexCrust/types"
 )
 
 // TimeoutPacket is called by a module which originally attempted to send a
@@ -24,7 +24,7 @@ func (k Keeper) TimeoutPacket(
 	proof commitment.ProofI,
 	proofHeight uint64,
 	nextSequenceRecv uint64,
-	portCapability persistenceSDKTypes.CapabilityKey,
+	portCapability comdexCrustTypes.CapabilityKey,
 ) (exported.PacketI, error) {
 	channel, found := k.GetChannel(ctx, packet.GetSourcePort(), packet.GetSourceChannel())
 	if !found {
@@ -119,7 +119,7 @@ func (k Keeper) TimeoutOnClose(
 	proofNonMembership,
 	proofClosed commitment.ProofI,
 	proofHeight uint64,
-	portCapability persistenceSDKTypes.CapabilityKey,
+	portCapability comdexCrustTypes.CapabilityKey,
 ) (exported.PacketI, error) {
 	channel, found := k.GetChannel(ctx, packet.GetSourcePort(), packet.GetSourceChannel())
 	if !found {

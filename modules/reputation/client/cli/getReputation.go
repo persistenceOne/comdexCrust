@@ -7,10 +7,10 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
-	"github.com/persistenceOne/persistenceSDK/modules/reputation/internal/keeper"
-	"github.com/persistenceOne/persistenceSDK/modules/reputation/internal/types"
-	types2 "github.com/persistenceOne/persistenceSDK/types"
+	"github.com/persistenceOne/comdexCrust/codec"
+	"github.com/persistenceOne/comdexCrust/modules/reputation/internal/keeper"
+	"github.com/persistenceOne/comdexCrust/modules/reputation/internal/types"
+	types2 "github.com/persistenceOne/comdexCrust/types"
 )
 
 func GetReputationCmd(cdc *codec.Codec) *cobra.Command {

@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/persistenceOne/persistenceSDK/modules/bank"
-	channelexported "github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/exported"
-	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
-	host "github.com/persistenceOne/persistenceSDK/modules/ibc/24-host"
-	ibctypes "github.com/persistenceOne/persistenceSDK/modules/ibc/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/persistenceOne/comdexCrust/modules/bank"
+	channelexported "github.com/persistenceOne/comdexCrust/modules/ibc/04-channel/exported"
+	commitment "github.com/persistenceOne/comdexCrust/modules/ibc/23-commitment"
+	host "github.com/persistenceOne/comdexCrust/modules/ibc/24-host"
+	ibctypes "github.com/persistenceOne/comdexCrust/modules/ibc/types"
 )
 
 type MsgTransfer struct {

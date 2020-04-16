@@ -12,10 +12,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 
-	"github.com/persistenceOne/persistenceSDK/modules/distribution/client/common"
-	"github.com/persistenceOne/persistenceSDK/modules/distribution/types"
+	"github.com/persistenceOne/comdexCrust/modules/distribution/client/common"
+	"github.com/persistenceOne/comdexCrust/modules/distribution/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module

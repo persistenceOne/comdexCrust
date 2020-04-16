@@ -8,10 +8,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 
-	"github.com/persistenceOne/persistenceSDK/modules/distribution/types"
-	"github.com/persistenceOne/persistenceSDK/modules/staking/exported"
+	"github.com/persistenceOne/comdexCrust/modules/distribution/types"
+	"github.com/persistenceOne/comdexCrust/modules/staking/exported"
 )
 
 func NewQuerier(k Keeper) sdk.Querier {

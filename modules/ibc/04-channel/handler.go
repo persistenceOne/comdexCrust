@@ -1,9 +1,9 @@
 package channel
 
 import (
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/keeper"
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/04-channel/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/04-channel/keeper"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/04-channel/types"
 )
 
 // HandleMsgChannelOpenInit defines the sdk.Handler for MsgChannelOpenInit

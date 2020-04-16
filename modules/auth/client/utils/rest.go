@@ -9,7 +9,7 @@ import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	"github.com/persistenceOne/persistenceSDK/modules/auth/types"
+	"github.com/persistenceOne/comdexCrust/modules/auth/types"
 )
 
 // WriteGenerateStdTxResponse writes response for the generate only mode.

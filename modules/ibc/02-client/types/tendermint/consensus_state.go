@@ -7,8 +7,8 @@ import (
 	lerr "github.com/tendermint/tendermint/lite/errors"
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	"github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/exported"
-	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
+	"github.com/persistenceOne/comdexCrust/modules/ibc/02-client/exported"
+	commitment "github.com/persistenceOne/comdexCrust/modules/ibc/23-commitment"
 )
 
 var _ exported.ConsensusState = ConsensusState{}

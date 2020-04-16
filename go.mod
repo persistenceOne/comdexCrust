@@ -1,4 +1,4 @@
-module github.com/persistenceOne/persistenceSDK
+module github.com/persistenceOne/comdexCrust
 
 go 1.12
 

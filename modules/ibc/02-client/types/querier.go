@@ -3,8 +3,8 @@ package types
 import (
 	"strings"
 
-	tmtypes "github.com/persistenceOne/persistenceSDK/modules/ibc/02-client/types/tendermint"
-	commitment "github.com/persistenceOne/persistenceSDK/modules/ibc/23-commitment"
+	tmtypes "github.com/persistenceOne/comdexCrust/modules/ibc/02-client/types/tendermint"
+	commitment "github.com/persistenceOne/comdexCrust/modules/ibc/23-commitment"
 	"github.com/tendermint/tendermint/crypto/merkle"
 )
 

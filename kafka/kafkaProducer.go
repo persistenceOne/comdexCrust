@@ -3,7 +3,7 @@ package kafka
 import (
 	"github.com/Shopify/sarama"
 
-	"github.com/persistenceOne/persistenceSDK/codec"
+	"github.com/persistenceOne/comdexCrust/codec"
 )
 
 // NewProducer is a producer to send messages to kafka
