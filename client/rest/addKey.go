@@ -12,10 +12,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 )
 
-const (
-	mnemonicEntropySize = 256
-)
-
 type NewKeyBody struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
