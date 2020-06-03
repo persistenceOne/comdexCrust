@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"encoding/json"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"net/http"
 
@@ -22,19 +21,7 @@ func BroadcastRest(cliCtx context.CLIContext, cdc *codec.Codec, stdTx auth.StdTx
 
 	res, err := cliCtx.BroadcastTx(txBytes)
 	if err != nil {
-		var abci []cTypes.ABCIMessageLog
-		_err := json.Unmarshal([]byte(err.Error()), &abci)
-		if _err != nil {
-			panic(_err)
-		}
-
-		var _log Log
-		_err = json.Unmarshal([]byte(abci[0].Log), &_log)
-		if _err != nil {
-			panic(_err)
-		}
-
-		return nil, cTypes.NewError(DefaultCodeSpace, http.StatusInternalServerError, _log.Message)
+		return nil, cTypes.NewError(DefaultCodeSpace, http.StatusInternalServerError, err.Error())
 	}
 
 	return PostProcessResponse(cliCtx, res)

@@ -54,5 +54,5 @@ func populateAccountFromState(
 		return txBldr, err
 	}
 
-	return txBldr.WithAccountNumber(num).WithSequence(seq), nil
+	return txBldr.WithAccountNumber(num).WithSequence(seq + txBldr.Sequence()), nil
 }
