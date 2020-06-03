@@ -1,15 +1,15 @@
 #!/bin/bash
 
-if [ -d "kafka_2.11-2.2.1" ]; then
+if [ -d "kafka_2.12-2.5.0" ]; then
   echo "File exists"
 else
   echo "File does not exist, downloading"
-  wget http://mirrors.estointernet.in/apache/kafka/2.2.1/kafka_2.11-2.2.1.tgz
-  tar -xzf kafka_2.11-2.2.1.tgz
-  rm kafka_2.11-2.2.1.tgz
+  wget http://mirrors.estointernet.in/apache/kafka/2.5.0/kafka_2.12-2.5.0.tgz
+  tar -xzf kafka_2.12-2.5.0.tgz
+  rm kafka_2.12-2.5.0.tgz
 fi
 
-cd kafka_2.11-2.2.1
+cd kafka_2.12-2.5.0
 
 bin/zookeeper-server-start.sh config/zookeeper.properties &
 
