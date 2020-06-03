@@ -2,7 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/supply/exported"
 	"github.com/commitHub/commitBlockchain/modules/supply/internal/types"
 )
@@ -32,7 +32,7 @@ func (k Keeper) GetModuleAccountAndPermissions(ctx sdk.Context, moduleName strin
 	if addr == nil {
 		return nil, []string{}
 	}
-	
+
 	acc := k.ak.GetAccount(ctx, addr)
 	if acc != nil {
 		macc, ok := acc.(exported.ModuleAccountI)
@@ -41,12 +41,12 @@ func (k Keeper) GetModuleAccountAndPermissions(ctx sdk.Context, moduleName strin
 		}
 		return macc, perms
 	}
-	
+
 	// create a new module account
 	macc := types.NewEmptyModuleAccount(moduleName, perms...)
 	maccI := (k.ak.NewAccount(ctx, macc)).(exported.ModuleAccountI) // set the account number
 	k.SetModuleAccount(ctx, maccI)
-	
+
 	return maccI, perms
 }
 

@@ -2,15 +2,15 @@ package cli
 
 import (
 	"github.com/spf13/cobra"
-	
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/bank/internal/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
 )
@@ -39,25 +39,25 @@ func SendTxCmd(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 			cliCtx := context.NewCLIContextWithFrom(args[0]).WithCodec(cdc)
-			
+
 			to, err := sdk.AccAddressFromBech32(args[1])
 			if err != nil {
 				return err
 			}
-			
+
 			// parse coins trying to be sent
 			coins, err := sdk.ParseCoins(args[2])
 			if err != nil {
 				return err
 			}
-			
+
 			// build and sign the transaction, then broadcast to Tendermint
 			msg := types.NewMsgSend(cliCtx.GetFromAddress(), to, coins)
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
 		},
 	}
-	
+
 	cmd = client.PostCommands(cmd)[0]
-	
+
 	return cmd
 }

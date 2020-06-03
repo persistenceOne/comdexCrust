@@ -3,16 +3,16 @@ package types
 import (
 	"fmt"
 	"testing"
-	
+
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/libs/log"
 	"gopkg.in/yaml.v2"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 )
 
@@ -25,11 +25,11 @@ func TestStdTx(t *testing.T) {
 	msgs := []sdk.Msg{sdk.NewTestMsg(addr)}
 	fee := NewTestStdFee()
 	sigs := []StdSignature{}
-	
+
 	tx := NewStdTx(msgs, fee, sigs, "")
 	require.Equal(t, msgs, tx.GetMsgs())
 	require.Equal(t, sigs, tx.GetSignatures())
-	
+
 	feePayer := tx.GetSigners()[0]
 	require.Equal(t, addr, feePayer)
 }
@@ -61,55 +61,55 @@ func TestStdSignBytes(t *testing.T) {
 
 func TestTxValidateBasic(t *testing.T) {
 	ctx := sdk.NewContext(nil, abci.Header{ChainID: "mychainid"}, false, log.NewNopLogger())
-	
+
 	// keys and addresses
 	priv1, _, addr1 := KeyTestPubAddr()
 	priv2, _, addr2 := KeyTestPubAddr()
-	
+
 	// msg and signatures
 	msg1 := NewTestMsg(addr1, addr2)
 	fee := NewTestStdFee()
-	
+
 	msgs := []sdk.Msg{msg1}
-	
+
 	// require to fail validation upon invalid fee
 	badFee := NewTestStdFee()
 	badFee.Amount[0].Amount = sdk.NewInt(-5)
 	tx := NewTestTx(ctx, nil, nil, nil, nil, badFee)
-	
+
 	err := tx.ValidateBasic()
 	require.Error(t, err)
 	require.Equal(t, sdk.CodeInsufficientFee, err.Result().Code)
-	
+
 	// require to fail validation when no signatures exist
 	privs, accNums, seqs := []crypto.PrivKey{}, []uint64{}, []uint64{}
 	tx = NewTestTx(ctx, msgs, privs, accNums, seqs, fee)
-	
+
 	err = tx.ValidateBasic()
 	require.Error(t, err)
 	require.Equal(t, sdk.CodeNoSignatures, err.Result().Code)
-	
+
 	// require to fail validation when signatures do not match expected signers
 	privs, accNums, seqs = []crypto.PrivKey{priv1}, []uint64{0, 1}, []uint64{0, 0}
 	tx = NewTestTx(ctx, msgs, privs, accNums, seqs, fee)
-	
+
 	err = tx.ValidateBasic()
 	require.Error(t, err)
 	require.Equal(t, sdk.CodeUnauthorized, err.Result().Code)
-	
+
 	// require to fail with invalid gas supplied
 	badFee = NewTestStdFee()
 	badFee.Gas = 9223372036854775808
 	tx = NewTestTx(ctx, nil, nil, nil, nil, badFee)
-	
+
 	err = tx.ValidateBasic()
 	require.Error(t, err)
 	require.Equal(t, sdk.CodeGasOverflow, err.Result().Code)
-	
+
 	// require to pass when above criteria are matched
 	privs, accNums, seqs = []crypto.PrivKey{priv1, priv2}, []uint64{0, 1}, []uint64{0, 0}
 	tx = NewTestTx(ctx, msgs, privs, accNums, seqs, fee)
-	
+
 	err = tx.ValidateBasic()
 	require.NoError(t, err)
 }
@@ -120,25 +120,25 @@ func TestDefaultTxEncoder(t *testing.T) {
 	RegisterCodec(cdc)
 	cdc.RegisterConcrete(sdk.TestMsg{}, "cosmos-sdk/Test", nil)
 	encoder := DefaultTxEncoder(cdc)
-	
+
 	msgs := []sdk.Msg{sdk.NewTestMsg(addr)}
 	fee := NewTestStdFee()
 	sigs := []StdSignature{}
-	
+
 	tx := NewStdTx(msgs, fee, sigs, "")
-	
+
 	cdcBytes, err := cdc.MarshalBinaryLengthPrefixed(tx)
-	
+
 	require.NoError(t, err)
 	encoderBytes, err := encoder(tx)
-	
+
 	require.NoError(t, err)
 	require.Equal(t, cdcBytes, encoderBytes)
 }
 
 func TestStdSignatureMarshalYAML(t *testing.T) {
 	_, pubKey, _ := KeyTestPubAddr()
-	
+
 	testCases := []struct {
 		sig    StdSignature
 		output string
@@ -156,7 +156,7 @@ func TestStdSignatureMarshalYAML(t *testing.T) {
 			fmt.Sprintf("|\n  pubkey: %s\n  signature: \"\"\n", sdk.MustBech32ifyAccPub(pubKey)),
 		},
 	}
-	
+
 	for i, tc := range testCases {
 		bz, err := yaml.Marshal(tc.sig)
 		require.NoError(t, err)

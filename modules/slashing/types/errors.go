@@ -3,7 +3,7 @@ package types
 
 import (
 	"fmt"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -13,7 +13,7 @@ type CodeType = sdk.CodeType
 const (
 	// Default slashing codespace
 	DefaultCodespace sdk.CodespaceType = ModuleName
-	
+
 	CodeInvalidValidator      CodeType = 101
 	CodeValidatorJailed       CodeType = 102
 	CodeValidatorNotJailed    CodeType = 103

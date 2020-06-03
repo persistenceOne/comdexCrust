@@ -2,13 +2,13 @@ package auth
 
 import (
 	"fmt"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/auth/types"
 )
 
@@ -29,16 +29,16 @@ func queryAccount(ctx sdk.Context, req abci.RequestQuery, keeper AccountKeeper) 
 	if err := keeper.cdc.UnmarshalJSON(req.Data, &params); err != nil {
 		return nil, sdk.ErrInternal(fmt.Sprintf("failed to parse params: %s", err))
 	}
-	
+
 	account := keeper.GetAccount(ctx, params.Address)
 	if account == nil {
 		return nil, sdk.ErrUnknownAddress(fmt.Sprintf("account %s does not exist", params.Address))
 	}
-	
+
 	bz, err := codec.MarshalJSONIndent(keeper.cdc, account)
 	if err != nil {
 		return nil, sdk.ErrInternal(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
 	}
-	
+
 	return bz, nil
 }

@@ -2,9 +2,9 @@ package distribution
 
 import (
 	"fmt"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/distribution/keeper"
 	"github.com/commitHub/commitBlockchain/modules/distribution/types"
 	govtypes "github.com/commitHub/commitBlockchain/modules/gov/types"
@@ -13,17 +13,17 @@ import (
 func NewHandler(k keeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
-		
+
 		switch msg := msg.(type) {
 		case types.MsgSetWithdrawAddress:
 			return handleMsgModifyWithdrawAddress(ctx, msg, k)
-		
+
 		case types.MsgWithdrawDelegatorReward:
 			return handleMsgWithdrawDelegatorReward(ctx, msg, k)
-		
+
 		case types.MsgWithdrawValidatorCommission:
 			return handleMsgWithdrawValidatorCommission(ctx, msg, k)
-		
+
 		default:
 			errMsg := fmt.Sprintf("unrecognized distribution message type: %T", msg)
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -38,7 +38,7 @@ func handleMsgModifyWithdrawAddress(ctx sdk.Context, msg types.MsgSetWithdrawAdd
 	if err != nil {
 		return err.Result()
 	}
-	
+
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
@@ -46,7 +46,7 @@ func handleMsgModifyWithdrawAddress(ctx sdk.Context, msg types.MsgSetWithdrawAdd
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.DelegatorAddress.String()),
 		),
 	)
-	
+
 	return sdk.Result{Events: ctx.EventManager().Events()}
 }
 
@@ -55,7 +55,7 @@ func handleMsgWithdrawDelegatorReward(ctx sdk.Context, msg types.MsgWithdrawDele
 	if err != nil {
 		return err.Result()
 	}
-	
+
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
@@ -63,7 +63,7 @@ func handleMsgWithdrawDelegatorReward(ctx sdk.Context, msg types.MsgWithdrawDele
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.DelegatorAddress.String()),
 		),
 	)
-	
+
 	return sdk.Result{Events: ctx.EventManager().Events()}
 }
 
@@ -72,7 +72,7 @@ func handleMsgWithdrawValidatorCommission(ctx sdk.Context, msg types.MsgWithdraw
 	if err != nil {
 		return err.Result()
 	}
-	
+
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
@@ -80,7 +80,7 @@ func handleMsgWithdrawValidatorCommission(ctx sdk.Context, msg types.MsgWithdraw
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.ValidatorAddress.String()),
 		),
 	)
-	
+
 	return sdk.Result{Events: ctx.EventManager().Events()}
 }
 
@@ -89,7 +89,7 @@ func NewCommunityPoolSpendProposalHandler(k Keeper) govtypes.Handler {
 		switch c := content.(type) {
 		case types.CommunityPoolSpendProposal:
 			return keeper.HandleCommunityPoolSpendProposal(ctx, k, c)
-		
+
 		default:
 			errMsg := fmt.Sprintf("unrecognized distr proposal content type: %T", c)
 			return sdk.ErrUnknownRequest(errMsg)

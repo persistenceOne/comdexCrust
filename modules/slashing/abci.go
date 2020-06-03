@@ -2,10 +2,10 @@ package slashing
 
 import (
 	"fmt"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmtypes "github.com/tendermint/tendermint/types"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -17,7 +17,7 @@ func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, sk Keeper) {
 	for _, voteInfo := range req.LastCommitInfo.GetVotes() {
 		sk.HandleValidatorSignature(ctx, voteInfo.Validator.Address, voteInfo.Validator.Power, voteInfo.SignedLastBlock)
 	}
-	
+
 	// Iterate through any newly discovered evidence of infraction
 	// Slash any validators (and since-unbonded stake within the unbonding period)
 	// who contributed to valid infractions

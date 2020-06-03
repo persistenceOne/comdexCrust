@@ -3,7 +3,7 @@ package types
 import (
 	"encoding/hex"
 	"fmt"
-	
+
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/libs/common"
 )
@@ -87,13 +87,13 @@ ReleaseAsset: %t
 type ACLAccount interface {
 	GetAddress() cTypes.AccAddress
 	SetAddress(address cTypes.AccAddress) error
-	
+
 	GetZoneID() ZoneID
 	SetZoneID(id ZoneID) error
-	
+
 	GetOrganizationID() OrganizationID
 	SetOrganizationID(id OrganizationID) error
-	
+
 	GetACL() ACL
 	SetACL(acl ACL) error
 }

@@ -2,14 +2,14 @@ package params
 
 import (
 	"fmt"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/params/subspace"
 	"github.com/commitHub/commitBlockchain/modules/params/types"
-	
+
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -31,7 +31,7 @@ func NewKeeper(cdc *codec.Codec, key *sdk.KVStoreKey, tkey *sdk.TransientStoreKe
 		codespace: codespace,
 		spaces:    make(map[string]*Subspace),
 	}
-	
+
 	return k
 }
 
@@ -46,14 +46,14 @@ func (k Keeper) Subspace(s string) Subspace {
 	if ok {
 		panic("subspace already occupied")
 	}
-	
+
 	if s == "" {
 		panic("cannot use empty string for subspace")
 	}
-	
+
 	space := subspace.NewSubspace(k.cdc, k.key, k.tkey, s)
 	k.spaces[s] = &space
-	
+
 	return space
 }
 

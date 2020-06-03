@@ -18,7 +18,7 @@ func Migrate(oldGenState v034distr.GenesisState) GenesisState {
 			Event:            se.Event,
 		}
 	}
-	
+
 	return NewGenesisState(
 		oldGenState.FeePool, oldGenState.CommunityTax, oldGenState.BaseProposerReward,
 		oldGenState.BonusProposerReward, oldGenState.WithdrawAddrEnabled,

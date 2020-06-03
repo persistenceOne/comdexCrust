@@ -14,7 +14,7 @@ const (
 	QueryVotes     = "votes"
 	QueryVote      = "vote"
 	QueryTally     = "tally"
-	
+
 	ParamDeposit  = "deposit"
 	ParamVoting   = "voting"
 	ParamTallying = "tallying"

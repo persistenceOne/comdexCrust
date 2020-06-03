@@ -2,13 +2,13 @@ package keeper
 
 import (
 	"fmt"
-	
+
 	"github.com/tendermint/tendermint/libs/log"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/mint/internal/types"
 	"github.com/commitHub/commitBlockchain/modules/params"
 )
@@ -27,12 +27,12 @@ type Keeper struct {
 func NewKeeper(
 	cdc *codec.Codec, key sdk.StoreKey, paramSpace params.Subspace,
 	sk types.StakingKeeper, supplyKeeper types.SupplyKeeper, feeCollectorName string) Keeper {
-	
+
 	// ensure mint module account is set
 	if addr := supplyKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic("the mint module account has not been set")
 	}
-	
+
 	return Keeper{
 		cdc:              cdc,
 		storeKey:         key,
@@ -57,7 +57,7 @@ func (k Keeper) GetMinter(ctx sdk.Context) (minter types.Minter) {
 	if b == nil {
 		panic("stored minter should not have been nil")
 	}
-	
+
 	k.cdc.MustUnmarshalBinaryLengthPrefixed(b, &minter)
 	return
 }

@@ -3,11 +3,11 @@ package keeper
 import (
 	"fmt"
 	"time"
-	
+
 	"github.com/tendermint/tendermint/libs/log"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/crisis/internal/types"
 	"github.com/commitHub/commitBlockchain/modules/params"
 )
@@ -17,16 +17,16 @@ type Keeper struct {
 	routes         []types.InvarRoute
 	paramSpace     params.Subspace
 	invCheckPeriod uint
-	
+
 	supplyKeeper types.SupplyKeeper
-	
+
 	feeCollectorName string // name of the FeeCollector ModuleAccount
 }
 
 // NewKeeper creates a new Keeper object
 func NewKeeper(paramSpace params.Subspace, invCheckPeriod uint,
 	supplyKeeper types.SupplyKeeper, feeCollectorName string) Keeper {
-	
+
 	return Keeper{
 		routes:           []types.InvarRoute{},
 		paramSpace:       paramSpace.WithKeyTable(types.ParamKeyTable()),
@@ -64,12 +64,12 @@ func (k Keeper) Invariants() []sdk.Invariant {
 // assert all invariants
 func (k Keeper) AssertInvariants(ctx sdk.Context) {
 	logger := k.Logger(ctx)
-	
+
 	start := time.Now()
 	invarRoutes := k.Routes()
 	for _, ir := range invarRoutes {
 		if res, stop := ir.Invar(ctx); stop {
-			
+
 			// TODO: Include app name as part of context to allow for this to be
 			// variable.
 			panic(fmt.Errorf("invariant broken: %s\n"+
@@ -77,10 +77,10 @@ func (k Keeper) AssertInvariants(ctx sdk.Context) {
 				"\t\t tx crisis invariant-broken %s %s", res, ir.ModuleName, ir.Route))
 		}
 	}
-	
+
 	end := time.Now()
 	diff := end.Sub(start)
-	
+
 	logger.Info("asserted all invariants", "duration", diff, "height", ctx.BlockHeight())
 }
 

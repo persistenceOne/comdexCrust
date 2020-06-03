@@ -3,9 +3,9 @@ package types
 import (
 	"bytes"
 	"encoding/json"
-	
+
 	"github.com/tendermint/tendermint/crypto"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -46,7 +46,7 @@ func NewMsgCreateValidator(
 	valAddr sdk.ValAddress, pubKey crypto.PubKey, selfDelegation sdk.Coin,
 	description Description, commission CommissionRates, minSelfDelegation sdk.Int,
 ) MsgCreateValidator {
-	
+
 	return MsgCreateValidator{
 		Description:       description,
 		DelegatorAddress:  sdk.AccAddress(valAddr),
@@ -66,7 +66,7 @@ func (msg MsgCreateValidator) Type() string  { return "create_validator" }
 func (msg MsgCreateValidator) GetSigners() []sdk.AccAddress {
 	// delegator is first signer so delegator pays fees
 	addrs := []sdk.AccAddress{msg.DelegatorAddress}
-	
+
 	if !bytes.Equal(msg.DelegatorAddress.Bytes(), msg.ValidatorAddress.Bytes()) {
 		// if validator addr is not same as delegator addr, validator must sign
 		// msg as well
@@ -96,7 +96,7 @@ func (msg *MsgCreateValidator) UnmarshalJSON(bz []byte) error {
 	if err := json.Unmarshal(bz, &msgCreateValJSON); err != nil {
 		return err
 	}
-	
+
 	msg.Description = msgCreateValJSON.Description
 	msg.Commission = msgCreateValJSON.Commission
 	msg.DelegatorAddress = msgCreateValJSON.DelegatorAddress
@@ -108,7 +108,7 @@ func (msg *MsgCreateValidator) UnmarshalJSON(bz []byte) error {
 	}
 	msg.Value = msgCreateValJSON.Value
 	msg.MinSelfDelegation = msgCreateValJSON.MinSelfDelegation
-	
+
 	return nil
 }
 
@@ -148,7 +148,7 @@ func (msg MsgCreateValidator) ValidateBasic() sdk.Error {
 	if msg.Value.Amount.LT(msg.MinSelfDelegation) {
 		return ErrSelfDelegationBelowMinimum(DefaultCodespace)
 	}
-	
+
 	return nil
 }
 
@@ -156,7 +156,7 @@ func (msg MsgCreateValidator) ValidateBasic() sdk.Error {
 type MsgEditValidator struct {
 	Description
 	ValidatorAddress sdk.ValAddress `json:"address" yaml:"address"`
-	
+
 	// We pass a reference to the new commission rate and min self delegation as it's not mandatory to
 	// update. If not updated, the deserialized rate will be zero with no way to
 	// distinguish if an update was intended.
@@ -193,21 +193,21 @@ func (msg MsgEditValidator) ValidateBasic() sdk.Error {
 	if msg.ValidatorAddress.Empty() {
 		return sdk.NewError(DefaultCodespace, CodeInvalidInput, "nil validator address")
 	}
-	
+
 	if msg.Description == (Description{}) {
 		return sdk.NewError(DefaultCodespace, CodeInvalidInput, "transaction must include some information to modify")
 	}
-	
+
 	if msg.MinSelfDelegation != nil && !(*msg.MinSelfDelegation).GT(sdk.ZeroInt()) {
 		return ErrMinSelfDelegationInvalid(DefaultCodespace)
 	}
-	
+
 	if msg.CommissionRate != nil {
 		if msg.CommissionRate.GT(sdk.OneDec()) || msg.CommissionRate.LT(sdk.ZeroDec()) {
 			return sdk.NewError(DefaultCodespace, CodeInvalidInput, "commission rate must be between 0 and 1, inclusive")
 		}
 	}
-	
+
 	return nil
 }
 
@@ -265,7 +265,7 @@ type MsgBeginRedelegate struct {
 
 func NewMsgBeginRedelegate(delAddr sdk.AccAddress, valSrcAddr,
 	valDstAddr sdk.ValAddress, amount sdk.Coin) MsgBeginRedelegate {
-	
+
 	return MsgBeginRedelegate{
 		DelegatorAddress:    delAddr,
 		ValidatorSrcAddress: valSrcAddr,

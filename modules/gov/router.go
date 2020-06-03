@@ -7,7 +7,7 @@ import (
 
 var (
 	_ Router = (*router)(nil)
-	
+
 	isAlphaNumeric = regexp.MustCompile(`^[a-zA-Z0-9]+$`).MatchString
 )
 
@@ -47,14 +47,14 @@ func (rtr *router) AddRoute(path string, h Handler) Router {
 	if rtr.sealed {
 		panic("router sealed; cannot add route handler")
 	}
-	
+
 	if !isAlphaNumeric(path) {
 		panic("route expressions can only contain alphanumeric characters")
 	}
 	if rtr.HasRoute(path) {
 		panic(fmt.Sprintf("route %s has already been initialized", path))
 	}
-	
+
 	rtr.routes[path] = h
 	return rtr
 }
@@ -69,6 +69,6 @@ func (rtr *router) GetRoute(path string) Handler {
 	if !rtr.HasRoute(path) {
 		panic(fmt.Sprintf("route \"%s\" does not exist", path))
 	}
-	
+
 	return rtr.routes[path]
 }

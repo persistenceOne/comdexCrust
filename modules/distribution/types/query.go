@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 	"strings"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

@@ -2,7 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/distribution/types"
 	stakingtypes "github.com/commitHub/commitBlockchain/modules/staking/types"
 )
@@ -25,27 +25,27 @@ func (h Hooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress) {
 
 // cleanup for after validator is removed
 func (h Hooks) AfterValidatorRemoved(ctx sdk.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) {
-	
+
 	// fetch outstanding
 	outstanding := h.k.GetValidatorOutstandingRewards(ctx, valAddr)
-	
+
 	// force-withdraw commission
 	commission := h.k.GetValidatorAccumulatedCommission(ctx, valAddr)
 	if !commission.IsZero() {
 		// subtract from outstanding
 		outstanding = outstanding.Sub(commission)
-		
+
 		// split into integral & remainder
 		coins, remainder := commission.TruncateDecimal()
-		
+
 		// remainder to community pool
 		feePool := h.k.GetFeePool(ctx)
 		feePool.CommunityPool = feePool.CommunityPool.Add(remainder)
 		h.k.SetFeePool(ctx, feePool)
-		
+
 		// add to validator account
 		if !coins.IsZero() {
-			
+
 			accAddr := sdk.AccAddress(valAddr)
 			withdrawAddr := h.k.GetDelegatorWithdrawAddr(ctx, accAddr)
 			err := h.k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, withdrawAddr, coins)
@@ -54,24 +54,24 @@ func (h Hooks) AfterValidatorRemoved(ctx sdk.Context, _ sdk.ConsAddress, valAddr
 			}
 		}
 	}
-	
+
 	// add outstanding to community pool
 	feePool := h.k.GetFeePool(ctx)
 	feePool.CommunityPool = feePool.CommunityPool.Add(outstanding)
 	h.k.SetFeePool(ctx, feePool)
-	
+
 	// delete outstanding
 	h.k.DeleteValidatorOutstandingRewards(ctx, valAddr)
-	
+
 	// remove commission record
 	h.k.DeleteValidatorAccumulatedCommission(ctx, valAddr)
-	
+
 	// clear slashes
 	h.k.DeleteValidatorSlashEvents(ctx, valAddr)
-	
+
 	// clear historical rewards
 	h.k.DeleteValidatorHistoricalRewards(ctx, valAddr)
-	
+
 	// clear current rewards
 	h.k.DeleteValidatorCurrentRewards(ctx, valAddr)
 }

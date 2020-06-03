@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/staking/exported"
 )
 
@@ -46,7 +46,7 @@ type Delegation struct {
 // NewDelegation creates a new delegation object
 func NewDelegation(delegatorAddr sdk.AccAddress, validatorAddr sdk.ValAddress,
 	shares sdk.Dec) Delegation {
-	
+
 	return Delegation{
 		DelegatorAddress: delegatorAddr,
 		ValidatorAddress: validatorAddr,
@@ -130,7 +130,7 @@ func (e UnbondingDelegationEntry) IsMature(currentTime time.Time) bool {
 func NewUnbondingDelegation(delegatorAddr sdk.AccAddress,
 	validatorAddr sdk.ValAddress, creationHeight int64, minTime time.Time,
 	balance sdk.Int) UnbondingDelegation {
-	
+
 	entry := NewUnbondingDelegationEntry(creationHeight, minTime, balance)
 	return UnbondingDelegation{
 		DelegatorAddress: delegatorAddr,
@@ -142,7 +142,7 @@ func NewUnbondingDelegation(delegatorAddr sdk.AccAddress,
 // NewUnbondingDelegation - create a new unbonding delegation object
 func NewUnbondingDelegationEntry(creationHeight int64, completionTime time.Time,
 	balance sdk.Int) UnbondingDelegationEntry {
-	
+
 	return UnbondingDelegationEntry{
 		CreationHeight: creationHeight,
 		CompletionTime: completionTime,
@@ -154,7 +154,7 @@ func NewUnbondingDelegationEntry(creationHeight int64, completionTime time.Time,
 // AddEntry - append entry to the unbonding delegation
 func (d *UnbondingDelegation) AddEntry(creationHeight int64,
 	minTime time.Time, balance sdk.Int) {
-	
+
 	entry := NewUnbondingDelegationEntry(creationHeight, minTime, balance)
 	d.Entries = append(d.Entries, entry)
 }
@@ -241,10 +241,10 @@ func NewRedelegation(delegatorAddr sdk.AccAddress, validatorSrcAddr,
 	validatorDstAddr sdk.ValAddress, creationHeight int64,
 	minTime time.Time, balance sdk.Int,
 	sharesDst sdk.Dec) Redelegation {
-	
+
 	entry := NewRedelegationEntry(creationHeight,
 		minTime, balance, sharesDst)
-	
+
 	return Redelegation{
 		DelegatorAddress:    delegatorAddr,
 		ValidatorSrcAddress: validatorSrcAddr,
@@ -257,7 +257,7 @@ func NewRedelegation(delegatorAddr sdk.AccAddress, validatorSrcAddr,
 func NewRedelegationEntry(creationHeight int64,
 	completionTime time.Time, balance sdk.Int,
 	sharesDst sdk.Dec) RedelegationEntry {
-	
+
 	return RedelegationEntry{
 		CreationHeight: creationHeight,
 		CompletionTime: completionTime,
@@ -275,7 +275,7 @@ func (e RedelegationEntry) IsMature(currentTime time.Time) bool {
 func (d *Redelegation) AddEntry(creationHeight int64,
 	minTime time.Time, balance sdk.Int,
 	sharesDst sdk.Dec) {
-	
+
 	entry := NewRedelegationEntry(creationHeight, minTime, balance, sharesDst)
 	d.Entries = append(d.Entries, entry)
 }
@@ -323,7 +323,7 @@ func (d Redelegation) String() string {
 `,
 		d.DelegatorAddress, d.ValidatorSrcAddress, d.ValidatorDstAddress,
 	)
-	
+
 	for i, entry := range d.Entries {
 		out += fmt.Sprintf(`    Redelegation Entry #%d:
       Creation height:           %v
@@ -333,7 +333,7 @@ func (d Redelegation) String() string {
 			i, entry.CreationHeight, entry.CompletionTime, entry.SharesDst,
 		)
 	}
-	
+
 	return strings.TrimRight(out, "\n")
 }
 
@@ -432,7 +432,7 @@ func (r RedelegationResponse) String() string {
 `,
 		r.DelegatorAddress, r.ValidatorSrcAddress, r.ValidatorDstAddress,
 	)
-	
+
 	for i, entry := range r.Entries {
 		out += fmt.Sprintf(`    Redelegation Entry #%d:
       Creation height:           %v
@@ -444,7 +444,7 @@ func (r RedelegationResponse) String() string {
 			i, entry.CreationHeight, entry.CompletionTime, entry.InitialBalance, entry.SharesDst, entry.Balance,
 		)
 	}
-	
+
 	return strings.TrimRight(out, "\n")
 }
 

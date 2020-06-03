@@ -27,15 +27,15 @@ var (
 	ParamKeyTable         = types.ParamKeyTable
 	NewInvarRoute         = types.NewInvarRoute
 	NewKeeper             = keeper.NewKeeper
-	
+
 	// variable aliases
 	ModuleCdc                = types.ModuleCdc
 	ParamStoreKeyConstantFee = types.ParamStoreKeyConstantFee
 )
 
 type (
-	GenesisState = types.GenesisState
+	GenesisState       = types.GenesisState
 	MsgVerifyInvariant = types.MsgVerifyInvariant
-	InvarRoute = types.InvarRoute
-	Keeper = keeper.Keeper
+	InvarRoute         = types.InvarRoute
+	Keeper             = keeper.Keeper
 )

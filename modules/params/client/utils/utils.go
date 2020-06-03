@@ -3,12 +3,12 @@ package utils
 import (
 	"encoding/json"
 	"io/ioutil"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/params"
 )
 
@@ -16,7 +16,7 @@ type (
 	// ParamChangesJSON defines a slice of ParamChangeJSON objects which can be
 	// converted to a slice of ParamChange objects.
 	ParamChangesJSON []ParamChangeJSON
-	
+
 	// ParamChangeJSON defines a parameter change used in JSON input. This
 	// allows values to be specified in raw JSON instead of being string encoded.
 	ParamChangeJSON struct {
@@ -25,7 +25,7 @@ type (
 		Subkey   string          `json:"subkey,omitempty" yaml:"subkey,omitempty"`
 		Value    json.RawMessage `json:"value" yaml:"value"`
 	}
-	
+
 	// ParamChangeProposalJSON defines a ParameterChangeProposal with a deposit used
 	// to parse parameter change proposals from a JSON file.
 	ParamChangeProposalJSON struct {
@@ -34,11 +34,11 @@ type (
 		Changes     ParamChangesJSON `json:"changes" yaml:"changes"`
 		Deposit     sdk.Coins        `json:"deposit" yaml:"deposit"`
 	}
-	
+
 	// ParamChangeProposalReq defines a parameter change proposal request body.
 	ParamChangeProposalReq struct {
 		BaseReq rest.BaseReq `json:"base_req" yaml:"base_req"`
-		
+
 		Title       string           `json:"title" yaml:"title"`
 		Description string           `json:"description" yaml:"description"`
 		Changes     ParamChangesJSON `json:"changes" yaml:"changes"`
@@ -70,15 +70,15 @@ func (pcj ParamChangesJSON) ToParamChanges() []params.ParamChange {
 // file.
 func ParseParamChangeProposalJSON(cdc *codec.Codec, proposalFile string) (ParamChangeProposalJSON, error) {
 	proposal := ParamChangeProposalJSON{}
-	
+
 	contents, err := ioutil.ReadFile(proposalFile)
 	if err != nil {
 		return proposal, err
 	}
-	
+
 	if err := cdc.UnmarshalJSON(contents, &proposal); err != nil {
 		return proposal, err
 	}
-	
+
 	return proposal, nil
 }

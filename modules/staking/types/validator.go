@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	tmtypes "github.com/tendermint/tendermint/types"
 	"gopkg.in/yaml.v2"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/staking/exported"
 )
 
@@ -81,7 +81,7 @@ func (v Validator) MarshalYAML() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return string(bs), nil
 }
 
@@ -184,7 +184,7 @@ func (v Validator) MarshalJSON() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return codec.Cdc.MarshalJSON(bechValidator{
 		OperatorAddress:         v.OperatorAddress,
 		ConsPubKey:              bechConsPubKey,
@@ -293,7 +293,7 @@ func (d Description) UpdateDescription(d2 Description) (Description, sdk.Error) 
 	if d2.Details == DoNotModifyDesc {
 		d2.Details = d.Details
 	}
-	
+
 	return Description{
 		Moniker:  d2.Moniker,
 		Identity: d2.Identity,
@@ -316,7 +316,7 @@ func (d Description) EnsureLength() (Description, sdk.Error) {
 	if len(d.Details) > MaxDetailsLength {
 		return d, ErrDescriptionLength(DefaultCodespace, "details", len(d.Details), MaxDetailsLength)
 	}
-	
+
 	return d, nil
 }
 
@@ -344,7 +344,7 @@ func (v Validator) SetInitialCommission(commission Commission) (Validator, sdk.E
 	if err := commission.Validate(); err != nil {
 		return v, err
 	}
-	
+
 	v.Commission = commission
 	return v, nil
 }
@@ -378,7 +378,7 @@ func (v Validator) SharesFromTokens(amt sdk.Int) (sdk.Dec, sdk.Error) {
 	if v.Tokens.IsZero() {
 		return sdk.ZeroDec(), ErrInsufficientShares(DefaultCodespace)
 	}
-	
+
 	return v.GetDelegatorShares().MulInt(amt).QuoInt(v.GetTokens()), nil
 }
 
@@ -388,7 +388,7 @@ func (v Validator) SharesFromTokensTruncated(amt sdk.Int) (sdk.Dec, sdk.Error) {
 	if v.Tokens.IsZero() {
 		return sdk.ZeroDec(), ErrInsufficientShares(DefaultCodespace)
 	}
-	
+
 	return v.GetDelegatorShares().MulInt(amt).QuoTruncate(v.GetTokens().ToDec()), nil
 }
 
@@ -423,7 +423,7 @@ func (v Validator) UpdateStatus(newStatus sdk.BondStatus) Validator {
 
 // AddTokensFromDel adds tokens to a validator
 func (v Validator) AddTokensFromDel(amount sdk.Int) (Validator, sdk.Dec) {
-	
+
 	// calculate the shares to issue
 	var issuedShares sdk.Dec
 	if v.DelegatorShares.IsZero() {
@@ -434,13 +434,13 @@ func (v Validator) AddTokensFromDel(amount sdk.Int) (Validator, sdk.Dec) {
 		if err != nil {
 			panic(err)
 		}
-		
+
 		issuedShares = shares
 	}
-	
+
 	v.Tokens = v.Tokens.Add(amount)
 	v.DelegatorShares = v.DelegatorShares.Add(issuedShares)
-	
+
 	return v, issuedShares
 }
 
@@ -460,16 +460,16 @@ func (v Validator) RemoveTokens(tokens sdk.Int) Validator {
 // NOTE: because token fractions are left in the valiadator,
 //       the exchange rate of future shares of this validator can increase.
 func (v Validator) RemoveDelShares(delShares sdk.Dec) (Validator, sdk.Int) {
-	
+
 	remainingShares := v.DelegatorShares.Sub(delShares)
 	var issuedTokens sdk.Int
 	if remainingShares.IsZero() {
-		
+
 		// last delegation share gets any trimmings
 		issuedTokens = v.Tokens
 		v.Tokens = sdk.ZeroInt()
 	} else {
-		
+
 		// leave excess tokens in the validator
 		// however fully use all the delegator shares
 		issuedTokens = v.TokensFromShares(delShares).TruncateInt()
@@ -478,7 +478,7 @@ func (v Validator) RemoveDelShares(delShares sdk.Dec) (Validator, sdk.Int) {
 			panic("attempting to remove more tokens than available in validator")
 		}
 	}
-	
+
 	v.DelegatorShares = remainingShares
 	return v, issuedTokens
 }

@@ -5,13 +5,13 @@ package genutil
 import (
 	"encoding/json"
 	"fmt"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/staking"
 )
@@ -21,28 +21,28 @@ import (
 func ValidateAccountInGenesis(appGenesisState map[string]json.RawMessage,
 	genAccIterator GenesisAccountsIterator,
 	key sdk.AccAddress, coins sdk.Coins, cdc *codec.Codec) error {
-	
+
 	accountIsInGenesis := false
-	
+
 	// TODO refactor out bond denom to common state area
 	stakingDataBz := appGenesisState[staking.ModuleName]
 	var stakingData staking.GenesisState
 	cdc.MustUnmarshalJSON(stakingDataBz, &stakingData)
 	bondDenom := stakingData.Params.BondDenom
-	
+
 	genUtilDataBz := appGenesisState[staking.ModuleName]
 	var genesisState GenesisState
 	cdc.MustUnmarshalJSON(genUtilDataBz, &genesisState)
-	
+
 	var err error
 	genAccIterator.IterateGenesisAccounts(cdc, appGenesisState,
 		func(acc auth.Account) (stop bool) {
 			accAddress := acc.GetAddress()
 			accCoins := acc.GetCoins()
-			
+
 			// Ensure that account is in genesis
 			if accAddress.Equals(key) {
-				
+
 				// Ensure account contains enough funds of default bond denom
 				if coins.AmountOf(bondDenom).GT(accCoins.AmountOf(bondDenom)) {
 					err = fmt.Errorf(
@@ -60,11 +60,11 @@ func ValidateAccountInGenesis(appGenesisState map[string]json.RawMessage,
 	if err != nil {
 		return err
 	}
-	
+
 	if !accountIsInGenesis {
 		return fmt.Errorf("account %s in not in the app_state.accounts array of genesis.json", key)
 	}
-	
+
 	return nil
 }
 
@@ -73,7 +73,7 @@ type deliverTxfn func(abci.RequestDeliverTx) abci.ResponseDeliverTx
 // deliver a genesis transaction
 func DeliverGenTxs(ctx sdk.Context, cdc *codec.Codec, genTxs []json.RawMessage,
 	stakingKeeper StakingKeeper, deliverTx deliverTxfn) []abci.ValidatorUpdate {
-	
+
 	for _, genTx := range genTxs {
 		var tx auth.StdTx
 		cdc.MustUnmarshalJSON(genTx, &tx)

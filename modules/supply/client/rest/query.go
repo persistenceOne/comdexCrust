@@ -3,12 +3,12 @@ package rest
 import (
 	"fmt"
 	"net/http"
-	
+
 	"github.com/gorilla/mux"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/supply/internal/types"
 )
 
@@ -23,7 +23,7 @@ func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router) {
 		"/supply/total",
 		totalSupplyHandlerFn(cliCtx),
 	).Methods("GET")
-	
+
 	// Query the supply of a single denom
 	r.HandleFunc(
 		"/supply/total/{denom}",
@@ -39,25 +39,25 @@ func totalSupplyHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
 		if !ok {
 			return
 		}
-		
+
 		params := types.NewQueryTotalSupplyParams(page, limit)
 		bz, err := cliCtx.Codec.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		res, height, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryTotalSupply), bz)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		cliCtx = cliCtx.WithHeight(height)
 		rest.PostProcessResponse(w, cliCtx, res)
 	}
@@ -71,20 +71,20 @@ func supplyOfHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 		if !ok {
 			return
 		}
-		
+
 		params := types.NewQuerySupplyOfParams(denom)
 		bz, err := cliCtx.Codec.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		res, height, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QuerySupplyOf), bz)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		cliCtx = cliCtx.WithHeight(height)
 		rest.PostProcessResponse(w, cliCtx, res)
 	}

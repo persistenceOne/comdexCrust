@@ -3,9 +3,9 @@ package types
 import (
 	"fmt"
 	"time"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/params"
 )
 
@@ -54,7 +54,7 @@ type Params struct {
 func NewParams(maxEvidenceAge time.Duration, signedBlocksWindow int64,
 	minSignedPerWindow sdk.Dec, downtimeJailDuration time.Duration,
 	slashFractionDoubleSign sdk.Dec, slashFractionDowntime sdk.Dec) Params {
-	
+
 	return Params{
 		MaxEvidenceAge:          maxEvidenceAge,
 		SignedBlocksWindow:      signedBlocksWindow,

@@ -2,18 +2,19 @@ package mint
 
 import (
 	"encoding/json"
-	
+	"github.com/commitHub/commitBlockchain/kafka"
+
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/types/module"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/mint/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/mint/client/rest"
 )
@@ -52,7 +53,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 }
 
 // register rest routes
-func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
+func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router, kafkaBool bool, kafkaState kafka.KafkaState) {
 	rest.RegisterRoutes(ctx, rtr)
 }
 

@@ -2,11 +2,11 @@ package types
 
 import (
 	"fmt"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/params"
 )
 
@@ -37,7 +37,7 @@ func ParamKeyTable() params.KeyTable {
 
 func NewParams(mintDenom string, inflationRateChange, inflationMax,
 	inflationMin, goalBonded sdk.Dec, blocksPerYear uint64) Params {
-	
+
 	return Params{
 		MintDenom:           mintDenom,
 		InflationRateChange: inflationRateChange,

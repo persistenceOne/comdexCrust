@@ -4,7 +4,7 @@ package v0_36
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	v034distr "github.com/commitHub/commitBlockchain/modules/distribution/legacy/v0_34"
 )
 
@@ -18,14 +18,14 @@ const (
 
 type (
 	ValidatorAccumulatedCommission = sdk.DecCoins
-	
+
 	ValidatorSlashEventRecord struct {
 		ValidatorAddress sdk.ValAddress                `json:"validator_address"`
 		Height           uint64                        `json:"height"`
 		Period           uint64                        `json:"period"`
 		Event            v034distr.ValidatorSlashEvent `json:"validator_slash_event"`
 	}
-	
+
 	GenesisState struct {
 		FeePool                         v034distr.FeePool                                `json:"fee_pool"`
 		CommunityTax                    sdk.Dec                                          `json:"community_tax"`
@@ -50,7 +50,7 @@ func NewGenesisState(
 	historical []v034distr.ValidatorHistoricalRewardsRecord, cur []v034distr.ValidatorCurrentRewardsRecord,
 	dels []v034distr.DelegatorStartingInfoRecord, slashes []ValidatorSlashEventRecord,
 ) GenesisState {
-	
+
 	return GenesisState{
 		FeePool:                         feePool,
 		CommunityTax:                    communityTax,

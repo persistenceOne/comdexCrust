@@ -3,11 +3,11 @@ package types
 import (
 	"encoding/json"
 	"fmt"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/acl"
 )
 
@@ -90,7 +90,7 @@ func (msg MsgMultiSend) ValidateBasic() sdk.Error {
 	if len(msg.Outputs) == 0 {
 		return ErrNoOutputs(DefaultCodespace).TraceSDK("")
 	}
-	
+
 	return ValidateInputsOutputs(msg.Inputs, msg.Outputs)
 }
 
@@ -168,26 +168,26 @@ func NewOutput(addr sdk.AccAddress, coins sdk.Coins) Output {
 // valid and that the sum of inputs is equal to the sum of outputs.
 func ValidateInputsOutputs(inputs []Input, outputs []Output) sdk.Error {
 	var totalIn, totalOut sdk.Coins
-	
+
 	for _, in := range inputs {
 		if err := in.ValidateBasic(); err != nil {
 			return err.TraceSDK("")
 		}
 		totalIn = totalIn.Add(in.Coins)
 	}
-	
+
 	for _, out := range outputs {
 		if err := out.ValidateBasic(); err != nil {
 			return err.TraceSDK("")
 		}
 		totalOut = totalOut.Add(out.Coins)
 	}
-	
+
 	// make sure inputs and outputs match
 	if !totalIn.IsEqual(totalOut) {
 		return ErrInputOutputMismatch(DefaultCodespace)
 	}
-	
+
 	return nil
 }
 
@@ -283,7 +283,7 @@ func (msg MsgBankIssueAssets) GetSignBytes() []byte {
 	for _, issueAsset := range msg.IssueAssets {
 		issueAssets = append(issueAssets, issueAsset.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		IssueAssets []json.RawMessage `json:"issueAssets"`
 	}{
@@ -392,7 +392,7 @@ func (msg MsgBankRedeemAssets) GetSignBytes() []byte {
 	for _, redeemAsset := range msg.RedeemAssets {
 		redeemAssets = append(redeemAssets, redeemAsset.GetSignBytes())
 	}
-	
+
 	bz, err := ModuleCdc.MarshalJSON(struct {
 		RedeemAssets []json.RawMessage `json:"redeemAssets"`
 	}{
@@ -503,7 +503,7 @@ func (msg MsgBankIssueFiats) GetSignBytes() []byte {
 	for _, issueFiat := range msg.IssueFiats {
 		issueFiats = append(issueFiats, issueFiat.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		IssueFiats []json.RawMessage `json:"issueFiats"`
 	}{
@@ -611,7 +611,7 @@ func (msg MsgBankRedeemFiats) GetSignBytes() []byte {
 	for _, redeemFiat := range msg.RedeemFiats {
 		redeemFiats = append(redeemFiats, redeemFiat.GetSignBytes())
 	}
-	
+
 	bz, err := ModuleCdc.MarshalJSON(struct {
 		RedeemFiats []json.RawMessage `json:"redeemFiats"`
 	}{
@@ -720,7 +720,7 @@ func (msg MsgBankSendAssets) GetSignBytes() []byte {
 	for _, sendAsset := range msg.SendAssets {
 		sendAssets = append(sendAssets, sendAsset.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		SendAssets []json.RawMessage `json:"sendAssets"`
 	}{
@@ -834,7 +834,7 @@ func (msg MsgBankSendFiats) GetSignBytes() []byte {
 	for _, sendFiat := range msg.SendFiats {
 		sendFiats = append(sendFiats, sendFiat.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		SendFiats []json.RawMessage `json:"sendFiats"`
 	}{
@@ -1179,7 +1179,7 @@ func (msg MsgBankReleaseAssets) GetSignBytes() []byte {
 	for _, releaseAsset := range msg.ReleaseAssets {
 		releaseAssets = append(releaseAssets, releaseAsset.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		ReleaseAssets []json.RawMessage `json:"releaseAssets"`
 	}{
@@ -1282,7 +1282,7 @@ func (msg MsgDefineZones) GetSignBytes() []byte {
 	for _, defineZone := range msg.DefineZones {
 		defineZones = append(defineZones, defineZone.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		DefineZones []json.RawMessage `json:"defineZones"`
 	}{
@@ -1403,7 +1403,7 @@ func (msg MsgDefineOrganizations) GetSignBytes() []byte {
 	for _, defineOrganization := range msg.DefineOrganizations {
 		defineOrganizations = append(defineOrganizations, defineOrganization.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		DefineOrganizations []json.RawMessage `json:"defineOrganizations"`
 	}{
@@ -1517,7 +1517,7 @@ func (msg MsgDefineACLs) GetSignBytes() []byte {
 	for _, defineACL := range msg.DefineACLs {
 		defineACLs = append(defineACLs, defineACL.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		DefineACLs []json.RawMessage `json:"defineACLs"`
 	}{

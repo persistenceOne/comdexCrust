@@ -2,9 +2,9 @@ package keeper
 
 import (
 	"time"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/params"
 	"github.com/commitHub/commitBlockchain/modules/staking/types"
 )

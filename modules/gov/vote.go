@@ -2,9 +2,9 @@ package gov
 
 import (
 	"fmt"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/gov/types"
 )
 
@@ -17,14 +17,14 @@ func (keeper Keeper) AddVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.A
 	if proposal.Status != StatusVotingPeriod {
 		return ErrInactiveProposal(keeper.codespace, proposalID)
 	}
-	
+
 	if !ValidVoteOption(option) {
 		return ErrInvalidVote(keeper.codespace, option)
 	}
-	
+
 	vote := NewVote(proposalID, voterAddr, option)
 	keeper.setVote(ctx, proposalID, voterAddr, vote)
-	
+
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeProposalVote,
@@ -32,7 +32,7 @@ func (keeper Keeper) AddVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.A
 			sdk.NewAttribute(types.AttributeKeyProposalID, fmt.Sprintf("%d", proposalID)),
 		),
 	)
-	
+
 	return nil
 }
 
@@ -61,7 +61,7 @@ func (keeper Keeper) GetVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.A
 	if bz == nil {
 		return vote, false
 	}
-	
+
 	keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &vote)
 	return vote, true
 }

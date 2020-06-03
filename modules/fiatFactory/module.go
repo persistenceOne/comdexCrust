@@ -2,18 +2,19 @@ package fiatFactory
 
 import (
 	"encoding/json"
-	
+	"github.com/commitHub/commitBlockchain/kafka"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/types/module"
-	
+
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	abciTypes "github.com/tendermint/tendermint/abci/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/fiatFactory/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/fiatFactory/client/rest"
 	fiatFactoryTypes "github.com/commitHub/commitBlockchain/modules/fiatFactory/internal/types"
@@ -43,7 +44,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 	return ValidateGenesis(data)
 }
 
-func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, router *mux.Router) {
+func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, router *mux.Router, kafkaBool bool, kafkaState kafka.KafkaState) {
 	rest.RegisterRoutes(ctx, router)
 }
 
@@ -55,19 +56,19 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	
+
 	fiatTxCmd.AddCommand(client.PostCommands(
 		cli.IssueFiatCmd(cdc),
 		cli.SendFiatCmd(cdc),
 		cli.ExecuteFiatCmd(cdc),
 		cli.RedeemFiatCmd(cdc),
 	)...)
-	
+
 	return fiatTxCmd
 }
 
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	
+
 	fiatQueryCmd := &cobra.Command{
 		Use:                        ModuleName,
 		Short:                      "fiat query sub commands",
@@ -75,11 +76,11 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	
+
 	fiatQueryCmd.AddCommand(client.GetCommands(
 		cli.QueryFiatCmd(),
 	)...)
-	
+
 	return fiatQueryCmd
 }
 

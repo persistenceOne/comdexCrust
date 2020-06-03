@@ -2,76 +2,146 @@ package rest
 
 import (
 	"net/http"
-	
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
+	"github.com/commitHub/commitBlockchain/modules/auth/types"
 )
 
-func SignAndBroadcast(w http.ResponseWriter, br rest.BaseReq, cliCtx context.CLIContext,
-	mode, password string, msgs []cTypes.Msg) {
-	
+func SignAndBroadcast(br rest.BaseReq, cliCtx context.CLIContext,
+	mode, password string, msgs []cTypes.Msg) ([]byte, cTypes.Error) {
+
 	cdc := cliCtx.Codec
-	gasAdj, ok := rest.ParseFloat64OrReturnBadRequest(w, br.GasAdjustment, client.DefaultGasAdjustment)
-	if !ok {
-		return
+	gasAdj, _, err := ParseFloat64OrReturnBadRequest(br.GasAdjustment, client.DefaultGasAdjustment)
+	if err != nil {
+		return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, err.Error())
 	}
-	
+
 	simAndExec, gas, err := client.ParseGas(br.Gas)
 	if err != nil {
-		rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
+		return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, err.Error())
 	}
-	
+
 	keyBase, err := keys.NewKeyBaseFromHomeFlag()
 	if err != nil {
-		rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
+		return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, err.Error())
 	}
-	
+
 	txBldr := auth.NewTxBuilder(
 		utils.GetTxEncoder(cdc), br.AccountNumber, br.Sequence, gas, gasAdj,
 		br.Simulate, br.ChainID, br.Memo, br.Fees, br.GasPrices,
 	)
 	txBldr = txBldr.WithKeybase(keyBase)
-	
+
 	if br.Simulate || simAndExec {
 		if gasAdj < 0 {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, "Error invalid gas adjustment")
-			return
+			return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, "Error invalid gas adjustment")
 		}
-		
+
 		txBldr, err = utils.EnrichWithGas(txBldr, cliCtx, msgs)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-			return
+			return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, err.Error())
 		}
-		
+
 		if br.Simulate {
-			rest.WriteSimulationResponse(w, cdc, txBldr.Gas())
-			return
+			return SimulationResponse(cdc, txBldr.Gas())
 		}
 	}
-	
+
 	stdMsg, err := txBldr.BuildSignMsg(msgs)
 	if err != nil {
-		rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
+		return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, err.Error())
 	}
-	
+
 	stdTx := auth.NewStdTx(stdMsg.Msgs, stdMsg.Fee, nil, stdMsg.Memo)
-	
+
 	stdTx, err = SignStdTxFromRest(txBldr, cliCtx, cliCtx.GetFromName(), stdTx, true, false, password)
 	if err != nil {
-		rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
+		return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, err.Error())
 	}
-	
-	BroadcastRest(w, cliCtx, cdc, stdTx, mode)
-	
+
+	return BroadcastRest(cliCtx, cdc, stdTx, mode)
+
+}
+
+func SignAndBroadcastMultiple(brs []rest.BaseReq, cliCtxs []context.CLIContext,
+	mode []string, passwords []string, msgs []cTypes.Msg) ([]byte, error) {
+
+	var stdTxs types.StdTx
+	for i, _ := range brs {
+
+		cdc := cliCtxs[i].Codec
+		gasAdj, _, err := ParseFloat64OrReturnBadRequest(brs[i].GasAdjustment, client.DefaultGasAdjustment)
+		if err != nil {
+			return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, err.Error())
+		}
+
+		simAndExec, gas, err := client.ParseGas(brs[i].Gas)
+		if err != nil {
+			return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, err.Error())
+		}
+
+		keyBase, err := keys.NewKeyBaseFromHomeFlag()
+		if err != nil {
+			return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, err.Error())
+		}
+
+		txBldr := auth.NewTxBuilder(
+			utils.GetTxEncoder(cdc), brs[i].AccountNumber, brs[i].Sequence, gas, gasAdj,
+			brs[i].Simulate, brs[i].ChainID, brs[i].Memo, brs[i].Fees, brs[i].GasPrices,
+		)
+
+		txBldr = txBldr.WithKeybase(keyBase)
+
+		if brs[i].Simulate || simAndExec {
+			if gasAdj < 0 {
+				return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, "Error invalid gas adjustment")
+			}
+
+			txBldr, err = utils.EnrichWithGas(txBldr, cliCtxs[i], []cTypes.Msg{msgs[i]})
+			if err != nil {
+				return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, err.Error())
+			}
+
+			if brs[i].Simulate {
+				return SimulationResponse(cdc, txBldr.Gas())
+			}
+		}
+
+		var count = uint64(0)
+		for j := 0; j < i; j++ {
+			if txBldr.AccountNumber() == brs[j].AccountNumber {
+				count++
+			}
+		}
+		txBldr = txBldr.WithSequence(count)
+
+		stdMsg, err := txBldr.BuildSignMsg(msgs)
+		if err != nil {
+			return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, err.Error())
+		}
+
+		stdTx := auth.NewStdTx(stdMsg.Msgs, stdMsg.Fee, nil, stdMsg.Memo)
+
+		stdTx, err = SignStdTxFromRest(txBldr, cliCtxs[i], cliCtxs[i].GetFromName(), stdTx, true, false, passwords[i])
+		if err != nil {
+			return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, err.Error())
+		}
+
+		if i == 0 {
+			stdTxs.Msgs = stdTx.Msgs
+			stdTxs.Fee = stdTx.Fee
+			stdTxs.Memo = stdTx.Memo
+		}
+		stdTxs.Signatures = append(stdTxs.Signatures, stdTx.Signatures...)
+	}
+
+	return BroadcastRest(cliCtxs[0], cliCtxs[0].Codec, stdTxs, mode[0])
+
 }

@@ -6,15 +6,15 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
-	
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/crypto/ed25519"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
+
 	authtypes "github.com/commitHub/commitBlockchain/modules/auth/types"
 )
 
@@ -72,41 +72,41 @@ func TestCalculateGas(t *testing.T) {
 
 func TestDefaultTxEncoder(t *testing.T) {
 	cdc := makeCodec()
-	
+
 	defaultEncoder := authtypes.DefaultTxEncoder(cdc)
 	encoder := GetTxEncoder(cdc)
-	
+
 	compareEncoders(t, defaultEncoder, encoder)
 }
 
 func TestConfiguredTxEncoder(t *testing.T) {
 	cdc := makeCodec()
-	
+
 	customEncoder := func(tx sdk.Tx) ([]byte, error) {
 		return json.Marshal(tx)
 	}
-	
+
 	config := sdk.GetConfig()
 	config.SetTxEncoder(customEncoder)
-	
+
 	encoder := GetTxEncoder(cdc)
-	
+
 	compareEncoders(t, customEncoder, encoder)
 }
 
 func TestReadStdTxFromFile(t *testing.T) {
 	cdc := codec.New()
 	sdk.RegisterCodec(cdc)
-	
+
 	// Build a test transaction
 	fee := authtypes.NewStdFee(50000, sdk.Coins{sdk.NewInt64Coin("atom", 150)})
 	stdTx := authtypes.NewStdTx([]sdk.Msg{}, fee, []authtypes.StdSignature{}, "foomemo")
-	
+
 	// Write it to the file
 	encodedTx, _ := cdc.MarshalJSON(stdTx)
 	jsonTxFile := writeToNewTempFile(t, string(encodedTx))
 	defer os.Remove(jsonTxFile.Name())
-	
+
 	// Read it back
 	decodedTx, err := ReadStdTxFromFile(cdc, jsonTxFile.Name())
 	require.NoError(t, err)
@@ -116,7 +116,7 @@ func TestReadStdTxFromFile(t *testing.T) {
 func compareEncoders(t *testing.T, expected sdk.TxEncoder, actual sdk.TxEncoder) {
 	msgs := []sdk.Msg{sdk.NewTestMsg(addr)}
 	tx := authtypes.NewStdTx(msgs, authtypes.StdFee{}, []authtypes.StdSignature{}, "")
-	
+
 	defaultEncoderBytes, err := expected(tx)
 	require.NoError(t, err)
 	encoderBytes, err := actual(tx)
@@ -127,10 +127,10 @@ func compareEncoders(t *testing.T, expected sdk.TxEncoder, actual sdk.TxEncoder)
 func writeToNewTempFile(t *testing.T, data string) *os.File {
 	fp, err := ioutil.TempFile(os.TempDir(), "client_tx_test")
 	require.NoError(t, err)
-	
+
 	_, err = fp.WriteString(data)
 	require.NoError(t, err)
-	
+
 	return fp
 }
 

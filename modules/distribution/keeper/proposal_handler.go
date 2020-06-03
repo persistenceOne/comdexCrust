@@ -2,9 +2,9 @@ package keeper
 
 import (
 	"fmt"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/distribution/types"
 )
 
@@ -14,7 +14,7 @@ func HandleCommunityPoolSpendProposal(ctx sdk.Context, k Keeper, p types.Communi
 	if err != nil {
 		return err
 	}
-	
+
 	logger := k.Logger(ctx)
 	logger.Info(fmt.Sprintf("transferred %s from the community pool to recipient %s", p.Amount, p.Recipient))
 	return nil

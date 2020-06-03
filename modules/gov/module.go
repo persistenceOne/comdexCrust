@@ -2,18 +2,19 @@ package gov
 
 import (
 	"encoding/json"
-	
+	"github.com/commitHub/commitBlockchain/kafka"
+
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/types/module"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/gov/client"
 	"github.com/commitHub/commitBlockchain/modules/gov/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/gov/client/rest"
@@ -65,23 +66,23 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 }
 
 // register rest routes
-func (a AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
+func (a AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router, kafkaBool bool, kafkaState kafka.KafkaState) {
 	var proposalRESTHandlers []rest.ProposalRESTHandler
 	for _, proposalHandler := range a.proposalHandlers {
 		proposalRESTHandlers = append(proposalRESTHandlers, proposalHandler.RESTHandler(ctx))
 	}
-	
+
 	rest.RegisterRoutes(ctx, rtr, proposalRESTHandlers)
 }
 
 // get the root tx command of this module
 func (a AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
-	
+
 	var proposalCLIHandlers []*cobra.Command
 	for _, proposalHandler := range a.proposalHandlers {
 		proposalCLIHandlers = append(proposalCLIHandlers, proposalHandler.CLIHandler(cdc))
 	}
-	
+
 	return cli.GetTxCmd(StoreKey, cdc, proposalCLIHandlers)
 }
 

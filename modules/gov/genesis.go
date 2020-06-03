@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"time"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/types"
-	
+
 	govTypes "github.com/commitHub/commitBlockchain/modules/gov/types"
 )
 
@@ -78,45 +78,45 @@ func ValidateGenesis(data GenesisState) error {
 		return fmt.Errorf("Governance vote threshold should be positive and less or equal to one, is %s",
 			threshold.String())
 	}
-	
+
 	veto := data.TallyParams.Veto
 	if veto.IsNegative() || veto.GT(sdk.OneDec()) {
 		return fmt.Errorf("Governance vote veto threshold should be positive and less or equal to one, is %s",
 			veto.String())
 	}
-	
+
 	if !data.DepositParams.MinDeposit.IsValid() {
 		return fmt.Errorf("Governance deposit amount must be a valid sdk.Coins amount, is %s",
 			data.DepositParams.MinDeposit.String())
 	}
-	
+
 	return nil
 }
 
 // InitGenesis - store genesis parameters
 func InitGenesis(ctx sdk.Context, k Keeper, supplyKeeper SupplyKeeper, data GenesisState) {
-	
+
 	k.setProposalID(ctx, data.StartingProposalID)
 	k.setDepositParams(ctx, data.DepositParams)
 	k.setVotingParams(ctx, data.VotingParams)
 	k.setTallyParams(ctx, data.TallyParams)
-	
+
 	// check if the deposits pool account exists
 	moduleAcc := k.GetGovernanceAccount(ctx)
 	if moduleAcc == nil {
 		panic(fmt.Sprintf("%s module account has not been set", govTypes.ModuleName))
 	}
-	
+
 	var totalDeposits sdk.Coins
 	for _, deposit := range data.Deposits {
 		k.setDeposit(ctx, deposit.ProposalID, deposit.Depositor, deposit)
 		totalDeposits = totalDeposits.Add(deposit.Amount)
 	}
-	
+
 	for _, vote := range data.Votes {
 		k.setVote(ctx, vote.ProposalID, vote.Voter, vote)
 	}
-	
+
 	for _, proposal := range data.Proposals {
 		switch proposal.Status {
 		case StatusDepositPeriod:
@@ -126,7 +126,7 @@ func InitGenesis(ctx sdk.Context, k Keeper, supplyKeeper SupplyKeeper, data Gene
 		}
 		k.SetProposal(ctx, proposal)
 	}
-	
+
 	// add coins if not provided on genesis
 	if moduleAcc.GetCoins().IsZero() {
 		if err := moduleAcc.SetCoins(totalDeposits); err != nil {
@@ -142,19 +142,19 @@ func ExportGenesis(ctx sdk.Context, k Keeper) GenesisState {
 	depositParams := k.GetDepositParams(ctx)
 	votingParams := k.GetVotingParams(ctx)
 	tallyParams := k.GetTallyParams(ctx)
-	
+
 	proposals := k.GetProposalsFiltered(ctx, nil, nil, StatusNil, 0)
-	
+
 	var proposalsDeposits Deposits
 	var proposalsVotes Votes
 	for _, proposal := range proposals {
 		deposits := k.GetDeposits(ctx, proposal.ProposalID)
 		proposalsDeposits = append(proposalsDeposits, deposits...)
-		
+
 		votes := k.GetVotes(ctx, proposal.ProposalID)
 		proposalsVotes = append(proposalsVotes, votes...)
 	}
-	
+
 	return GenesisState{
 		StartingProposalID: startingProposalID,
 		Deposits:           proposalsDeposits,

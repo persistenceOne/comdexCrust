@@ -3,7 +3,7 @@ package types
 import (
 	"encoding/json"
 	"fmt"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -67,16 +67,16 @@ func VoteOptionFromString(str string) (VoteOption, error) {
 	switch str {
 	case "Yes":
 		return OptionYes, nil
-	
+
 	case "Abstain":
 		return OptionAbstain, nil
-	
+
 	case "No":
 		return OptionNo, nil
-	
+
 	case "NoWithVeto":
 		return OptionNoWithVeto, nil
-	
+
 	default:
 		return VoteOption(0xff), fmt.Errorf("'%s' is not a valid vote option", str)
 	}
@@ -116,12 +116,12 @@ func (vo *VoteOption) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return err
 	}
-	
+
 	bz2, err := VoteOptionFromString(s)
 	if err != nil {
 		return err
 	}
-	
+
 	*vo = bz2
 	return nil
 }

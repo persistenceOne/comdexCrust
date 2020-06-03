@@ -2,9 +2,9 @@ package types
 
 import (
 	"encoding/json"
-	
+
 	cTypes "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/types"
 )
 
@@ -96,7 +96,7 @@ func (msg MsgFactoryIssueAssets) GetSignBytes() []byte {
 	for _, issueAsset := range msg.IssueAssets {
 		issueAssets = append(issueAssets, issueAsset.GetSignBytes())
 	}
-	
+
 	bz, err := ModuleCdc.MarshalJSON(struct {
 		IssueAssets []json.RawMessage `json:"issue_asset"`
 	}{
@@ -200,27 +200,27 @@ func (msg MsgFactoryRedeemAssets) GetSignBytes() []byte {
 	for _, redeemAsset := range msg.RedeemAssets {
 		redeemAssets = append(redeemAssets, redeemAsset.GetSignBytes())
 	}
-	
+
 	bz, err := ModuleCdc.MarshalJSON(struct {
 		RedeemAssets []json.RawMessage `json:"redeem_assets"`
 	}{
 		RedeemAssets: redeemAssets,
 	})
-	
+
 	if err != nil {
 		panic(err)
 	}
-	
+
 	return bz
 }
 
 func (msg MsgFactoryRedeemAssets) GetSigners() []cTypes.AccAddress {
 	addrs := make([]cTypes.AccAddress, len(msg.RedeemAssets))
-	
+
 	for i, in := range msg.RedeemAssets {
 		addrs[i] = in.RelayerAddress
 	}
-	
+
 	return addrs
 }
 
@@ -258,11 +258,11 @@ func (in SendAsset) GetSignBytes() []byte {
 		ToAddress:      in.ToAddress.String(),
 		PegHash:        in.PegHash,
 	})
-	
+
 	if err != nil {
 		panic(err)
 	}
-	
+
 	return biz
 }
 
@@ -366,7 +366,7 @@ func (msg MsgFactoryExecuteAssets) GetSignBytes() []byte {
 	for _, sendAsset := range msg.SendAssets {
 		sendAssets = append(sendAssets, sendAsset.GetSignBytes())
 	}
-	
+
 	bz, err := ModuleCdc.MarshalJSON(struct {
 		SendAssets []json.RawMessage `json:"send_assets"`
 	}{

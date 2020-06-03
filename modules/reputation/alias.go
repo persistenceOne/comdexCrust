@@ -17,28 +17,28 @@ var (
 	ModuleCdc           = types.ModuleCdc
 	DefaultGenesisState = types.DefaultGenesisState
 	ValidateGenesis     = types.ValidateGensis
-	
+
 	GetReputationKey = types.GetReputationKey
 	ReputationKey    = types.ReputationKey
-	
+
 	EventTypeSetBuyerRatingToFeedback  = types.EventTypeSetBuyerRatingToFeedback
 	EventTypeSetSellerRatingToFeedback = types.EventTypeSetSellerRatingToFeedback
-	
+
 	AttributeKeyPegHash = types.AttributeKeyPegHash
 	AttributeKeyRating  = types.AttributeKeyRating
 	AttributeKeyFrom    = types.AttributeKeyFrom
 	AttributeKeyTo      = types.AttributeKeyTo
-	
+
 	NewKeeper  = keeper.NewKeeper
 	NewQuerier = keeper.NewQuerier
 )
 
 type (
-	Keeper = keeper.Keeper
-	GenesisState = types.GenesisState
-	MsgBuyerFeedbacks = types.MsgBuyerFeedbacks
+	Keeper             = keeper.Keeper
+	GenesisState       = types.GenesisState
+	MsgBuyerFeedbacks  = types.MsgBuyerFeedbacks
 	MsgSellerFeedbacks = types.MsgSellerFeedbacks
-	
-	AccountReputation = types.AccountReputation
+
+	AccountReputation     = types.AccountReputation
 	BaseAccountReputation = types.BaseAccountReputation
 )

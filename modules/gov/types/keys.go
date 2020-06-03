@@ -4,23 +4,23 @@ import (
 	"encoding/binary"
 	"fmt"
 	"time"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (
 	// ModuleName is the name of the module
 	ModuleName = "gov"
-	
+
 	// StoreKey is the store key string for gov
 	StoreKey = ModuleName
-	
+
 	// RouterKey is the message route for gov
 	RouterKey = ModuleName
-	
+
 	// QuerierRoute is the querier route for gov
 	QuerierRoute = ModuleName
-	
+
 	// DefaultParamspace default name for parameter store
 	DefaultParamspace = ModuleName
 )
@@ -44,9 +44,9 @@ var (
 	ActiveProposalQueuePrefix   = []byte{0x01}
 	InactiveProposalQueuePrefix = []byte{0x02}
 	ProposalIDKey               = []byte{0x03}
-	
+
 	DepositsKeyPrefix = []byte{0x10}
-	
+
 	VotesKeyPrefix = []byte{0x20}
 )
 
@@ -68,7 +68,7 @@ func ActiveProposalByTimeKey(endTime time.Time) []byte {
 func ActiveProposalQueueKey(proposalID uint64, endTime time.Time) []byte {
 	bz := make([]byte, 8)
 	binary.LittleEndian.PutUint64(bz, proposalID)
-	
+
 	return append(ActiveProposalByTimeKey(endTime), bz...)
 }
 
@@ -81,7 +81,7 @@ func InactiveProposalByTimeKey(endTime time.Time) []byte {
 func InactiveProposalQueueKey(proposalID uint64, endTime time.Time) []byte {
 	bz := make([]byte, 8)
 	binary.LittleEndian.PutUint64(bz, proposalID)
-	
+
 	return append(InactiveProposalByTimeKey(endTime), bz...)
 }
 
@@ -116,7 +116,7 @@ func SplitProposalKey(key []byte) (proposalID uint64) {
 	if len(key[1:]) != 8 {
 		panic(fmt.Sprintf("unexpected key length (%d ≠ 8)", len(key[1:])))
 	}
-	
+
 	return binary.LittleEndian.Uint64(key[1:])
 }
 
@@ -146,7 +146,7 @@ func splitKeyWithTime(key []byte) (proposalID uint64, endTime time.Time) {
 	if len(key[1:]) != 8+lenTime {
 		panic(fmt.Sprintf("unexpected key length (%d ≠ %d)", len(key[1:]), lenTime+8))
 	}
-	
+
 	endTime, err := sdk.ParseTimeBytes(key[1 : 1+lenTime])
 	if err != nil {
 		panic(err)
@@ -159,7 +159,7 @@ func splitKeyWithAddress(key []byte) (proposalID uint64, addr sdk.AccAddress) {
 	if len(key[1:]) != 8+sdk.AddrLen {
 		panic(fmt.Sprintf("unexpected key length (%d ≠ %d)", len(key), 8+sdk.AddrLen))
 	}
-	
+
 	proposalID = binary.LittleEndian.Uint64(key[1:9])
 	addr = sdk.AccAddress(key[9:])
 	return

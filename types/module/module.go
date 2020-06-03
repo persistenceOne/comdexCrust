@@ -29,15 +29,16 @@ package module
 
 import (
 	"encoding/json"
-	
+	"github.com/commitHub/commitBlockchain/kafka"
+
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 )
 
@@ -46,13 +47,13 @@ import (
 type AppModuleBasic interface {
 	Name() string
 	RegisterCodec(*codec.Codec)
-	
+
 	// genesis
 	DefaultGenesis() json.RawMessage
 	ValidateGenesis(json.RawMessage) error
-	
+
 	// client functionality
-	RegisterRESTRoutes(context.CLIContext, *mux.Router)
+	RegisterRESTRoutes(context.CLIContext, *mux.Router, bool, kafka.KafkaState)
 	GetTxCmd(*codec.Codec) *cobra.Command
 	GetQueryCmd(*codec.Codec) *cobra.Command
 }
@@ -95,9 +96,9 @@ func (bm BasicManager) ValidateGenesis(genesis map[string]json.RawMessage) error
 }
 
 // RegisterRestRoutes registers all module rest routes
-func (bm BasicManager) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
+func (bm BasicManager) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router, kafkaBool bool, kafkaState kafka.KafkaState) {
 	for _, b := range bm {
-		b.RegisterRESTRoutes(ctx, rtr)
+		b.RegisterRESTRoutes(ctx, rtr, kafkaBool, kafkaState)
 	}
 }
 
@@ -130,16 +131,16 @@ type AppModuleGenesis interface {
 // AppModule is the standard form for an application module
 type AppModule interface {
 	AppModuleGenesis
-	
+
 	// registers
 	RegisterInvariants(sdk.InvariantRegistry)
-	
+
 	// routes
 	Route() string
 	NewHandler() sdk.Handler
 	QuerierRoute() string
 	NewQuerierHandler() sdk.Querier
-	
+
 	BeginBlock(sdk.Context, abci.RequestBeginBlock)
 	EndBlock(sdk.Context, abci.RequestEndBlock) []abci.ValidatorUpdate
 }
@@ -193,14 +194,14 @@ type Manager struct {
 
 // NewModuleManager creates a new Manager object
 func NewManager(modules ...AppModule) *Manager {
-	
+
 	moduleMap := make(map[string]AppModule)
 	var modulesStr []string
 	for _, module := range modules {
 		moduleMap[module.Name()] = module
 		modulesStr = append(modulesStr, module.Name())
 	}
-	
+
 	return &Manager{
 		Modules:            moduleMap,
 		OrderInitGenesis:   modulesStr,
@@ -257,7 +258,7 @@ func (m *Manager) InitGenesis(ctx sdk.Context, genesisData map[string]json.RawMe
 			continue
 		}
 		moduleValUpdates := m.Modules[moduleName].InitGenesis(ctx, genesisData[moduleName])
-		
+
 		// use these validator updates if provided, the module manager assumes
 		// only one module will update the validator set
 		if len(moduleValUpdates) > 0 {
@@ -267,7 +268,7 @@ func (m *Manager) InitGenesis(ctx sdk.Context, genesisData map[string]json.RawMe
 			validatorUpdates = moduleValUpdates
 		}
 	}
-	
+
 	return abci.ResponseInitChain{
 		Validators: validatorUpdates,
 	}
@@ -287,11 +288,11 @@ func (m *Manager) ExportGenesis(ctx sdk.Context) map[string]json.RawMessage {
 // modules.
 func (m *Manager) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	ctx = ctx.WithEventManager(sdk.NewEventManager())
-	
+
 	for _, moduleName := range m.OrderBeginBlockers {
 		m.Modules[moduleName].BeginBlock(ctx, req)
 	}
-	
+
 	return abci.ResponseBeginBlock{
 		Events: ctx.EventManager().ABCIEvents(),
 	}
@@ -303,21 +304,21 @@ func (m *Manager) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 func (m *Manager) EndBlock(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	ctx = ctx.WithEventManager(sdk.NewEventManager())
 	validatorUpdates := []abci.ValidatorUpdate{}
-	
+
 	for _, moduleName := range m.OrderEndBlockers {
 		moduleValUpdates := m.Modules[moduleName].EndBlock(ctx, req)
-		
+
 		// use these validator updates if provided, the module manager assumes
 		// only one module will update the validator set
 		if len(moduleValUpdates) > 0 {
 			if len(validatorUpdates) > 0 {
 				panic("validator EndBlock updates already set by a previous module")
 			}
-			
+
 			validatorUpdates = moduleValUpdates
 		}
 	}
-	
+
 	return abci.ResponseEndBlock{
 		ValidatorUpdates: validatorUpdates,
 		Events:           ctx.EventManager().ABCIEvents(),

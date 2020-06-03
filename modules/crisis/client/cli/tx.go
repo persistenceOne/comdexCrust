@@ -3,13 +3,13 @@ package cli
 
 import (
 	"github.com/spf13/cobra"
-	
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/auth/client/utils"
 	"github.com/commitHub/commitBlockchain/modules/crisis/internal/types"
@@ -22,10 +22,10 @@ func GetCmdInvariantBroken(cdc *codec.Codec) *cobra.Command {
 		Short: "submit proof that an invariant broken to halt the chain",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			
+
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			
+
 			senderAddr := cliCtx.GetFromAddress()
 			moduleName, route := args[0], args[1]
 			msg := types.NewMsgVerifyInvariant(senderAddr, moduleName, route)
@@ -44,7 +44,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	
+
 	txCmd.AddCommand(client.PostCommands(
 		GetCmdInvariantBroken(cdc),
 	)...)

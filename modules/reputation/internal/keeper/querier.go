@@ -2,10 +2,10 @@ package keeper
 
 import (
 	"fmt"
-	
+
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	abciTypes "github.com/tendermint/tendermint/abci/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 )
 
@@ -25,15 +25,15 @@ func NewQuerier(k Keeper) cTypes.Querier {
 }
 
 func queryReputation(ctx cTypes.Context, path []string, k Keeper) ([]byte, cTypes.Error) {
-	
+
 	address, err := cTypes.AccAddressFromBech32(path[0])
 	if err != nil {
 		return nil, cTypes.ErrInternal(fmt.Sprintf("failed to parse the address %s", err))
 	}
 	account := k.GetAccountReputation(ctx, address)
-	
+
 	res, err := codec.MarshalJSONIndent(k.cdc, account)
-	
+
 	if err != nil {
 		return nil, cTypes.ErrInternal(fmt.Sprintf("failed to marshal data %s", err.Error()))
 	}

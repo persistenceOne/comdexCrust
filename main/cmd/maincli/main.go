@@ -4,9 +4,9 @@ import (
 	"os"
 	"path"
 
+	"github.com/commitHub/commitBlockchain/client/lcd"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/keys"
-	"github.com/cosmos/cosmos-sdk/client/lcd"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
@@ -20,7 +20,6 @@ import (
 	bankcmd "github.com/commitHub/commitBlockchain/modules/bank/client/cli"
 	"github.com/commitHub/commitBlockchain/version"
 
-	clientRest "github.com/commitHub/commitBlockchain/client/rest"
 	"github.com/commitHub/commitBlockchain/types"
 )
 
@@ -50,7 +49,7 @@ func main() {
 		txCmd(cdc),
 		version.Cmd,
 		client.LineBreak,
-		lcd.ServeCommand(cdc, registerRoutes),
+		lcd.ServeCommand(cdc),
 		client.LineBreak,
 		keys.Commands(),
 		client.LineBreak,
@@ -61,12 +60,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func registerRoutes(rs *lcd.RestServer) {
-	client.RegisterRoutes(rs.CliCtx, rs.Mux)
-	app.ModuleBasics.RegisterRESTRoutes(rs.CliCtx, rs.Mux)
-	clientRest.RegisterRoutes(rs.CliCtx, rs.Mux)
 }
 
 func queryCmd(cdc *amino.Codec) *cobra.Command {

@@ -2,13 +2,13 @@ package keeper
 
 import (
 	"fmt"
-	
+
 	"github.com/tendermint/tendermint/libs/log"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/supply/exported"
 	"github.com/commitHub/commitBlockchain/modules/supply/internal/types"
 )
@@ -25,13 +25,13 @@ type Keeper struct {
 // NewKeeper creates a new Keeper instance
 func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, ak types.AccountKeeper, bk types.BankKeeper,
 	codespace sdk.CodespaceType, maccPerms map[string][]string) Keeper {
-	
+
 	// set the addresses
 	permAddrs := make(map[string]types.PermissionsForAddress)
 	for name, perms := range maccPerms {
 		permAddrs[name] = types.NewPermissionsForAddress(name, perms)
 	}
-	
+
 	return Keeper{
 		cdc:       cdc,
 		storeKey:  key,

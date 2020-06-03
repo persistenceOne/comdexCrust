@@ -1,30 +1,41 @@
 package rest
 
 import (
+	"encoding/json"
+	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"net/http"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/types/rest"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/auth"
 )
 
-func BroadcastRest(w http.ResponseWriter, cliCtx context.CLIContext, cdc *codec.Codec, stdTx auth.StdTx, mode string) {
-	
+func BroadcastRest(cliCtx context.CLIContext, cdc *codec.Codec, stdTx auth.StdTx, mode string) ([]byte, cTypes.Error) {
+
 	txBytes, err := cdc.MarshalBinaryLengthPrefixed(stdTx)
 	if err != nil {
-		rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-		return
+		return nil, cTypes.NewError(DefaultCodeSpace, http.StatusInternalServerError, err.Error())
 	}
 	cliCtx = cliCtx.WithBroadcastMode(mode)
-	
+
 	res, err := cliCtx.BroadcastTx(txBytes)
 	if err != nil {
-		rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-		return
+		var abci []cTypes.ABCIMessageLog
+		_err := json.Unmarshal([]byte(err.Error()), &abci)
+		if _err != nil {
+			panic(_err)
+		}
+
+		var _log Log
+		_err = json.Unmarshal([]byte(abci[0].Log), &_log)
+		if _err != nil {
+			panic(_err)
+		}
+
+		return nil, cTypes.NewError(DefaultCodeSpace, http.StatusInternalServerError, _log.Message)
 	}
-	
-	rest.PostProcessResponse(w, cliCtx, res)
+
+	return PostProcessResponse(cliCtx, res)
 }

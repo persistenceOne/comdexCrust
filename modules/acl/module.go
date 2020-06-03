@@ -2,18 +2,19 @@ package acl
 
 import (
 	"encoding/json"
-	
+	"github.com/commitHub/commitBlockchain/kafka"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/types/module"
-	
+
 	abciTypes "github.com/tendermint/tendermint/abci/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/acl/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/acl/client/rest"
 )
@@ -42,8 +43,8 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 	return ValidateGenesis(data)
 }
 
-func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, r *mux.Router) {
-	rest.RegisterRoutes(ctx, r)
+func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router, kafkaBool bool, kafkaState kafka.KafkaState) {
+	rest.RegisterRoutes(ctx, rtr)
 }
 
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
@@ -58,13 +59,13 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	
+
 	aclQueryCmd.AddCommand(client.GetCommands(
 		cli.GetACLAccountCmd(cdc),
 		cli.GetOrganizationCmd(cdc),
 		cli.GetZoneCmd(cdc),
 	)...)
-	
+
 	return aclQueryCmd
 }
 
@@ -102,7 +103,7 @@ func (am AppModule) InitGenesis(ctx cTypes.Context, data json.RawMessage) []abci
 	var genesisState GenesisState
 	ModuleCdc.MustUnmarshalJSON(data, &genesisState)
 	_ = InitGenesis(ctx, am.keeper, genesisState)
-	
+
 	return []abciTypes.ValidatorUpdate{}
 }
 

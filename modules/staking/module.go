@@ -2,21 +2,22 @@ package staking
 
 import (
 	"encoding/json"
-	
+	"github.com/commitHub/commitBlockchain/kafka"
+
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	cfg "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
 	"github.com/commitHub/commitBlockchain/types/module"
-	
+
 	authtypes "github.com/commitHub/commitBlockchain/modules/auth/types"
 	"github.com/commitHub/commitBlockchain/modules/staking/client/cli"
 	"github.com/commitHub/commitBlockchain/modules/staking/client/rest"
@@ -59,7 +60,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 }
 
 // register rest routes
-func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
+func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router, kafkaBool bool, kafkaState kafka.KafkaState) {
 	rest.RegisterRoutes(ctx, rtr)
 }
 
@@ -106,7 +107,7 @@ type AppModule struct {
 // NewAppModule creates a new AppModule object
 func NewAppModule(keeper Keeper, distrKeeper types.DistributionKeeper, accKeeper types.AccountKeeper,
 	supplyKeeper types.SupplyKeeper) AppModule {
-	
+
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         keeper,

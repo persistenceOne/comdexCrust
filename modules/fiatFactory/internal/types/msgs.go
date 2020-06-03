@@ -3,9 +3,9 @@ package types
 import (
 	"encoding/json"
 	"fmt"
-	
+
 	ctypes "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/types"
 )
 
@@ -188,7 +188,7 @@ func (msg MsgFactoryRedeemFiats) GetSignBytes() []byte {
 	for _, redeemFiat := range msg.RedeemFiats {
 		redeemFiats = append(redeemFiats, redeemFiat.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		RedeemFiats []json.RawMessage `json:"redeemFiats"`
 	}{
@@ -296,7 +296,7 @@ func (msg MsgFactorySendFiats) GetSignBytes() []byte {
 	for _, sendFiat := range msg.SendFiats {
 		sendFiats = append(sendFiats, sendFiat.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		SendFiats []json.RawMessage `json:"sendFiats"`
 	}{
@@ -357,7 +357,7 @@ func (msg MsgFactoryExecuteFiats) GetSignBytes() []byte {
 	for _, sendFiat := range msg.SendFiats {
 		sendFiats = append(sendFiats, sendFiat.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		SendFiats []json.RawMessage `json:"sendFiats"`
 	}{

@@ -7,7 +7,7 @@ import (
 const (
 	// default codespace for crisis module
 	DefaultCodespace sdk.CodespaceType = ModuleName
-	
+
 	// CodeInvalidInput is the codetype for invalid input for the crisis module
 	CodeInvalidInput sdk.CodeType = 103
 )

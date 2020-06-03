@@ -3,13 +3,13 @@ package keeper
 import (
 	"container/list"
 	"fmt"
-	
+
 	"github.com/tendermint/tendermint/libs/log"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/params"
 	"github.com/commitHub/commitBlockchain/modules/staking/types"
 )
@@ -32,7 +32,7 @@ type Keeper struct {
 	paramstore         params.Subspace
 	validatorCache     map[string]cachedValidator
 	validatorCacheList *list.List
-	
+
 	// codespace
 	codespace sdk.CodespaceType
 }
@@ -40,16 +40,16 @@ type Keeper struct {
 // NewKeeper creates a new staking Keeper instance
 func NewKeeper(cdc *codec.Codec, key, tkey sdk.StoreKey, supplyKeeper types.SupplyKeeper,
 	paramstore params.Subspace, codespace sdk.CodespaceType) Keeper {
-	
+
 	// ensure bonded and not bonded module accounts are set
 	if addr := supplyKeeper.GetModuleAddress(types.BondedPoolName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.BondedPoolName))
 	}
-	
+
 	if addr := supplyKeeper.GetModuleAddress(types.NotBondedPoolName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.NotBondedPoolName))
 	}
-	
+
 	return Keeper{
 		storeKey:           key,
 		storeTKey:          tkey,

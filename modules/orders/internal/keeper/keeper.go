@@ -2,11 +2,11 @@ package keeper
 
 import (
 	cTypes "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/codec"
-	
+
 	"github.com/commitHub/commitBlockchain/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/acl"
 	"github.com/commitHub/commitBlockchain/modules/auth"
 	"github.com/commitHub/commitBlockchain/modules/negotiation"
@@ -23,7 +23,7 @@ type Keeper struct {
 
 func NewKeeper(storeKey cTypes.StoreKey, cdc *codec.Codec, negotiationKeeper negotiation.Keeper,
 	aclKeeper acl.Keeper, accountKeeper auth.AccountKeeper) Keeper {
-	
+
 	return Keeper{
 		storeKey:          storeKey,
 		cdc:               cdc,
@@ -36,14 +36,14 @@ func NewKeeper(storeKey cTypes.StoreKey, cdc *codec.Codec, negotiationKeeper neg
 func (k Keeper) SetOrder(ctx cTypes.Context, order orderTypes.Order) {
 	negotiationID := order.GetNegotiationID()
 	store := ctx.KVStore(k.storeKey)
-	
+
 	bz, err := k.cdc.MarshalBinaryLengthPrefixed(order)
 	if err != nil {
 		panic(err)
 	}
 	storeKey := orderTypes.GetOrderKey(negotiationID)
 	store.Set(storeKey, bz)
-	
+
 }
 
 func (k Keeper) GetOrder(ctx cTypes.Context, negotiationID negotiation.NegotiationID) orderTypes.Order {
@@ -62,7 +62,7 @@ func (k Keeper) IterateOrders(ctx cTypes.Context, process func(orderTypes.Order)
 	store := ctx.KVStore(k.storeKey)
 	iterator := cTypes.KVStorePrefixIterator(store, orderTypes.OrdersKey)
 	defer iterator.Close()
-	
+
 	for ; iterator.Valid(); iterator.Next() {
 		var order orderTypes.Order
 		k.cdc.MustUnmarshalBinaryLengthPrefixed(iterator.Value(), &order)

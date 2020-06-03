@@ -11,9 +11,9 @@ var (
 	EventTypeSendFiat     = "sendFiat"
 	EventTypeExecuteOrder = "executeOrder"
 	EventTypeReleaseAsset = "releaseAsset"
-	
+
 	AttributeKeyRecipient = "recipient"
 	AttributeKeySender    = "sender"
-	
+
 	AttributeValueCategory = ModuleName
 )

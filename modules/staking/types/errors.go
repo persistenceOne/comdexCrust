@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -13,7 +13,7 @@ type CodeType = sdk.CodeType
 
 const (
 	DefaultCodespace sdk.CodespaceType = ModuleName
-	
+
 	CodeInvalidValidator  CodeType = 101
 	CodeInvalidDelegation CodeType = 102
 	CodeInvalidInput      CodeType = 103

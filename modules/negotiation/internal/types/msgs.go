@@ -2,7 +2,7 @@ package types
 
 import (
 	"encoding/json"
-	
+
 	cTypes "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -76,7 +76,7 @@ func (msg MsgChangeBuyerBids) GetSignBytes() []byte {
 	for _, changeBid := range msg.ChangeBids {
 		changeBids = append(changeBids, changeBid.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		ChangeBids []json.RawMessage `json:"changeBids"`
 	}{
@@ -84,7 +84,7 @@ func (msg MsgChangeBuyerBids) GetSignBytes() []byte {
 	})
 	if err != nil {
 		panic(err)
-		
+
 	}
 	return b
 }
@@ -141,7 +141,7 @@ func (msg MsgChangeSellerBids) GetSignBytes() []byte {
 	for _, changeBid := range msg.ChangeBids {
 		changeBids = append(changeBids, changeBid.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		ChangeBids []json.RawMessage `json:"changeBids"`
 	}{
@@ -243,7 +243,7 @@ func (msg MsgConfirmBuyerBids) GetSignBytes() []byte {
 	for _, confirmBid := range msg.ConfirmBids {
 		confirmBids = append(confirmBids, confirmBid.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		ConfirmBids []json.RawMessage `json:"confirmBids"`
 	}{
@@ -313,7 +313,7 @@ func (msg MsgConfirmSellerBids) GetSignBytes() []byte {
 	for _, confirmBid := range msg.ConfirmBids {
 		confirmBids = append(confirmBids, confirmBid.GetSignBytes())
 	}
-	
+
 	b, err := ModuleCdc.MarshalJSON(struct {
 		ConfirmBids []json.RawMessage `json:"confirmBids"`
 	}{

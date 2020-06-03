@@ -3,11 +3,11 @@ package slashing
 
 import (
 	"time"
-	
+
 	"github.com/tendermint/tendermint/crypto"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	"github.com/commitHub/commitBlockchain/modules/slashing/types"
 )
 

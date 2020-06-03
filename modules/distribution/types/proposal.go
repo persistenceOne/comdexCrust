@@ -3,9 +3,9 @@ package types
 import (
 	"fmt"
 	"strings"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	govtypes "github.com/commitHub/commitBlockchain/modules/gov/types"
 )
 

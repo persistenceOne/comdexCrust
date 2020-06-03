@@ -3,9 +3,9 @@ package types
 import (
 	"fmt"
 	"time"
-	
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	
+
 	params "github.com/commitHub/commitBlockchain/modules/params/subspace"
 )
 
