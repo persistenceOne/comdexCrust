@@ -20,7 +20,7 @@ type BuyerExecuteOrderReq struct {
 	BaseReq       rest.BaseReq `json:"base_req"`
 	BuyerAddress  string       `json:"buyerAddress" valid:"required~Enter the BuyerAddress,matches(^commit[a-z0-9]{39}$)~BuyerAddress is Invalid"`
 	SellerAddress string       `json:"sellerAddress" valid:"required~Enter the BuyerAddress,matches(^commit[a-z0-9]{39}$)~BuyerAddress is Invalid"`
-	PegHash       string       `json:"pegHash" valid:"required~Enter the PegHash,matches(^[A-F0-9]+$)~Invalid PegHash,length(2|40)~PegHash length between 2-40"`
+	PegHash       string       `json:"pegHash" valid:"required~Enter the PegHash,matches(^[0-9]+$)~Invalid PegHash,length(2|40)~PegHash length between 2-40"`
 	FiatProofHash string       `json:"fiatProofHash" valid:"required~Mandatory parameter FiatProofHash missing,matches(^[A-Za-z0-9]+$)~Invalid fiatProofHash,length(2|40)~fiatProofHash length must be between 2-40"`
 	Password      string       `json:"password" valid:"required~Enter the Password"`
 	Mode          string       `json:"mode"`
