@@ -28,7 +28,7 @@ type IssueAssetReq struct {
 	QuantityUnit  string       `json:"quantityUnit" valid:"required~Enter the QuantityUnit,matches(^[A-Za-z]*$)~Invalid QuantityUnit"`
 	AssetQuantity int64        `json:"assetQuantity" valid:"required~Enter the AssetQuantity,matches(^[1-9]{1}[0-9]*$)~Invalid AssetQuantity"`
 	Moderated     bool         `json:"moderated"`
-	TakerAddress  string       `json:"takerAddress" valid:"matches(^commit[a-z0-9]{39}$)~TakerAddress is Invalid"`
+	TakerAddress  string       `json:"takerAddress"`
 	Password      string       `json:"password" valid:"required~Enter the Password"`
 	Mode          string       `json:"mode"`
 }
