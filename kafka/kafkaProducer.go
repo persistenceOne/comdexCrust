@@ -46,8 +46,8 @@ func SendToKafka(msg KafkaMsg, kafkaState KafkaState, cdc *codec.Codec) []byte {
 		SetTicketIDtoDB(msg.TicketID, kafkaState.KafkaDB, cdc, jsonResponse)
 	} else {
 		jsonResponse, err := cdc.MarshalJSON(struct {
-			Response string `json:"response"`
-		}{Response: "Request in process, wait and try after some time"})
+			Error string `json:"error"`
+		}{Error: "Request in process, wait and try after some time"})
 		if err != nil {
 			panic(err)
 		}
