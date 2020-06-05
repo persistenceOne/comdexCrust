@@ -22,7 +22,7 @@ type SellerExecuteOrderReq struct {
 	BaseReq       rest.BaseReq `json:"base_req"`
 	BuyerAddress  string       `json:"buyerAddress" valid:"required~Enter the BuyerAddress,matches(^commit[a-z0-9]{39}$)~BuyerAddress is Invalid"`
 	SellerAddress string       `json:"sellerAddress" valid:"required~Enter the SellerAddress,matches(^commit[a-z0-9]{39}$)~SellerAddress is Invalid"`
-	AWBProofHash  string       `json:"awbProofHash" valid:"required~Mandatory parameter awbProofHash missing,matches(^[A-Za-z0-9]+$)~Invalid awbProofHash,length(2|40)~awbProofHash length must be between 2-40"`
+	AWBProofHash  string       `json:"awbProofHash" valid:"required~Mandatory parameter awbProofHash missing,matches(^.*$)~Invalid awbProofHash,length(1|1000)~awbProofHash length should be 1 to 1000"`
 	PegHash       string       `json:"pegHash" valid:"required~Enter the PegHash,matches(^[0-9]+$)~Invalid PegHash,length(2|40)~PegHash length between 2-40"`
 	Password      string       `json:"password" valid:"required~Enter the Password"`
 	Mode          string       `json:"mode"`
