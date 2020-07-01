@@ -11,7 +11,7 @@ import (
 var SleepTimer = time.Duration(1000000000)
 
 // SleepRoutine : the time the kafka msgs are to be taken in
-var SleepRoutine = time.Duration(5000000000)
+var SleepRoutine = time.Duration(2500000000)
 
 // These are the config parameters for running kafka admins and producers and consumers. Declared very minimal
 var replicaAssignment = map[int32][]int32{}
