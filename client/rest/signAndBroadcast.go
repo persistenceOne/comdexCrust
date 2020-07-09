@@ -92,6 +92,18 @@ func SignAndBroadcastMultiple(brs []rest.BaseReq, cliCtxs []context.CLIContext,
 			return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, err.Error())
 		}
 
+		address, err := cTypes.AccAddressFromBech32(brs[i].From)
+		if err != nil {
+			return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, err.Error())
+		}
+
+		num, _, err := auth.NewAccountRetriever(cliCtxs[i]).GetAccountNumberSequence(address)
+		if err != nil {
+			return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, err.Error())
+		}
+
+		brs[i].AccountNumber = num
+
 		txBldr := auth.NewTxBuilder(
 			utils.GetTxEncoder(cdc), brs[i].AccountNumber, brs[i].Sequence, gas, gasAdj,
 			brs[i].Simulate, brs[i].ChainID, brs[i].Memo, brs[i].Fees, brs[i].GasPrices,
@@ -114,14 +126,6 @@ func SignAndBroadcastMultiple(brs []rest.BaseReq, cliCtxs []context.CLIContext,
 			}
 		}
 
-		var count = uint64(0)
-		for j := 0; j < i; j++ {
-			if txBldr.AccountNumber() == brs[j].AccountNumber {
-				count++
-			}
-		}
-		txBldr = txBldr.WithSequence(count)
-
 		stdMsg, err := txBldr.BuildSignMsg(msgs)
 		if err != nil {
 			return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, err.Error())
@@ -133,6 +137,14 @@ func SignAndBroadcastMultiple(brs []rest.BaseReq, cliCtxs []context.CLIContext,
 		if err != nil {
 			return nil, cTypes.NewError(DefaultCodeSpace, http.StatusBadRequest, err.Error())
 		}
+
+		var count = uint64(0)
+		for j := 0; j < i; j++ {
+			if txBldr.AccountNumber() == brs[j].AccountNumber {
+				count++
+			}
+		}
+		txBldr = txBldr.WithSequence(count)
 
 		if i == 0 {
 			stdTxs.Msgs = stdTx.Msgs
