@@ -139,7 +139,10 @@ func SignAndBroadcastMultiple(brs []rest.BaseReq, cliCtxs []context.CLIContext,
 			stdTxs.Fee = stdTx.Fee
 			stdTxs.Memo = stdTx.Memo
 		}
-		stdTxs.Signatures = append(stdTxs.Signatures, stdTx.Signatures...)
+
+		if count == 0 {
+			stdTxs.Signatures = append(stdTxs.Signatures, stdTx.Signatures...)
+		}
 	}
 
 	return BroadcastRest(cliCtxs[0], cliCtxs[0].Codec, stdTxs, mode[0])
