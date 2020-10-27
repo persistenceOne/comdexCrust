@@ -1,6 +1,6 @@
-# comdexCrust
+# DEPRECATED ⛔️comdexCrust
  
-This is the official repository of Comdex platfrom blockchain.
+This repository has been deprecated and is no longer maintained. The Comdex blockchain use-case will shift to the assetMantle application.
 
 > This document provides the installation setup for  running newnode on  commitBlockchain along with testnet details
 
